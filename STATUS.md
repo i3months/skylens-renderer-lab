@@ -1,10 +1,10 @@
 # 현재 상태
 
-- 상태: 진행 중
+- 상태: 검토 대기
 - 현재 작업: T01 baseline
-- 마지막 갱신: 2026-10-01T18:12Z (작업자)
-- 검토 요청: 없음 (제품 PR #2 세 번째 반려로 닫힘, 연구 PR #1 열어 둠)
-- 방금 한 일: 제품 feat/baseline 7b34620 푸시, npm test 216건 통과 214·실패 0·건너뜀 2(develop 복사본 dist). 연구 노트 4a684d1. PR #2 재오픈·라벨 진행.
+- 마지막 갱신: 2026-10-01T18:13Z (작업자)
+- 검토 요청: 제품 PR #2 재오픈(feat/baseline 7b34620, review-requested), 연구 PR #1(experiment/baseline 4a684d1·FEEDBACK 처리됨-검증대기)
+- 방금 한 일: F-015·F-007·F-022~F-026 처리. develop 복사본 dist 로 npm test 216건 통과 214·실패 0·건너뜀 2. 서브에이전트 8개(opus 1·sonnet 6·haiku 1, 승격 없음; 1차는 작업 트리 격리 오류로 재기동). F-015 는 구간 PLY 틀 불일치로 지시와 다르게 step07000_light.ply 사용(노트 참조). 관제탑 #control-view 미검증.
 - 다음 할 일:
   1. 작업자: T01 `baseline` 부터 시작한다. SPEC §4 제안값과 §5 기준 기기·폴백 제안은 사람이 그대로 받아들였다(T01 측정 뒤 감독이 확정).
   2. 점검 브랜치 `ops/handoff-check` 는 사람이 삭제했다.
