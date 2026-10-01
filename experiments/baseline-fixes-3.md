@@ -17,7 +17,7 @@
 - F-042 "resend 전용 구간은 incomplete" 를 그대로 따르면 F-022 (가)([r(1,2,40), r(2,2,30)]×2 → [40,30]·70)가 깨진다. final 필드가 있는 녹화에서만 resend 전용 구간을 미완으로 두고, 없는 녹화는 집계하되 resend_only_segments·method 에 표시했다. 감독이 의도와 맞는지 확인해 달라.
 - 추월 기준은 녹화 끝의 hi 가 아니라 도착 시점의 hi 다([rL0 99, L2 10] → [109], 원본 stale 규칙과 같은 기준).
 - heap 의 `pssProcs+rssProcs===0` 방어 줄은 `run` 수준에서는 memoryMethodText 와 중복이라, 줄 삭제 변형은 `processTreeMemory` 직접 단언이 잡고 run 수준 테스트는 종단 동작을 지킨다.
-- 실제 skylens 체크아웃은 이 세션에 없어 대조하지 못했다(건너뜀 12건에 포함: SKYLENS_DIR·실제 트리·대형 RSS).
+- 실제 skylens 체크아웃은 이 세션에 없어 대조하지 못했다(건너뜀 12건에 포함. 분류: 실제 트리·SKYLENS_DIR 필요 10건, 대형 RSS 2건).
 
 ## 통합 검증 (작업자 직접)
 
