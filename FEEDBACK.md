@@ -298,12 +298,12 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-01 18:50 감독 등록(축 7 보고, 감독 미재현 — worker.mjs:11-14 코드만 확인) → 2026-10-01 19:10 감독 확인 닫음: runAll({only:[]}) throw 직접 확인, 부모 SIGKILL 뒤 worker 약 1 s 안에 종료(축 7 재현), 0 대상 종료코드 2(코드 확인)
 
-### F-036 [열림] (심각도: 낮음) — 측정 도구 부하·표기 잔여
+### F-036 [처리됨-검증대기] (심각도: 낮음) — 측정 도구 부하·표기 잔여
 - 위치: bench/baseline/_common/browser.mjs 약 :209-240(첫 프레임 감지 뒤에도 상태 래퍼 11개가 계속 호출마다 해시 갱신), 첫 프레임 전 100 ms 마다 drawImage+getImageData(GPU 동기화 비용이 first_frame 에 들어갈 수 있음, method 미표기); bundle_status/closure.mjs:22·:~55(.map 전체 JSON.parse, `Matrix4` 문구만으로 3D 판정); ref_images/index.mjs:239·:336-337(결과가 큰 버퍼의 subarray) (제품 d662be1)
 - 고칠 것: 감지 뒤 원본 함수로 복원 또는 즉시 위임, method 에 감지 비용 표기, 필요하면 sources 만 추출, subarray 는 주석으로 `.buffer` 직접 사용 금지 표기.
 - 확인 기준: 감지 뒤 래퍼 위임 단위 테스트, method 문구.
 - 권장 모델: haiku
-- 이력: 2026-10-01 18:50 감독 등록(축 6·7·1a·1b 보고, 미확인) → 2026-10-01 19:10 감독 다시 엶(낮음 유지): 래퍼 복원 코드는 들어갔으나 wrapper_delegate.test.mjs 는 script.includes 소스 문자열 단언 9개뿐이라 동작 테스트가 아니다(감독 직접 확인). 축 4b 사본에서 browser.mjs:198 복원을 끈 변형이 19/19 통과. 고칠 것: chromium 페이지에서 첫 프레임 감지 뒤 drawArrays.__ffOrig === undefined 등 동작 단언, 문자열 단언 삭제, browser.test.mjs:123-124 거의 항상 참인 단언 삭제. 확인 기준: 복원 끈 변형에서 실패. getContext 미복원은 F-045, 정규식 퇴행은 F-044. 권장 모델: sonnet
+- 이력: 2026-10-01 18:50 감독 등록(축 6·7·1a·1b 보고, 미확인) → 2026-10-01 19:10 감독 다시 엶(낮음 유지): 래퍼 복원 코드는 들어갔으나 wrapper_delegate.test.mjs 는 script.includes 소스 문자열 단언 9개뿐이라 동작 테스트가 아니다(감독 직접 확인). 축 4b 사본에서 browser.mjs:198 복원을 끈 변형이 19/19 통과. 고칠 것: chromium 페이지에서 첫 프레임 감지 뒤 drawArrays.__ffOrig === undefined 등 동작 단언, 문자열 단언 삭제, browser.test.mjs:123-124 거의 항상 참인 단언 삭제. 확인 기준: 복원 끈 변형에서 실패. getContext 미복원은 F-045, 정규식 퇴행은 F-044. 권장 모델: sonnet → 2026-10-01 작업자 처리(제품 7cd47b0, T01.24): wrapper_delegate 를 chromium 동작 단언으로 교체(복원 두 줄 변형 실패), 거의 항상 참인 단언 삭제
 
 ### F-037 [닫힘] (심각도: 높음) — T02 사실 오류: FFmpeg 의 NVENC 는 nonfree 가 아니다
 - 위치: 연구 experiment/stack 3d9038a experiments/stack/encoder.md:28, :9; license.md:31; decision.md:19, :169(H1), :182
@@ -345,34 +345,34 @@
 - 권장 모델: opus(투영 대조 테스트 포함)
 - 이력: 2026-10-01 18:52 감독 등록(축 4a 보고. 코드 자체는 축 1a 가 옛 경로와 비트 단위 일치를 재현했으므로 중간) → 2026-10-01 19:10 감독 확인 닫음: 사본에서 index.mjs:141 `+ t[0]`→`- t[0]` 변형 시 ref_images 테스트 1건 실패 직접 확인. rgb·clip·stale·incomplete·읽기 경로 테스트 추가 확인. 외부 매개변수(cameraExtrinsics) 변형 생존은 F-043
 
-### F-042 [열림] (심각도: 중간) — ws_bytes 재전송 잔여 (추월된 낮은 수준의 resend 를 받은 수준으로 셈, resend 만으로 완결 판정)
+### F-042 [처리됨-검증대기] (심각도: 중간) — ws_bytes 재전송 잔여 (추월된 낮은 수준의 resend 를 받은 수준으로 셈, resend 만으로 완결 판정)
 - 위치: bench/baseline/ws_bytes/index.mjs:110(resend 프레임도 s.final 설정), :139-143(effective 가 원본 없는 수준의 첫 resend 회차를 받은 수준으로), :147-150(complete 가 resend 전용 수준도 봄), :116(resend 가 같은 수준 원본의 분할 연속을 끊지 않음), :101-102(연속 resend 는 무조건 한 회차) (제품 cb62409)
 - 문제: 원본 최고 수준(hi)보다 낮은 수준이 resend 로만 오면 정상 수신으로 합산한다. 원본 낮은 수준은 stale 로 빼면서 resend 낮은 수준은 넣는 비대칭이다(RULES §1.1 추월 건너뛰기). 원본이 하나도 없이 resend 프레임만 final 로 오면 구간을 완결로 보고한다.
 - 실패 상황(감독 직접 재현): [수준2 원본 final 10 B, 수준0 resend 99 B] → segments [109]·segment_levels [[1,3]]·skipped [[2]] (맞는 값 [10]·[[3]]·[[1,2]], 99 B 는 resend 또는 stale). [수준2 resend final 99 B] 하나 → segments [99]·incomplete [] (원본 미도착인데 완결). 서브에이전트 보고(감독 미재현): [L1 7, rL1 7, L1 7, L2 1] → [15]·stale 0. 구간 하나뿐인 relay 를 두 번 재생한 [r40, r40] → [80]·resend 0(녹화만으로 분할과 구분 불가).
 - 고칠 것: resend 전용 수준이 그 구간 원본 hi 보다 낮으면 합·받은 수준에서 빼 resend_bytes 로, skipped 에 넣는다. 완결 판정은 원본 프레임의 final·수준만으로(resend 전용 구간은 incomplete 또는 resend_only_segments). resend 프레임 뒤의 같은 수준 원본은 분할 연속을 끊는다(s.last = -1). [r40, r40] 모호성은 method 에 적는다.
 - 확인 기준: 위 첫 입력 → segments [10]·levels [[3]]·skipped [[1,2]]·resend_bytes 99. 둘째 입력 → segment_ids []·incomplete 1개. [L1 7, rL1 7, L1 7, L2 1] → [8]·stale 1·stale_bytes 7. 기존 F-022 (가)~(라) 값 유지.
 - 권장 모델: opus (같은 도구가 F-022 로 세 번 다시 열렸다)
-- 이력: 2026-10-01 19:10 감독 등록(축 3·1b 보고, 감독이 앞 두 입력 직접 재현). 신규 항목
+- 이력: 2026-10-01 19:10 감독 등록(축 3·1b 보고, 감독이 앞 두 입력 직접 재현). 신규 항목 → 2026-10-01 작업자 처리(제품 7cd47b0, T01.21): 확인 기준 값 전부와 F-022 (가)~(라) 테스트 통과. 판단 요청: final 필드 없는 녹화의 resend 전용 구간은 F-022 (가) 때문에 집계하고 resend_only_segments 로 표시(노트 참조)
 
-### F-043 [열림] (심각도: 중간) — 비대칭 시점 테스트가 같은 cameraExtrinsics 로 정답을 만들어 외부 매개변수 오류를 못 잡는다
+### F-043 [처리됨-검증대기] (심각도: 중간) — 비대칭 시점 테스트가 같은 cameraExtrinsics 로 정답을 만들어 외부 매개변수 오류를 못 잡는다
 - 위치: bench/baseline/ref_images/ref_images.test.mjs:734-759(기대값 :752 가 :741 의 같은 R·t 사용), :598 역투영 왕복도 같은 R·t; 구현 index.mjs:62-79(cameraExtrinsics) (제품 cb62409)
 - 문제: 테스트는 rasterize 의 스칼라 전개와 worldToCamera→projectCamera 가 같은지만 본다. R·t 를 만드는 단계의 오류는 양쪽에 같이 들어가 통과한다. 픽스처 시점 8곳은 t[0]=0 이라 골든도 못 잡는다.
 - 실패 상황(감독 사본 직접 재현): index.mjs:74 `-(xc[0]*eye[0]+…)` → `+(…)` 변형에서 ref_images 테스트 52 통과·0 실패. 비대칭 시점에서 target 이 주점 (W/2,H/2) 에서 벗어나도 통과.
 - 고칠 것: R·t 와 무관한 정답 단언 추가: target 투영이 (W/2,H/2) 에서 1e-9 안, x_c 방향으로 1·시선 방향 d 인 점의 u = cx + f/d(손계산), 또는 손으로 계산한 픽셀 좌표 상수. 주석 :734-736 을 실제 범위로 고친다.
 - 확인 기준: 위 t[0] 부호 변형과 t[1] 부호 변형 각각에서 테스트 실패(감독이 사본에서 재실행).
 - 권장 모델: opus
-- 이력: 2026-10-01 19:10 감독 등록(축 1a·4a 보고, 감독 직접 재현). 신규 항목
+- 이력: 2026-10-01 19:10 감독 등록(축 1a·4a 보고, 감독 직접 재현). 신규 항목 → 2026-10-01 작업자 처리(제품 7cd47b0, T01.22): 손계산 정답 추가, t[0]·t[1] 부호 변형 각각 실패 확인
 
-### F-044 [열림] (심각도: 중간) — closure.mjs 의 sources 정규식이 경로 안 `]` 에서 끊겨 sourcemap 판정이 퇴행했다
+### F-044 [처리됨-검증대기] (심각도: 중간) — closure.mjs 의 sources 정규식이 경로 안 `]` 에서 끊겨 sourcemap 판정이 퇴행했다
 - 위치: bench/baseline/bundle_status/closure.mjs:57(`/"sources"\s*:\s*\[([^\]]*)\]/`) (제품 cb62409, 이번 PR 에서 추가)
 - 문제: JSON.parse 전체 대신 정규식으로 sources 를 잘라 내면서 문자열 안의 `]` 를 배열 끝으로 본다. 파일 전체는 여전히 readFileSync 로 읽으므로 비용 절감도 거의 없다.
 - 실패 상황(축 7 재현, 감독은 코드로 확인): sources `["webpack:///./pages/[id].js","node_modules/three/build/three.module.js"]` → mapEvidence null(이전 main 은 sourcemap-3d). 코드 표지 휴리스틱으로 떨어져 bundle_*.3d 분류가 틀릴 수 있다(S4).
 - 고칠 것: JSON.parse(mapText).sources 로 되돌리거나 문자열을 인식하는 스캐너. `]` 포함 경로 회귀 테스트.
 - 확인 기준: 위 입력에서 sourcemap-3d, bundle_status·bundle_tower 테스트 통과.
 - 권장 모델: sonnet
-- 이력: 2026-10-01 19:10 감독 등록(축 6·7 보고, 감독 closure.mjs:55-57 직접 확인). 신규 항목
+- 이력: 2026-10-01 19:10 감독 등록(축 6·7 보고, 감독 closure.mjs:55-57 직접 확인). 신규 항목 → 2026-10-01 작업자 처리(제품 7cd47b0, T01.23): JSON.parse 복귀·`]` 경로 회귀 테스트
 
-### F-045 [열림] (심각도: 낮음) — 표기·주석·문서 잔여
+### F-045 [처리됨-검증대기] (심각도: 낮음) — 표기·주석·문서 잔여
 - 위치·문제:
   ① ref_images/index.mjs:473 basisNote 가 stride 27 만 보고 "27 B 와 같은 크기 … x y z·uchar rgb" 로 적는다(double 좌표 27 B 도 같은 문구). :281 법선 형(uchar 법선)을 표기하지 않는다.
   ② heap/heap.test.mjs:57 "약 80 MiB 씩 수준이 바뀐다" 를 사실처럼 씀(노트는 미검증 추정), :60 "표본 최솟값 기준"·:61 "5회 중앙값" 이 실제 판정(:59 value 차)과 다르다.
@@ -384,13 +384,13 @@
 - 고칠 것: 각 문구를 실제 동작에 맞춘다. ③ 은 노트에 산식·내역, 가능하면 작은 n 의 상대 기준 RSS 테스트를 기본 실행에.
 - 확인 기준: double 좌표 27 B 의 method 에 "double", heap 주석 통계 용어 = :59 판정, 노트 상한 숫자 = 테스트 산식, decision.md:85 가 Q6 을 가리킴.
 - 권장 모델: haiku
-- 이력: 2026-10-01 19:10 감독 등록(축 2·4a·5·6 보고, 근거 줄 확인). 신규 항목
+- 이력: 2026-10-01 19:10 감독 등록(축 2·4a·5·6 보고, 근거 줄 확인). 신규 항목 → 2026-10-01 작업자 처리(제품 7cd47b0, 연구 decision.md 정정·노트 보충): ①~⑥ 반영. ③ 작은 n 상대 기준 RSS 기본 테스트는 하지 못함
 
-### F-046 [열림] (심각도: 중간) — heap 0 프로세스 run 테스트가 방어 줄에 닿지 않는다
+### F-046 [처리됨-검증대기] (심각도: 중간) — heap 0 프로세스 run 테스트가 방어 줄에 닿지 않는다
 - 위치: bench/baseline/heap/heap.test.mjs:116-120(이름은 run 인데 processTreeMemory 만 부르고 index.mjs:56 root===null 에서 끝남), 브라우저 불필요한데 브라우저 없음 사유로 건너뜀 (제품 cb62409)
 - 문제: `if (pssProcs + rssProcs === 0) return null` 방어 줄을 지운 변형이 통과한다(축 4b 사본 재현, 감독은 테스트 본문 직접 확인).
 - 실패 상황: 방어가 사라져도 0 B 레코드가 다시 나올 수 있는데 테스트는 통과.
 - 고칠 것: smaps·statm 을 못 읽는 프로세스를 주입할 수 있게 하고 run 레코드에 heap.process_pss 가 없음을 단언. 건너뜀 조건 제거.
 - 확인 기준: 방어 줄 삭제 변형에서 실패.
 - 권장 모델: sonnet
-- 이력: 2026-10-01 19:10 감독 등록(축 4b 보고). 신규 항목
+- 이력: 2026-10-01 19:10 감독 등록(축 4b 보고). 신규 항목 → 2026-10-01 작업자 처리(제품 7cd47b0, T01.24): /proc 주입·run 테스트·건너뜀 조건 제거, 방어 줄 삭제 변형 실패
