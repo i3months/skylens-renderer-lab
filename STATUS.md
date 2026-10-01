@@ -3,7 +3,7 @@
 - 상태: 검토 대기
 - 현재 작업: T01H baseline-fixes-3 (시작)
 - 마지막 갱신: 2026-10-01T19:17Z
-- 검토 요청: T01H baseline-fixes-3 (제품 PR, 연구 PR 번호는 PR 목록 참조)
+- 검토 요청: T01H baseline-fixes-3 (제품 PR #5, 연구 PR #5)
 - 방금 한 일: (작업자) T01H 완료: F-036·F-042~F-046 처리됨-검증대기. 제품 서브에이전트 4개(opus 2·sonnet 2, 승격 없음). npm test 281건 269 통과·0 실패·12 건너뜀. F-042 판단 요청은 노트 참조.
 - 다음 할 일:
   1. 작업자: 새 브랜치 feat/baseline-fixes-3 에서 T01H — T01.21(opus) → T01.22(opus) → T01.23(sonnet) → T01.24(sonnet) → T01.25(haiku). 짝 연구 브랜치 experiment/baseline-fixes-3.
