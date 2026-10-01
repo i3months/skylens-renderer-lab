@@ -395,16 +395,16 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-01 19:10 감독 등록(축 4b 보고). 신규 항목 → 2026-10-01 작업자 처리(제품 7cd47b0, T01.24): /proc 주입·run 테스트·건너뜀 조건 제거, 방어 줄 삭제 변형 실패 → 2026-10-01 19:25 감독 확인 닫음: 사본 heap/index.mjs:71 방어 줄 삭제 변형에서 heap.test.mjs 1 실패(감독 직접)
 
-### F-047 [열림] (심각도: 중간) — ws_bytes: resend 로만 받은 높은 수준이 뒤에 온 낮은 resend 를 추월시키지 않고, 새 분기 일부를 테스트가 못 잡는다
+### F-047 [처리됨-검증대기] (심각도: 중간) — ws_bytes: resend 로만 받은 높은 수준이 뒤에 온 낮은 resend 를 추월시키지 않고, 새 분기 일부를 테스트가 못 잡는다
 - 위치: bench/baseline/ws_bytes/index.mjs:126(`overtaken: f.level < s.hi`, s.hi 는 원본 최고 수준만), :128(`s.last = -1`), :179(resend_only_segments every), :285-288(method 표기); ws_bytes.test.mjs:534-605 (제품 feat/baseline-fixes-3 7cd47b0)
 - 문제: ① 원본 없는 수준의 첫 resend 회차는 받은 수준이 되는데(:163-169) 추월 기준 s.hi 는 원본만 올린다. 그래서 같은 도착 순서라도 높은 수준이 원본이냐 resend 냐에 따라 결과가 다르다(RULES §1.1 추월 건너뛰기 비대칭). ② 테스트 변형 생존(축 4a, 사본 실행): overtaken 기준을 s.last 로 바꿈, s.last=-1 을 같은 수준일 때만으로 좁힘, resend_only_segments 의 every→some, run 의 onlyDone segment_ids 필터 삭제, 모호성 문구를 창별 method 에도 붙임.
 - 실패 상황(감독 직접 재현 ①): summarize([rL2 40, rL0 5]) → segments [45]·levels [[1,3]]·resend_bytes 0. 같은 순서에서 L2 가 원본이면 [40]·[[3]]·resend 5. ② 입력 예: [L2 10, rL1 5, rL0 7] → 정답 [10]·skipped [[1,2]]·resend 12; [L1 7, rL2 3, L1 7, L2 1] → stale 1·[8]; [L0 4, rL2 9] → resend_only_segments []; [구간1 L2 10 final, 구간2 rL2 9] run → segment_total.method 에 "resend 전용" 없음.
 - 고칠 것: 받은 수준 최고(원본 + 추월되지 않은 첫 resend 회차)를 따로 두고 resend 회차의 overtaken 을 그 값과 비교. skipped 의 top 도 같은 기준인지 주석과 함께 정한다. ②의 입력들을 테스트로 추가.
 - 확인 기준: [rL2 40, rL0 5] → [40]·[[3]]·resend 5. [L0 1, rL3 40, rL1 5](topLevel 3) → levels [[1,4]]·resend 5. 위 ② 의 다섯 변형이 각각 테스트 실패. F-042 확인 기준·F-022 (가)~(라) 유지.
 - 권장 모델: opus (같은 도구가 F-022·F-042 로 거듭 열렸다)
-- 이력: 2026-10-01 19:25 감독 등록(축 1b·4a 보고, ① 감독 직접 재현, ② 축 4a 사본 실행 — 감독 미재현). 신규 항목
+- 이력: 2026-10-01 19:25 감독 등록(축 1b·4a 보고, ① 감독 직접 재현, ② 축 4a 사본 실행 — 감독 미재현). 신규 항목 → 2026-10-01 작업자 처리(제품 2ac92b2, T01.26): 확인 기준 값과 변형 5개 전용 테스트 통과, F-042·F-022 유지. skipped top 은 원본 기준 유지(노트 참조)
 
-### F-048 [열림] (심각도: 낮음) — 측정 도구·노트 잔손질
+### F-048 [처리됨-검증대기] (심각도: 낮음) — 측정 도구·노트 잔손질
 - 위치·문제:
   ① heap/index.mjs:69 statm 폴백에 유한 검사 없음. smaps_rollup 못 읽고 statm 이 깨졌으면 NaN 이 합산되고 rssProcs++ 로 :71 방어를 통과(축 7 재현, 감독은 코드로 확인. 실제 /proc 에서는 생기기 어려움).
   ② wrapper_delegate.test.mjs withPage·heap.test.mjs fakeProc/runWithProc 가 mkdtemp 디렉터리를 지우지 않음(실행마다 쌓임).
@@ -416,7 +416,7 @@
 - 고칠 것: ① Number.isFinite 아니면 그 프로세스 건너뜀 ② try/finally rm ③ 오프셋 조건 추가 ④ 실패 시 method 에 사유 ⑤ 숫자 보충 ⑥ 실험 브랜치에서 STATUS.md 를 고치지 않는다.
 - 확인 기준: ① statm "1 abc" 주입 → null 또는 그 프로세스 제외, 테스트가 Number.isFinite 단언 ② 테스트 전후 tmp 항목 수 동일 ③ 순서 바꾼 27 B 픽스처에서 "같은 형식" 아님 ④ 문구 ⑤ 노트 숫자.
 - 권장 모델: haiku (① 은 sonnet)
-- 이력: 2026-10-01 19:25 감독 등록(축 2·4b·6·7·11·12·3 보고, 근거 줄 확인). 신규 항목
+- 이력: 2026-10-01 19:25 감독 등록(축 2·4b·6·7·11·12·3 보고, 근거 줄 확인). 신규 항목 → 2026-10-01 작업자 처리(제품 2ac92b2, T01.27·T01.28·직접): ①~⑤ 처리, ⑥ 은 실험 브랜치에서 STATUS 미수정. closure 변경으로 bundle_tower 테스트 기대 basis 를 파싱 오류 표기로 갱신(노트 참조)
 
 ### F-049 [열림] (심각도: 중간) — ws_bytes final 판정 잔여 (stale 원본의 final 이 완결을 만들고, resend 프레임의 final 이 final 모드를 켠다)
 - 위치: bench/baseline/ws_bytes/index.mjs:117(`if (f.final !== undefined) anyFinal = true` — resend 프레임 포함), :130(`if (f.final === true) s.final = true` 가 :131 stale 판정보다 먼저), :168·:281-283(resend_merged_rounds 를 미완 구간까지 셈) (제품 main 612eeae)
