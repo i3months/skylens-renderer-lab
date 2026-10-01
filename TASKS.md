@@ -37,7 +37,8 @@ tools/       명령줄 도구
 
 - [x] **T01 `baseline`** [cloud 부분] — 현재 three.js 구현의 기준값 측정. SPEC §4 의 "현재" 열을 채운다. (2026-10-01 병합, 제품 48b4c1d, 연구 research 5789e63, 반려 3회 뒤 범위 쪼갬)
 - [ ] **T01L `baseline-local`** [local] — T01.4·T01.5 실제 녹화, T01.10 녹화 포함 재검, T01.11·T01.12 실측, F-027 앱 로더 대조. 사람의 녹화·실기기 필요.
-- [ ] **T01F `baseline-fixes`** [cloud] — T01 중간·낮음 잔여(F-022·F-028~F-031). T02 와 함께 진행해도 된다.
+- [x] **T01F `baseline-fixes`** [cloud] — T01 중간·낮음 잔여(F-022·F-028~F-031). (2026-10-01 병합, 제품 PRODHASH, 연구 research 8b26c7d, 반려 0회. F-028~F-031 닫음, F-022 다시 엶)
+- [ ] **T01G `baseline-fixes-2`** [cloud] — T01F 검토 잔여 중간·낮음(F-022·F-032~F-036·F-041). T02 정정과 함께 진행해도 된다.
 - [ ] **T02 `stack`** — 스택 선정. 서버 래스터라이저(2단계)·자산 처리 서버·클라이언트 경량 래스터라이저를 무엇으로 쓸지 조사. **감독 승인 전에는 T03 이후를 시작하지 않는다.**
 - [ ] **T03 `asset-format`** — 경량 자산 포맷 계약과 핵심 타입.
 - [ ] **T04 `point-io`** — 27 B 점 형식 입출력과 ENU 좌표.
@@ -91,6 +92,10 @@ tools/       명령줄 도구
 | T01.14 | cloud | F-029·F-030 테스트·견고성 잔여 | `bench/baseline/`, `tests/` | F-029·F-030 확인 기준 | sonnet |
 | T01.15 | cloud | F-028 측정 도구 성능·왜곡 잔여 | `bench/baseline/ref_images/`, `heap/`, `bundle_status/` | F-028 확인 기준 | sonnet |
 | T01.16 | cloud | F-031 표기·출처 잔손질, F-027 실 PLY 위아래 분포 노트 | 제품 주석·연구 노트 | F-031 확인 기준 | haiku |
+| T01.17 | cloud | F-022 relay 재생 회차·resend 뒤 원본·합계 safe integer·final/topLevel 표기 | `bench/baseline/ws_bytes/` | F-022 확인 기준 (가)~(라) | opus |
+| T01.18 | cloud | F-032·F-041 ref_images 표기 분기·rgb·clip·비대칭 시점·대형 RSS 단언, ws_bytes·viewpoints 테스트 보강 | `bench/baseline/ref_images/`, `ws_bytes/`, `tests/` | F-032·F-041 확인 기준 | opus |
+| T01.19 | cloud | F-033·F-034·F-035 heap 판정·지표 이름, 테스트 변형 잔여, run_all 견고성 | `bench/baseline/heap/`, `bundle_*/`, `tower_bytes/`, `run_all/` | F-033~F-035 확인 기준 | sonnet |
+| T01.20 | cloud | F-036 측정 도구 부하·표기, 제품 테스트의 F-xxx 번호 제거 | `bench/baseline/_common/`, `bundle_status/` | F-036 확인 기준, `grep 'F-0[0-9][0-9]'` 0건 | haiku |
 
 완료 후: 감독이 SPEC §4 를 확정해 "제안값" → "확정" 으로 바꾼다.
 
@@ -112,6 +117,7 @@ tools/       명령줄 도구
 | T02.9 | 라이선스 점검(후보 전체 의존성 트리에 AGPL·GPL 없음) | `experiments/stack/license.md` | 후보별 의존성 라이선스 목록 | sonnet |
 | T02.10 | GPU 없는 클라우드 세션에서 검증 가능한 범위 정리 | `experiments/stack/cloud_scope.md` | [cloud]/[local] 경계 표 | sonnet |
 | T02.11 | 추천안과 기각안(이유) | `experiments/stack/decision.md` | 감독 승인 | opus |
+| T02.12 | 감독 검토 정정: F-037(NVENC nonfree 사실 오류)·F-038(클라이언트 추천의 Q1 조건)·F-039(별도 프로세스 = 경계 변경 후보, 사람 결정)·F-040(잔여) | `experiments/stack/` | F-037~F-040 확인 기준 | sonnet |
 
 완료 후: 감독이 승인하면 SPEC §8, ops/WORKER.md·ops/SUPERVISOR.md 의 명령 자리를 채운다.
 

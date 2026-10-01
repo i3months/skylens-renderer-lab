@@ -189,7 +189,7 @@
 - 확인 기준: [3, 1(표시 없음)] 입력 → stale 1, [1, 3] → stale 0·skipped [2,3 중 해당], 연속 분할 프레임 → stale 0. 구간 ID 와 도착 순서가 다른 녹화에서 trailing 이 마지막 도착 구간.
 - 추가(감독 직접 확인): 최고 수준이 4 로 고정(ws_bytes/index.mjs:15-16 `LEVELS=[0..3]`, `TOP_LEVEL=3`). skylens develop 코어 기본 사다리는 3수준이다(src/skylens_core/server/config.ts:97,134 `1000,7000,30000`, ladder.ts:41-42). 기본 설정 녹화는 마지막 구간이 다 받아도 항상 미완으로 빠지고, 5수준 이상 설정은 거부된다. 고칠 것: 완결 판정을 splat-chunk 의 `final` 필드(orchestrator.ts:343) 또는 입력 `topLevel` 로. 끝부분의 미완 구간이 여럿이면 모두 분리(R1 동시 실행 상한, orchestrator.ts:236-238). 원본 없는 재전송 여러 회차는 한 회차만 세고, 재전송만으로 생긴 공백은 levels_skipped 에서 뺀다(boards.ts:126-150). 확인 기준 추가: 3수준 녹화에서 0~2 를 다 받은 마지막 구간 → trailing null. 구간 1·2 가 수준 0 만, 구간 3 이 완결 → segments 는 구간 3 하나. 40 B 재전송 두 회차 → 40.
 - 권장 모델: sonnet
-- 이력: 2026-10-01 17:50 감독 등록 (서브에이전트 보고, 감독 코드 확인) → 2026-10-01 작업자 처리(제품 7b34620): stale_levels·도착순서·final/topLevel·재전송 한 회차 → 2026-10-01 18:20 감독 다시 엶(중간 유지): stale·[3,1]·[1,3]·분할·trailing 도착순·3수준 완결·재전송 두 회차는 통과. 미달: ① 끝이 아닌 미완 구간이 segments 에 남음 — 구간 1·2 수준0만, 구간 3 완결 입력 → segment_ids [1,2,3]·segments [10,10,18]·trailing [] (감독 직접 재현, ws_bytes/index.mjs:129-137). 고칠 것: 완결 아닌 구간은 위치와 무관하게 segments 에서 빼 incomplete_segments 로. ② 원본 없는 재전송 한 회차가 여러 프레임이면 첫 프레임만 셈(index.mjs:118, 20 B×2 두 회차 → 20). 고칠 것: 다른 수준이 끼기 전 연속 resend 프레임을 한 회차로 묶음. ③ stale 프레임 바이트가 segment 합·받은 수준에 들어감(index.mjs:100,113-119). 고칠 것: stale 은 total·windows·stale_bytes 에만. ④ final 필드 없는 녹화에서 topLevel 기본 2 를 조용히 씀(index.mjs:19) — 경고를 method 에. 확인 기준: ① segment_ids [3]; ② 20 B resend 4개(두 회차)+수준2 5 B → segments [45]·resend_bytes 40; ③ 수준2 뒤 수준0 → segment_levels 에 0 없음·skipped [1]; ④ method 에 topLevel 가정 문구. 권장 모델: sonnet
+- 이력: 2026-10-01 17:50 감독 등록 (서브에이전트 보고, 감독 코드 확인) → 2026-10-01 작업자 처리(제품 7b34620): stale_levels·도착순서·final/topLevel·재전송 한 회차 → 2026-10-01 18:20 감독 다시 엶(중간 유지): stale·[3,1]·[1,3]·분할·trailing 도착순·3수준 완결·재전송 두 회차는 통과. 미달: ① 끝이 아닌 미완 구간이 segments 에 남음 — 구간 1·2 수준0만, 구간 3 완결 입력 → segment_ids [1,2,3]·segments [10,10,18]·trailing [] (감독 직접 재현, ws_bytes/index.mjs:129-137). 고칠 것: 완결 아닌 구간은 위치와 무관하게 segments 에서 빼 incomplete_segments 로. ② 원본 없는 재전송 한 회차가 여러 프레임이면 첫 프레임만 셈(index.mjs:118, 20 B×2 두 회차 → 20). 고칠 것: 다른 수준이 끼기 전 연속 resend 프레임을 한 회차로 묶음. ③ stale 프레임 바이트가 segment 합·받은 수준에 들어감(index.mjs:100,113-119). 고칠 것: stale 은 total·windows·stale_bytes 에만. ④ final 필드 없는 녹화에서 topLevel 기본 2 를 조용히 씀(index.mjs:19) — 경고를 method 에. 확인 기준: ① segment_ids [3]; ② 20 B resend 4개(두 회차)+수준2 5 B → segments [45]·resend_bytes 40; ③ 수준2 뒤 수준0 → segment_levels 에 0 없음·skipped [1]; ④ method 에 topLevel 가정 문구. 권장 모델: sonnet → 2026-10-01 작업자 처리(제품 695cb6f, PR #3) → 2026-10-01 18:50 감독 다시 엶(중간 유지): ①·②·③·④ 확인 기준 통과(감독 서브에이전트 재현). 미달·퇴행: (가) 원본 없는 relay 재생 2회 [r(1,2,40), r(2,2,30), r(1,2,40), r(2,2,30)] → segments [80,60]·resend_bytes 0 (맞는 값 [40,30]·70, 감독 직접 재현, ws_bytes/index.mjs:101-104 회차 판정이 구간별 직전 프레임만 봄). 테스트 ws_bytes.test.mjs:181-184 가 [r40,r40]→[80] 으로 바뀌어 이전 기준(40)을 뒤집음. skylens boards.ts:127-140 replayFrames 는 재생 1회에 구간당 메시지 1개이므로 "resend 프레임 하나 = 한 회차, 단 녹화 전체에서 바로 앞 프레임이 같은 (구간,수준) resend 일 때만 이어 붙임" 으로 정한다(② 기준 [45]·40 유지). (나) [resend L1, 원본 L1] 에서 원본이 stale 로 셈(index.mjs:105-107) → stale 판정 hi 는 원본 프레임만으로. (다) 합계(total·구간·창) safe integer 검사 없음(:86·:170). (라) final 이 있으면 wsTopLevel 을 말없이 무시(:141·:221-224) → method 에 표기. 확인 기준: (가) 위 입력 → [40,30]·70, ② → [45]·40; (나) [r L1 7, L1 7, L2 1] → stale 0·resend 7·segments [8]; (다) 2^53-1 B 두 프레임 → 오류; (라) method 문구. 권장 모델: opus(같은 항목 두 번째 다시 엶)
 
 ### F-023 [닫힘] (심각도: 중간, 미확인) — 번들 폐포가 풀지 못한 mapDeps·동적 import 를 조용히 건너뛴다
 - 위치: bench/baseline/bundle_status/closure.mjs:13(DYNAMIC_IMPORT 정규식), :47-55(resolveMapDep 후보 2개), :90·:96-98(못 풀면 continue), :18·:33-36(3D 판별 키워드) (feat/baseline 93407d0)
@@ -233,33 +233,114 @@
 - 권장 모델: opus
 - 이력: 2026-10-01 18:20 감독 등록(서브에이전트 보고, ① 감독 직접 측정)
 
-### F-028 [열림] (심각도: 중간) — 측정 도구 성능·측정 왜곡 잔여
+### F-028 [닫힘] (심각도: 중간) — 측정 도구 성능·측정 왜곡 잔여
 - 위치: ref_images/index.mjs:350(파일 전체 readFile), :208-209·:222·:274-275(점당 복사 3회), :132·:281-283(점마다 객체); heap/index.mjs:210·:221(statm RSS 합, 페이지 4096 고정); _common/browser.mjs:434-453(감지용 preserveDrawingBuffer·매 프레임 readback); bundle_status/closure.mjs:22(MARKER_3D `[Ss]plat`·`\bthree\b`)
 - 문제: 큰 PLY(2 GiB 초과)는 읽기 실패, 수백만 점에서 수 GB 사용. RSS 합은 공유 페이지 중복. 감지 스크립트가 측정 대상 GPU 부하를 늘림. 3D 표지가 앱 문자열에도 걸릴 수 있음. 현재 데모 자산(46만 점)에서는 문제 없음(서브에이전트 보고, 감독은 줄만 확인).
 - 고칠 것: 청크 읽기·subarray, smaps_rollup Pss, 시스템 페이지 크기, readback 1회, 3D 판별은 sourcemap 우선·폐포 밖 JS 경고를 method 에.
 - 확인 기준: 1천만 점 합성 PLY 완료·피크 RSS ≤ 파일 크기×1.3, heap method 에 PSS, 앱 코드만 있는 청크가 3D 로 분류되지 않는 픽스처 테스트.
 - 권장 모델: sonnet
-- 이력: 2026-10-01 18:20 감독 등록(축 6 높음 보고를 데모 자산 범위 밖이라 중간으로 낮춤)
+- 이력: 2026-10-01 18:20 감독 등록(축 6 높음 보고를 데모 자산 범위 밖이라 중간으로 낮춤) → 2026-10-01 작업자 처리(제품 84e91e4·b76a964·539572c, PR #3) → 2026-10-01 18:50 감독 확인 닫음: 1천만 점 56 B PLY run 완료, 피크 RSS 402 MiB ≤ 파일×1.3(694 MiB), heap method PSS, 앱 코드만 있는 청크 비3D(서브에이전트 재현, 감독 테스트 통과 확인). 자동 단언 부재 등 잔여는 F-032·F-033
 
-### F-029 [열림] (심각도: 중간) — 변형을 못 잡는 테스트 잔여
+### F-029 [닫힘] (심각도: 중간) — 변형을 못 잡는 테스트 잔여
 - 위치: ref_images.test.mjs:277-278(의사난수 곱이 2^53 초과로 표본 값 중복 → 분위 round→floor 변형 생존); ref_images/index.mjs:364(drawn==0 검사가 assertCoverage 에 가려진 죽은 코드); tests/viewpoints_schema.test.mjs:27-34(리터럴 전체 일치·:34 상수끼리 비교, coord 를 "GeoAnchor ENU, 1 unit = 1 m" 로 바꿔도 통과); tools/baseline_report/index.mjs:18(toTable `|` 이스케이프 제거 생존); _common/build.test.mjs:136(install 타임아웃 테스트가 일반 sleep·잔존 확인 없음)
 - 실패 상황: 각 변형에서 전 테스트 통과(서브에이전트 사본 재현).
 - 고칠 것: Math.imul 기반 생성기와 소수부 ≥ 0.5·이웃 값 상이 단언, 죽은 검사 제거 또는 메시지 단언, 의미 단위 단언과 오도 문구 음성 사례, toTable `a|b` 행 단언, 고유 이름 sleep·pgrep 비어 있음.
 - 확인 기준: 위 변형 각각에서 테스트 실패, 문구만 바꾼 coord 는 통과.
 - 권장 모델: sonnet
-- 이력: 2026-10-01 18:20 감독 등록
+- 이력: 2026-10-01 18:20 감독 등록 → 2026-10-01 작업자 처리(제품 84e91e4·ee06c13, PR #3) → 2026-10-01 18:50 감독 확인 닫음: 분위 floor·옛 LCG·이스케이프 제거·빈 필터 변형 모두 테스트가 잡음(서브에이전트 사본 변형 시험). 새로 생존한 변형은 F-034
 
-### F-030 [열림] (심각도: 중간) — 실행 경로 견고성 잔여
+### F-030 [닫힘] (심각도: 중간) — 실행 경로 견고성 잔여
 - 위치: run_all/worker.mjs:158(disconnect 미처리), run_all/index.mjs:47; ref_images/index.mjs:324-330·:371(vp.id·name 미검증); run_all/cli.mjs:10·index.mjs:105(`--only ,`); ws_bytes/index.mjs:31(bytes safe integer 미검사); tower_bytes/index.mjs:322-325(id 1 과 '1' 병합, 문자열 feature 1동)
 - 실패 상황(서브에이전트 재현): 부모 kill -KILL/-HUP 뒤 worker 가 남아 outDir 에 계속 씀. name `x/../../escaped` → outDir 밖 파일, id·name 중복 → 덮어쓰기 통과, null 시점 → TypeError. `--only ,` → 전체 실행. bytes 1e300 통과.
 - 고칠 것: worker `process.on('disconnect', ...)`, 부모 SIGHUP, id 정수 고유·name `/^[\w-]+$/`, 빈 필터 오류(종료코드 2), Number.isSafeInteger, id 타입 구분.
 - 확인 기준: 부모 KILL 뒤 1 s 안에 worker 없음, 위 입력 각각 오류 또는 올바른 집계.
 - 권장 모델: sonnet
-- 이력: 2026-10-01 18:20 감독 등록
+- 이력: 2026-10-01 18:20 감독 등록 → 2026-10-01 작업자 처리(제품 ee06c13·84e91e4·c02c901·695cb6f, PR #3) → 2026-10-01 18:50 감독 확인 닫음: 부모 KILL/HUP/TERM 뒤 1 s 안 worker 종료, name 탈출·id/name 중복·null 시점 오류, `--only ,` 종료코드 2, bytes 1e300 오류, id 1/"1" 구분. 동기 루프 중 KILL 잔존은 F-035
 
-### F-031 [열림] (심각도: 낮음) — 표기·출처 잔손질
+### F-031 [닫힘] (심각도: 낮음) — 표기·출처 잔손질
 - 위치: ref_images/index.mjs:34-37·:357-359(56 B·법선 없음 이탈 사유가 method·주석에 없음, SPEC "원본 27 B 점군" 과 다름); ref_images/index.mjs:6·:17·:150·:168(skylens sceneSource.ts 알고리즘 참조 — 같은 팀 MIT 저장소, 재구현이나 출처·라이선스 한 줄 표기 권장); heap.test.mjs:55 주석 "여유 약 8 MiB"(실측 98.5~107.0 MiB 범위로); 연구 노트 재작업 3차 절에 제품 해시 7b34620 없음; 관제탑 `#control-view` 첫 프레임 미검증(실제 dist 30 s 미감지)
 - 고칠 것: method 에 "renderer_basis §7-4 27 B 와 다름: 56 B 스플랫, 법선 없음, 중심점만 사용", 파일 머리에 "skylens(MIT) sceneSource.ts deriveFromSplat 알고리즘 재구현", 주석·노트 정정, control-view 는 원인 기록 또는 [local] 로.
 - 확인 기준: ref_images 테스트가 method `/§7-4/`·`/법선/` 단언, 노트에 해시.
 - 권장 모델: haiku
-- 이력: 2026-10-01 18:20 감독 등록
+- 이력: 2026-10-01 18:20 감독 등록 → 2026-10-01 작업자 처리(제품 84e91e4·b76a964, PR #3) → 2026-10-01 18:50 감독 확인 닫음: method `/§7-4/`·`/법선/` 단언, 머리 출처 표기, 노트 해시. 표기가 rgb 분기에도 붙는 문제는 F-032
+
+### F-032 [열림] (심각도: 중간) — ref_images 표기·검사 잔여 (27 B 입력에도 "56 B 스플랫, 법선 없음", 대형 PLY 테스트에 RSS 단언 없음)
+- 위치: bench/baseline/ref_images/index.mjs:451(BASIS_NOTE), :477-478, :256·:344(헤더 1 MiB 자르기), 약 :484(assertCoverage); ref_images.test.mjs:438-443, :646-650, :673-696 (제품 d662be1)
+- 문제: ① BASIS_NOTE 가 스플랫 분기와 uchar rgb 분기에 똑같이 붙는다. §7-4 의 27 B dense.ply(법선 있음)를 넣어도 method 가 "56 B 스플랫, 법선 없음" 이 되고, 실제로는 법선을 읽지 않고 버린다는 사실은 적히지 않는다. 248 B 스플랫도 "56 B" 로 적힌다. ② 테스트의 run() 입력은 모두 56 B 스플랫이라 rgb 분기와 청크 경로의 rgb 오프셋이 검증되지 않는다(:646 이름은 "rgb 배치 포함" 인데 본문은 스플랫만). ③ 대형 PLY 테스트는 기본 건너뜀이고 켜도 count 만 단언한다(:695). "피크 RSS ≤ 파일×1.3" 은 수동 1회 측정이다. 15 B rgb PLY 는 decode 만으로 1.32×, run 전체 2.4× 로 문구가 형식에 따라 틀린다(서브에이전트 측정). ④ decodePly(버퍼 전체)도 헤더를 1 MiB 로 잘라 정상 PLY 를 "end_header not found" 로 거부한다. ⑤ 점 0개·전부 NaN 입력이 "점유율 0.000 %" 로만 실패해 원인이 가려진다.
+- 실패 상황: dense.ply(27 B) → method "56 B 스플랫, 법선 없음"(사실과 반대). 청크 읽기를 readFile 전체 읽기로 되돌려도 테스트 통과.
+- 고칠 것: 표기를 분기별로(스플랫: `${stride} B 스플랫, 법선 없음` / rgb: 헤더에 nx 있으면 "법선 있음·무시", 없으면 "법선 없음"). rgb(법선 있음·없음)·double 좌표·패딩 속성 PLY 로 run()·청크 비교 테스트. 대형 테스트에 자식 프로세스 피크 RSS 단언(형식별 상한을 노트에 적은 값으로). decodePly 는 자르지 않고 decodePlyFile 만 "헤더 1 MiB 상한 초과" 문구. 점 0개면 원본·비유한·clip 제외 수를 담은 오류.
+- 확인 기준: 27 B 합성 PLY run → method 에 "27" 과 "법선 … 무시", "56 B" 없음. 청크 읽기→전체 읽기 변형에서 대형 테스트 실패(REF_IMAGES_BIG_POINTS=10000000). 1 MiB 넘는 헤더 PLY 에서 decodePly 성공·decodePlyFile 상한 문구. 점 0개 PLY → 제외 사유 문구.
+- 권장 모델: sonnet
+- 이력: 2026-10-01 18:50 감독 등록(축 2·1a·5·6·7 보고, 감독이 :451·:673-696 직접 확인. 축 5 는 ③ 을 높음으로 올렸으나 F-028 확인 기준은 감독 재현으로 충족돼 중간)
+
+### F-033 [열림] (심각도: 중간) — heap 테스트가 보고값이 아닌 표본 최솟값으로 판정하고, 지표 의미가 RSS→PSS 로 바뀌었는데 이름이 같다
+- 위치: bench/baseline/heap/heap.test.mjs:56-62(Math.min 끼리 차), :60 주석("3회 중앙값"); heap/index.mjs:14·:124(지표 이름 heap.process_rss, 값은 PSS 중앙값, run 간 pssProcs min·rssProcs max), :67-69·:79 (제품 d662be1)
+- 문제: 문턱 90 MiB 는 그대로지만 판정 통계가 중앙값 차 → 최솟값 차로 바뀌었다. 보고되는 value 는 여전히 중앙값이다. 주석은 "PSS 합이 두 수준(약 80 MiB 차)으로 갈린다" 고 하지만 감독 서브에이전트 12세트 실측에서 재현되지 않았고, 최솟값은 매번 첫 회차(워밍업)였다. 연구 노트의 "52~88 MiB 관측" 과 주석의 "99~106 MiB" 근거가 정리되지 않았다. 지표 이름이 같아 이전 RSS 기준선과 비교하면 오해한다. PSS·RSS 폴백이 섞인 표본, 0 프로세스(0 B 기록)도 막지 않는다.
+- 실패 상황: 두 수준 현상이 실제로 있으면 blank 만 하위 표본을 가질 때 약 10 MiB 상주로도 통과할 수 있다(주석 근거 추론, 미재현). 0 프로세스 → "PSS 사용 … 0개 프로세스", 값 0.
+- 고칠 것: 워밍업 1회를 버리고 보고값(value)끼리 비교. 두 수준 현상은 재현 조건을 노트에 기록하거나 주석에서 뺀다. 지표 이름을 heap.process_pss 로 바꾸거나 보고서에 단절 표기. 방식이 섞이면 경고, 0 프로세스면 기록하지 않음.
+- 확인 기준: heap 브라우저 테스트가 value 차 ≥ 90 MiB 로 10회 연속 통과, 상주 제거 변형 실패. memoryMethodText({pssProcs:0,rssProcs:0}) 계열 입력이 기록 생략.
+- 권장 모델: sonnet
+- 이력: 2026-10-01 18:50 감독 등록(축 4b·5·1b 보고, 감독이 heap.test.mjs diff 직접 확인. 기준 숫자는 낮추지 않았으므로 중간)
+
+### F-034 [열림] (심각도: 중간) — 변형을 못 잡는 테스트 잔여 (깨진 sourcemap 폴백, 배열 feature, value 만 비교)
+- 위치: bench/baseline/bundle_status/bundle_status.test.mjs:84-85, bundle_tower/bundle_tower.test.mjs:85-87(깨진 맵이 짝 JS 없는 unrelated-C.js.map 으로 옮겨져 아무것도 검사하지 않음, deepEqual → value 만); tower_bytes/tower_bytes.test.mjs:206-215·index.mjs:70; _common/browser.test.mjs:116(`/queueMicrotask/` 소스 문자열 단언); run_all/run_all.test.mjs:306(/proc 의존인데 linux 가드 없음); 제품 테스트 이름·주석의 F-xxx 번호(연구 어휘) (제품 d662be1)
+- 실패 상황(서브에이전트 사본 재현): 깨진 맵·`sources: []` 맵을 "앱" 으로 판정하는 변형 → 26/26 통과. `Array.isArray(f)` 제외 제거 → 19/19 통과.
+- 고칠 것: 표지가 있는 폐포 JS 옆에 깨진 맵과 `{"sources":[]}` 맵을 두고 basis 'heuristic'·is_3d true 단언. method 를 뺀 나머지 필드 비교 + method 는 원래 문구 + 경고. `features: [[1], {id:1}]` → 1. 소스 문자열 단언은 동작 음성 테스트로. linux 가드. 테스트 이름·주석의 F-xxx 를 동작 설명으로.
+- 확인 기준: 위 두 변형 각각에서 테스트 실패. `grep -rn 'F-0[0-9][0-9]' bench tests tools` 0건.
+- 권장 모델: sonnet
+- 이력: 2026-10-01 18:50 감독 등록(축 4b·11 보고)
+
+### F-035 [열림] (심각도: 중간) — run_all 실행 경로 견고성 잔여 (동기 루프 중 부모 KILL, 전부 건너뜀 성공)
+- 위치: bench/baseline/run_all/worker.mjs:11-14(disconnect 이벤트에만 의존), run_all/index.mjs:93-96·:120-125, cli.mjs:67-70 (제품 d662be1)
+- 실패 상황(서브에이전트 재현 /tmp 스크립트): 모듈이 동기 루프로 이벤트 루프를 막는 중 부모 kill -KILL → worker 가 살아 outDir 에 계속 씀. `--skip <8개 전부>` → 종료코드 0, 레코드 0, 빈 records.json. `runAll({only: []})` → 전체 실행.
+- 고칠 것: worker 를 별도 감시(Worker thread 에서 부모 PID 확인 후 process.kill(-pid,'SIGKILL'), 또는 PDEATHSIG 래퍼). 어렵다면 한계를 README·method 에 적는다. 실행 대상 0개면 종료코드 2. API 의 only:[] 거부.
+- 확인 기준: 동기 루프 모듈 + 부모 KILL 뒤 3 s 안에 worker 없음(또는 문서화된 한계). 전부 건너뜀 → 종료코드 2. runAll({only:[]}) throw.
+- 권장 모델: sonnet
+- 이력: 2026-10-01 18:50 감독 등록(축 7 보고, 감독 미재현 — worker.mjs:11-14 코드만 확인)
+
+### F-036 [열림] (심각도: 낮음) — 측정 도구 부하·표기 잔여
+- 위치: bench/baseline/_common/browser.mjs 약 :209-240(첫 프레임 감지 뒤에도 상태 래퍼 11개가 계속 호출마다 해시 갱신), 첫 프레임 전 100 ms 마다 drawImage+getImageData(GPU 동기화 비용이 first_frame 에 들어갈 수 있음, method 미표기); bundle_status/closure.mjs:22·:~55(.map 전체 JSON.parse, `Matrix4` 문구만으로 3D 판정); ref_images/index.mjs:239·:336-337(결과가 큰 버퍼의 subarray) (제품 d662be1)
+- 고칠 것: 감지 뒤 원본 함수로 복원 또는 즉시 위임, method 에 감지 비용 표기, 필요하면 sources 만 추출, subarray 는 주석으로 `.buffer` 직접 사용 금지 표기.
+- 확인 기준: 감지 뒤 래퍼 위임 단위 테스트, method 문구.
+- 권장 모델: haiku
+- 이력: 2026-10-01 18:50 감독 등록(축 6·7·1a·1b 보고, 미확인)
+
+### F-037 [열림] (심각도: 높음) — T02 사실 오류: FFmpeg 의 NVENC 는 nonfree 가 아니다
+- 위치: 연구 experiment/stack 3d9038a experiments/stack/encoder.md:28, :9; license.md:31; decision.md:19, :169(H1), :182
+- 문제: encoder.md:28 은 "FFmpeg 는 LGPL 구성에서도 `--enable-nonfree` 를 요구" 라고 적었다. FFmpeg configure(master)에서 nvenc 는 `nvenc_deps="ffnvcodec"` 이고 nonfree 목록(EXTERNAL_LIBRARY_NONFREE_LIST: decklink·libfdk_aac·libmpeghdec, HWACCEL_LIBRARY_NONFREE_LIST: cuda_nvcc·cuda_sdk)에 없다(감독 직접 확인: https://raw.githubusercontent.com/FFmpeg/FFmpeg/master/configure). nv-codec-headers 는 MIT.
+- 실패 상황: 2단계 인코더 결정과 사람에게 올리는 쟁점 H1 이 틀린 전제에서 출발한다.
+- 고칠 것: encoder.md:28 정정, license.md:31 에 configure·nv-codec-headers 링크, decision.md 의 nonfree 쟁점 삭제. 사람에게 남길 것은 NVIDIA 드라이버/SDK 약관만.
+- 확인 기준: `git grep -n 'nonfree' origin/experiment/stack -- experiments/stack` 에서 "NVENC 가 nonfree 요구" 문구 0건, 세 파일에 링크.
+- 권장 모델: sonnet
+- 이력: 2026-10-01 18:50 감독 등록(T02 검토 서브에이전트 보고, 감독이 configure 직접 확인)
+
+### F-038 [열림] (심각도: 높음) — T02 클라이언트 추천이 Q1(입력 형식) 결정에 기대는데 확정처럼 적혀 있다
+- 위치: experiments/stack/decision.md:17(클라이언트 행 "GaussianSplats3D 제거", three Points), :20(포맷 행만 Q1 에 묶음), :128; client.md:45 (연구 3d9038a)
+- 문제: 추천은 입력이 법선 있는 27 B 점이라는 가정 위에 있다. T01 은 실제 자산이 56 B 가우시안·법선 없음임을 확인했다(baseline 노트, F-031). 입력이 가우시안으로 정해지면 three Points 경로와 S9 기준 영상 비교가 맞지 않는다.
+- 고칠 것: decision.md 클라이언트 행과 §3 SPEC §8 제안에 "Q1 결정 전 잠정. 가우시안이면 스플랫 렌더 경로를 재평가" 를 적고, 두 경우의 번들·화질 영향 한 줄씩.
+- 확인 기준: decision.md:17·:128 에 Q1 조건 명시.
+- 권장 모델: sonnet
+- 이력: 2026-10-01 18:50 감독 등록(감독이 decision.md:17·:20 직접 확인)
+
+### F-039 [열림] (심각도: 높음) — T02 자산 처리 서버 '(나) 별도 프로세스' 가 RULES §1.4 경계 변경인데 "변경 없음" 으로 적혔다
+- 위치: experiments/stack/decision.md:86, integration.md:93·:98·:101·:105; RULES.md:25-27 (연구 3d9038a)
+- 문제: RULES §1.4 는 컴포넌트 추가·데이터 흐름 변경을 경계 변경으로 보고 사람에게 올리게 한다. 새 프로세스·새 포트·모델→자산서버→클라이언트 흐름이 생기는데 integration.md:105 는 "구성 목록 보충" 으로 보고 변경에서 뺐다.
+- 고칠 것: integration.md 결론을 "경계 변경 후보 — 사람 결정 필요(Q6)" 로 고치고, 대안 (가) 코어 `server/` 안 모듈·포트 추가 없음 을 같은 깊이로 비교. decision.md Q6 의 결정 주체를 사람으로.
+- 확인 기준: integration.md:101 결론과 decision.md Q6 "누가" 칸이 RULES §1.4 문구와 일치.
+- 권장 모델: sonnet
+- 이력: 2026-10-01 18:50 감독 등록(감독이 decision.md:86·RULES.md:25-27 직접 확인)
+
+### F-040 [열림] (심각도: 중간) — T02 잔여 (Q2 전송 경로, 300 KB 상한 추정, 라이선스 점검 누락, 벤치 소스 미보존)
+- 위치: decision.md:86·:153(splat-chunk.url HTTP 경로 vs SPEC §7 ws 단일·S6 정의), client.md:21·:27(번들 하한만), license.md:22-42(ogl·twgl·esbuild·playwright 누락, playwright 버전 1.56.1 vs 1.63.0 불일치), runtime.md:57(벤치 소스 scratchpad 에만), stack.md:121-134(빈칸), decision.md:136·:179(SwiftShader 인자 불일치), encoder.md:36(NVENC 16 ms 출처 조건 미상) (연구 3d9038a)
+- 고칠 것: Q2 선택지별 SPEC 영향 정리(HTTP 면 S6 정의 변경은 사람 확인), 상한 시나리오 한 줄, 1단계 스택 전이 의존성 라이선스 실측 목록, 벤치 소스를 노트 부록에, 빈칸은 "해당 없음/미확인", SwiftShader 인자 명시.
+- 확인 기준: license.md 표에 행 추가·GPL/AGPL 0건, runtime.md 재현 절이 저장소 자료만으로 실행됨.
+- 권장 모델: sonnet
+- 이력: 2026-10-01 18:50 감독 등록(T02 검토 서브에이전트 보고, 미확인)
+
+### F-041 [열림] (심각도: 중간) — ws_bytes·ref_images·viewpoints 테스트가 못 잡는 변형 (이번 PR 의 스칼라 재작성·stale 처리 포함)
+- 위치: bench/baseline/ref_images/index.mjs:141(x 이동항 t[0]), :229(축별 clip), :324-326(uchar rgb), :469(run 이 decodePlyFile 사용); ws_bytes/index.mjs:112-115(stale 프레임이 도착 순서에 끼지 않음), :155(incomplete 도착순 정렬), :257(ws_bytes.stale_bytes 레코드); tests/viewpoints_schema.test.mjs:28-29·:44(coordProblems) (제품 d662be1)
+- 실패 상황(서브에이전트 사본 변형 시험, 38개 중 생존): `+ t[0]`→`- t[0]` 42/42 통과(픽스처 시점 8곳 모두 t[0]=0). red↔blue 채널 교환 통과. y 축 clip 제거·경계 `>`/`<` 통과(clip 테스트가 NaN 만 넣음). stale 분기에 `s.order = i` 추가 통과([1:0,1:1,1:2,2:0,1:0 stale] 에서 trailing_segment_bytes 8→0). incomplete 를 ID 순 정렬 통과. stale_bytes 레코드 삭제 통과. run 을 readFile 전체 읽기로 되돌려도 통과. viewpoints note 를 "1 unit 은 1 m 이다" 로 바꿔도 통과, "원점은 GeoAnchor ENU 원점이며 … 아니다" 가 부정어 30자 창에 걸려 문제 없음으로 판정.
+- 고칠 것: 비대칭 시점(eye [5,3,10], target [2,1,0])에서 rasterize 를 worldToCamera→projectCamera 결과와 대조. uchar rgb PLY 의 colors 를 알려진 값과 비교(decodePly·decodePlyFile 여러 chunkRecords). 축마다 한 축만 밖인 유한 점·경계 위 점으로 count·clipped 단언. 위 stale 입력으로 trailing 단언, ID≠도착순 미완 구간 순서 단언, runText 출력의 stale_bytes 레코드 단언, run 의 읽기 경로 고정. coordProblems 정규식을 절 단위로 좁히거나 핵심 문장 고정을 되살리고 위 문구를 음성 사례로.
+- 확인 기준: 위 변형 각각에서 테스트 실패(감독이 사본에서 재실행).
+- 권장 모델: opus(투영 대조 테스트 포함)
+- 이력: 2026-10-01 18:52 감독 등록(축 4a 보고. 코드 자체는 축 1a 가 옛 경로와 비트 단위 일치를 재현했으므로 중간)
