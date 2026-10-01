@@ -14,9 +14,9 @@
 | 항목 | 추천(잠정) | 확정 조건 |
 |---|---|---|
 | 자산 처리 서버 언어·런타임 | **Node.js 22 (ESM)**, 무거운 루프는 `worker_threads`. 병목이 측정되면 그 루프만 네이티브로 바꾼다 | 감독 승인. 병렬·실제 코덱 루프 측정은 T07~T09 에서 |
-| 클라이언트 경량 래스터라이저(B) | **WebGL2.** 시작은 three.js 최소 구성(GaussianSplats3D 제거), S4 여유가 모자라면 ogl·twgl 또는 직접 구현으로 내린다 | T01.1·T01.2 번들 실측, T12.8 CI 문턱 |
+| 클라이언트 경량 래스터라이저(B) | **WebGL2.** 시작은 three.js 최소 구성(GaussianSplats3D 제거), S4 여유가 모자라면 ogl·twgl 또는 직접 구현으로 내린다. **Q1 결정 전 잠정. 가우시안이면 스플랫 렌더 경로 재평가. 점(27 B)이면 GaussianSplats3D 를 빼 약 60 KB(상한 근사)를 덜고 화질은 점 크기·구멍 처리에 달리며(측정 전), 가우시안(56 B)이면 스플랫 렌더 경로를 유지·재구현해야 해 번들이 그만큼 늘 수 있고 화질은 알파 블렌딩 스플랫 기준이 된다(측정 전)** | T01.1·T01.2 번들 실측, T12.8 CI 문턱, Q1 |
 | 서버 래스터라이저(2단계 A) | **확정하지 않는다.** 1순위 검토: 헤드리스 Chromium + Playwright 에서 B 의 WebGL2 래스터라이저를 그대로 돌리는 안. 2순위: wgpu(Rust) 또는 Dawn 기반 네이티브 프로세스 | [local] T20 실측(동시 30명, S8). 1단계 감독 확인 뒤 |
-| 비디오 인코더(2단계 A) | **하드웨어 인코더 추상화.** NVENC 우선(드라이버 호출만), VAAPI·AMF 대체. FFmpeg 를 쓰면 LGPL 빌드만 | NVENC 약관·FFmpeg nonfree 요건 사람 확인, [local] T21 지연 실측 |
+| 비디오 인코더(2단계 A) | **하드웨어 인코더 추상화.** NVENC 우선(드라이버 호출만), VAAPI·AMF 대체. FFmpeg 를 쓰면 LGPL 빌드만 | NVIDIA 드라이버/SDK 약관 사람 확인(H1), [local] T21 지연 실측 |
 | 자산 포맷 방향(T03 입력) | 자체 소형 양자화 포맷(SPZ 설계 참고), 구간×수준 독립 조각, ENU 사각 격자 타일 + REPLACE 의미 | T03 계약. 입력이 27 B 점인지 56 B 가우시안인지 먼저 결정(§4 쟁점 Q1) |
 | 결합 방식 | 1단계 (가)+(나) 혼합: 클라이언트 래스터라이저는 skylens 클라이언트 쪽, 자산 처리·2단계 렌더러는 별도 프로세스 | 저장소 배치 쟁점(§4 Q7) 해소 |
 | 빌드·테스트 | 지금 제품 저장소 관례(`npm test` = `node --test`) 유지 + 헤드리스는 기설치 Playwright 브라우저 | 감독 승인 후 ops/WORKER.md §3 기재 |
@@ -66,7 +66,7 @@
 근거(encoder.md, license.md):
 - 구조: 서버 GPU 벤더에 종속되므로 "인코더 추상화 + NVENC 우선, VAAPI/AMF 대체"(encoder.md §5).
 - NVENC 저지연 모드 "최저 16 ms" 는 NVIDIA 문서를 검색 요약으로 본 값이며 해상도·GPU 조건 미확인(encoder.md §3). 그 밖의 인코더 지연은 전부 미확인. S7(A ≤ 150 ms) 달성 여부는 인코드 단독 수치로 판단할 수 없다.
-- FFmpeg 를 쓴다면 `--enable-gpl`·`--enable-nonfree` 없이 LGPL 빌드, 동적 링크 또는 별도 프로세스 호출(license.md §4). NVENC 는 SDK 파일을 재배포하지 않고 드라이버가 제공하는 것을 호출만 한다는 전제(license.md §2). 약관 원문은 미확인.
+- FFmpeg 를 쓴다면 `--enable-gpl` 없이 LGPL 빌드, 동적 링크 또는 별도 프로세스 호출(license.md §4). NVENC 는 SDK 파일을 재배포하지 않고 드라이버가 제공하는 것을 호출만 한다는 전제(license.md §2). 약관 원문은 미확인.
 - SVT-AV1(BSD-3-Clause-Clear + AOM 특허 라이선스)은 라이선스상 가능하나 CPU 지연·부하가 미확인이라 폴백 후보로만(encoder.md §5).
 - 브라우저 디코드: 웹소켓 + WebCodecs `VideoDecoder` 가 SPEC §7(ws 단일)을 지키는 기본안(encoder.md §1 F). 저사양 안드로이드에서의 하드웨어 디코드 동작·지연은 미확인.
 
@@ -125,7 +125,7 @@ integration.md §5 를 따른다(COMPONENTS 경계 변경 없음 — 그 노트�
 |---|---|---|
 | 서버 언어·런타임 | Node.js 22, ESM(`"type":"module"`). 무거운 가공은 `worker_threads`. 웹소켓은 `ws`(MIT). 측정으로 병목이 드러난 루프에 한해 Rust 또는 C++ 네이티브·wasm 교체를 허용(별도 승인). TypeScript 채택 방식은 감독 결정(§4 Q10) | runtime.md §3·§5·§8 (100만 점 Node 37.9~49.4 ms, 네이티브 약 2배 안쪽, 코드 공유), license.md(Node·ws MIT), 제품 `package.json`·baseline.md(이미 Node 로 운영) |
 | 서버 래스터라이저(2단계) | **보류(T20 [local] 에서 확정).** 1순위 검토: 헤드리스 Chromium + Playwright 로 B 클라이언트 래스터라이저 재사용. 2순위: wgpu(Rust) 또는 Dawn 기반 네이티브. 인코더는 하드웨어 인코더 추상화(NVENC 우선, VAAPI·AMF 대체, FFmpeg 는 LGPL 빌드만, x264 금지) | server_web.md §5, server_native.md 잠정 의견, encoder.md §5, license.md §4, cloud_scope.md §6(성능 근거는 [local]) |
-| 클라이언트 경량 래스터라이저(B) | WebGL2. three.js 최소 구성(WebGLRenderer·Points·필요한 머티리얼, GaussianSplats3D 제거)으로 시작, S4 여유 부족 시 ogl 또는 twgl 또는 직접 구현. WebGPU 는 1단계 제외 | client.md §2·§6 (three 최소 130.5 KB gzip 하한), cloud_scope.md §1.2(WebGL2 SwiftShader 검증 가능) |
+| 클라이언트 경량 래스터라이저(B) | WebGL2. three.js 최소 구성(WebGLRenderer·Points·필요한 머티리얼, GaussianSplats3D 제거)으로 시작, S4 여유 부족 시 ogl 또는 twgl 또는 직접 구현. WebGPU 는 1단계 제외. **Q1 결정 전 잠정. 가우시안이면 스플랫 렌더 경로 재평가. 점(27 B)이면 GaussianSplats3D 를 빼 약 60 KB(상한 근사)를 덜고 화질은 점 크기·구멍 처리에 달리며(측정 전), 가우시안(56 B)이면 스플랫 렌더 경로를 유지·재구현해야 해 번들이 그만큼 늘 수 있고 화질은 알파 블렌딩 스플랫 기준이 된다(측정 전)** | client.md §2·§6 (three 최소 130.5 KB gzip 하한), cloud_scope.md §1.2(WebGL2 SwiftShader 검증 가능) |
 | 빌드·테스트 명령 | 아래 소표 | 제품 `package.json`, baseline.md, client.md §1, cloud_scope.md §1.2·§5, license.md §4 |
 
 빌드·테스트 명령 소표(제안). "있음"은 이미 제품 저장소·노트에서 실제로 쓴 명령, "제안"은 아직 아무도 돌려 보지 않은 것이다.
@@ -133,7 +133,7 @@ integration.md §5 를 따른다(COMPONENTS 경계 변경 없음 — 그 노트�
 | 용도(ops/WORKER.md §3) | 명령 | 상태 |
 |---|---|---|
 | 단위 테스트 | `npm test` (= `node --test "**/*.test.mjs"`) | 있음(제품 `package.json`). baseline.md: Node 22 에서 `node --test <디렉터리>` 가 동작하지 않아 글롭을 쓴다 |
-| 헤드리스 클라이언트 테스트 | `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers npm test` (기설치 Chromium, `playwright install` 안 함). WebGPU 가 필요한 시험만 localhost 출처 + `--enable-unsafe-webgpu --enable-features=Vulkan --use-angle=swiftshader --enable-unsafe-swiftshader` | 있음(baseline.md, cloud_scope.md §1.2·§5) |
+| 헤드리스 클라이언트 테스트 | `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers npm test` (기설치 Chromium, `playwright install` 안 함). WebGPU 가 필요한 시험만 localhost 출처 + `--enable-unsafe-webgpu --enable-features=Vulkan --use-angle=swiftshader --enable-unsafe-swiftshader`. WebGL2 시험도 기본 인자에 기대지 않고 SwiftShader 인자 `--use-angle=swiftshader --enable-unsafe-swiftshader` 를 명시한다(판단, 아래 §4.3) | 있음(baseline.md, cloud_scope.md §1.2·§5) |
 | 번들 크기 검사 | esbuild `--bundle --minify --format=esm` 후 gzip -9, 3D 관련 청크만 합산, 문턱 300 KB(T12.8) | 제안. client.md §1 의 측정 방법. skylens 는 Vite 8 이라 수치가 몇 % 다를 수 있음 — 어느 번들러를 기준으로 할지 감독 결정(§4 Q9) |
 | 벤치 | `node bench/<모듈>/...` (T01 의 `node bench/baseline/run_all/cli.mjs` 형식을 따름) | 형식만 있음(baseline.md) |
 | 라이선스 점검 | npm 트리는 `license-checker` 류, Rust 를 들이면 `cargo deny check licenses` | 제안. license.md §2·§4 가 이름만 언급, 아직 실행 안 함 |
@@ -150,11 +150,11 @@ integration.md §5 를 따른다(COMPONENTS 경계 변경 없음 — 그 노트�
 | # | 쟁점 | 내용 | 근거 | 누가 |
 |---|---|---|---|---|
 | Q1 | **입력 점 형식: 27 B 점인가 56 B 가우시안인가** | SPEC §2·§6 과 renderer_basis §7-4 는 입력을 27 B 점(위치·법선·색)으로 둔다. compression.md 도 "우리 점은 가우시안이 아니라 법선 있는 색 점"이라 전제한다. 그러나 T01 은 skylens 데모 자산이 **56 B/점 가우시안 스플랫 PLY**(`x y z f_dc_0..2 opacity scale_0..2 rot_0..3`)임을 확인했다. server_native.md 도 "현재 skylens 의 점군은 스플랫 씬"이라 적고, client.md 는 "경로 B 에서는 GaussianSplats3D 불필요(서버가 점 LOD 를 주므로)"라고 가정한다. 입력이 무엇이냐에 따라 2단계 후보(gsplat·Brush 는 가우시안 전용), 압축 사례(SPZ·SOG 의 필드 적합성), S9 기준 영상(baseline.md: 중심점만 그린 임시본)이 모두 갈린다 | baseline.md 발견 1, server_native.md 미확인 절, compression.md §0, client.md §3 C | 감독 → 사람(앱 자산 방향, F-027 과 같은 축) |
-| Q2 | **`SplatChunk.url`(HTTP) 대 웹소켓 단일** | 지금 자산 바이트는 `url` 로 HTTP GET 하고 ws 에는 메타데이터만 흐른다(`protocol.ts` 185~186행). 브라우저는 문자열 프레임만 받고 바이너리 프레임을 버린다(`serverSource.ts` 126행). 선택지: (i) 기존처럼 `url` HTTP — "추가된 규약 없음"으로 볼 수 있는지, (ii) ws 바이너리 프레임 허용(`serverSource.ts`·`distributor.ts`·`upstream.ts`·`boards.ts` 4곳). SPEC §4 측정 방법은 대역폭을 "웹소켓 프레임 바이트 합"으로 정의하므로, (i) 이면 S6 측정 정의도 손봐야 한다(판단) | integration.md §3.1-1, SPEC §3·§4·§7 | 감독(SPEC §7 해석) |
+| Q2 | **`SplatChunk.url`(HTTP) 대 웹소켓 단일** | 지금 자산 바이트는 `url` 로 HTTP GET 하고 ws 에는 메타데이터만 흐른다(`protocol.ts` 185~186행). 브라우저는 문자열 프레임만 받고 바이너리 프레임을 버린다(`serverSource.ts` 126행). 선택지: (i) 기존처럼 `url` HTTP — "추가된 규약 없음"으로 볼 수 있는지, (ii) ws 바이너리 프레임 허용(`serverSource.ts`·`distributor.ts`·`upstream.ts`·`boards.ts` 4곳). SPEC §4 측정 방법은 대역폭을 "웹소켓 프레임 바이트 합"으로 정의하므로, (i) 이면 S6 측정 정의도 손봐야 한다(판단). **선택지별 SPEC 영향(판단):** (i) HTTP 를 택하면 SPEC §4 S6 의 측정 정의(웹소켓 프레임 바이트 합)를 HTTP 바이트까지 포함하도록 바꾸는 것이므로 **S6 정의 변경은 사람 확인 사안**이다(RULES §1.4·§1.5). (ii) ws 바이너리를 택하면 S6 정의는 그대로이나 4곳 코드 변경과 SPEC §7 근거 기재가 따른다. 구간당 3 MB 상한(S6)과 별개로, 두 경우 모두 S4 의 300 KB 상한 시나리오를 따로 본다: 바이너리 프레임 수신·조립 코드를 더하면 번들이 늘어 3D 청크가 300 KB(gzip)를 넘을 수 있으므로 T12.8 문턱 실측 전에는 (ii) 의 번들 영향은 미확인이다 | integration.md §3.1-1, SPEC §3·§4·§7 | 감독(SPEC §7 해석), S6 정의 변경은 사람 |
 | Q3 | **영상 전달 규약(2단계 A)** | 코어 `ws` 에 메시지 종류를 더하는 것만으로는 영상을 보낼 수 없다(`distributor.ts` 는 텍스트 JSON 만). TASKS T22 의 "클라이언트 `<video>` 화면"은 ws 단일과 바로 맞지 않는다: `<video>` 에 ws 바이트를 먹이려면 MSE 또는 WebCodecs 가 필요하다(MSE 는 미조사). WebRTC 는 SPEC §7 새 규약. COMPONENTS 는 `Distributor` 뒤로 WebRTC 교체 가능성을 열어 두었다(integration.md §1.1) | integration.md §3.1-2, encoder.md §1 G·§4 | 감독(T22 문구, SPEC §7) |
 | Q4 | **현황판 입력 역방향** | 경로 A 는 입력을 서버로 보내야 하는데, 릴레이는 보드→코어 방향을 의도적으로 버린다(`boards.ts` 201행, COMPONENTS 189행). integration.md 가 유일하게 **"경계 변경 후보"** 로 표시한 항목이다. RULES §1.4 상 감독이 사람에게 올릴 사안 | integration.md §3.1-3 | 감독 → 사람 |
 | Q5 | **AI 제한 조항 라이선스(node-webgl)** | MIT 기반에 "AI 시스템 학습·미세조정·평가·개발에 사용 금지(three.js 저장소 예외)" 조항. RULES §4 표(MIT·BSD·Apache 허용, AGPL·GPL 금지)에 맞는 칸이 없다. 이 문서는 기각을 제안하나, 같은 류의 조항을 일반적으로 어떻게 다룰지(허용·금지·사안별) 규칙이 없다. 이번 작업 방식 자체가 그 조항의 "AI 시스템 개발·평가"에 걸리는지도 판단이 필요하다(판단) | server_web.md §1 E·§4 | 감독 → 사람(규칙 변경은 사람만, RULES 머리) |
-| Q6 | **포트 맵 행 추가가 경계 변경인가** | (나) 별도 서비스로 가면 COMPONENTS §7 포트 맵에 행이 하나 는다. integration.md 는 "구성 목록 보충"이라 변경으로 세지 않았지만 엄격히 읽으면 감독 승인 사안이라 열어 두었다 | integration.md §3 | 감독 |
+| Q6 | **포트 맵 행 추가가 경계 변경인가** | (나) 별도 서비스로 가면 COMPONENTS §7 포트 맵에 행이 하나 는다. integration.md 는 "구성 목록 보충"이라 변경으로 세지 않았지만 엄격히 읽으면 경계 변경이라 열어 두었다. RULES §1.4 는 경계 변경을 감독이 사람에게 올리도록 하므로 **결정 주체는 사람**이다(감독은 올리는 쪽). 코어 `server/` 안 모듈로 두는 대안 (가) 와의 비교는 [integration.md](integration.md) 가 다룬다(여기서는 참조만) | integration.md §3 | 사람(감독이 올림, RULES §1.4) |
 | Q7 | **코드가 들어갈 저장소** | integration.md 는 클라이언트 래스터라이저를 skylens `statusview/` 안((가))에 두자고 하지만, RULES §2 는 제품 코드를 `i3months/skylens-renderer` 에 둔다. 제품 저장소에서 만든 모듈을 skylens 가 어떻게 가져가는지(패키지 게시·서브모듈·복사)는 어느 노트도 다루지 않았다. integration.md §4 는 `protocol.ts` 를 두 저장소에 복제하면 과거의 "kind 목록 복제" 사고가 재발할 수 있다고 경고한다 | integration.md §2·§4·§5, RULES §2 | 감독 |
 | Q8 | **WASM 디코더를 S4 의 "3D 청크"에 넣는가** | Draco 등 WASM 디코더를 쓸 때 그 바이트를 S4 에 넣는지 SPEC §4 측정 방법에 없다 | client.md §2 주의 | 감독 |
 | Q9 | **번들 크기 기준 번들러** | client.md 수치는 esbuild, skylens 는 Vite 8(Rollup 계열). baseline.md 의 앞선 측정도 esbuild 근사였다. CI 문턱(T12.8)을 어느 번들러 산출물로 잴지 | client.md §1, baseline.md | 감독 |
@@ -166,7 +166,7 @@ integration.md §5 를 따른다(COMPONENTS 경계 변경 없음 — 그 노트�
 
 | # | 쟁점 | 내용 | 근거 |
 |---|---|---|---|
-| H1 | **NVENC / FFmpeg nonfree / GPL 법률 판단** | encoder.md 는 "FFmpeg 는 LGPL 구성에서도 NVENC 에 `--enable-nonfree` 를 요구하고, nonfree 빌드는 재배포 불가일 수 있다"고 적었으나, license.md 는 "FFmpeg 쪽 `nvenc` 가 `--enable-nonfree` 를 요구하는지 확인 못함"으로 적었다(**노트 간 불일치**, 둘 다 원문 미열람). NVENC SDK 약관 원문은 접근 차단으로 미확인. encoder.md 의 "SDK 헤더는 MIT" 와 license.md 의 "ffnvcodec 헤더 라이선스 미확인"도 어긋난다. "서버 내부에서만 쓰고 배포하지 않으면 영향이 작다"는 해석은 두 노트 모두 법률 판단이 아니라고 명시했다. RULES §4 는 GPL 을 서버 전용이라도 금지하므로 완화 해석에 기대지 않는다(license.md §1) | encoder.md §2, license.md §2·§4 |
+| H1 | **NVIDIA 드라이버/SDK 약관** | 사람에게 남기는 것은 이것뿐이다. NVENC 를 드라이버 호출로만 쓰고 SDK 파일을 재배포하지 않는다는 전제가 약관에 맞는지는 원문이 접근 차단으로 미확인이다(license.md §2). 법률 판단은 두 노트 모두 하지 않았다. RULES §4 는 GPL 을 서버 전용이라도 금지하므로 완화 해석에 기대지 않는다(license.md §1) | encoder.md §2, license.md §2·§4 |
 | H2 | **AI 제한 조항**(Q5 와 같음) | 규칙 표에 없는 유형의 라이선스. 규칙을 바꾸는 것은 사람만 한다 | server_web.md, RULES 머리 |
 | H3 | **특허·표준 관련** | AMF: 코덱 특허 라이선스는 사용자 부담(encoder.md). x264: MPEG-LA 특허 가능성. SVT-AV1: BSD-3-Clause-Clear 는 특허 허여를 명시하지 않고 AOM 특허 라이선스가 따로 붙음. KHR_gaussian_splatting: Khronos Adopter 절차(상표·특허). G-PCC: 표준 특허 가능성·COPYING 조건 미확인 | encoder.md §1, compression.md §1-5·§1-7 |
 | H4 | **기준 기기·폴백** | SPEC §5 는 STATUS 상 사람이 그대로 받아들였다고 적혀 있으나, cloud_scope.md §7 은 "사람 확인 전 제안값이라 [local] 기기가 확정되지 않았다"고 적었다. 확정 여부를 SPEC §5 표기에 반영할지 확인 필요(**문서 간 불일치**) | cloud_scope.md §7, STATUS.md, SPEC §5 |
@@ -176,10 +176,9 @@ integration.md §5 를 따른다(COMPONENTS 경계 변경 없음 — 그 노트�
 | 항목 | 노트 A | 노트 B | 정리 |
 |---|---|---|---|
 | Potree 라이선스 | compression.md: "본체 라이선스 확인 못함(미확인)" | tiling.md: "BSD-2-Clause 형식(LICENSE 본문 확인)", PotreeConverter 도 확인 | tiling.md 가 원문을 읽었으므로 그쪽을 따른다. 단 본체 LICENSE 의 포함 라이브러리 항목은 tiling.md 도 전부 읽지 못함(미확인) |
-| 헤드리스 Chromium 의 SwiftShader 자동 폴백 | server_web.md: Chromium 이 자동 폴백을 폐기해 명시적으로 켜지 않으면 실패할 수 있다(검색 요약, 미확인) | cloud_scope.md: Chromium 141 기본 인자에서 WebGL2 가 SwiftShader 로 바로 동작(실측) | 이 환경의 Playwright 기설치 Chromium 141 에서는 기본 인자로 된다. 다른 버전·배포본에서도 같은지는 미확인. 시험 틀은 인자를 명시하는 쪽이 안전(판단) |
+| 헤드리스 Chromium 의 SwiftShader 자동 폴백 | server_web.md: Chromium 이 자동 폴백을 폐기해 명시적으로 켜지 않으면 실패할 수 있다(검색 요약, 미확인) | cloud_scope.md: Chromium 141 기본 인자에서 WebGL2 가 SwiftShader 로 바로 동작(실측) | 이 환경의 Playwright 기설치 Chromium 141 에서는 기본 인자로 된다. 다른 버전·배포본에서도 같은지는 미확인. 시험 틀은 `--use-angle=swiftshader --enable-unsafe-swiftshader` 를 명시하는 쪽이 안전(판단) |
 | 헤드리스 WebGPU 인자 | server_web.md: `--enable-unsafe-webgpu` 필요하다는 보고, 최신 조합 미확인 | cloud_scope.md: 두 인자 조합으로 어댑터·장치 획득 실측(렌더·컴퓨트 파이프라인은 미시험) | cloud_scope.md 의 실측을 따른다. 파이프라인 동작은 여전히 미확인 |
 | three.js 버전 | client.md: 0.185.1 로 측정 | license.md: npm 0.186.1 확인 | 측정 시점의 레지스트리 차이로 보인다(추정). 라이선스(MIT)는 같다. 번들 수치는 0.185.1 기준임을 유지 |
-| NVENC 와 FFmpeg nonfree, 헤더 라이선스 | encoder.md: 헤더 MIT, nonfree 요구 | license.md: 헤더·nonfree 요구 모두 미확인 | 사람 확인(H1). 그 전까지 미확인으로 둔다 |
 | 2단계 서버 래스터라이저 1순위 | server_native.md: gsplat(CUDA) 또는 wgpu/Brush | server_web.md: 헤드리스 Chromium + Playwright | 두 노트는 범위가 달라(네이티브 대 웹) 직접 모순은 아니다. 이 문서는 B 코드 재사용·클라우드 검증 가능성 때문에 Chromium 을 1순위 검토로, 가우시안 전용 후보는 Q1 에 종속으로 둔다(판단) |
 | 자산 처리 서버의 결합 방식과 언어 | integration.md: "서버 래스터라이저가 Node 에서 돌 수 있다면 (가)로 기울 수 있다" | runtime.md: 자산 처리는 Node | 자산 처리 서버는 Node 라도 integration.md 는 (나) 별도 프로세스를 제안한다. 언어와 프로세스 배치는 별개 축이며 모순은 아니다 |
 | SPEC §4 S6 "현재" 값 | SPEC: 구간당 약 67 MB | baseline.md: 데모 구간 전 수준 합 41.97 MB(56 B/점) | 67 MB 는 실데이터 기준이라 T01.12 [local] 확인 대상. Q1 과 함께 정리 |
