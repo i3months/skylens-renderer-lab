@@ -8,7 +8,7 @@
 | 번호 | 항목 | 모델 | 내용 | 확인 |
 |---|---|---|---|---|
 | T01.17 | F-022·F-041(ws_bytes) | opus | 재생 회차는 직전 프레임이 같은 (구간, 수준)의 재전송일 때만 합류. 재전송 뒤 원본이 stale 상한을 올리지 않음. 합계가 safe integer 를 넘으면 오류. final 필드 판정 시 wsTopLevel 무시를 method 에 표기. stale trailing·미완 순서·stale_bytes 레코드 단언 | ws_bytes 41 통과·0 실패, 변형 9개 모두 실패 확인 |
-| T01.18a | F-032·F-041(ref_images)·F-036(subarray) | opus | 아래 "ref_images" 절 |
+| T01.18a | F-032·F-041(ref_images)·F-036(subarray) | opus | 분기별 method 표기(27 B 는 "법선 nx ny nz 있음·무시"), decodePly 헤더 자르기 제거·decodePlyFile 만 1 MiB 상한, 점 0개 오류에 제외 사유, rgb 3종 레이아웃 run·청크 비교, 비대칭 시점 투영 대조, 축별 clip 경계, 대형 PLY 자식 프로세스 RSS 단언 | ref_images 57건 중 52 통과·0 실패·5 건너뜀, 변형 21개 모두 실패, 1천만 점 대형 2/2 통과(56 B 증가분 123.9 MiB ≤ 196.5, 15 B 117.7 ≤ 196.5), 읽기를 전체 읽기로 바꾸면 둘 다 실패(648.7·253.4 MiB) |
 | T01.18b | F-041(viewpoints) | sonnet | coordProblems 부정어 판정을 인접 절로 좁히고 음성 사례 추가 | tests/viewpoints_schema 통과 |
 | T01.18c | F-xxx 번호 제거(그 밖 경로) | haiku | 해당 경로에 연구 번호 없음 | — |
 | T01.19a | F-033 | sonnet | 지표 이름 heap.process_pss, 워밍업 1회 폐기, 보고값 비교, 방식 혼합 경고, 0 프로세스 기록 생략 | 브라우저 테스트 10회 연속 통과, 상주 제거 변형 실패(delta -14 MiB) |
@@ -23,3 +23,10 @@
 - closure.mjs 의 sources 추출은 정규식이라 경로에 `]` 가 든 맵은 JSON 폴백(null → 코드 표지 판정)으로 간다.
 - F-036 의 wrapper_delegate 테스트 중 "문서 존재 확인" 류는 약하다. 후속 검토 대상.
 - Node 22 에서 `node --test <디렉터리>` 는 MODULE_NOT_FOUND 로 실패한다. 파일 글롭을 쓴다(`npm test` 는 영향 없음).
+
+## 통합 검증 (작업자 직접)
+
+- `npm test` 전체(Playwright 브라우저는 /opt/pw-browsers): 273건 중 261 통과·0 실패·12 건너뜀.
+- `grep -rn 'F-0[0-9][0-9]' bench tests tools contracts` 0건.
+- 실제 skylens 체크아웃은 이 세션에 없어 대조하지 못했다(건너뜀 12건에 포함). 합성·재구성 픽스처로만 검증했다.
+- 서브에이전트 통과 보고는 믿지 않고 위 전체 테스트를 직접 돌렸다.
