@@ -205,6 +205,7 @@
 - 문제·실패 상황(서브에이전트 사본 변형으로 확인): ws_bytes index.mjs:118 의 `l < top` 제거·levels_skipped 를 마지막 표본으로 바꿈 → 통과. tower_bytes imagery_bytes 를 dem 합으로·total_bytes 0·익명 feature 0동 → 통과. ply index.mjs:34 element vertex 검사 제거 → 통과(`/vertex/` 정규식이 다른 오류에 맞음). asset_bytes `strides.size === 1` → `>= 1` → 통과. report 정렬·`|` 이스케이프 제거 → 통과.
 - 고칠 것: 가운데 구간이 {0,1} 만 받는 녹화, 건너뜀 표본 [1,2](합 3), tower 지표 전부 손계산 단언·id 없는 feature·properties.id 경로, ply 오류 정규식을 `/element vertex missing/` 등으로 좁힘, stride 혼합 입력, report 순서 섞인 summary 와 `a|b` 오류. ws_bytes.test.mjs:58 의 `< 1000 ms` 시간 단언 제거.
 - 확인 기준: 위 변형 각각에서 해당 테스트 실패.
+- 추가(축 4b, 서브에이전트 사본 변형, 감독 미확인): closure.mjs `if (!isJs(rel)) return false;` 삭제 → bundle 테스트 통과(CSS 픽스처에 3D 표지 없음, bundle_status.test.mjs:91-100). 선택 inputs 키(`entryPath`·heap `canvasSelector`) 이름 변경 → 통과(run_all_real.test.mjs:99-106). run_all_real.test.mjs:25-32 chromium 경로 하드코딩, 없으면 기대 성공 수를 6 으로 낮춰 통과. build.test.mjs:121 `pgrep -x sleep` 이 무관한 sleep 에도 실패. ref_images index.mjs:311 drawn==0 검사 삭제 → 통과(test :357 정규식이 넓음). 분위 round→floor → 통과(점 101개). tests/viewpoints_schema.test.mjs:30 리터럴끼리 비교라 항상 참. heap.test.mjs:55 90 MiB 문턱 여유 약 8 MiB, 근거 주석 없음. 쓰이지 않는 상수 bundle_status.test.mjs:45, bundle_tower.test.mjs:42·:182. 확인 기준: 각 변형에서 테스트 실패, 무관 sleep 이 떠 있어도 build 테스트 통과.
 - 권장 모델: sonnet
 - 이력: 2026-10-01 17:50 감독 등록
 
