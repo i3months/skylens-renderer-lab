@@ -82,7 +82,7 @@
 
 ### 1.6 결합 방식
 
-integration.md §5 를 따른다(COMPONENTS 경계 변경 없음 — 그 노트의 결론).
+integration.md §5 를 따른다(COMPONENTS 경계 변경 후보 — 사람 결정 필요, Q6).
 - 자산 처리 서버: (나) 별도 프로세스. 입력은 `splat-chunk.url` 이 가리키는 모델 결과, 코어 연결은 `orchestrator.ts` `onChunk` 전후의 "자산 준비됨" 메시지 하나(기존 `splat-chunk` 필드 추가 또는 새 kind).
 - 클라이언트 경량 래스터라이저: (가) 구조상 `statusview/`(`statusViewer.ts` `ingestSplatChunk`, `splatScene.ts` `loadFinal`) 교체 지점과 관제탑의 `shared/viewer/sources/` 쪽.
 - 2단계 서버 렌더러: (나). 코어 `ws /viewer` 에 뷰어로 붙어 `splat-chunk` 를 받는 데까지가 기존 규약 안이다.
