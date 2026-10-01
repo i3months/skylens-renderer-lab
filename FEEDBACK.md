@@ -418,7 +418,7 @@
 - 권장 모델: haiku (① 은 sonnet)
 - 이력: 2026-10-01 19:25 감독 등록(축 2·4b·6·7·11·12·3 보고, 근거 줄 확인). 신규 항목 → 2026-10-01 작업자 처리(제품 2ac92b2, T01.27·T01.28·직접): ①~⑤ 처리, ⑥ 은 실험 브랜치에서 STATUS 미수정. closure 변경으로 bundle_tower 테스트 기대 basis 를 파싱 오류 표기로 갱신(노트 참조) → 2026-10-01 19:55 감독 확인 닫음: ① 사본에서 heap/index.mjs:71 isFinite 줄 삭제 → heap 1 실패(감독 직접). ③ 순서 바꾼 27 B 다섯 경우 모두 '같은 형식' 아님(축 1b 실행). ④ badjson-6 테스트로 basis·method 표기. ⑤ baseline-fixes-3.md:20 분류 10·2 기재. ⑥ 연구 diff 에 STATUS.md 없음. bundle_status 의 HTML 맵 입력 삭제·노트 수치 출처는 F-052
 
-### F-049 [열림] (심각도: 중간) — ws_bytes final 판정 잔여 (stale 원본의 final 이 완결을 만들고, resend 프레임의 final 이 final 모드를 켠다)
+### F-049 [처리됨-검증대기] (심각도: 중간) — ws_bytes final 판정 잔여 (stale 원본의 final 이 완결을 만들고, resend 프레임의 final 이 final 모드를 켠다)
 - 위치: bench/baseline/ws_bytes/index.mjs:117(`if (f.final !== undefined) anyFinal = true` — resend 프레임 포함), :130(`if (f.final === true) s.final = true` 가 :131 stale 판정보다 먼저), :168·:281-283(resend_merged_rounds 를 미완 구간까지 셈) (제품 main 612eeae)
 - 문제: 완결은 "받은 원본 final" 로만 판정한다는 F-042 결정과 어긋나는 두 경로. ① 추월돼 집계에서 빠지는 stale 원본의 final 이 구간을 완결시킨다. ② final 필드가 resend 프레임에만 있는 녹화는 final 모드가 켜져 원본 구간이 전부 미완이 된다. ③ 미완 구간의 이어 붙인 resend 회차도 segment_total.method 에 "한 회차의 분할로 합산" 으로 적힌다.
 - 실패 상황(감독 직접 재현, summarize): ① [L1 5, L0 3 final:true] → segment_ids [1]·segments [5]·stale 1 (맞는 값: incomplete 1개). ② [L0 1, L1 2, L2 4, 구간2 rL2 4 final:true] → segment_ids []·incomplete [1,2] (final 필드 없으면 구간 1 완결 [7]). ③ [r(1,2,40,final), r(1,2,40,final), (2,2,3,final)] → segments [3]·구간 1 미완인데 resend_merged_rounds 1.
@@ -426,8 +426,9 @@
 - 확인 기준: ① 입력 → segment_ids []·incomplete 1개. ② 입력 → segments [7](또는 명시적 형식 오류). ③ 입력 → resend_merged_rounds 0, method 에 "분할로 합산" 없음. F-022 (가)~(라)·F-042·F-047 확인 기준 유지.
 - 권장 모델: opus (같은 도구가 F-022·F-042·F-047 로 거듭 열렸다)
 - 이력: 2026-10-01 19:40 감독 등록(PR #5 중복 감독 실행의 축 1b 보고, 세 입력 모두 감독 직접 재현). 신규 항목. 19:24 실행의 F-047 과 겹치지 않음
+  → 2026-10-01 작업자 처리(제품 091b901, T01J): 확인 기준 직접 돌려 통과. 노트 experiments/baseline-fixes-5.md
 
-### F-050 [열림] (심각도: 낮음) — 테스트 공백·측정 도구 잔여 (PR #5 중복 감독 실행 보충)
+### F-050 [처리됨-검증대기] (심각도: 낮음) — 테스트 공백·측정 도구 잔여 (PR #5 중복 감독 실행 보충)
 - 위치·문제:
   ① ref_images/index.mjs:260 CANON_TYPE 별칭(float32·uint8) 테스트 없음 — 정규화 제거 변형 생존(축 4a 사본 실행). :484 normalType 비교를 `!== 'uchar'` 로 바꾼 변형 생존(float 좌표 + int 법선 27 B 디코드 사례 없음). :486 형 정보 없을 때 "x y z undefined" 를 내는 변형 생존(테스트는 '같은 형식' 부재만 봄). F-048 ③(순서) 과 함께 고친다.
   ② ws_bytes/index.mjs:168 mergedRounds 를 프레임 수−1 로 세는 변형 생존(테스트가 2프레임 회차뿐). [r40, r40, r40] → 1회차 단언 없음.
@@ -440,8 +441,9 @@
 - 확인 기준: ①②의 각 변형에서 테스트 실패(감독이 사본에서 재실행). ③ PLAYWRIGHT_BROWSERS_PATH=/nonexistent 에서 감지 스크립트 문법 오류 변형이 exit≠0. ④ BOM .map → sourcemap-3d/app.
 - 권장 모델: sonnet (⑥ 은 haiku)
 - 이력: 2026-10-01 19:40 감독 등록(중복 감독 실행 축 1a·4a·4b·5·6·7 보고; ③ ④ 는 감독이 diff·코드 줄 확인, ①② 는 축 4a 사본 실행 — 감독 미재현). 신규 항목
+  → 2026-10-01 작업자 처리(제품 091b901, T01J): 확인 기준 직접 돌려 통과. 노트 experiments/baseline-fixes-5.md
 
-### F-051 [열림] (심각도: 중간) — ws_bytes: resend 로만 받은 높은 수준 뒤에 온 낮은 수준 원본 프레임이 stale 로 처리되지 않는다
+### F-051 [처리됨-검증대기] (심각도: 중간) — ws_bytes: resend 로만 받은 높은 수준 뒤에 온 낮은 수준 원본 프레임이 stale 로 처리되지 않는다
 - 위치: bench/baseline/ws_bytes/index.mjs:137(`isStale = f.level < s.hi || …`, s.hi 는 원본만), :124-126 주석("높은 수준이 원본이든 재전송이든") (제품 feat/baseline-fixes-4 2ac92b2)
 - 문제: F-047 로 resend 회차의 추월은 rhi(받은 수준 최고) 기준이 됐지만 원본 프레임의 추월은 여전히 원본 최고 수준 hi 만 본다. 같은 도착 순서라도 높은 수준이 원본이냐 resend 냐에 따라 낮은 수준 원본이 버려지거나 합산된다(RULES §1.1 추월 건너뛰기·누적 금지 비대칭).
 - 실패 상황(감독 직접 재현): summarize([rL2 40, L0 5]) → segments [45]·levels [[1,3]]·stale 0. L2 가 원본이면 [L2 40, L0 5] → [40]·stale 1. 축 3 도 같은 입력으로 보고.
@@ -449,8 +451,9 @@
 - 확인 기준: [rL2 40, L0 5] → [40]·[[3]]·stale 1·stale_bytes 5. 사본에서 isStale 을 s.hi 로 되돌리면 테스트 실패. F-022 (가)~(라)·F-042·F-047 확인 기준 유지.
 - 권장 모델: opus (같은 도구가 F-022·F-042·F-047 로 거듭 열렸다)
 - 이력: 2026-10-01 19:55 감독 등록(축 3 보고, 감독 직접 재현). 신규 항목(F-047 수정 뒤 원본 쪽에 남은 비대칭)
+  → 2026-10-01 작업자 처리(제품 091b901, T01J): 확인 기준 직접 돌려 통과. 노트 experiments/baseline-fixes-5.md
 
-### F-052 [열림] (심각도: 낮음) — PR #6 잔여: 테스트 입력 삭제·파싱 오류 범위·노트 수치 출처
+### F-052 [처리됨-검증대기] (심각도: 낮음) — PR #6 잔여: 테스트 입력 삭제·파싱 오류 범위·노트 수치 출처
 - 위치·문제:
   ① bundle_status/bundle_status.test.mjs:301 `plain-4.js.map` 의 `'<html>404</html>'` 입력을 지우고 "맵 없음" 으로 바꿨다. HTML 맵을 다루는 입력이 이 파일에서 사라졌고 노트(baseline-fixes-4.md:20)는 bundle_tower 변경만 적었다(축 5, 감독 diff 확인).
   ② bundle_status/closure.mjs:61-63 내부 try 가 `JSON.parse(mapText).sources` 전체를 감싸 `.map` 내용이 `null` 이면 TypeError 를 "JSON 파싱 실패" 로 기록한다(감독 코드 확인).
@@ -466,3 +469,4 @@
 - 확인 기준: ① HTML 맵 단언 존재 ② `null` 맵 → null(heuristic) ③ 깨진 맵 하나만 있을 때 method 에 경고 문구 ④ statm "1 -5" 주입 → null ⑥ 노트 두 줄 수치 일치 또는 출처 구분 ⑧ `continue`→`return null` 변형에서 heap 테스트 실패 ⑨ `grep -rn 'F-0[0-9][0-9]' bench tests tools` 0건, parse error 요약 삭제 변형에서 bundle_tower 실패. ① 의 HTML 맵 단언은 parse-error 분기 is_3d 를 항상 true 로 바꾼 변형에서 bundle_status 도 실패해야 한다.
 - 권장 모델: sonnet (⑥⑦⑨ 의 번호 삭제는 haiku)
 - 이력: 2026-10-01 19:55 감독 등록(축 1b·4b·5·6+7·9 보고; ①②③⑥⑧⑨ 감독 줄 확인, ④ 와 변형 생존은 서브에이전트 사본 실행 — 감독 미재현). 신규 항목
+  → 2026-10-01 작업자 처리(제품 091b901, T01J): 확인 기준 직접 돌려 통과. 노트 experiments/baseline-fixes-5.md
