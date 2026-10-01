@@ -35,7 +35,9 @@ tools/       명령줄 도구
 
 ## 1단계 — 경로 B (자산 경량화)
 
-- [ ] **T01 `baseline`** — 현재 three.js 구현의 기준값 측정. SPEC §4 의 "현재" 열을 채운다.
+- [x] **T01 `baseline`** [cloud 부분] — 현재 three.js 구현의 기준값 측정. SPEC §4 의 "현재" 열을 채운다. (2026-10-01 병합, 제품 PRODHASH, 반려 3회 뒤 범위 쪼갬)
+- [ ] **T01L `baseline-local`** [local] — T01.4·T01.5 실제 녹화, T01.10 녹화 포함 재검, T01.11·T01.12 실측, F-027 앱 로더 대조. 사람의 녹화·실기기 필요.
+- [ ] **T01F `baseline-fixes`** [cloud] — T01 중간·낮음 잔여(F-022·F-028~F-031). T02 와 함께 진행해도 된다.
 - [ ] **T02 `stack`** — 스택 선정. 서버 래스터라이저(2단계)·자산 처리 서버·클라이언트 경량 래스터라이저를 무엇으로 쓸지 조사. **감독 승인 전에는 T03 이후를 시작하지 않는다.**
 - [ ] **T03 `asset-format`** — 경량 자산 포맷 계약과 핵심 타입.
 - [ ] **T04 `point-io`** — 27 B 점 형식 입출력과 ENU 좌표.
@@ -85,6 +87,10 @@ tools/       명령줄 도구
 | T01.10 | cloud | 측정 재현 스크립트(한 명령으로 T01.1~T01.8) | `bench/baseline/run_all/` | 클린 클론에서 한 번에 통과 | sonnet |
 | T01.11 | local | 기준 기기 2종 fps·메모리·입력 지연 실측 | `bench/baseline/device/` | 기기당 3회, 중앙값·분위 기록 | sonnet |
 | T01.12 | local | 실데이터 구간당 대역폭 실측 | `bench/baseline/real_bw/` | 구간당 바이트 기록(현재 약 67 MB 확인) | sonnet |
+| T01.13 | cloud | F-022 ws_bytes 잔여(끝이 아닌 미완 구간·재전송 회차·stale 바이트·topLevel 경고) | `bench/baseline/ws_bytes/` | F-022 확인 기준 | sonnet |
+| T01.14 | cloud | F-029·F-030 테스트·견고성 잔여 | `bench/baseline/`, `tests/` | F-029·F-030 확인 기준 | sonnet |
+| T01.15 | cloud | F-028 측정 도구 성능·왜곡 잔여 | `bench/baseline/ref_images/`, `heap/`, `bundle_status/` | F-028 확인 기준 | sonnet |
+| T01.16 | cloud | F-031 표기·출처 잔손질, F-027 실 PLY 위아래 분포 노트 | 제품 주석·연구 노트 | F-031 확인 기준 | haiku |
 
 완료 후: 감독이 SPEC §4 를 확정해 "제안값" → "확정" 으로 바꾼다.
 

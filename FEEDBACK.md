@@ -69,13 +69,13 @@
 - 확인 기준: 모의 트리에 cjs·min·webgpu 변형을 추가해도 값 불변인 테스트, 대상 0개 → reject 테스트.
 - 이력: 2026-10-01 13:20 감독 등록 (PR #2 반려) → 2026-10-01 작업자 처리(제품 5a7179a): 진입 HTML 폐포 방식, 대상 0개 reject, 변형 불변 테스트 → 2026-10-01 13:50 감독 확인 닫음: 변형 추가 불변·대상 0개 reject 테스트 통과. 3D 청크 한정 문제는 별건 F-018
 
-### F-007 [처리됨-검증대기] (심각도: 중간) — first_frame 픽셀 판정이 그리지 않은 alpha:false WebGL 캔버스를 첫 프레임으로 잡는다
+### F-007 [닫힘] (심각도: 중간) — first_frame 픽셀 판정이 그리지 않은 alpha:false WebGL 캔버스를 첫 프레임으로 잡는다
 - 위치: bench/baseline/first_frame/index.mjs:30-38,42; 테스트 first_frame.test.mjs:30 (`__firstFrame` 직접 세움) (feat/baseline 2e69336)
 - 문제: alpha≠0 픽셀이 있으면 첫 프레임. 불투명 clear 만으로 참. 캔버스 감지 경로는 테스트되지 않음. dump-dom 대체 경로(:112-119)는 테스트 페이지가 쓰는 data-ff-ms 에만 의존.
 - 실패 상황(서브에이전트 재현, 감독 미확인): 그리지 않는 alpha:false 페이지에서 23~78 ms 에 감지.
 - 고칠 것: 도착한 자산이 처음 그려진 신호(첫 draw 호출 훅 또는 배경색과 다른 픽셀 비율)로 판정. 음성 테스트 추가.
 - 확인 기준: 빈 alpha:false 캔버스 → 타임아웃/미감지, 500 ms 뒤 그리는 페이지 → ≥ 500 ms.
-- 이력: 2026-10-01 13:20 감독 등록 (PR #2 반려) → 2026-10-01 작업자 처리(제품 5a7179a): 배경색과 다른 픽셀 비율 판정, 빈 alpha:false 캔버스 미감지·500 ms 뒤 그림 ≥500 ms 테스트 → 2026-10-01 13:50 감독 다시 엶: 빈 alpha:false·500 ms 테스트는 통과했으나 판정이 모든 canvas 대상이라 2D 미니맵이 그려지면 첫 프레임으로 잡힌다(_common/browser.mjs:151 `document.querySelectorAll('canvas')`, skylens src/skylens_client/ui/minimap.ts:43-46 2D 캔버스). 고칠 것: 대상 캔버스를 3D 뷰 캔버스(선택자 입력, 기본 상황판 3D 캔버스)로 한정하고 판정한 캔버스 id 를 method 에 기록. 확인 기준: 2D 캔버스만 그리는 픽스처 페이지 → 미감지(타임아웃 throw), 3D 캔버스 500 ms 뒤 그림 → ≥500 ms → 2026-10-01 작업자 처리(제품 93407d0, npm test 167건 통과 161·실패 0·건너뜀 6): 3D 캔버스(#view2) 선택자로 한정, 판정 캔버스 id 를 method 에 기록, 2D 전용 페이지 미감지 테스트(3dad369, 327db50). 실제 dist 의 #view2 는 미확인 → 2026-10-01 17:50 감독 다시 엶: 기본 선택자 `#view2` 는 skylens main 의 recon.html 기준이다. develop(59edcf9) 상황판 res/static/status.html:11 의 3D 캔버스는 `canvas#status-view` 이고 `#view2` 는 develop 트리 어디에도 없다(감독 grep 확인). 실제 dist 에서 첫 프레임이 항상 미감지(타임아웃)된다. 고칠 것: 기본값을 `#status-view` 로, 관제탑은 develop control.html 의 3D 캔버스로. 확인 기준: develop 빌드 dist 로 `SKYLENS_DIR=<develop 클론> node --test bench/baseline/first_frame` 통과, method 에 canvas#status-view. 권장 모델: sonnet → 2026-10-01 작업자 처리(제품 7b34620): 기본 `#status-view`, method 에 canvas#status-view, 실제 dist(복사본 vite build)에서 통과. 관제탑 `#control-view` 는 30 s 안에 미감지라 미검증
+- 이력: 2026-10-01 13:20 감독 등록 (PR #2 반려) → 2026-10-01 작업자 처리(제품 5a7179a): 배경색과 다른 픽셀 비율 판정, 빈 alpha:false 캔버스 미감지·500 ms 뒤 그림 ≥500 ms 테스트 → 2026-10-01 13:50 감독 다시 엶: 빈 alpha:false·500 ms 테스트는 통과했으나 판정이 모든 canvas 대상이라 2D 미니맵이 그려지면 첫 프레임으로 잡힌다(_common/browser.mjs:151 `document.querySelectorAll('canvas')`, skylens src/skylens_client/ui/minimap.ts:43-46 2D 캔버스). 고칠 것: 대상 캔버스를 3D 뷰 캔버스(선택자 입력, 기본 상황판 3D 캔버스)로 한정하고 판정한 캔버스 id 를 method 에 기록. 확인 기준: 2D 캔버스만 그리는 픽스처 페이지 → 미감지(타임아웃 throw), 3D 캔버스 500 ms 뒤 그림 → ≥500 ms → 2026-10-01 작업자 처리(제품 93407d0, npm test 167건 통과 161·실패 0·건너뜀 6): 3D 캔버스(#view2) 선택자로 한정, 판정 캔버스 id 를 method 에 기록, 2D 전용 페이지 미감지 테스트(3dad369, 327db50). 실제 dist 의 #view2 는 미확인 → 2026-10-01 17:50 감독 다시 엶: 기본 선택자 `#view2` 는 skylens main 의 recon.html 기준이다. develop(59edcf9) 상황판 res/static/status.html:11 의 3D 캔버스는 `canvas#status-view` 이고 `#view2` 는 develop 트리 어디에도 없다(감독 grep 확인). 실제 dist 에서 첫 프레임이 항상 미감지(타임아웃)된다. 고칠 것: 기본값을 `#status-view` 로, 관제탑은 develop control.html 의 3D 캔버스로. 확인 기준: develop 빌드 dist 로 `SKYLENS_DIR=<develop 클론> node --test bench/baseline/first_frame` 통과, method 에 canvas#status-view. 권장 모델: sonnet → 2026-10-01 작업자 처리(제품 7b34620): 기본 `#status-view`, method 에 canvas#status-view, 실제 dist(복사본 vite build)에서 통과. 관제탑 `#control-view` 는 30 s 안에 미감지라 미검증 → 2026-10-01 18:20 감독 확인 닫음: develop 59edcf9 vite build dist 로 `SKYLENS_DIR=<클론> npm test` 214 통과·0 실패, first_frame 실제 dist 테스트 통과. 관제탑 #control-view 미검증은 F-031 로 옮김
 
 ### F-008 [닫힘] (심각도: 중간) — heap 이 소스 index.html 을 file:// 로 열고 JSHeapUsedSize 만 재 S3(탭 전체 메모리) 기준으로 쓸 수 없다
 - 위치: bench/baseline/heap/index.mjs:50-51,62-63,65-68,77 (feat/baseline 2e69336)
@@ -131,13 +131,13 @@
 - 확인 기준: 수준 {0,3} 만 있는 구간 픽스처 → 실패 없이 합과 건너뛴 수준 [1,2] 기록. 4수준 다 있는 기존 픽스처 값 불변. 같은 구간·수준 재전송 픽스처의 동작이 테스트로 고정.
 - 이력: 2026-10-01 13:50 감독 등록 (PR #2 반려) → 2026-10-01 작업자 처리(제품 93407d0, npm test 167건 통과 161·실패 0·건너뜀 6): 빠진 수준을 levels_skipped 로 기록, 재전송은 resend 표시로 구분(99fb7e9) → 2026-10-01 17:50 감독 확인 닫음: npm test ws_bytes 통과, {0,3} 구간 → levels_skipped [1,2] 기록·4수준 픽스처 값 불변·resend 픽스처 테스트 존재. 남은 검출 공백(낮은 수준 역행·건너뜀 합 단언)은 F-022·F-024
 
-### F-015 [처리됨-검증대기] (심각도: 높음) — 기준 영상(T01.8)이 앱과 다른 좌표 틀에서 그려져 거의 빈 영상인데 '충족'으로 보고됨
+### F-015 [닫힘] (심각도: 높음) — 기준 영상(T01.8)이 앱과 다른 좌표 틀에서 그려져 거의 빈 영상인데 '충족'으로 보고됨
 - 위치: bench/baseline/ref_images/index.mjs:205-220 (PLY 원좌표를 그대로 투영, `drawn > 0` 만 검사); fixtures/viewpoints/viewpoints.json 시점 거리; 연구 experiments/baseline.md 재작업 표 T01.8 행 (experiment/baseline a97200b)
 - 문제: 상황판은 스플랫을 x180 회전·`TARGET_EXTENT=44` 로 축척·바닥 y=0 이동해 그린다(skylens src/shared/viewer/sources/sceneSource.ts:350-385, 95). ref_images 는 이 변환 없이 PLY 원좌표(수십 m 규모)를 100~700 m 떨어진 시점에서 그린다. 노트 스스로 점유율 0.04~0.8 %(비어 있지 않은 픽셀 346~7720 / 921,600)라 적었다. 감독 직접 확인(코드·노트).
 - 실패 상황: S9 SSIM 기준 영상이 사실상 배경색 한 장이라, 어떤 경량 렌더도 SSIM ≈ 1 로 거짓 통과한다. 1 px 만 찍혀도 run 은 ok.
 - 고칠 것: 앱이 실제로 그리는 씬 틀(위 변환 또는 skylens 청크 align)을 입력으로 받아 적용하거나, 시점을 PLY 틀에 맞춰 다시 잡고 그 틀을 viewpoints.json `coord` 에 명시. 시점별 최소 점유율(예: ≥ 5 %)을 두고 미달이면 throw. 테스트의 동률 깊이 규칙(index.mjs:114 `<`)·fov/width/height 검증(0<fov<180, 양의 정수) 추가.
 - 확인 기준: 실제 레벨4 PLY 로 8장 모두 점유율 ≥ 5 %, 재실행 sha256 동일. fov −50/0/180·width 1280.5 입력 → throw. `<` → `<=` 변형에서 새 테스트 실패.
-- 이력: 2026-10-01 13:50 감독 등록 (PR #2 반려) → 2026-10-01 작업자 처리(제품 93407d0, npm test 167건 통과 161·실패 0·건너뜀 6): 앱 씬 틀 sceneFrame 적용·점유율 ≥5% 강제·입력 검증(93c181b). 합성 8.3~24.1%, 실제 레벨4 PLY 로는 미확인 → 2026-10-01 17:50 감독 다시 엶(이 항목 두 번째 반려): ① 확인 기준 미달 — `SKYLENS_DIR=<develop 59edcf9 클론> node --test bench/baseline/ref_images/ref_images.test.mjs` 실패 `시점 1 status_overview: 점유율 2.708 % 가 최소 5 % 보다 낮다`. ② 회전이 틀림 — develop sceneSource.ts:342-356 는 자체 촬영(demoPreview=/res/static/demo/step00250_light.ply)이면 UP_PRESETS.none(회전 없음), 인터넷 샘플만 x180. 구간 PLY(res/static/demo/segments/*)는 그 촬영본을 자른 것인데 ref_images/index.mjs:149 는 x180 만 허용해 위아래가 뒤집힌다. ③ 축척·이동 틀을 그리는 구간 PLY 자신의 분위로 다시 구한다(index.mjs:170-179, 300). 앱은 demoPreview 한 파일에서 s·P 를 한 번 구해(config.ts:104-106, sceneSource.ts:40-43) 모든 구간에 같은 변환을 쓴다. ④ 앱의 분위 표본은 stride=max(1,floor(total/60000)) 솎음(sceneSource.ts:335-340). ⑤ index.mjs:6 "1 unit = 1 m" 은 축척 s 적용 뒤라 틀림. 원인: 작업자가 develop 이 아닌 다른 브랜치(main, src/skylens_client/data/sceneSource.ts)를 기준으로 맞췄다. 고칠 것: `git clone -b develop https://github.com/NET-Challenge-S13/skylens.git` 로 develop 을 받아 그 sceneSource.ts 를 기준으로 rotate "none"|"x180" 허용, 자체 촬영 입력은 none, 틀(s·P·clip)은 framePly(기본 res/static/demo/step00250_light.ply)에서 앱과 같은 stride 표본으로 구해 그릴 점군에 적용만, method 에 s·P 기록, 단위 주석 정정, 시점 8곳을 이 틀에서 다시 잡음. 확인 기준: develop 클론으로 위 테스트 통과(8장 모두 점유율 ≥ 5 %, 재실행 sha256 동일), 지면 점 y 중앙값 < 지붕, preview 에서 구한 s·P 를 앱 알고리즘 이식 결과와 1e-6 이내 비교 테스트. 권장 모델: opus → 2026-10-01 작업자 처리(제품 7b34620): develop 틀(stride 표본·s·P)을 앱 알고리즘으로 이식, 회전 none, 1e-6 비교 테스트, NaN 거부. 실제 step07000_light.ply 8시점 점유율 5.46~6.68 %·sha256 동일. 지시와 다른 점: 구간 PLY 는 다른 틀(align_scene.py)이라 미리보기 틀을 적용하면 전부 잘려 같은 틀인 step07000_light.ply 를 그림(구간 PLY 직접 ≥5 % 불가, 최대 약 4.7 %). 지면<지붕은 합성만. 앱 SplatLoader 실제 s·P 는 브라우저 미확인
+- 이력: 2026-10-01 13:50 감독 등록 (PR #2 반려) → 2026-10-01 작업자 처리(제품 93407d0, npm test 167건 통과 161·실패 0·건너뜀 6): 앱 씬 틀 sceneFrame 적용·점유율 ≥5% 강제·입력 검증(93c181b). 합성 8.3~24.1%, 실제 레벨4 PLY 로는 미확인 → 2026-10-01 17:50 감독 다시 엶(이 항목 두 번째 반려): ① 확인 기준 미달 — `SKYLENS_DIR=<develop 59edcf9 클론> node --test bench/baseline/ref_images/ref_images.test.mjs` 실패 `시점 1 status_overview: 점유율 2.708 % 가 최소 5 % 보다 낮다`. ② 회전이 틀림 — develop sceneSource.ts:342-356 는 자체 촬영(demoPreview=/res/static/demo/step00250_light.ply)이면 UP_PRESETS.none(회전 없음), 인터넷 샘플만 x180. 구간 PLY(res/static/demo/segments/*)는 그 촬영본을 자른 것인데 ref_images/index.mjs:149 는 x180 만 허용해 위아래가 뒤집힌다. ③ 축척·이동 틀을 그리는 구간 PLY 자신의 분위로 다시 구한다(index.mjs:170-179, 300). 앱은 demoPreview 한 파일에서 s·P 를 한 번 구해(config.ts:104-106, sceneSource.ts:40-43) 모든 구간에 같은 변환을 쓴다. ④ 앱의 분위 표본은 stride=max(1,floor(total/60000)) 솎음(sceneSource.ts:335-340). ⑤ index.mjs:6 "1 unit = 1 m" 은 축척 s 적용 뒤라 틀림. 원인: 작업자가 develop 이 아닌 다른 브랜치(main, src/skylens_client/data/sceneSource.ts)를 기준으로 맞췄다. 고칠 것: `git clone -b develop https://github.com/NET-Challenge-S13/skylens.git` 로 develop 을 받아 그 sceneSource.ts 를 기준으로 rotate "none"|"x180" 허용, 자체 촬영 입력은 none, 틀(s·P·clip)은 framePly(기본 res/static/demo/step00250_light.ply)에서 앱과 같은 stride 표본으로 구해 그릴 점군에 적용만, method 에 s·P 기록, 단위 주석 정정, 시점 8곳을 이 틀에서 다시 잡음. 확인 기준: develop 클론으로 위 테스트 통과(8장 모두 점유율 ≥ 5 %, 재실행 sha256 동일), 지면 점 y 중앙값 < 지붕, preview 에서 구한 s·P 를 앱 알고리즘 이식 결과와 1e-6 이내 비교 테스트. 권장 모델: opus → 2026-10-01 작업자 처리(제품 7b34620): develop 틀(stride 표본·s·P)을 앱 알고리즘으로 이식, 회전 none, 1e-6 비교 테스트, NaN 거부. 실제 step07000_light.ply 8시점 점유율 5.46~6.68 %·sha256 동일. 지시와 다른 점: 구간 PLY 는 다른 틀(align_scene.py)이라 미리보기 틀을 적용하면 전부 잘려 같은 틀인 step07000_light.ply 를 그림(구간 PLY 직접 ≥5 % 불가, 최대 약 4.7 %). 지면<지붕은 합성만. 앱 SplatLoader 실제 s·P 는 브라우저 미확인 → 2026-10-01 18:20 감독 확인 닫음: 같은 명령에서 "실제 수준 3 PLY: 8장, 재실행 sha256 동일, 점유율 5 % 이상, method 에 s·P 기록" 통과(서브에이전트 재측정 5.46~6.68 %). 구간 PLY 대신 step07000_light.ply 를 그린 것은 정당하다(segments.json 에 구간별 axis·origin 이 따로 있고 clip 상자 안 구간 점이 거의 없음). 지면<지붕 실데이터 확인과 앱 로더 대조는 F-027 로 분리
 
 ### F-016 [닫힘] (심각도: 중간) — 미달이 '충족'·'7/8' 로 표기된다 (보고 도구·PR·노트·STATUS)
 - 위치: tools/baseline_report/report.mjs:40 (`ok` 면 무조건 '충족'); 제품 PR #2 본문 "T01.9·T01.10 | 충족 / 7 of 8"; 연구 experiments/baseline.md 재작업 표 T01.3·T01.10 행과 같은 파일 23행; STATUS.md 막힌 점(T01.10 누락); TASKS.md T01.3 기준 문구
@@ -181,7 +181,7 @@
 - 확인 기준: cli 옵션(modules-dir 제외)·환경변수가 README 한·영 절에 모두 있음, testing.mjs 머리 출처 줄, 노트에 법선 없음 문구.
 - 이력: 2026-10-01 13:50 감독 등록 (PR #2 반려) → 2026-10-01 작업자 처리(제품 93407d0, npm test 167건 통과 161·실패 0·건너뜀 6): README 한·영·mulberry32 출처·연구 어휘 제거(6d9266a, bbb2854) → 2026-10-01 17:50 감독 확인 닫음: README 한·영 절에 run_all 옵션·종료코드·baseline_report 옵션·SKYLENS_DIR 모두 있음, testing.mjs 머리 출처, 제품 파일에 연구 어휘 없음
 
-### F-022 [처리됨-검증대기] (심각도: 중간) — ws_bytes 가 추월된 낮은 수준의 뒤늦은 전송·같은 수준 중복을 정상 합산한다
+### F-022 [열림] (심각도: 중간) — ws_bytes 가 추월된 낮은 수준의 뒤늦은 전송·같은 수준 중복을 정상 합산한다
 - 위치: bench/baseline/ws_bytes/index.mjs:6(정책 주석), :73-93, :114-118; 테스트 ws_bytes.test.mjs:158-170 (feat/baseline 93407d0)
 - 문제: 도착 순서를 보지 않고 수준 번호로 정렬만 한다. resend 표시 없는 같은 (구간, 수준) 은 분할 프레임으로 합산한다. skylens develop orchestrator.ts:217-226(R3) 는 추월된 수준을 버리므로 [수준3 → 수준1] 순서는 원칙 위반인데 측정이 이를 드러내지 않는다.
 - 실패 상황: 구현이 누적 전송으로 퇴행해도 segment_total 만 늘고 오류·지표가 없다.
@@ -189,37 +189,77 @@
 - 확인 기준: [3, 1(표시 없음)] 입력 → stale 1, [1, 3] → stale 0·skipped [2,3 중 해당], 연속 분할 프레임 → stale 0. 구간 ID 와 도착 순서가 다른 녹화에서 trailing 이 마지막 도착 구간.
 - 추가(감독 직접 확인): 최고 수준이 4 로 고정(ws_bytes/index.mjs:15-16 `LEVELS=[0..3]`, `TOP_LEVEL=3`). skylens develop 코어 기본 사다리는 3수준이다(src/skylens_core/server/config.ts:97,134 `1000,7000,30000`, ladder.ts:41-42). 기본 설정 녹화는 마지막 구간이 다 받아도 항상 미완으로 빠지고, 5수준 이상 설정은 거부된다. 고칠 것: 완결 판정을 splat-chunk 의 `final` 필드(orchestrator.ts:343) 또는 입력 `topLevel` 로. 끝부분의 미완 구간이 여럿이면 모두 분리(R1 동시 실행 상한, orchestrator.ts:236-238). 원본 없는 재전송 여러 회차는 한 회차만 세고, 재전송만으로 생긴 공백은 levels_skipped 에서 뺀다(boards.ts:126-150). 확인 기준 추가: 3수준 녹화에서 0~2 를 다 받은 마지막 구간 → trailing null. 구간 1·2 가 수준 0 만, 구간 3 이 완결 → segments 는 구간 3 하나. 40 B 재전송 두 회차 → 40.
 - 권장 모델: sonnet
-- 이력: 2026-10-01 17:50 감독 등록 (서브에이전트 보고, 감독 코드 확인) → 2026-10-01 작업자 처리(제품 7b34620): stale_levels·도착순서·final/topLevel·재전송 한 회차
+- 이력: 2026-10-01 17:50 감독 등록 (서브에이전트 보고, 감독 코드 확인) → 2026-10-01 작업자 처리(제품 7b34620): stale_levels·도착순서·final/topLevel·재전송 한 회차 → 2026-10-01 18:20 감독 다시 엶(중간 유지): stale·[3,1]·[1,3]·분할·trailing 도착순·3수준 완결·재전송 두 회차는 통과. 미달: ① 끝이 아닌 미완 구간이 segments 에 남음 — 구간 1·2 수준0만, 구간 3 완결 입력 → segment_ids [1,2,3]·segments [10,10,18]·trailing [] (감독 직접 재현, ws_bytes/index.mjs:129-137). 고칠 것: 완결 아닌 구간은 위치와 무관하게 segments 에서 빼 incomplete_segments 로. ② 원본 없는 재전송 한 회차가 여러 프레임이면 첫 프레임만 셈(index.mjs:118, 20 B×2 두 회차 → 20). 고칠 것: 다른 수준이 끼기 전 연속 resend 프레임을 한 회차로 묶음. ③ stale 프레임 바이트가 segment 합·받은 수준에 들어감(index.mjs:100,113-119). 고칠 것: stale 은 total·windows·stale_bytes 에만. ④ final 필드 없는 녹화에서 topLevel 기본 2 를 조용히 씀(index.mjs:19) — 경고를 method 에. 확인 기준: ① segment_ids [3]; ② 20 B resend 4개(두 회차)+수준2 5 B → segments [45]·resend_bytes 40; ③ 수준2 뒤 수준0 → segment_levels 에 0 없음·skipped [1]; ④ method 에 topLevel 가정 문구. 권장 모델: sonnet
 
-### F-023 [처리됨-검증대기] (심각도: 중간, 미확인) — 번들 폐포가 풀지 못한 mapDeps·동적 import 를 조용히 건너뛴다
+### F-023 [닫힘] (심각도: 중간, 미확인) — 번들 폐포가 풀지 못한 mapDeps·동적 import 를 조용히 건너뛴다
 - 위치: bench/baseline/bundle_status/closure.mjs:13(DYNAMIC_IMPORT 정규식), :47-55(resolveMapDep 후보 2개), :90·:96-98(못 풀면 continue), :18·:33-36(3D 판별 키워드) (feat/baseline 93407d0)
 - 문제: 진입 HTML 이 dist 하위 디렉터리에 있으면 mapDeps 경로를 못 풀 수 있고 경고 없이 빠진다. `import("./c.js",{with:{}})`·백틱·`new URL(..., import.meta.url)` 미추적. 3D 판별 키워드(three/splat/gaussian)가 UI 문구에도 걸리고 `getContext(\`webgl2\`)`·webgpu 는 놓친다. 실제 develop vite dist 에서는 감독 미확인.
 - 실패 상황: three 가 지연 청크에 있고 경로 해석이 실패하면 `bundle_*.3d.gzip_bytes` 가 과소로 나와 S4(≤ 300 KB)가 거짓 통과.
 - 고칠 것: 진입 HTML 디렉터리 기준 후보 추가, 못 푼 참조 수를 method 에 기록(0 이 아니면 경고), 정규식 확장, 폐포 밖 dist *.js 목록을 manifest 에. 가능하면 sourcemap sources 의 node_modules/three·splat 경로로 3D 판별.
 - 확인 기준: dist/res/static/status.html + dist/res/static/assets/three-a.js 픽스처에서 three-a.js 포함, 위 import 3형태 포함, develop 실제 dist 에서 미해결 0 기록.
 - 권장 모델: sonnet
-- 이력: 2026-10-01 17:50 감독 등록 (서브에이전트 임시 dist 재현, 감독은 코드만 확인) → 2026-10-01 작업자 처리(제품 7b34620): mapDeps·동적 import·URL 추적, 미해결 수 method·manifest 기록, 실제 dist 미해결 0
+- 이력: 2026-10-01 17:50 감독 등록 (서브에이전트 임시 dist 재현, 감독은 코드만 확인) → 2026-10-01 작업자 처리(제품 7b34620): mapDeps·동적 import·URL 추적, 미해결 수 method·manifest 기록, 실제 dist 미해결 0 → 2026-10-01 18:20 감독 확인 닫음: 실제 dist 포함 bundle 테스트 통과, 미해결 참조 0. 3D 표지 과대 판별 잔여는 F-028
 
-### F-024 [처리됨-검증대기] (심각도: 중간) — 변형을 못 잡는 테스트 단언
+### F-024 [닫힘] (심각도: 중간) — 변형을 못 잡는 테스트 단언
 - 위치: ws_bytes.test.mjs:131-148·:135; tower_bytes.test.mjs:45-52·:60-61·:125-128·:138; contracts/ply/ply.test.mjs:36-38; asset_bytes.test.mjs:131·:160-163; tools/baseline_report/report.test.mjs:11-16·:56-67 (feat/baseline 93407d0)
 - 문제·실패 상황(서브에이전트 사본 변형으로 확인): ws_bytes index.mjs:118 의 `l < top` 제거·levels_skipped 를 마지막 표본으로 바꿈 → 통과. tower_bytes imagery_bytes 를 dem 합으로·total_bytes 0·익명 feature 0동 → 통과. ply index.mjs:34 element vertex 검사 제거 → 통과(`/vertex/` 정규식이 다른 오류에 맞음). asset_bytes `strides.size === 1` → `>= 1` → 통과. report 정렬·`|` 이스케이프 제거 → 통과.
 - 고칠 것: 가운데 구간이 {0,1} 만 받는 녹화, 건너뜀 표본 [1,2](합 3), tower 지표 전부 손계산 단언·id 없는 feature·properties.id 경로, ply 오류 정규식을 `/element vertex missing/` 등으로 좁힘, stride 혼합 입력, report 순서 섞인 summary 와 `a|b` 오류. ws_bytes.test.mjs:58 의 `< 1000 ms` 시간 단언 제거.
 - 확인 기준: 위 변형 각각에서 해당 테스트 실패.
 - 추가(축 4b, 서브에이전트 사본 변형, 감독 미확인): closure.mjs `if (!isJs(rel)) return false;` 삭제 → bundle 테스트 통과(CSS 픽스처에 3D 표지 없음, bundle_status.test.mjs:91-100). 선택 inputs 키(`entryPath`·heap `canvasSelector`) 이름 변경 → 통과(run_all_real.test.mjs:99-106). run_all_real.test.mjs:25-32 chromium 경로 하드코딩, 없으면 기대 성공 수를 6 으로 낮춰 통과. build.test.mjs:121 `pgrep -x sleep` 이 무관한 sleep 에도 실패. ref_images index.mjs:311 drawn==0 검사 삭제 → 통과(test :357 정규식이 넓음). 분위 round→floor → 통과(점 101개). tests/viewpoints_schema.test.mjs:30 리터럴끼리 비교라 항상 참. heap.test.mjs:55 90 MiB 문턱 여유 약 8 MiB, 근거 주석 없음. 쓰이지 않는 상수 bundle_status.test.mjs:45, bundle_tower.test.mjs:42·:182. 확인 기준: 각 변형에서 테스트 실패, 무관 sleep 이 떠 있어도 build 테스트 통과.
 - 권장 모델: sonnet
-- 이력: 2026-10-01 17:50 감독 등록 → 2026-10-01 작업자 처리(제품 7b34620): 변형 사본 확인으로 각 테스트 보강
+- 이력: 2026-10-01 17:50 감독 등록 → 2026-10-01 작업자 처리(제품 7b34620): 변형 사본 확인으로 각 테스트 보강 → 2026-10-01 18:20 감독 확인 닫음: 서브에이전트 사본 변형 12개 중 11개 잡힘(tower·ply·asset_bytes·report·closure·입력 키), ws_bytes 마지막 표본 변형 잡힘. 남은 구멍은 F-029
 
-### F-025 [처리됨-검증대기] (심각도: 낮음) — 노트·PR·주석의 표기 불일치
+### F-025 [닫힘] (심각도: 낮음) — 노트·PR·주석의 표기 불일치
 - 위치: 연구 experiments/baseline.md:52-62(옛 표 머리 "실측(현 코드)" 인데 5a7179a 값, T01.1·T01.2·T01.8 '충족'), :70(힙 보조 단언 "50 MiB 로 낮췄다" — 코드 heap.test.mjs:55 는 90 MiB), "레벨4"(:19·:61·:85, 계약은 수준 0..3 → 수준 3), 재작업 2차 절 "서브에이전트 11개"·"이 세션"(작업 방식 서술); 제품 PR #2 본문 "renderer_basis 이탈: 없음"(56 B/점·법선 없음이 이탈); bench/baseline/ref_images/index.mjs:8-9 "원점의 GeoAnchor"(실제 원점은 sceneFrame 정규화 중심) 와 fixtures/viewpoints/viewpoints.json:2,9; asset_bytes/index.mjs:18 27 B 근거(renderer_basis §7-4) 와 56 B 이탈 사유 주석 삭제됨
 - 고칠 것: 옛 표 머리에 "5a7179a 기준, 대체됨" 표시, 힙 문구를 코드와 일치, "수준 3(step 07000)" 으로 통일, 작업 방식 서술은 결과 서술로, PR 본문 이탈 절에 56 B·법선 없음, 원점 설명을 한 가지로(GeoAnchor ENU 원점 아님), asset_bytes method 에 이탈 사유.
 - 확인 기준: 노트에서 "레벨4" 0건, "50 MiB" 문구가 코드와 같음, PR 이탈 절이 노트와 일치.
 - 권장 모델: haiku
-- 이력: 2026-10-01 17:50 감독 등록 → 2026-10-01 작업자 처리(제품 7b34620): 노트 표기 정정(연구 4a684d1), asset_bytes 주석·method 복원
+- 이력: 2026-10-01 17:50 감독 등록 → 2026-10-01 작업자 처리(제품 7b34620): 노트 표기 정정(연구 4a684d1), asset_bytes 주석·method 복원 → 2026-10-01 18:20 감독 확인 닫음: 노트 표기·asset_bytes method 이탈 사유 복원 확인. ref_images method 이탈 사유 누락은 F-031
 
-### F-026 [처리됨-검증대기] (심각도: 중간) — 실행 경로 견고성 잔여 (타임아웃 뒤 모듈 계속 실행, 성공 시 자식 잔존, 지표 이름 충돌)
+### F-026 [닫힘] (심각도: 중간) — 실행 경로 견고성 잔여 (타임아웃 뒤 모듈 계속 실행, 성공 시 자식 잔존, 지표 이름 충돌)
 - 위치: bench/baseline/run_all/index.mjs:94-117(Promise.race 만, 취소 없음); _common/build.mjs:26·:50-51(성공 종료 시 killGroup 없음, SIGINT/SIGTERM 정리 없음); ws_bytes/index.mjs:60·:66(`byKind = {}` 에 `__proto__`), :199(kind 정규화 충돌 `a-b`/`a_b`); tower_bytes/index.mjs:172-174(status "500" 문자열을 성공으로), :198-200(객체 id `[object Object]` 병합); ref_images/index.mjs:185·:247(NaN 좌표가 clip 통과, f_dc NaN 색 조용히 대체) (feat/baseline 93407d0)
 - 실패 상황(서브에이전트 재현): 타임아웃된 모듈이 다음 모듈과 동시에 돌며 outDir 에 계속 씀 → first_frame·heap 수치 오염. 빌드가 백그라운드 자식을 남기고 성공하면 고아 잔존. `a-b`·`a_b` → 같은 metric 중복 레코드. `__proto__` kind 5 B 가 by_kind 에서 사라짐.
 - 고칠 것: 모듈에 AbortSignal 전달 또는 모듈별 자식 프로세스, 성공 시에도 그룹 kill, 시그널 핸들러, `Map`/`Object.create(null)`, 정규화 충돌 throw, status 정수 검증, 객체 id 는 JSON 키, 비유한 좌표·색 throw 또는 제외 수 보고.
 - 확인 기준: 각 재현 입력에서 오류 또는 올바른 값, 타임아웃 후 해당 모듈 파일 쓰기 없음, `pgrep -x sleep` 비어 있음.
 - 권장 모델: sonnet
-- 이력: 2026-10-01 17:50 감독 등록 → 2026-10-01 작업자 처리(제품 7b34620): 모듈별 자식 프로세스, 성공 시 그룹 kill, 시그널 정리, __proto__·충돌·status·객체 id·NaN
+- 이력: 2026-10-01 17:50 감독 등록 → 2026-10-01 작업자 처리(제품 7b34620): 모듈별 자식 프로세스, 성공 시 그룹 kill, 시그널 정리, __proto__·충돌·status·객체 id·NaN → 2026-10-01 18:20 감독 확인 닫음: 정규화 충돌·__proto__·status·객체 id·NaN 재현 입력 모두 오류 또는 올바른 값(서브에이전트 재현). 부모 SIGKILL 시 worker 잔존은 F-030
+
+### F-027 [열림] (심각도: 중간, 미확인) — 실데이터 위아래·앱 로더 대조가 확인되지 않았다 (앱 쪽 질문 포함)
+- 위치: bench/baseline/ref_images/ref_images.test.mjs:251-297(appDerive 이식본끼리 비교), :312(지면<지붕은 합성만); fixtures/viewpoints/viewpoints.json sceneFrame.rotate "none" (feat/baseline 7b34620)
+- 문제: ① 감독 실측 — develop res/static/demo/step07000_light.ply 를 회전 없이 보면 y 1~99 % 핵심의 아래 1/3 에 17.4 %, 위 1/3 에 49.2 % 가 있다(step00250: 10.1 % / 65.6 %). level_scene.py:40-61 은 "조밀한 쪽이 아래" 로 굽는다고 적었으나 굽기 전 orig/ 는 42.7 % / 39.3 % 다. 앱도 이 파일을 회전 없이 그리므로(sceneSource.ts:342-356) 기준 영상은 앱과 같다. 그러나 앱 자산이 뒤집혔는지는 판정되지 않았다. ② 앱은 .ply 를 SplatLoader.loadFromURL 로 읽는다(sceneSource.ts:298-306). 1e-6 비교는 이식본끼리라 실제 앱 로더 출력의 s·P 와 대조되지 않았다(서브에이전트 보고, 감독 미확인).
+- 실패 상황: 앱 자산이 뒤집혀 있으면 기준 영상도 뒤집힌 채로 고정되어 이후 B 렌더 SSIM 비교가 잘못된 장면을 정답으로 삼는다.
+- 고칠 것: 실 PLY 로 지면·지붕 높이 분포를 노트에 기록하고 "앱과 같은 방향" 임을 명시. 앱 로더 대조는 [local] 브라우저 실측으로(앱이 실제 구한 s·P 를 콘솔로 받아 비교). 앱 자산 방향이 틀렸다고 판단되면 사람에게 올린다(제품 범위 밖).
+- 확인 기준: 노트에 실 PLY 아래/위 1/3 비율과 판정, [local] 실측 s·P 와 이식 결과 차 ≤ 1e-6 또는 차이 원인 기록.
+- 권장 모델: opus
+- 이력: 2026-10-01 18:20 감독 등록(서브에이전트 보고, ① 감독 직접 측정)
+
+### F-028 [열림] (심각도: 중간) — 측정 도구 성능·측정 왜곡 잔여
+- 위치: ref_images/index.mjs:350(파일 전체 readFile), :208-209·:222·:274-275(점당 복사 3회), :132·:281-283(점마다 객체); heap/index.mjs:210·:221(statm RSS 합, 페이지 4096 고정); _common/browser.mjs:434-453(감지용 preserveDrawingBuffer·매 프레임 readback); bundle_status/closure.mjs:22(MARKER_3D `[Ss]plat`·`\bthree\b`)
+- 문제: 큰 PLY(2 GiB 초과)는 읽기 실패, 수백만 점에서 수 GB 사용. RSS 합은 공유 페이지 중복. 감지 스크립트가 측정 대상 GPU 부하를 늘림. 3D 표지가 앱 문자열에도 걸릴 수 있음. 현재 데모 자산(46만 점)에서는 문제 없음(서브에이전트 보고, 감독은 줄만 확인).
+- 고칠 것: 청크 읽기·subarray, smaps_rollup Pss, 시스템 페이지 크기, readback 1회, 3D 판별은 sourcemap 우선·폐포 밖 JS 경고를 method 에.
+- 확인 기준: 1천만 점 합성 PLY 완료·피크 RSS ≤ 파일 크기×1.3, heap method 에 PSS, 앱 코드만 있는 청크가 3D 로 분류되지 않는 픽스처 테스트.
+- 권장 모델: sonnet
+- 이력: 2026-10-01 18:20 감독 등록(축 6 높음 보고를 데모 자산 범위 밖이라 중간으로 낮춤)
+
+### F-029 [열림] (심각도: 중간) — 변형을 못 잡는 테스트 잔여
+- 위치: ref_images.test.mjs:277-278(의사난수 곱이 2^53 초과로 표본 값 중복 → 분위 round→floor 변형 생존); ref_images/index.mjs:364(drawn==0 검사가 assertCoverage 에 가려진 죽은 코드); tests/viewpoints_schema.test.mjs:27-34(리터럴 전체 일치·:34 상수끼리 비교, coord 를 "GeoAnchor ENU, 1 unit = 1 m" 로 바꿔도 통과); tools/baseline_report/index.mjs:18(toTable `|` 이스케이프 제거 생존); _common/build.test.mjs:136(install 타임아웃 테스트가 일반 sleep·잔존 확인 없음)
+- 실패 상황: 각 변형에서 전 테스트 통과(서브에이전트 사본 재현).
+- 고칠 것: Math.imul 기반 생성기와 소수부 ≥ 0.5·이웃 값 상이 단언, 죽은 검사 제거 또는 메시지 단언, 의미 단위 단언과 오도 문구 음성 사례, toTable `a|b` 행 단언, 고유 이름 sleep·pgrep 비어 있음.
+- 확인 기준: 위 변형 각각에서 테스트 실패, 문구만 바꾼 coord 는 통과.
+- 권장 모델: sonnet
+- 이력: 2026-10-01 18:20 감독 등록
+
+### F-030 [열림] (심각도: 중간) — 실행 경로 견고성 잔여
+- 위치: run_all/worker.mjs:158(disconnect 미처리), run_all/index.mjs:47; ref_images/index.mjs:324-330·:371(vp.id·name 미검증); run_all/cli.mjs:10·index.mjs:105(`--only ,`); ws_bytes/index.mjs:31(bytes safe integer 미검사); tower_bytes/index.mjs:322-325(id 1 과 '1' 병합, 문자열 feature 1동)
+- 실패 상황(서브에이전트 재현): 부모 kill -KILL/-HUP 뒤 worker 가 남아 outDir 에 계속 씀. name `x/../../escaped` → outDir 밖 파일, id·name 중복 → 덮어쓰기 통과, null 시점 → TypeError. `--only ,` → 전체 실행. bytes 1e300 통과.
+- 고칠 것: worker `process.on('disconnect', ...)`, 부모 SIGHUP, id 정수 고유·name `/^[\w-]+$/`, 빈 필터 오류(종료코드 2), Number.isSafeInteger, id 타입 구분.
+- 확인 기준: 부모 KILL 뒤 1 s 안에 worker 없음, 위 입력 각각 오류 또는 올바른 집계.
+- 권장 모델: sonnet
+- 이력: 2026-10-01 18:20 감독 등록
+
+### F-031 [열림] (심각도: 낮음) — 표기·출처 잔손질
+- 위치: ref_images/index.mjs:34-37·:357-359(56 B·법선 없음 이탈 사유가 method·주석에 없음, SPEC "원본 27 B 점군" 과 다름); ref_images/index.mjs:6·:17·:150·:168(skylens sceneSource.ts 알고리즘 참조 — 같은 팀 MIT 저장소, 재구현이나 출처·라이선스 한 줄 표기 권장); heap.test.mjs:55 주석 "여유 약 8 MiB"(실측 98.5~107.0 MiB 범위로); 연구 노트 재작업 3차 절에 제품 해시 7b34620 없음; 관제탑 `#control-view` 첫 프레임 미검증(실제 dist 30 s 미감지)
+- 고칠 것: method 에 "renderer_basis §7-4 27 B 와 다름: 56 B 스플랫, 법선 없음, 중심점만 사용", 파일 머리에 "skylens(MIT) sceneSource.ts deriveFromSplat 알고리즘 재구현", 주석·노트 정정, control-view 는 원인 기록 또는 [local] 로.
+- 확인 기준: ref_images 테스트가 method `/§7-4/`·`/법선/` 단언, 노트에 해시.
+- 권장 모델: haiku
+- 이력: 2026-10-01 18:20 감독 등록

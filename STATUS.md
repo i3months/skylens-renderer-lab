@@ -1,15 +1,15 @@
 # 현재 상태
 
-- 상태: 검토 대기
-- 현재 작업: T01 baseline
-- 마지막 갱신: 2026-10-01T18:13Z (작업자)
-- 검토 요청: 제품 PR #2 재오픈(feat/baseline 7b34620, review-requested), 연구 PR #1(experiment/baseline 4a684d1·FEEDBACK 처리됨-검증대기)
+- 상태: 작업자 차례 — 병합
+- 현재 작업: T01F `baseline-fixes`(T01.13~T01.16) → T02 `stack`
+- 마지막 갱신: 2026-10-01T18:25Z (감독)
+- 검토 요청: 없음(제품 PR #2 병합, 연구 PR #1 research 로 병합)
 - 방금 한 일: F-015·F-007·F-022~F-026 처리. develop 복사본 dist 로 npm test 216건 통과 214·실패 0·건너뜀 2. 서브에이전트 8개(opus 1·sonnet 6·haiku 1, 승격 없음; 1차는 작업 트리 격리 오류로 재기동). F-015 는 구간 PLY 틀 불일치로 지시와 다르게 step07000_light.ply 사용(노트 참조). 관제탑 #control-view 미검증.
 - 다음 할 일:
   1. 작업자: T01 `baseline` 부터 시작한다. SPEC §4 제안값과 §5 기준 기기·폴백 제안은 사람이 그대로 받아들였다(T01 측정 뒤 감독이 확정).
   2. 점검 브랜치 `ops/handoff-check` 는 사람이 삭제했다.
 - 막힌 점(미달): T01.5 관제탑 녹화(6,191 판정)·T01.4 실제 웹소켓 캡처는 사람 녹화 필요([local] 성격, 반려 사유 아님). 앵커는 상태판 기본값(관제탑용 사람 확인 필요).
-- 감독 지시: (2026-10-01 17:52 감독) 제품 PR #2 세 번째 반려(T01). **먼저 skylens develop 을 받는다: `git clone -b develop https://github.com/NET-Challenge-S13/skylens.git`** (클라우드에서 읽기 가능, 감독 확인. 지난 작업은 main 브랜치 기준이라 sceneSource 경로·캔버스 id 가 틀렸다). 그다음 F-015(높음, 모델 opus: 자체 촬영은 회전 없음, 틀은 step00250_light.ply 에서 앱과 같은 방식으로 한 번 구해 적용, 실제 PLY 8시점 점유율 ≥ 5 %) → F-007(기본 선택자 `#status-view`) → F-022·F-026·F-024·F-023 → F-025. 닫음: F-010·F-014·F-016~F-021. 확인은 반드시 `SKYLENS_DIR=<develop 클론> npm test` 로. 고친 뒤 같은 브랜치에서 PR #2 를 다시 열고 라벨. 다음 반려가 오면 범위를 쪼갠다(통과분 병합, F-015 는 별도 하위 작업). 서브에이전트는 TASKS 의 모델 열을 따른다.
+- 감독 지시: (2026-10-01 18:25 감독) 제품 PR #2(T01 cloud 부분) 병합. 반려 3회 뒤라 범위를 쪼갰다: 열린 치명·높음 0, 남은 중간·낮음은 T01.13~T01.16(F-022·F-028~F-031)으로, 녹화·실기기 필요분은 T01L [local] 로. 다음: 새 브랜치 feat/baseline-fixes 에서 T01.13(F-022, sonnet) → T01.14(sonnet) → T01.15(sonnet) → T01.16(haiku). 그 뒤 T02 `stack`(연구 experiment/stack). F-027 은 앱 자산 방향 질문이라 노트 기록만. 서브에이전트 커밋 저자를 반드시 i3months 로(이번 PR 에 생성 도구 저자 커밋 1건, 병합 시 squash 로 정리).
 
 ## 환경 (첫 실행 점검, 2026-10-01T12:42Z)
 
