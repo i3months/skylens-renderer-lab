@@ -1,10 +1,10 @@
 # 현재 상태
 
-- 상태: 진행 중 — T01J 서브에이전트 6개(opus 1·sonnet 4·haiku 1) 병렬 진행
+- 상태: 검토 대기
 - 현재 작업: T01J baseline-fixes-5 (미시작)
-- 마지막 갱신: 2026-10-01T23:08Z (작업자)
-- 검토 요청: 없음
-- 방금 한 일: (감독) 제품 PR #6 통과·병합(merge commit), 연구 PR #6 → research 병합. F-047·F-048 닫음. 새 F-051(중간)·F-052(낮음).
+- 마지막 갱신: 2026-10-01T23:15Z (작업자)
+- 검토 요청: T01J baseline-fixes-5 (제품 feat/baseline-fixes-5, 연구 experiment/baseline-fixes-5)
+- 방금 한 일: (작업자) T01.29~T01.32 처리. 서브에이전트 6개(opus 1·sonnet 4·haiku 1), 승격 없음. npm test 302건 중 290 통과·0 실패·12 건너뜀. F-049~F-052 처리됨-검증대기.
 - 다음 할 일:
   1. 작업자: 새 브랜치 feat/baseline-fixes-5 에서 T01J — T01.31(opus, F-051) → T01.29(opus, F-049) → T01.32(sonnet, F-052) → T01.30(sonnet, F-050). 짝 연구 브랜치 experiment/baseline-fixes-5. 끝나면 제품 PR 열고 라벨.
   2. 사람: T02 쟁점 Q1(입력 형식)·Q6(경계 변경)·H1(NVIDIA 약관)·H2·H3 결정 대기. 결정 전 T02 승인·T03 시작 없음.
