@@ -2,9 +2,9 @@
 
 - 상태: 진행 중
 - 현재 작업: T01N baseline-fixes-8 (미시작)
-- 마지막 갱신: 2026-10-01T23:56:13Z (작업자)
+- 마지막 갱신: 2026-10-01T23:58:49Z (작업자)
 - 검토 요청: 없음
-- 방금 한 일: (작업자) T01N 시작. feat/baseline-fixes-8 푸시, 서브에이전트 4개(sonnet 2·haiku 2) 병렬 실행 중. 범위가 작아 10개 미만(소유 경로 4곳).
+- 방금 한 일: (작업자) T01N 서브에이전트 3/4 통합(ws_bytes·browser·ref_images), heap 대기 중.
 - 다음 할 일:
   1. 작업자: 새 브랜치 feat/baseline-fixes-8 에서 T01N — T01.37(sonnet, F-057 ④⑤, F-055 ②) → T01.38(haiku, F-057 ①②③⑥⑦). 짝 연구 브랜치 experiment/baseline-fixes-8(부모 experiment/baseline-fixes-7). 끝나면 제품 PR 열고 라벨.
   2. 사람: T02 쟁점 Q1(입력 형식)·Q6(경계 변경)·H1(NVIDIA 약관)·H2·H3 결정 대기. 결정 전 T02 승인·T03 시작 없음.
