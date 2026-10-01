@@ -418,7 +418,7 @@
 - 권장 모델: haiku (① 은 sonnet)
 - 이력: 2026-10-01 19:25 감독 등록(축 2·4b·6·7·11·12·3 보고, 근거 줄 확인). 신규 항목 → 2026-10-01 작업자 처리(제품 2ac92b2, T01.27·T01.28·직접): ①~⑤ 처리, ⑥ 은 실험 브랜치에서 STATUS 미수정. closure 변경으로 bundle_tower 테스트 기대 basis 를 파싱 오류 표기로 갱신(노트 참조) → 2026-10-01 19:55 감독 확인 닫음: ① 사본에서 heap/index.mjs:71 isFinite 줄 삭제 → heap 1 실패(감독 직접). ③ 순서 바꾼 27 B 다섯 경우 모두 '같은 형식' 아님(축 1b 실행). ④ badjson-6 테스트로 basis·method 표기. ⑤ baseline-fixes-3.md:20 분류 10·2 기재. ⑥ 연구 diff 에 STATUS.md 없음. bundle_status 의 HTML 맵 입력 삭제·노트 수치 출처는 F-052
 
-### F-049 [처리됨-검증대기] (심각도: 중간) — ws_bytes final 판정 잔여 (stale 원본의 final 이 완결을 만들고, resend 프레임의 final 이 final 모드를 켠다)
+### F-049 [닫힘] (심각도: 중간) — ws_bytes final 판정 잔여 (stale 원본의 final 이 완결을 만들고, resend 프레임의 final 이 final 모드를 켠다)
 - 위치: bench/baseline/ws_bytes/index.mjs:117(`if (f.final !== undefined) anyFinal = true` — resend 프레임 포함), :130(`if (f.final === true) s.final = true` 가 :131 stale 판정보다 먼저), :168·:281-283(resend_merged_rounds 를 미완 구간까지 셈) (제품 main 612eeae)
 - 문제: 완결은 "받은 원본 final" 로만 판정한다는 F-042 결정과 어긋나는 두 경로. ① 추월돼 집계에서 빠지는 stale 원본의 final 이 구간을 완결시킨다. ② final 필드가 resend 프레임에만 있는 녹화는 final 모드가 켜져 원본 구간이 전부 미완이 된다. ③ 미완 구간의 이어 붙인 resend 회차도 segment_total.method 에 "한 회차의 분할로 합산" 으로 적힌다.
 - 실패 상황(감독 직접 재현, summarize): ① [L1 5, L0 3 final:true] → segment_ids [1]·segments [5]·stale 1 (맞는 값: incomplete 1개). ② [L0 1, L1 2, L2 4, 구간2 rL2 4 final:true] → segment_ids []·incomplete [1,2] (final 필드 없으면 구간 1 완결 [7]). ③ [r(1,2,40,final), r(1,2,40,final), (2,2,3,final)] → segments [3]·구간 1 미완인데 resend_merged_rounds 1.
@@ -427,8 +427,9 @@
 - 권장 모델: opus (같은 도구가 F-022·F-042·F-047 로 거듭 열렸다)
 - 이력: 2026-10-01 19:40 감독 등록(PR #5 중복 감독 실행의 축 1b 보고, 세 입력 모두 감독 직접 재현). 신규 항목. 19:24 실행의 F-047 과 겹치지 않음
   → 2026-10-01 작업자 처리(제품 091b901, T01J): 확인 기준 직접 돌려 통과. 노트 experiments/baseline-fixes-5.md
+  → 2026-10-01 23:21 감독 확인 닫음: ① [L1 5, L0 3 final] → ids []·incomplete 1개, ② → segments [7], ③ → resend_merged_rounds 0·incomplete 1(감독 직접 재현). F-042 세 입력·F-047 두 입력 유지. 변형 stale final 무시 제거·anyFinal resend 켬·미완 회차 셈 각각 1 실패(축 4a 사본 실행). 끊긴 같은 최고 수준 final 이 버려지는 짝 문제는 F-053
 
-### F-050 [처리됨-검증대기] (심각도: 낮음) — 테스트 공백·측정 도구 잔여 (PR #5 중복 감독 실행 보충)
+### F-050 [닫힘] (심각도: 낮음) — 테스트 공백·측정 도구 잔여 (PR #5 중복 감독 실행 보충)
 - 위치·문제:
   ① ref_images/index.mjs:260 CANON_TYPE 별칭(float32·uint8) 테스트 없음 — 정규화 제거 변형 생존(축 4a 사본 실행). :484 normalType 비교를 `!== 'uchar'` 로 바꾼 변형 생존(float 좌표 + int 법선 27 B 디코드 사례 없음). :486 형 정보 없을 때 "x y z undefined" 를 내는 변형 생존(테스트는 '같은 형식' 부재만 봄). F-048 ③(순서) 과 함께 고친다.
   ② ws_bytes/index.mjs:168 mergedRounds 를 프레임 수−1 로 세는 변형 생존(테스트가 2프레임 회차뿐). [r40, r40, r40] → 1회차 단언 없음.
@@ -442,8 +443,9 @@
 - 권장 모델: sonnet (⑥ 은 haiku)
 - 이력: 2026-10-01 19:40 감독 등록(중복 감독 실행 축 1a·4a·4b·5·6·7 보고; ③ ④ 는 감독이 diff·코드 줄 확인, ①② 는 축 4a 사본 실행 — 감독 미재현). 신규 항목
   → 2026-10-01 작업자 처리(제품 091b901, T01J): 확인 기준 직접 돌려 통과. 노트 experiments/baseline-fixes-5.md
+  → 2026-10-01 23:21 감독 확인 닫음: ① CANON_TYPE 별칭·int 법선 테스트 존재(ref_images.test.mjs:939-959, 축 2·1b 확인). ② 3프레임 회차 변형(프레임수−1) 1 실패(축 4a). ③ PLAYWRIGHT_BROWSERS_PATH=/nonexistent 에서 감지 스크립트 문법 오류 변형 → browser.test 1 실패(감독 직접). ④ BOM .map → sourcemap 판정(축 1b node 실행). ⑤⑥ 줄 확인
 
-### F-051 [처리됨-검증대기] (심각도: 중간) — ws_bytes: resend 로만 받은 높은 수준 뒤에 온 낮은 수준 원본 프레임이 stale 로 처리되지 않는다
+### F-051 [닫힘] (심각도: 중간) — ws_bytes: resend 로만 받은 높은 수준 뒤에 온 낮은 수준 원본 프레임이 stale 로 처리되지 않는다
 - 위치: bench/baseline/ws_bytes/index.mjs:137(`isStale = f.level < s.hi || …`, s.hi 는 원본만), :124-126 주석("높은 수준이 원본이든 재전송이든") (제품 feat/baseline-fixes-4 2ac92b2)
 - 문제: F-047 로 resend 회차의 추월은 rhi(받은 수준 최고) 기준이 됐지만 원본 프레임의 추월은 여전히 원본 최고 수준 hi 만 본다. 같은 도착 순서라도 높은 수준이 원본이냐 resend 냐에 따라 낮은 수준 원본이 버려지거나 합산된다(RULES §1.1 추월 건너뛰기·누적 금지 비대칭).
 - 실패 상황(감독 직접 재현): summarize([rL2 40, L0 5]) → segments [45]·levels [[1,3]]·stale 0. L2 가 원본이면 [L2 40, L0 5] → [40]·stale 1. 축 3 도 같은 입력으로 보고.
@@ -452,8 +454,9 @@
 - 권장 모델: opus (같은 도구가 F-022·F-042·F-047 로 거듭 열렸다)
 - 이력: 2026-10-01 19:55 감독 등록(축 3 보고, 감독 직접 재현). 신규 항목(F-047 수정 뒤 원본 쪽에 남은 비대칭)
   → 2026-10-01 작업자 처리(제품 091b901, T01J): 확인 기준 직접 돌려 통과. 노트 experiments/baseline-fixes-5.md
+  → 2026-10-01 23:21 감독 확인 닫음: [rL2 40, L0 5] → [40]·[[3]]·stale 1·stale_bytes 5 감독 직접 재현. 사본에서 :146 을 s.hi 로 되돌림 → ws_bytes 2 실패(감독 직접)
 
-### F-052 [처리됨-검증대기] (심각도: 낮음) — PR #6 잔여: 테스트 입력 삭제·파싱 오류 범위·노트 수치 출처
+### F-052 [닫힘] (심각도: 낮음) — PR #6 잔여: 테스트 입력 삭제·파싱 오류 범위·노트 수치 출처
 - 위치·문제:
   ① bundle_status/bundle_status.test.mjs:301 `plain-4.js.map` 의 `'<html>404</html>'` 입력을 지우고 "맵 없음" 으로 바꿨다. HTML 맵을 다루는 입력이 이 파일에서 사라졌고 노트(baseline-fixes-4.md:20)는 bundle_tower 변경만 적었다(축 5, 감독 diff 확인).
   ② bundle_status/closure.mjs:61-63 내부 try 가 `JSON.parse(mapText).sources` 전체를 감싸 `.map` 내용이 `null` 이면 TypeError 를 "JSON 파싱 실패" 로 기록한다(감독 코드 확인).
@@ -470,3 +473,26 @@
 - 권장 모델: sonnet (⑥⑦⑨ 의 번호 삭제는 haiku)
 - 이력: 2026-10-01 19:55 감독 등록(축 1b·4b·5·6+7·9 보고; ①②③⑥⑧⑨ 감독 줄 확인, ④ 와 변형 생존은 서브에이전트 사본 실행 — 감독 미재현). 신규 항목
   → 2026-10-01 작업자 처리(제품 091b901, T01J): 확인 기준 직접 돌려 통과. 노트 experiments/baseline-fixes-5.md
+  → 2026-10-01 23:21 감독 확인 닫음: grep 'F-0[0-9][0-9]' bench tests tools contracts 0건(감독 직접). ② null 맵 → heuristic, ③ parse-error 만 있을 때 경고, ④ statm '1 -5' → null(축 1b node 실행). ⑥ 노트 출처 정정(연구 PR #7). ⑦ 병합 메시지 영어로 직접 작성 확인. statm 빈 필드는 F-054 ③
+
+### F-053 [열림] (심각도: 중간) — ws_bytes: 같은 최고 수준의 끊긴 원본 프레임에 붙은 final 이 버려져 완결 판정이 도착 순서에 달라진다
+- 위치: bench/baseline/ws_bytes/index.mjs:146-147(`isStale = f.level < s.rhi || (f.level === s.hi && s.last !== f.level)`, `if (f.final === true && !isStale) s.final = true`), :65 주석("추월당한 수준"만 막는다고 적음) (제품 feat/baseline-fixes-5 091b901)
+- 문제: F-049 ① 수정으로 stale 프레임의 final 을 버리는데, isStale 에는 추월된 낮은 수준뿐 아니라 "분할 연속이 끊긴 같은 최고 수준" 도 들어간다. 최고 수준을 받았고 그 수준의 final 원본도 왔는데 구간이 미완이 된다. 같은 프레임 집합이 순서만 바뀌어도 완결/미완이 갈린다.
+- 실패 상황(감독 직접 재현, summarize): [L2 5, L1 3, L2 5 final] → segment_ids []·incomplete [{id 1, 5 B}]. [L2 5, rL2 5, L2 5 final] → incomplete 1개. 순서만 바꾼 [L2 5 final, rL2 5, L2 5] → segments [5] 완결.
+- 고칠 것: final 은 `f.level >= s.rhi` 일 때 켠다(추월된 낮은 수준만 막는다). 바이트 쪽 stale 판정은 그대로 둔다. 의도적으로 끊긴 같은 수준 final 을 버리는 것이면 근거를 :65 주석과 연구 노트에 적고 순서 의존을 테스트로 고정한다.
+- 확인 기준: 위 두 입력 → segment_ids [1]·segments [5]. F-049 ①([L1 5, L0 3 final] → incomplete 1개)·②·③, F-051, F-047, F-042 확인 기준 유지. 사본에서 :147 을 `!isStale` 로 되돌리면 ws_bytes 테스트 실패.
+- 권장 모델: opus (같은 도구가 F-022·F-042·F-047·F-049·F-051 로 거듭 열렸다)
+- 이력: 2026-10-01 23:21 감독 등록(축 1a 보고, 세 입력 감독 직접 재현; 축 4a 가 같은 줄의 변형 생존 [L2 5, L1 1, L2 3 final] 을 따로 보고 — 같은 원인이라 묶음). 신규 항목
+
+### F-054 [열림] (심각도: 낮음) — PR #7 잔여: 받은 수준 표기의 교체 누락·final 경고 문구·statm 빈 필드·주석
+- 위치·문제:
+  ① ws_bytes/index.mjs:222-231 segment_levels 와 마스크(:318)가 같은 구간에서 뒤에 온 높은 수준에 교체된 낮은 수준을 그대로 남긴다. [L0 10, L2 30] → [40]·[[1,3]], [L2 30, L0 10] → [30]·[[3]] (감독 직접 재현). 바이트 합은 전송량이라 맞지만 levels 는 "보드에 남은 수준" 이 아니라 "받은 수준 전부" 다. 이번 PR 이 만든 것이 아닌 기존 동작(19:24 실행에서 기존 한계로 기각한 것과 같은 원인). 지표 의미를 method 에 밝히거나 교체된 수준을 replaced_levels 로 따로 낸다.
+  ② ws_bytes/index.mjs:246·:299-300 final 필드가 resend 프레임에만 있을 때도 method 에 "final 필드 없음, topLevel 가정" 이 적힌다(축 1a 보고, 감독 미재현). 문구를 "final 필드가 resend 에만 있음" 으로 구분한다.
+  ③ heap/index.mjs:70 `split(' ')[1]` → statm "100  5"(빈 필드)·"100 \n" 이면 Number('') = 0 이라 :71 검사를 통과해 0 B 프로세스로 센다(축 1b·6+7 보고, 감독 줄 확인). 실제 커널 형식은 아니다. `trim().split(/\s+/)` 와 `/^\d+$/` 검사.
+  ④ ref_images/index.mjs:486-487 basisNote 주석 "뒤에 속성이 더 있어도 된다" — 속성이 더 있으면 stride≠27 이라 같은 형식이 될 수 없다(축 2·1b 보고, 감독 줄 확인). 주석 정정과 10번째 속성 PLY → '와 다름' 테스트.
+  ⑤ ws_bytes.test.mjs:212-215 바꾼 [rL2 9, L0 4] 단언에 segment_levels [[3]]·resend_bytes 0 이 없다(축 4a).
+- 실패 상황: ① levels_received 가 실제 남은 수준보다 크게 나옴 ② 경고 문구가 사실과 다름 ③ 깨진 statm 이 0 B 값을 만듦 ④ 주석 오독.
+- 고칠 것: 위 각 항목.
+- 확인 기준: ① [L0 10, L2 30] 과 [L2 30, L0 10] 의 표시 수준이 같거나, method 에 "받은 수준 전부(교체 포함)" 가 적힘 ② F-049 ② 입력 + first_frame 으로 run → method 에 "final 필드 없음" 없음 ③ statm "100  5" 주입 → null ④ 10속성 PLY 테스트 ⑤ 단언 추가.
+- 권장 모델: sonnet (①② 는 ws_bytes 라 F-053 과 함께 opus 하위 작업에서 처리해도 됨, ④⑤ 는 haiku)
+- 이력: 2026-10-01 23:21 감독 등록(축 1a·1b·2·3·4a·6+7 보고). 신규 항목(① 은 기존 동작을 새로 기록한 것)
