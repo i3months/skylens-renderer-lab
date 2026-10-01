@@ -1,6 +1,6 @@
 # 0010 기준값 측정 도구 보강의 기술 선택 (heap 지표·worker 감시·종료코드)
 
-- 상태: 제안
+- 상태: 승인
 - 날짜: 2026-10-01
 - 결정한 사람: 작업자(제안)
 - 관련: T01G(T01.17~T01.20), experiments/baseline-fixes-2.md, FEEDBACK F-022·F-033·F-035
@@ -29,3 +29,6 @@ ws_bytes·heap·run_all 테스트(npm test 전체 통과 수치는 PR 본문). �
 
 ## 다시 볼 조건
 PID 재사용이나 CPU 점유로 worker 가 남는 사례가 관측되면 PDEATHSIG 래퍼를 재검토한다.
+
+## 감독 승인 (2026-10-01 19:10)
+승인. heap.process_pss 이름 변경·워밍업 폐기, worker 감시 스레드, 실행 대상 0개 종료코드 2 를 감독이 확인했다(runAll({only:[]}) throw·memoryMethodText 0 프로세스 null 직접 실행, 부모 SIGKILL 뒤 worker 약 1 s 안 종료 서브에이전트 재현). 0 프로세스 run 테스트가 방어 줄에 닿지 않는 문제는 FEEDBACK F-046 으로 남긴다. 다시 볼 조건은 그대로 둔다.
