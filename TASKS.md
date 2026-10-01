@@ -43,7 +43,8 @@ tools/       명령줄 도구
 - [x] **T01I `baseline-fixes-4`** [cloud] — T01H 검토 잔여 F-047(중간)·F-048(낮음), T01.26~T01.28. (2026-10-01 병합, 제품 003e34b merge commit, 연구 research 4e7b9ff, 반려 0회. F-047·F-048 닫음. 작업 중 감독이 보충한 T01.29·T01.30 은 PR 에 없어 T01J 로 옮김)
 - [x] **T01J `baseline-fixes-5`** [cloud] — T01I 검토 잔여와 옮긴 항목: F-049·F-051(중간), F-050·F-052(낮음). T01.29·T01.30·T01.31·T01.32. T02 가 사람 결정(Q1·Q6) 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-5, 연구 experiment/baseline-fixes-5. (2026-10-01 병합, 제품 1c99f60 merge commit, 연구 research f1335ac, 반려 0회. F-049~F-052 닫음)
 - [x] **T01K `baseline-fixes-6`** [cloud] — T01J 검토 잔여: F-053(중간), F-054·F-055(낮음). T01.33·T01.34. T02 가 사람 결정(Q1·Q6) 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-6, 연구 experiment/baseline-fixes-6. (2026-10-01 병합, 제품 6b0cb9f merge commit, 연구 experiment/baseline-fixes-5 7a5a21f, 반려 0회. F-054 닫음. F-053 본문 해결·보충 미처리, F-055 미처리 → T01M)
-- [ ] **T01M `baseline-fixes-7`** [cloud] — T01K 검토 잔여: F-053 보충·보충 2(중간), F-056(중간), F-055(낮음). T01.35·T01.36. T02 가 사람 결정 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-7, 연구 experiment/baseline-fixes-7.
+- [x] **T01M `baseline-fixes-7`** [cloud] — T01K 검토 잔여: F-053 보충·보충 2(중간), F-056(중간), F-055(낮음). T01.35·T01.36. T02 가 사람 결정 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-7, 연구 experiment/baseline-fixes-7. (2026-10-01 병합, 제품·연구 merge commit 은 감독 기록 23:49 절, 반려 0회. F-053·F-056 닫음, F-055 ② 와 F-057 → T01N)
+- [ ] **T01N `baseline-fixes-8`** [cloud] — T01M 검토 잔여: F-055 ②, F-057(모두 낮음). T01.37·T01.38. T02 가 사람 결정 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-8, 연구 experiment/baseline-fixes-8. 제품 코드·테스트 이름에 FEEDBACK 번호를 넣지 않는다.
 - [ ] **T02 `stack`** — 스택 선정. 서버 래스터라이저(2단계)·자산 처리 서버·클라이언트 경량 래스터라이저를 무엇으로 쓸지 조사. **감독 승인 전에는 T03 이후를 시작하지 않는다.**
 - [ ] **T03 `asset-format`** — 경량 자산 포맷 계약과 핵심 타입.
 - [ ] **T04 `point-io`** — 27 B 점 형식 입출력과 ENU 좌표.
@@ -117,6 +118,8 @@ tools/       명령줄 도구
 | T01.34 | cloud | F-054 ③ statm 빈 필드, ④ basisNote 주석·10속성 PLY 테스트, F-055 ②③④ 테스트 공백 | `bench/baseline/heap/`, `ref_images/`, `_common/` | F-054 ③④·F-055 ②③④ 확인 기준 | haiku |
 | T01.35 | cloud | F-053 보충·보충 2: 끊긴 같은 최고 수준 원본을 '사본' 또는 '새 메시지' 중 한 규칙으로 정해 final·바이트·뒤 조각 판정 통일(주석·노트에 근거), F-055 ①, F-056 ① | `bench/baseline/ws_bytes/` | F-053 보충·보충 2·F-055 ①·F-056 ① 확인 기준, F-022·F-042·F-047·F-049·F-051·F-053 본문 유지 | opus |
 | T01.36 | cloud | F-055 ②③④, F-056 ②~⑥ 테스트 공백·주석 | `bench/baseline/heap/`, `ref_images/`, `_common/`, 연구 노트 | F-055 ②③④·F-056 ②~⑥ 확인 기준 | haiku |
+| T01.37 | cloud | F-057 ④ "같은 프레임 집합" 테스트에 손계산 리터럴 단언, ⑤ 사본 규칙이 skylens 송신 코드 미대조 가정임을 주석에 밝히고 run method 에 끊긴 같은 수준 사본 개수 표기, F-055 ② 감지 뒤 조기 반환(실제 buildDetectScript 에 호출 수 훅 + 테스트, 또는 두 줄 삭제) | `bench/baseline/ws_bytes/`, `bench/baseline/_common/` | F-057 ④⑤·F-055 ② 확인 기준, F-042·F-047·F-049·F-051·F-053 유지 | sonnet |
+| T01.38 | cloud | F-057 ①②③ ref_images 주석·문서·colorType, ⑥⑦ heap 합 상한·혼합 테스트 | `bench/baseline/ref_images/`, `bench/baseline/heap/` | F-057 ①②③⑥⑦ 확인 기준 | haiku |
 
 완료 후: 감독이 SPEC §4 를 확정해 "제안값" → "확정" 으로 바꾼다.
 

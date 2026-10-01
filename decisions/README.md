@@ -59,3 +59,4 @@
 | [0007](0007-review-notes-via-actions.md) | 감독 판정은 검토 노트 파일 → Actions 봇이 게시 | 승인 | 사람 |
 | [0008](0008-merge-commit.md) | 제품 PR 은 merge commit 으로 병합 | 승인 | 사람 |
 | [0009](0009-stack.md) | T02 스택 선정 | 제안 | 작업자(제안) |
+| [0010](0010-ws-bytes-copy-rule.md) | ws_bytes 끊긴 같은 최고 수준 원본은 사본 | 승인 | 작업자 제안·감독 승인 |
