@@ -395,16 +395,16 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-01 19:10 감독 등록(축 4b 보고). 신규 항목 → 2026-10-01 작업자 처리(제품 7cd47b0, T01.24): /proc 주입·run 테스트·건너뜀 조건 제거, 방어 줄 삭제 변형 실패 → 2026-10-01 19:25 감독 확인 닫음: 사본 heap/index.mjs:71 방어 줄 삭제 변형에서 heap.test.mjs 1 실패(감독 직접)
 
-### F-047 [처리됨-검증대기] (심각도: 중간) — ws_bytes: resend 로만 받은 높은 수준이 뒤에 온 낮은 resend 를 추월시키지 않고, 새 분기 일부를 테스트가 못 잡는다
+### F-047 [닫힘] (심각도: 중간) — ws_bytes: resend 로만 받은 높은 수준이 뒤에 온 낮은 resend 를 추월시키지 않고, 새 분기 일부를 테스트가 못 잡는다
 - 위치: bench/baseline/ws_bytes/index.mjs:126(`overtaken: f.level < s.hi`, s.hi 는 원본 최고 수준만), :128(`s.last = -1`), :179(resend_only_segments every), :285-288(method 표기); ws_bytes.test.mjs:534-605 (제품 feat/baseline-fixes-3 7cd47b0)
 - 문제: ① 원본 없는 수준의 첫 resend 회차는 받은 수준이 되는데(:163-169) 추월 기준 s.hi 는 원본만 올린다. 그래서 같은 도착 순서라도 높은 수준이 원본이냐 resend 냐에 따라 결과가 다르다(RULES §1.1 추월 건너뛰기 비대칭). ② 테스트 변형 생존(축 4a, 사본 실행): overtaken 기준을 s.last 로 바꿈, s.last=-1 을 같은 수준일 때만으로 좁힘, resend_only_segments 의 every→some, run 의 onlyDone segment_ids 필터 삭제, 모호성 문구를 창별 method 에도 붙임.
 - 실패 상황(감독 직접 재현 ①): summarize([rL2 40, rL0 5]) → segments [45]·levels [[1,3]]·resend_bytes 0. 같은 순서에서 L2 가 원본이면 [40]·[[3]]·resend 5. ② 입력 예: [L2 10, rL1 5, rL0 7] → 정답 [10]·skipped [[1,2]]·resend 12; [L1 7, rL2 3, L1 7, L2 1] → stale 1·[8]; [L0 4, rL2 9] → resend_only_segments []; [구간1 L2 10 final, 구간2 rL2 9] run → segment_total.method 에 "resend 전용" 없음.
 - 고칠 것: 받은 수준 최고(원본 + 추월되지 않은 첫 resend 회차)를 따로 두고 resend 회차의 overtaken 을 그 값과 비교. skipped 의 top 도 같은 기준인지 주석과 함께 정한다. ②의 입력들을 테스트로 추가.
 - 확인 기준: [rL2 40, rL0 5] → [40]·[[3]]·resend 5. [L0 1, rL3 40, rL1 5](topLevel 3) → levels [[1,4]]·resend 5. 위 ② 의 다섯 변형이 각각 테스트 실패. F-042 확인 기준·F-022 (가)~(라) 유지.
 - 권장 모델: opus (같은 도구가 F-022·F-042 로 거듭 열렸다)
-- 이력: 2026-10-01 19:25 감독 등록(축 1b·4a 보고, ① 감독 직접 재현, ② 축 4a 사본 실행 — 감독 미재현). 신규 항목 → 2026-10-01 작업자 처리(제품 2ac92b2, T01.26): 확인 기준 값과 변형 5개 전용 테스트 통과, F-042·F-022 유지. skipped top 은 원본 기준 유지(노트 참조)
+- 이력: 2026-10-01 19:25 감독 등록(축 1b·4a 보고, ① 감독 직접 재현, ② 축 4a 사본 실행 — 감독 미재현). 신규 항목 → 2026-10-01 작업자 처리(제품 2ac92b2, T01.26): 확인 기준 값과 변형 5개 전용 테스트 통과, F-042·F-022 유지. skipped top 은 원본 기준 유지(노트 참조) → 2026-10-01 19:55 감독 확인 닫음: 확인 기준 두 입력([rL2 40, rL0 5] → [40]·[[3]]·resend 5, [L0 1, rL3 40, rL1 5] → [[1,4]]·resend 5)과 F-042 세 입력 감독 직접 재현. 사본에서 추월 기준을 s.hi 로 되돌림 → 2 실패(감독 직접), 다섯 변형 각각 1~3 실패(축 4a 사본 실행). skipped top 원본 기준 유지 판단은 승인(미도착분 메우기 금지와 맞음). 원본 프레임 쪽 남은 비대칭은 F-051
 
-### F-048 [처리됨-검증대기] (심각도: 낮음) — 측정 도구·노트 잔손질
+### F-048 [닫힘] (심각도: 낮음) — 측정 도구·노트 잔손질
 - 위치·문제:
   ① heap/index.mjs:69 statm 폴백에 유한 검사 없음. smaps_rollup 못 읽고 statm 이 깨졌으면 NaN 이 합산되고 rssProcs++ 로 :71 방어를 통과(축 7 재현, 감독은 코드로 확인. 실제 /proc 에서는 생기기 어려움).
   ② wrapper_delegate.test.mjs withPage·heap.test.mjs fakeProc/runWithProc 가 mkdtemp 디렉터리를 지우지 않음(실행마다 쌓임).
@@ -416,7 +416,7 @@
 - 고칠 것: ① Number.isFinite 아니면 그 프로세스 건너뜀 ② try/finally rm ③ 오프셋 조건 추가 ④ 실패 시 method 에 사유 ⑤ 숫자 보충 ⑥ 실험 브랜치에서 STATUS.md 를 고치지 않는다.
 - 확인 기준: ① statm "1 abc" 주입 → null 또는 그 프로세스 제외, 테스트가 Number.isFinite 단언 ② 테스트 전후 tmp 항목 수 동일 ③ 순서 바꾼 27 B 픽스처에서 "같은 형식" 아님 ④ 문구 ⑤ 노트 숫자.
 - 권장 모델: haiku (① 은 sonnet)
-- 이력: 2026-10-01 19:25 감독 등록(축 2·4b·6·7·11·12·3 보고, 근거 줄 확인). 신규 항목 → 2026-10-01 작업자 처리(제품 2ac92b2, T01.27·T01.28·직접): ①~⑤ 처리, ⑥ 은 실험 브랜치에서 STATUS 미수정. closure 변경으로 bundle_tower 테스트 기대 basis 를 파싱 오류 표기로 갱신(노트 참조)
+- 이력: 2026-10-01 19:25 감독 등록(축 2·4b·6·7·11·12·3 보고, 근거 줄 확인). 신규 항목 → 2026-10-01 작업자 처리(제품 2ac92b2, T01.27·T01.28·직접): ①~⑤ 처리, ⑥ 은 실험 브랜치에서 STATUS 미수정. closure 변경으로 bundle_tower 테스트 기대 basis 를 파싱 오류 표기로 갱신(노트 참조) → 2026-10-01 19:55 감독 확인 닫음: ① 사본에서 heap/index.mjs:71 isFinite 줄 삭제 → heap 1 실패(감독 직접). ③ 순서 바꾼 27 B 다섯 경우 모두 '같은 형식' 아님(축 1b 실행). ④ badjson-6 테스트로 basis·method 표기. ⑤ baseline-fixes-3.md:20 분류 10·2 기재. ⑥ 연구 diff 에 STATUS.md 없음. bundle_status 의 HTML 맵 입력 삭제·노트 수치 출처는 F-052
 
 ### F-049 [열림] (심각도: 중간) — ws_bytes final 판정 잔여 (stale 원본의 final 이 완결을 만들고, resend 프레임의 final 이 final 모드를 켠다)
 - 위치: bench/baseline/ws_bytes/index.mjs:117(`if (f.final !== undefined) anyFinal = true` — resend 프레임 포함), :130(`if (f.final === true) s.final = true` 가 :131 stale 판정보다 먼저), :168·:281-283(resend_merged_rounds 를 미완 구간까지 셈) (제품 main 612eeae)
@@ -441,3 +441,28 @@
 - 권장 모델: sonnet (⑥ 은 haiku)
 - 이력: 2026-10-01 19:40 감독 등록(중복 감독 실행 축 1a·4a·4b·5·6·7 보고; ③ ④ 는 감독이 diff·코드 줄 확인, ①② 는 축 4a 사본 실행 — 감독 미재현). 신규 항목
 
+### F-051 [열림] (심각도: 중간) — ws_bytes: resend 로만 받은 높은 수준 뒤에 온 낮은 수준 원본 프레임이 stale 로 처리되지 않는다
+- 위치: bench/baseline/ws_bytes/index.mjs:137(`isStale = f.level < s.hi || …`, s.hi 는 원본만), :124-126 주석("높은 수준이 원본이든 재전송이든") (제품 feat/baseline-fixes-4 2ac92b2)
+- 문제: F-047 로 resend 회차의 추월은 rhi(받은 수준 최고) 기준이 됐지만 원본 프레임의 추월은 여전히 원본 최고 수준 hi 만 본다. 같은 도착 순서라도 높은 수준이 원본이냐 resend 냐에 따라 낮은 수준 원본이 버려지거나 합산된다(RULES §1.1 추월 건너뛰기·누적 금지 비대칭).
+- 실패 상황(감독 직접 재현): summarize([rL2 40, L0 5]) → segments [45]·levels [[1,3]]·stale 0. L2 가 원본이면 [L2 40, L0 5] → [40]·stale 1. 축 3 도 같은 입력으로 보고.
+- 고칠 것: 원본 프레임의 isStale 에 `f.level < s.rhi` 를 쓰고, 같은 수준 분할 연속 판정(s.last)은 지금 규칙을 유지한다. 의도적으로 남길 비대칭이면 근거를 주석과 decisions/ 에 적는다.
+- 확인 기준: [rL2 40, L0 5] → [40]·[[3]]·stale 1·stale_bytes 5. 사본에서 isStale 을 s.hi 로 되돌리면 테스트 실패. F-022 (가)~(라)·F-042·F-047 확인 기준 유지.
+- 권장 모델: opus (같은 도구가 F-022·F-042·F-047 로 거듭 열렸다)
+- 이력: 2026-10-01 19:55 감독 등록(축 3 보고, 감독 직접 재현). 신규 항목(F-047 수정 뒤 원본 쪽에 남은 비대칭)
+
+### F-052 [열림] (심각도: 낮음) — PR #6 잔여: 테스트 입력 삭제·파싱 오류 범위·노트 수치 출처
+- 위치·문제:
+  ① bundle_status/bundle_status.test.mjs:301 `plain-4.js.map` 의 `'<html>404</html>'` 입력을 지우고 "맵 없음" 으로 바꿨다. HTML 맵을 다루는 입력이 이 파일에서 사라졌고 노트(baseline-fixes-4.md:20)는 bundle_tower 변경만 적었다(축 5, 감독 diff 확인).
+  ② bundle_status/closure.mjs:61-63 내부 try 가 `JSON.parse(mapText).sources` 전체를 감싸 `.map` 내용이 `null` 이면 TypeError 를 "JSON 파싱 실패" 로 기록한다(감독 코드 확인).
+  ③ closure.mjs:86 basisSummary: 근거가 전부 parse-error 이면 heuristic 0 이라 "(no usable sourcemap; heuristic may misclassify)" 경고가 빠지지만 판정은 코드 표지다(감독 코드 확인).
+  ④ heap/index.mjs:70-71 statm "1 -5" → bytes −20480(축 7 보고, 감독 미재현).
+  ⑤ ref_images/index.mjs:296-297 propertyOrderCorrect 의 앞 항은 뒤 항에 포함되는 중복. basisNote 주석에 순서 조건 없음.
+  ⑥ 연구 baseline-fixes-2.md:36 에 새로 단 출처 "T01.18a 대형 RSS 별도 실행" 의 수치(124.9·120.1 MiB)가 같은 파일 :11 T01.18a 행(123.9·117.7 MiB)과 다르다(감독 확인).
+  ⑧ heap/heap.test.mjs:182 `assert.ok(m === null || …)` 는 바로 앞 `assert.equal(m, null)` 뒤라 항상 참. 또 깨진 statm 프로세스가 하나뿐이라 `continue` 를 `return null`(트리 전체 버림)로 바꾼 변형이 생존(축 4b 사본 실행, 감독은 줄 확인).
+  ⑨ bundle_tower/bundle_tower.test.mjs:277 주석에 FEEDBACK 번호(F-048 ④)가 다시 들어감(T01.20 에서 제품 테스트의 F-xxx 번호를 지웠다). bundle_tower 는 method 의 parse error 요약을 단언하지 않아 basisSummary 변형 2개가 이 파일에서 생존(축 4b).
+  ⑦ 제품 커밋 3aa5fcc 메시지에 서브에이전트 임시 작업 트리 브랜치 이름(worktree-agent-…)이 남았다. 금지 문구는 아니지만 다음부터 병합 메시지를 직접 쓴다.
+- 실패 상황: ① HTML 맵 회귀를 못 잡음 ②③ 판정 근거 오독 ④ 음수 메모리 ⑥ 기록 혼동.
+- 고칠 것: ① HTML 맵 입력을 되살려 `startsWith('sourcemap-parse-error:')` 단언, 맵 없음은 별도 입력 ② try 는 JSON.parse 만, `.sources` 는 `parsed?.sources` ③ 경고 조건에 parseError 포함 ④ `rss >= 0` 함께 검사 ⑤ 한 항으로 줄이고 주석 보충 ⑥ 실제 출처 실행을 적거나 수치를 맞춘다 ⑧ 항상 참 단언 삭제, 정상 statm 프로세스 하나 + 깨진 하나 → rssProcs 1·bytes 유한 ⑨ 번호 삭제, `assert.match(method, /2 sourcemap parse error\(s\)/)` ⑦ 작업 트리 브랜치 병합 시 `git merge -m '<영어 설명>'`.
+- 확인 기준: ① HTML 맵 단언 존재 ② `null` 맵 → null(heuristic) ③ 깨진 맵 하나만 있을 때 method 에 경고 문구 ④ statm "1 -5" 주입 → null ⑥ 노트 두 줄 수치 일치 또는 출처 구분 ⑧ `continue`→`return null` 변형에서 heap 테스트 실패 ⑨ `grep -rn 'F-0[0-9][0-9]' bench tests tools` 0건, parse error 요약 삭제 변형에서 bundle_tower 실패. ① 의 HTML 맵 단언은 parse-error 분기 is_3d 를 항상 true 로 바꾼 변형에서 bundle_status 도 실패해야 한다.
+- 권장 모델: sonnet (⑥⑦⑨ 의 번호 삭제는 haiku)
+- 이력: 2026-10-01 19:55 감독 등록(축 1b·4b·5·6+7·9 보고; ①②③⑥⑧⑨ 감독 줄 확인, ④ 와 변형 생존은 서브에이전트 사본 실행 — 감독 미재현). 신규 항목
