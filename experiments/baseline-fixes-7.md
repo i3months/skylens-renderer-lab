@@ -1,6 +1,6 @@
 # baseline-fixes-7 (T01M)
 
-제품 브랜치 feat/baseline-fixes-7(main 6b0cb9f 위). F-053 보충·보충 2, F-055 ①②③④, F-056 ①~⑤ 를 다뤘다.
+제품 브랜치 feat/baseline-fixes-7(main 6b0cb9f 위). F-053 보충·보충 2, F-055 ①③④, F-056 ①~⑤(② 감지 뒤 조기 반환은 미해결) 를 다뤘다.
 서브에이전트 4개(opus 1·haiku 3), 승격 없음. 소유 경로가 ws_bytes / heap / _common / ref_images 4개뿐이라 10개에 못 미쳤다(같은 파일을 여럿이 고치면 충돌만 늘어 경로 분리를 우선).
 
 ## 이전 노트(baseline-fixes-6)가 적지 않은 미처리 항목 (F-056 ⑥)
@@ -12,7 +12,7 @@ baseline-fixes-6 은 F-053 본문과 F-054 만 처리했다. 당시 F-053 보충
 |---|---|---|---|
 | T01.35 | F-053 보충·보충 2, F-055 ①, F-056 ① | opus | 사본 규칙 채택(아래). 새 테스트 5개, ws_bytes 62→67 |
 | T01.36a | F-055 ③, F-056 ②③④ (heap) | haiku | statm '1 1e3'·'1 0x10'·'1 5.5'·'1 +5' → 제외 테스트, 개행 테스트를 ' 100 5' 로 교체(trim 의존), `rss<0`(도달 불가) → `Number.isSafeInteger`, 정상+음수 혼합·'1 0' 포함 테스트. 정규식 제거·trim 제거·`rss<=0` 변형 각각 실패 |
-| T01.36b | F-055 ② (_common) | haiku | 아래 별도 기록 |
+| T01.36b | F-055 ② (_common) | haiku | **미해결.** 하위 작업은 실제 `buildDetectScript` 가 아닌 복제 계측 스크립트(115줄)를 시험해 병합하지 않았다. 허용된 대안으로 browser.mjs 에 조기 반환이 테스트로 지켜지지 않는다는 주석만 남겼다. 해시 경로 호출 수를 세려면 실제 스크립트에 계측 훅이 필요하다 — 다음 작업 후보(F-055 ② 열어 둠) |
 | T01.36c | F-055 ④, F-056 ⑤ (ref_images) | haiku | basisNote 가 colorType 을 typeName 으로 내고 단언(uint8 별칭 → uchar). 10속성 PLY 는 문구 전체·stride 31·propertyOrderCorrect false 단언, propertyOrderCorrect 에 길이 검사 추가 |
 
 ## F-053 결정: 사본 규칙
