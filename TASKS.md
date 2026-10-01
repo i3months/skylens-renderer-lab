@@ -38,7 +38,8 @@ tools/       명령줄 도구
 - [x] **T01 `baseline`** [cloud 부분] — 현재 three.js 구현의 기준값 측정. SPEC §4 의 "현재" 열을 채운다. (2026-10-01 병합, 제품 48b4c1d, 연구 research 5789e63, 반려 3회 뒤 범위 쪼갬)
 - [ ] **T01L `baseline-local`** [local] — T01.4·T01.5 실제 녹화, T01.10 녹화 포함 재검, T01.11·T01.12 실측, F-027 앱 로더 대조. 사람의 녹화·실기기 필요.
 - [x] **T01F `baseline-fixes`** [cloud] — T01 중간·낮음 잔여(F-022·F-028~F-031). (2026-10-01 병합, 제품 3e2c4c4, 연구 research 8b26c7d, 반려 0회. F-028~F-031 닫음, F-022 다시 엶)
-- [ ] **T01G `baseline-fixes-2`** [cloud] — T01F 검토 잔여 중간·낮음(F-022·F-032~F-036·F-041). T02 정정과 함께 진행해도 된다.
+- [x] **T01G `baseline-fixes-2`** [cloud] — T01F 검토 잔여 중간·낮음(F-022·F-032~F-036·F-041). (2026-10-01 병합, 제품 (병합 후 기재), 연구 research (병합 후 기재), 반려 0회. F-022·F-032~F-035·F-041 닫음, F-036 다시 엶)
+- [ ] **T01H `baseline-fixes-3`** [cloud] — T01G 검토 잔여 중간·낮음(F-036·F-042~F-046). 측정 도구 마무리. 이 뒤 T01 계열 새 잔여는 중간·낮음이면 T01L 또는 다음 기능 작업과 함께 고친다.
 - [ ] **T02 `stack`** — 스택 선정. 서버 래스터라이저(2단계)·자산 처리 서버·클라이언트 경량 래스터라이저를 무엇으로 쓸지 조사. **감독 승인 전에는 T03 이후를 시작하지 않는다.**
 - [ ] **T03 `asset-format`** — 경량 자산 포맷 계약과 핵심 타입.
 - [ ] **T04 `point-io`** — 27 B 점 형식 입출력과 ENU 좌표.
@@ -96,6 +97,11 @@ tools/       명령줄 도구
 | T01.18 | cloud | F-032·F-041 ref_images 표기 분기·rgb·clip·비대칭 시점·대형 RSS 단언, ws_bytes·viewpoints 테스트 보강 | `bench/baseline/ref_images/`, `ws_bytes/`, `tests/` | F-032·F-041 확인 기준 | opus |
 | T01.19 | cloud | F-033·F-034·F-035 heap 판정·지표 이름, 테스트 변형 잔여, run_all 견고성 | `bench/baseline/heap/`, `bundle_*/`, `tower_bytes/`, `run_all/` | F-033~F-035 확인 기준 | sonnet |
 | T01.20 | cloud | F-036 측정 도구 부하·표기, 제품 테스트의 F-xxx 번호 제거 | `bench/baseline/_common/`, `bundle_status/` | F-036 확인 기준, `grep 'F-0[0-9][0-9]'` 0건 | haiku |
+| T01.21 | cloud | F-042 ws_bytes 재전송 잔여(추월된 낮은 수준 resend, resend 만의 완결, resend 뒤 같은 수준 원본) | `bench/baseline/ws_bytes/` | F-042 확인 기준, F-022 (가)~(라) 유지 | opus |
+| T01.22 | cloud | F-043 비대칭 시점 테스트에 R·t 와 무관한 독립 정답 | `bench/baseline/ref_images/` | F-043 확인 기준(t[0]·t[1] 부호 변형 실패) | opus |
+| T01.23 | cloud | F-044 closure.mjs sources 추출 퇴행 수정·회귀 테스트 | `bench/baseline/bundle_status/` | F-044 확인 기준 | sonnet |
+| T01.24 | cloud | F-036·F-046 래퍼 복원 동작 테스트, heap 0 프로세스 run 테스트 | `bench/baseline/_common/`, `heap/` | F-036·F-046 확인 기준 | sonnet |
+| T01.25 | cloud | F-045 표기·주석·노트 잔여(연구 decision.md:85 포함) | 제품 주석, 연구 노트 | F-045 확인 기준 | haiku |
 
 완료 후: 감독이 SPEC §4 를 확정해 "제안값" → "확정" 으로 바꾼다.
 
