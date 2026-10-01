@@ -70,21 +70,21 @@ tools/       명령줄 도구
 
 현재 skylens(`develop`)의 three.js 구현을 그대로 잰다. 측정 결과는 실험 노트와 SPEC §4 "현재" 열에 적는다. 이 작업은 skylens 를 고치지 않는다.
 
-| 하위 | 태그 | 내용 | 소유 경로 | 완료 기준 |
-|---|---|---|---|---|
-| T01.0 | cloud | 계약: 측정 결과 스키마(`metric`, `value`, `unit`, `device`, `method`, `commit`)와 고정 시점 8곳 초안 | `contracts/metrics/`, `fixtures/viewpoints/` | 스키마 검증 테스트 `metrics_schema_roundtrip` 통과, 시점 8개 |
-| T01.1 | cloud | 현황판 3D 번들 크기(three·splat 라이브러리·statusview, gzip) | `bench/baseline/bundle_status/` | 같은 커밋에서 두 번 재서 바이트 동일 |
-| T01.2 | cloud | 관제탑 3D 번들 크기 | `bench/baseline/bundle_tower/` | 같은 커밋에서 두 번 재서 바이트 동일 |
-| T01.3 | cloud | 구간×수준 자산 바이트 집계(4수준·구간당 합) | `bench/baseline/asset_bytes/` | 27 B × 점 수 와 파일 크기 차 ≤ 헤더 크기 |
-| T01.4 | cloud | 웹소켓 프레임 바이트 기록기(모의 코어 재생) | `bench/baseline/ws_bytes/` | 녹화 재생 두 번 합계 일치 |
-| T01.5 | cloud | 관제탑 건물·지형 요청 수·바이트 집계(녹화 응답 사용, 외부 호출 없음) | `bench/baseline/tower_bytes/` | 건물 수 6,191 ± 1% 재현 |
-| T01.6 | cloud | 헤드리스 브라우저 첫 프레임 시간(소프트웨어 렌더, 참고값) | `bench/baseline/first_frame/` | 5회 중앙값·분산 기록 |
-| T01.7 | cloud | 헤드리스 JS 힙 사용량(참고값) | `bench/baseline/heap/` | 5회 중앙값 기록 |
-| T01.8 | cloud | 원본 점군 CPU 렌더로 고정 시점 8곳 기준 영상 생성(T06 이전 임시 구현) | `bench/baseline/ref_images/` | 8장, 같은 입력 재실행 시 바이트 동일 |
-| T01.9 | cloud | 측정 결과를 SPEC 표 형식 마크다운으로 내보내는 도구 | `tools/baseline_report/` | 스키마 → 표 변환 테스트 `baseline_report_table` 통과 |
-| T01.10 | cloud | 측정 재현 스크립트(한 명령으로 T01.1~T01.8) | `bench/baseline/run_all/` | 클린 클론에서 한 번에 통과 |
-| T01.11 | local | 기준 기기 2종 fps·메모리·입력 지연 실측 | `bench/baseline/device/` | 기기당 3회, 중앙값·분위 기록 |
-| T01.12 | local | 실데이터 구간당 대역폭 실측 | `bench/baseline/real_bw/` | 구간당 바이트 기록(현재 약 67 MB 확인) |
+| 하위 | 태그 | 내용 | 소유 경로 | 완료 기준 | 모델 |
+|---|---|---|---|---|---|
+| T01.0 | cloud | 계약: 측정 결과 스키마(`metric`, `value`, `unit`, `device`, `method`, `commit`)와 고정 시점 8곳 초안 | `contracts/metrics/`, `fixtures/viewpoints/` | 스키마 검증 테스트 `metrics_schema_roundtrip` 통과, 시점 8개 | haiku |
+| T01.1 | cloud | 현황판 3D 번들 크기(three·splat 라이브러리·statusview, gzip) | `bench/baseline/bundle_status/` | 같은 커밋에서 두 번 재서 바이트 동일 | sonnet |
+| T01.2 | cloud | 관제탑 3D 번들 크기 | `bench/baseline/bundle_tower/` | 같은 커밋에서 두 번 재서 바이트 동일 | sonnet |
+| T01.3 | cloud | 구간×수준 자산 바이트 집계(4수준·구간당 합) | `bench/baseline/asset_bytes/` | 27 B × 점 수 와 파일 크기 차 ≤ 헤더 크기 | sonnet |
+| T01.4 | cloud | 웹소켓 프레임 바이트 기록기(모의 코어 재생) | `bench/baseline/ws_bytes/` | 녹화 재생 두 번 합계 일치 | sonnet |
+| T01.5 | cloud | 관제탑 건물·지형 요청 수·바이트 집계(녹화 응답 사용, 외부 호출 없음) | `bench/baseline/tower_bytes/` | 건물 수 6,191 ± 1% 재현 | sonnet |
+| T01.6 | cloud | 헤드리스 브라우저 첫 프레임 시간(소프트웨어 렌더, 참고값) | `bench/baseline/first_frame/` | 5회 중앙값·분산 기록 | sonnet |
+| T01.7 | cloud | 헤드리스 JS 힙 사용량(참고값) | `bench/baseline/heap/` | 5회 중앙값 기록 | sonnet |
+| T01.8 | cloud | 원본 점군 CPU 렌더로 고정 시점 8곳 기준 영상 생성(T06 이전 임시 구현) | `bench/baseline/ref_images/` | 8장, 같은 입력 재실행 시 바이트 동일 | opus |
+| T01.9 | cloud | 측정 결과를 SPEC 표 형식 마크다운으로 내보내는 도구 | `tools/baseline_report/` | 스키마 → 표 변환 테스트 `baseline_report_table` 통과 | haiku |
+| T01.10 | cloud | 측정 재현 스크립트(한 명령으로 T01.1~T01.8) | `bench/baseline/run_all/` | 클린 클론에서 한 번에 통과 | sonnet |
+| T01.11 | local | 기준 기기 2종 fps·메모리·입력 지연 실측 | `bench/baseline/device/` | 기기당 3회, 중앙값·분위 기록 | sonnet |
+| T01.12 | local | 실데이터 구간당 대역폭 실측 | `bench/baseline/real_bw/` | 구간당 바이트 기록(현재 약 67 MB 확인) | sonnet |
 
 완료 후: 감독이 SPEC §4 를 확정해 "제안값" → "확정" 으로 바꾼다.
 
@@ -92,39 +92,39 @@ tools/       명령줄 도구
 
 조사 문서 작업. 코드가 아니다. 결과는 연구 `experiment/stack` 의 실험 노트로 내고, 감독 승인 뒤 SPEC §8 에 옮긴다.
 
-| 하위 | 내용 | 소유 경로(연구 저장소) | 완료 기준 |
-|---|---|---|---|
-| T02.0 | 계약: 비교 표 틀(후보·라이선스·GPU 백엔드·헤드리스 가능·브라우저 지원·점 렌더 방식·성숙도·결정 근거) | `experiments/stack.md` 머리 | 표 열 고정 |
-| T02.1 | 서버 래스터라이저 후보 조사(네이티브 GPU API 계열) | `experiments/stack/server_native.md` | 후보 3개 이상, 라이선스 명시 |
-| T02.2 | 서버 래스터라이저 후보 조사(헤드리스 웹 GPU 계열) | `experiments/stack/server_web.md` | 후보 2개 이상 |
-| T02.3 | 비디오 인코더 후보(2단계, 하드웨어 인코더 지원) | `experiments/stack/encoder.md` | 후보 2개 이상, 지연 수치 출처 |
-| T02.4 | 클라이언트 경량 래스터라이저 후보(WebGL2·WebGPU·직접 구현) | `experiments/stack/client.md` | 번들 크기 추정 ≤ 300 KB 근거 |
-| T02.5 | 자산 처리 서버 언어·런타임 후보 | `experiments/stack/runtime.md` | CPU 참조 구현·테스트 속도 비교 근거 |
-| T02.6 | 점 압축 포맷 선행 사례(라이선스 포함) | `experiments/stack/compression.md` | 사례 3개 이상 |
-| T02.7 | 3D 타일·LOD 표준 사례(지형·건물) | `experiments/stack/tiling.md` | 사례 2개 이상 |
-| T02.8 | 기존 skylens 와의 결합 방식(같은 저장소 패키지 vs 별도 서비스) — COMPONENTS 경계 안에서 | `experiments/stack/integration.md` | 경계 변경 없음을 명시 |
-| T02.9 | 라이선스 점검(후보 전체 의존성 트리에 AGPL·GPL 없음) | `experiments/stack/license.md` | 후보별 의존성 라이선스 목록 |
-| T02.10 | GPU 없는 클라우드 세션에서 검증 가능한 범위 정리 | `experiments/stack/cloud_scope.md` | [cloud]/[local] 경계 표 |
-| T02.11 | 추천안과 기각안(이유) | `experiments/stack/decision.md` | 감독 승인 |
+| 하위 | 내용 | 소유 경로(연구 저장소) | 완료 기준 | 모델 |
+|---|---|---|---|---|
+| T02.0 | 계약: 비교 표 틀(후보·라이선스·GPU 백엔드·헤드리스 가능·브라우저 지원·점 렌더 방식·성숙도·결정 근거) | `experiments/stack.md` 머리 | 표 열 고정 | haiku |
+| T02.1 | 서버 래스터라이저 후보 조사(네이티브 GPU API 계열) | `experiments/stack/server_native.md` | 후보 3개 이상, 라이선스 명시 | sonnet |
+| T02.2 | 서버 래스터라이저 후보 조사(헤드리스 웹 GPU 계열) | `experiments/stack/server_web.md` | 후보 2개 이상 | sonnet |
+| T02.3 | 비디오 인코더 후보(2단계, 하드웨어 인코더 지원) | `experiments/stack/encoder.md` | 후보 2개 이상, 지연 수치 출처 | sonnet |
+| T02.4 | 클라이언트 경량 래스터라이저 후보(WebGL2·WebGPU·직접 구현) | `experiments/stack/client.md` | 번들 크기 추정 ≤ 300 KB 근거 | sonnet |
+| T02.5 | 자산 처리 서버 언어·런타임 후보 | `experiments/stack/runtime.md` | CPU 참조 구현·테스트 속도 비교 근거 | sonnet |
+| T02.6 | 점 압축 포맷 선행 사례(라이선스 포함) | `experiments/stack/compression.md` | 사례 3개 이상 | sonnet |
+| T02.7 | 3D 타일·LOD 표준 사례(지형·건물) | `experiments/stack/tiling.md` | 사례 2개 이상 | sonnet |
+| T02.8 | 기존 skylens 와의 결합 방식(같은 저장소 패키지 vs 별도 서비스) — COMPONENTS 경계 안에서 | `experiments/stack/integration.md` | 경계 변경 없음을 명시 | sonnet |
+| T02.9 | 라이선스 점검(후보 전체 의존성 트리에 AGPL·GPL 없음) | `experiments/stack/license.md` | 후보별 의존성 라이선스 목록 | sonnet |
+| T02.10 | GPU 없는 클라우드 세션에서 검증 가능한 범위 정리 | `experiments/stack/cloud_scope.md` | [cloud]/[local] 경계 표 | sonnet |
+| T02.11 | 추천안과 기각안(이유) | `experiments/stack/decision.md` | 감독 승인 | opus |
 
 완료 후: 감독이 승인하면 SPEC §8, ops/WORKER.md·ops/SUPERVISOR.md 의 명령 자리를 채운다.
 
 ### T03 `asset-format` — [cloud]
 
-| 하위 | 내용 | 소유 경로 | 완료 기준 |
-|---|---|---|---|
-| T03.0 | 계약: 포맷 명세(헤더·타일·LOD 단계·조각·구간/수준 식별자·양자화 범위·체크섬), 핵심 타입, 골든 파일 1개 | `contracts/asset/`, `format/`, `fixtures/asset_golden/` | 명세 문서와 타입이 골든 파일을 읽어 필드 일치 |
-| T03.1 | 헤더 쓰기·읽기 | `server/asset/header/` | `header_roundtrip` 통과, 잘못된 매직·버전 거부 |
-| T03.2 | 타일 색인(ENU 사각 격자) | `server/asset/tile_index/` | `tile_index_lookup` 무작위 1만 점 오분류 0 |
-| T03.3 | 조각 경계 상자 계산 | `server/asset/bounds/` | `bounds_contain_all` 모든 점 포함, 여유 ≤ 양자화 1단계 |
-| T03.4 | 구간·수준 식별자 인코딩 | `server/asset/ids/` | `ids_roundtrip` 4수준×구간 1,000개 왕복 일치 |
-| T03.5 | 체크섬 | `server/asset/checksum/` | `checksum_detects_flip` 무작위 1비트 뒤집기 1,000회 전부 검출 |
-| T03.6 | 포맷 검증기(명세 위반 목록 출력) | `tools/asset_validate/` | 골든 통과, 손상 파일 10종 전부 거부 |
-| T03.7 | 원본 27 B 로 되돌리기(역변환) | `server/asset/unpack/` | `unpack_error_bound` 좌표 오차 ≤ 명세 상한 |
-| T03.8 | 클라이언트 측 헤더·색인 읽기 | `client/asset/` | 서버 쓰기 → 클라이언트 읽기 필드 일치 `client_header_parity` |
-| T03.9 | 포맷 결정성 검사 | `server/asset/determinism/` | 같은 입력 두 번 → 바이트 동일 |
-| T03.10 | 버전 호환 정책 테스트(구버전 거부·신버전 무시 필드) | `server/asset/compat/` | `compat_matrix` 통과 |
-| T03.11 | 포맷 퍼저(손상 입력 패닉 0) | `server/asset/fuzz/` | 10만 회 패닉·무한 루프 0 |
+| 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
+|---|---|---|---|---|
+| T03.0 | 계약: 포맷 명세(헤더·타일·LOD 단계·조각·구간/수준 식별자·양자화 범위·체크섬), 핵심 타입, 골든 파일 1개 | `contracts/asset/`, `format/`, `fixtures/asset_golden/` | 명세 문서와 타입이 골든 파일을 읽어 필드 일치 | opus |
+| T03.1 | 헤더 쓰기·읽기 | `server/asset/header/` | `header_roundtrip` 통과, 잘못된 매직·버전 거부 | sonnet |
+| T03.2 | 타일 색인(ENU 사각 격자) | `server/asset/tile_index/` | `tile_index_lookup` 무작위 1만 점 오분류 0 | sonnet |
+| T03.3 | 조각 경계 상자 계산 | `server/asset/bounds/` | `bounds_contain_all` 모든 점 포함, 여유 ≤ 양자화 1단계 | sonnet |
+| T03.4 | 구간·수준 식별자 인코딩 | `server/asset/ids/` | `ids_roundtrip` 4수준×구간 1,000개 왕복 일치 | sonnet |
+| T03.5 | 체크섬 | `server/asset/checksum/` | `checksum_detects_flip` 무작위 1비트 뒤집기 1,000회 전부 검출 | sonnet |
+| T03.6 | 포맷 검증기(명세 위반 목록 출력) | `tools/asset_validate/` | 골든 통과, 손상 파일 10종 전부 거부 | sonnet |
+| T03.7 | 원본 27 B 로 되돌리기(역변환) | `server/asset/unpack/` | `unpack_error_bound` 좌표 오차 ≤ 명세 상한 | opus |
+| T03.8 | 클라이언트 측 헤더·색인 읽기 | `client/asset/` | 서버 쓰기 → 클라이언트 읽기 필드 일치 `client_header_parity` | sonnet |
+| T03.9 | 포맷 결정성 검사 | `server/asset/determinism/` | 같은 입력 두 번 → 바이트 동일 | haiku |
+| T03.10 | 버전 호환 정책 테스트(구버전 거부·신버전 무시 필드) | `server/asset/compat/` | `compat_matrix` 통과 | sonnet |
+| T03.11 | 포맷 퍼저(손상 입력 패닉 0) | `server/asset/fuzz/` | 10만 회 패닉·무한 루프 0 | sonnet |
 
 ### T04 `point-io` — [cloud]
 
