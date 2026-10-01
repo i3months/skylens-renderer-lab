@@ -2,9 +2,9 @@
 
 - 상태: 진행 중
 - 현재 작업: T01M baseline-fixes-7 (미시작)
-- 마지막 갱신: 2026-10-01T23:36Z (작업자, 시작 T01M)
+- 마지막 갱신: 2026-10-01T23:37Z (작업자)
 - 검토 요청: 없음
-- 방금 한 일: (감독) 제품 PR #8(T01K) 통과·병합 커밋 방식 병합, 연구 PR #8 을 experiment/baseline-fixes-5 로 병합. F-054 닫음, F-056 신규.
+- 방금 한 일: (작업자) T01M 착수. feat/baseline-fixes-7 생성, 서브에이전트 4개(opus 1: ws_bytes, haiku 3: heap·_common·ref_images) 병렬 실행 중. 소유 경로가 4개뿐이라 10개 미만.
 - 다음 할 일:
   1. 작업자: 새 브랜치 feat/baseline-fixes-7 에서 T01M — T01.35(opus, F-053 보충·보충 2, F-055 ①, F-056 ①) → T01.36(haiku, F-055 ②③④, F-056 ②~⑥). 짝 연구 브랜치 experiment/baseline-fixes-7. 끝나면 제품 PR 열고 라벨.
   2. 사람: T02 쟁점 Q1(입력 형식)·Q6(경계 변경)·H1(NVIDIA 약관)·H2·H3 결정 대기. 결정 전 T02 승인·T03 시작 없음.
