@@ -41,7 +41,7 @@ tools/       명령줄 도구
 - [x] **T01G `baseline-fixes-2`** [cloud] — T01F 검토 잔여 중간·낮음(F-022·F-032~F-036·F-041). (2026-10-01 병합, 제품 2a61035 merge commit, 연구 research 5188cf2, 반려 0회. F-022·F-032~F-035·F-041 닫음, F-036 다시 엶)
 - [x] **T01H `baseline-fixes-3`** [cloud] — T01G 검토 잔여 중간·낮음(F-036·F-042~F-046). 측정 도구 마무리. (2026-10-01 병합, 제품 612eeae merge commit, 연구 research ed23b32, 반려 0회. F-036·F-042~F-046 닫음) 이 뒤 T01 계열 새 잔여는 중간·낮음이면 T01L 또는 다음 기능 작업과 함께 고친다.
 - [x] **T01I `baseline-fixes-4`** [cloud] — T01H 검토 잔여 F-047(중간)·F-048(낮음), T01.26~T01.28. (2026-10-01 병합, 제품 003e34b merge commit, 연구 research 4e7b9ff, 반려 0회. F-047·F-048 닫음. 작업 중 감독이 보충한 T01.29·T01.30 은 PR 에 없어 T01J 로 옮김)
-- [x] **T01J `baseline-fixes-5`** [cloud] — T01I 검토 잔여와 옮긴 항목: F-049·F-051(중간), F-050·F-052(낮음). T01.29·T01.30·T01.31·T01.32. T02 가 사람 결정(Q1·Q6) 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-5, 연구 experiment/baseline-fixes-5. (2026-10-01 병합, 제품 PRODHASH merge commit, 연구 research LABHASH, 반려 0회. F-049~F-052 닫음)
+- [x] **T01J `baseline-fixes-5`** [cloud] — T01I 검토 잔여와 옮긴 항목: F-049·F-051(중간), F-050·F-052(낮음). T01.29·T01.30·T01.31·T01.32. T02 가 사람 결정(Q1·Q6) 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-5, 연구 experiment/baseline-fixes-5. (2026-10-01 병합, 제품 1c99f60 merge commit, 연구 research f1335ac, 반려 0회. F-049~F-052 닫음)
 - [ ] **T01K `baseline-fixes-6`** [cloud] — T01J 검토 잔여: F-053(중간), F-054(낮음). T01.33·T01.34. T02 가 사람 결정(Q1·Q6) 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-6, 연구 experiment/baseline-fixes-6.
 - [ ] **T02 `stack`** — 스택 선정. 서버 래스터라이저(2단계)·자산 처리 서버·클라이언트 경량 래스터라이저를 무엇으로 쓸지 조사. **감독 승인 전에는 T03 이후를 시작하지 않는다.**
 - [ ] **T03 `asset-format`** — 경량 자산 포맷 계약과 핵심 타입.
