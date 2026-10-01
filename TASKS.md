@@ -39,7 +39,8 @@ tools/       명령줄 도구
 - [ ] **T01L `baseline-local`** [local] — T01.4·T01.5 실제 녹화, T01.10 녹화 포함 재검, T01.11·T01.12 실측, F-027 앱 로더 대조. 사람의 녹화·실기기 필요.
 - [x] **T01F `baseline-fixes`** [cloud] — T01 중간·낮음 잔여(F-022·F-028~F-031). (2026-10-01 병합, 제품 3e2c4c4, 연구 research 8b26c7d, 반려 0회. F-028~F-031 닫음, F-022 다시 엶)
 - [x] **T01G `baseline-fixes-2`** [cloud] — T01F 검토 잔여 중간·낮음(F-022·F-032~F-036·F-041). (2026-10-01 병합, 제품 2a61035 merge commit, 연구 research 5188cf2, 반려 0회. F-022·F-032~F-035·F-041 닫음, F-036 다시 엶)
-- [ ] **T01H `baseline-fixes-3`** [cloud] — T01G 검토 잔여 중간·낮음(F-036·F-042~F-046). 측정 도구 마무리. 이 뒤 T01 계열 새 잔여는 중간·낮음이면 T01L 또는 다음 기능 작업과 함께 고친다.
+- [x] **T01H `baseline-fixes-3`** [cloud] — T01G 검토 잔여 중간·낮음(F-036·F-042~F-046). 측정 도구 마무리. (2026-10-01 병합, 제품 MERGEHASH merge commit, 연구 research RESHASH, 반려 0회. F-036·F-042~F-046 닫음) 이 뒤 T01 계열 새 잔여는 중간·낮음이면 T01L 또는 다음 기능 작업과 함께 고친다.
+- [ ] **T01I `baseline-fixes-4`** [cloud] — T01H 검토 잔여(F-047 중간, F-048 낮음). T02 가 사람 결정(Q1·Q6) 대기라 그 사이에 처리한다(감독 지정). 이것으로 T01 계열 cloud 잔손질을 닫는다.
 - [ ] **T02 `stack`** — 스택 선정. 서버 래스터라이저(2단계)·자산 처리 서버·클라이언트 경량 래스터라이저를 무엇으로 쓸지 조사. **감독 승인 전에는 T03 이후를 시작하지 않는다.**
 - [ ] **T03 `asset-format`** — 경량 자산 포맷 계약과 핵심 타입.
 - [ ] **T04 `point-io`** — 27 B 점 형식 입출력과 ENU 좌표.
@@ -102,6 +103,9 @@ tools/       명령줄 도구
 | T01.23 | cloud | F-044 closure.mjs sources 추출 퇴행 수정·회귀 테스트 | `bench/baseline/bundle_status/` | F-044 확인 기준 | sonnet |
 | T01.24 | cloud | F-036·F-046 래퍼 복원 동작 테스트, heap 0 프로세스 run 테스트 | `bench/baseline/_common/`, `heap/` | F-036·F-046 확인 기준 | sonnet |
 | T01.25 | cloud | F-045 표기·주석·노트 잔여(연구 decision.md:85 포함) | 제품 주석, 연구 노트 | F-045 확인 기준 | haiku |
+| T01.26 | cloud | F-047 ws_bytes resend 추월 기준(받은 수준 최고)·변형 생존 테스트 5건 | `bench/baseline/ws_bytes/` | F-047 확인 기준, F-042·F-022 유지 | opus |
+| T01.27 | cloud | F-048 ① heap statm 유한 검사 | `bench/baseline/heap/` | F-048 ① 확인 기준 | sonnet |
+| T01.28 | cloud | F-048 ②~⑥ tmp 정리·basisNote 순서·closure 표기·노트 숫자 | `_common/`, `heap/`, `ref_images/`, `bundle_status/` 테스트·주석, 연구 노트 | F-048 ②~⑤ 확인 기준 | haiku |
 
 완료 후: 감독이 SPEC §4 를 확정해 "제안값" → "확정" 으로 바꾼다.
 
