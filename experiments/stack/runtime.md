@@ -43,18 +43,7 @@
 
 해석: 네이티브 계열(C++·Rust·Go)은 서로 20~30 ms 안쪽으로 구분하기 어렵고, Node 는 약 1.6~2배, numpy 는 약 8배 느리다. 100만 점 한 장 기준 Node 의 40~50 ms 는 테스트·화질 기준 영상(고정 시점 8곳)을 만드는 데 충분하다(8장이면 1초 미만). 구간당 약 250만 점(SPEC §1)이면 선형으로 2.5배, 즉 Node 100~120 ms 로 추정(미측정).
 
-재현 (scratchpad 안에서):
-
-```
-cd <scratchpad>/rt   # 벤치 소스를 둔 임시 작업 디렉터리
-g++ -O2 b.cpp -o bcpp && ./bcpp
-rustc -O b.rs -o brs && ./brs
-/usr/local/go/bin/go build -o bgo b.go && ./bgo
-node b.js
-pip install numpy --target ./pylib && python3 b.py
-```
-
-소스(`b.cpp`, `b.rs`, `b.go`, `b.js`, `b.py`)는 위 임시 디렉터리에 있다. 제품·연구 저장소에는 넣지 않았다(작업 범위가 이 노트 하나).
+재현: 저장소 자료만으로 돌릴 수 있도록 벤치 소스를 이 노트 끝의 부록 A 에 담았다. 원 측정에 쓴 소스는 세션 임시 디렉터리에만 있었고 지금은 남아 있지 않아, 부록의 소스는 위 "방법" 절과 이 표의 설명으로 **다시 쓴 재작성본이며 원 측정과 동일하다고 확인하지 못했다(동일성 미확인)**. 재작성본으로 다시 잰 값은 부록 A 끝에 따로 적었고, 위 표의 값은 원 측정 그대로 둔다. 두 값은 합쳐 쓰지 않는다.
 
 ## 4. 후보 비교
 
@@ -89,3 +78,231 @@ pip install numpy --target ./pylib && python3 b.py
 ## 8. 잠정 의견
 
 자산 처리 서버는 Node/TypeScript 로 시작하는 것이 유리해 보인다. 100만 점 점 찍기가 Node 에서 약 40~50 ms 로 C++·Rust·Go(약 21~30 ms)의 2배 안쪽이고 CPU 참조 래스터라이저·테스트(고정 시점 8곳)에는 충분하며, 클라이언트와 양자화·ID 인코딩·수준 상태 코드를 그대로 공유하고 skylens 와 스택·도구를 맞출 수 있는 이점이 속도 차이보다 크다. Python+numpy 는 약 8배 느려 서버로는 부적합하고 화질 지표 보조 도구 정도가 알맞다. Rust·Go·C++ 는 속도가 가장 좋지만 코드 공유 이득이 없어, 실제 가공 루프에서 병목이 측정으로 확인될 때 그 부분만 교체하는 방향을 남겨 둔다. 이는 잠정이며 병렬 측정과 실제 코덱 루프 측정 뒤에 T02.11 에서 확정한다.
+
+## 부록 A. 마이크로벤치 소스 (재작성본, 원 측정과 동일성 미확인)
+
+작업 디렉터리를 하나 만들고 아래 파일을 `b.cpp`, `b.rs`, `b.go`, `b.js`, `b.py` 로 저장한 뒤 다음을 실행한다.
+
+```
+g++ -O2 b.cpp -o bcpp && ./bcpp
+rustc -O b.rs -o brs && ./brs
+go build -o bgo b.go && ./bgo
+node b.js
+pip install numpy --target ./pylib && PYTHONPATH=./pylib python3 b.py
+```
+
+알고리즘은 §3 방법 절과 같다(xorshift32 시드 12345, 점당 f32×3 + u8×3, 핀홀 f=900·중심 640,360, 깊이 = z+60, 1280×720 z버퍼, 6회 중 첫 회 제외 최솟값). 투영의 세로 부호(`360 - 900*y/d`)와 xorshift 의 난수 소비 순서(x, y, z, 색 r, g, b)는 원본을 확인할 수 없어 이 재작성본에서 정한 것이다.
+
+### b.cpp
+
+```cpp
+#include <cstdio>
+#include <cstdint>
+#include <vector>
+#include <chrono>
+#include <algorithm>
+using namespace std;
+static uint32_t s = 12345;
+static uint32_t xs() { s ^= s << 13; s ^= s >> 17; s ^= s << 5; return s; }
+static float rnd() { return xs() / 4294967296.0f; }
+int main() {
+  const int N = 1000000, W = 1280, H = 720;
+  vector<float> p(3 * N); vector<uint8_t> c(3 * N);
+  for (int i = 0; i < N; i++) {
+    p[3*i] = rnd() * 100 - 50; p[3*i+1] = rnd() * 30; p[3*i+2] = rnd() * 100 - 50;
+    for (int k = 0; k < 3; k++) c[3*i+k] = xs() & 255;
+  }
+  vector<float> zb(W * H); vector<uint8_t> img(W * H * 3);
+  double best = 1e9; long cnt = 0;
+  for (int r = 0; r < 6; r++) {
+    auto t0 = chrono::steady_clock::now();
+    fill(zb.begin(), zb.end(), 1e30f); fill(img.begin(), img.end(), 0); cnt = 0;
+    for (int i = 0; i < N; i++) {
+      float d = p[3*i+2] + 60.0f; if (d <= 0) continue;
+      int u = (int)(640 + 900.0f * p[3*i] / d), v = (int)(360 - 900.0f * p[3*i+1] / d);
+      if (u < 0 || u >= W || v < 0 || v >= H) continue;
+      int o = v * W + u;
+      if (d < zb[o]) { zb[o] = d; for (int k = 0; k < 3; k++) img[3*o+k] = c[3*i+k]; }
+      cnt++;
+    }
+    double ms = chrono::duration<double, milli>(chrono::steady_clock::now() - t0).count();
+    if (r > 0) best = min(best, ms);
+  }
+  printf("cpp min %.1f ms, in-screen %ld\n", best, cnt);
+}
+```
+
+### b.rs
+
+```rust
+use std::time::Instant;
+fn main() {
+    const N: usize = 1_000_000; const W: usize = 1280; const H: usize = 720;
+    let mut s: u32 = 12345;
+    let mut xs = || { s ^= s << 13; s ^= s >> 17; s ^= s << 5; s };
+    let mut p = vec![0f32; 3 * N]; let mut c = vec![0u8; 3 * N];
+    for i in 0..N {
+        p[3*i] = xs() as f32 / 4294967296.0 * 100.0 - 50.0;
+        p[3*i+1] = xs() as f32 / 4294967296.0 * 30.0;
+        p[3*i+2] = xs() as f32 / 4294967296.0 * 100.0 - 50.0;
+        for k in 0..3 { c[3*i+k] = (xs() & 255) as u8; }
+    }
+    let mut zb = vec![0f32; W * H]; let mut img = vec![0u8; W * H * 3];
+    let mut best = 1e9f64; let mut cnt = 0u64;
+    for r in 0..6 {
+        let t0 = Instant::now();
+        zb.iter_mut().for_each(|z| *z = 1e30); img.iter_mut().for_each(|b| *b = 0); cnt = 0;
+        for i in 0..N {
+            let d = p[3*i+2] + 60.0; if d <= 0.0 { continue; }
+            let u = (640.0 + 900.0 * p[3*i] / d) as i32; let v = (360.0 - 900.0 * p[3*i+1] / d) as i32;
+            if u < 0 || u >= W as i32 || v < 0 || v >= H as i32 { continue; }
+            let o = v as usize * W + u as usize;
+            if d < zb[o] { zb[o] = d; for k in 0..3 { img[3*o+k] = c[3*i+k]; } }
+            cnt += 1;
+        }
+        let ms = t0.elapsed().as_secs_f64() * 1000.0;
+        if r > 0 && ms < best { best = ms; }
+    }
+    println!("rust min {:.1} ms, in-screen {}", best, cnt);
+}
+```
+
+### b.go
+
+```go
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	const N, W, H = 1000000, 1280, 720
+	s := uint32(12345)
+	xs := func() uint32 { s ^= s << 13; s ^= s >> 17; s ^= s << 5; return s }
+	p := make([]float32, 3*N)
+	c := make([]uint8, 3*N)
+	for i := 0; i < N; i++ {
+		p[3*i] = float32(xs())/4294967296.0*100 - 50
+		p[3*i+1] = float32(xs()) / 4294967296.0 * 30
+		p[3*i+2] = float32(xs())/4294967296.0*100 - 50
+		for k := 0; k < 3; k++ {
+			c[3*i+k] = uint8(xs() & 255)
+		}
+	}
+	zb := make([]float32, W*H)
+	img := make([]uint8, W*H*3)
+	best := 1e9
+	cnt := 0
+	for r := 0; r < 6; r++ {
+		t0 := time.Now()
+		for i := range zb {
+			zb[i] = 1e30
+		}
+		for i := range img {
+			img[i] = 0
+		}
+		cnt = 0
+		for i := 0; i < N; i++ {
+			d := p[3*i+2] + 60
+			if d <= 0 {
+				continue
+			}
+			u := int32(640 + 900*p[3*i]/d)
+			v := int32(360 - 900*p[3*i+1]/d)
+			if u < 0 || u >= W || v < 0 || v >= H {
+				continue
+			}
+			o := int(v)*W + int(u)
+			if d < zb[o] {
+				zb[o] = d
+				for k := 0; k < 3; k++ {
+					img[3*o+k] = c[3*i+k]
+				}
+			}
+			cnt++
+		}
+		ms := float64(time.Since(t0).Microseconds()) / 1000
+		if r > 0 && ms < best {
+			best = ms
+		}
+	}
+	fmt.Printf("go min %.1f ms, in-screen %d\n", best, cnt)
+}
+```
+
+### b.js
+
+```js
+const N = 1000000, W = 1280, H = 720;
+let s = 12345;
+const xs = () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s; };
+const p = new Float32Array(3 * N), c = new Uint8Array(3 * N);
+for (let i = 0; i < N; i++) {
+  p[3*i] = xs() / 4294967296 * 100 - 50; p[3*i+1] = xs() / 4294967296 * 30; p[3*i+2] = xs() / 4294967296 * 100 - 50;
+  for (let k = 0; k < 3; k++) c[3*i+k] = xs() & 255;
+}
+const zb = new Float32Array(W * H), img = new Uint8Array(W * H * 3);
+let best = 1e9, cnt = 0;
+for (let r = 0; r < 6; r++) {
+  const t0 = performance.now();
+  zb.fill(1e30); img.fill(0); cnt = 0;
+  for (let i = 0; i < N; i++) {
+    const d = p[3*i+2] + 60; if (d <= 0) continue;
+    const u = Math.trunc(640 + 900 * p[3*i] / d), v = Math.trunc(360 - 900 * p[3*i+1] / d);
+    if (u < 0 || u >= W || v < 0 || v >= H) continue;
+    const o = v * W + u;
+    if (d < zb[o]) { zb[o] = d; for (let k = 0; k < 3; k++) img[3*o+k] = c[3*i+k]; }
+    cnt++;
+  }
+  const ms = performance.now() - t0;
+  if (r > 0) best = Math.min(best, ms);
+}
+console.log(`node min ${best.toFixed(1)} ms, in-screen ${cnt}`);
+```
+
+### b.py
+
+```python
+import time
+import numpy as np
+N, W, H = 1000000, 1280, 720
+s = 12345
+def xs():
+    global s
+    s ^= (s << 13) & 0xFFFFFFFF; s ^= s >> 17; s ^= (s << 5) & 0xFFFFFFFF
+    return s
+p = np.empty((N, 3), np.float32); c = np.empty((N, 3), np.uint8)
+for i in range(N):
+    p[i, 0] = xs() / 4294967296 * 100 - 50; p[i, 1] = xs() / 4294967296 * 30; p[i, 2] = xs() / 4294967296 * 100 - 50
+    c[i] = (xs() & 255, xs() & 255, xs() & 255)
+best = 1e9
+for r in range(6):
+    t0 = time.perf_counter()
+    d = p[:, 2] + np.float32(60)
+    ok = d > 0
+    dd = np.where(ok, d, np.float32(1))
+    u = (640 + 900 * p[:, 0] / dd).astype(np.int32); v = (360 - 900 * p[:, 1] / dd).astype(np.int32)
+    ok &= (u >= 0) & (u < W) & (v >= 0) & (v < H)
+    idx = np.nonzero(ok)[0]
+    o = v[idx] * W + u[idx]
+    order = np.argsort(-d[idx], kind='stable')   # 먼 것부터 쓰고 가까운 것이 마지막에 이김
+    img = np.zeros((W * H, 3), np.uint8)
+    img[o[order]] = c[idx[order]]
+    ms = (time.perf_counter() - t0) * 1000
+    if r > 0: best = min(best, ms)
+print(f"numpy min {best:.1f} ms, in-screen {len(idx)}")
+```
+
+### 재작성본 재측정 결과 (이 세션, 공유 환경, 단일 스레드, 5회 반복 아님·1회 실행의 5회 중 최솟값)
+
+| 런타임 | 최소(ms) | 화면 안 점 수 |
+|---|---|---|
+| C++ (g++ -O2) | 15.4 | 615,850 |
+| Rust (-O) | 13.6 | 615,850 |
+| Go | 18.5 | 615,850 |
+| Node 22 | 31.7 | 615,850 |
+| Python + numpy | 123.8 | 615,850 |
+
+다섯 구현이 같은 화면 안 점 수를 내므로 재작성본끼리는 서로 일관된다. 그러나 원 측정의 398,553(Node 398,558)과는 다르다. 즉 재작성본의 기하(좌표 부호·난수 순서)가 원본과 다르다는 뜻이고, 이 표를 §3 표와 직접 비교하면 안 된다. 상대 순서(네이티브 < Node < numpy)만 재현된 것으로 본다. 이미지 바이트 비교는 하지 않았다(미측정).
