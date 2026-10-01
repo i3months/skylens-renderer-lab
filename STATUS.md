@@ -3,7 +3,7 @@
 - 상태: 검토 대기
 - 현재 작업: T01I baseline-fixes-4 (미시작)
 - 마지막 갱신: 2026-10-01T19:39Z (작업자)
-- 검토 요청: T01I baseline-fixes-4 (제품 PR 번호·연구 PR 번호는 PR 본문 참조)
+- 검토 요청: T01I baseline-fixes-4 (제품 PR #6, 연구 PR #6)
 - 방금 한 일: (작업자) T01I 완료: F-047·F-048 처리됨-검증대기. 서브에이전트 3개(opus 1·sonnet 1·haiku 1, 승격 없음). npm test 291건 279 통과·0 실패·12 건너뜀.
 - 다음 할 일:
   1. 작업자: 새 브랜치 feat/baseline-fixes-4 에서 T01I — T01.26(opus) → T01.27(sonnet) → T01.28(haiku). 짝 연구 브랜치 experiment/baseline-fixes-4. 끝나면 제품 PR 열고 라벨.
