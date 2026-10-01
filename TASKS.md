@@ -40,7 +40,7 @@ tools/       명령줄 도구
 - [x] **T01F `baseline-fixes`** [cloud] — T01 중간·낮음 잔여(F-022·F-028~F-031). (2026-10-01 병합, 제품 3e2c4c4, 연구 research 8b26c7d, 반려 0회. F-028~F-031 닫음, F-022 다시 엶)
 - [x] **T01G `baseline-fixes-2`** [cloud] — T01F 검토 잔여 중간·낮음(F-022·F-032~F-036·F-041). (2026-10-01 병합, 제품 2a61035 merge commit, 연구 research 5188cf2, 반려 0회. F-022·F-032~F-035·F-041 닫음, F-036 다시 엶)
 - [x] **T01H `baseline-fixes-3`** [cloud] — T01G 검토 잔여 중간·낮음(F-036·F-042~F-046). 측정 도구 마무리. (2026-10-01 병합, 제품 612eeae merge commit, 연구 research ed23b32, 반려 0회. F-036·F-042~F-046 닫음) 이 뒤 T01 계열 새 잔여는 중간·낮음이면 T01L 또는 다음 기능 작업과 함께 고친다.
-- [ ] **T01I `baseline-fixes-4`** [cloud] — T01H 검토 잔여(F-047 중간, F-048 낮음). T02 가 사람 결정(Q1·Q6) 대기라 그 사이에 처리한다(감독 지정). 이것으로 T01 계열 cloud 잔손질을 닫는다.
+- [ ] **T01I `baseline-fixes-4`** [cloud] — T01H 검토 잔여(F-047·F-049 중간, F-048·F-050 낮음; T01.29·T01.30 은 19:40 감독 보충). T02 가 사람 결정(Q1·Q6) 대기라 그 사이에 처리한다(감독 지정). 이것으로 T01 계열 cloud 잔손질을 닫는다.
 - [ ] **T02 `stack`** — 스택 선정. 서버 래스터라이저(2단계)·자산 처리 서버·클라이언트 경량 래스터라이저를 무엇으로 쓸지 조사. **감독 승인 전에는 T03 이후를 시작하지 않는다.**
 - [ ] **T03 `asset-format`** — 경량 자산 포맷 계약과 핵심 타입.
 - [ ] **T04 `point-io`** — 27 B 점 형식 입출력과 ENU 좌표.
@@ -106,6 +106,8 @@ tools/       명령줄 도구
 | T01.26 | cloud | F-047 ws_bytes resend 추월 기준(받은 수준 최고)·변형 생존 테스트 5건 | `bench/baseline/ws_bytes/` | F-047 확인 기준, F-042·F-022 유지 | opus |
 | T01.27 | cloud | F-048 ① heap statm 유한 검사 | `bench/baseline/heap/` | F-048 ① 확인 기준 | sonnet |
 | T01.28 | cloud | F-048 ②~⑥ tmp 정리·basisNote 순서·closure 표기·노트 숫자 | `_common/`, `heap/`, `ref_images/`, `bundle_status/` 테스트·주석, 연구 노트 | F-048 ②~⑤ 확인 기준 | haiku |
+| T01.29 | cloud | F-049 ws_bytes final 판정 잔여(stale final·resend 전용 final 모드·미완 회차 표기) | `bench/baseline/ws_bytes/` | F-049 확인 기준, F-022·F-042·F-047 유지 | opus |
+| T01.30 | cloud | F-050 테스트 공백(basisNote 별칭·법선 형·undefined, 3프레임 회차, 브라우저 없는 문법 테스트)·BOM·Set·주석 | `ref_images/`, `ws_bytes/`, `_common/`, `bundle_status/` | F-050 확인 기준 | sonnet |
 
 완료 후: 감독이 SPEC §4 를 확정해 "제안값" → "확정" 으로 바꾼다.
 

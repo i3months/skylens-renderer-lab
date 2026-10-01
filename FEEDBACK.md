@@ -418,3 +418,26 @@
 - 권장 모델: haiku (① 은 sonnet)
 - 이력: 2026-10-01 19:25 감독 등록(축 2·4b·6·7·11·12·3 보고, 근거 줄 확인). 신규 항목
 
+### F-049 [열림] (심각도: 중간) — ws_bytes final 판정 잔여 (stale 원본의 final 이 완결을 만들고, resend 프레임의 final 이 final 모드를 켠다)
+- 위치: bench/baseline/ws_bytes/index.mjs:117(`if (f.final !== undefined) anyFinal = true` — resend 프레임 포함), :130(`if (f.final === true) s.final = true` 가 :131 stale 판정보다 먼저), :168·:281-283(resend_merged_rounds 를 미완 구간까지 셈) (제품 main 612eeae)
+- 문제: 완결은 "받은 원본 final" 로만 판정한다는 F-042 결정과 어긋나는 두 경로. ① 추월돼 집계에서 빠지는 stale 원본의 final 이 구간을 완결시킨다. ② final 필드가 resend 프레임에만 있는 녹화는 final 모드가 켜져 원본 구간이 전부 미완이 된다. ③ 미완 구간의 이어 붙인 resend 회차도 segment_total.method 에 "한 회차의 분할로 합산" 으로 적힌다.
+- 실패 상황(감독 직접 재현, summarize): ① [L1 5, L0 3 final:true] → segment_ids [1]·segments [5]·stale 1 (맞는 값: incomplete 1개). ② [L0 1, L1 2, L2 4, 구간2 rL2 4 final:true] → segment_ids []·incomplete [1,2] (final 필드 없으면 구간 1 완결 [7]). ③ [r(1,2,40,final), r(1,2,40,final), (2,2,3,final)] → segments [3]·구간 1 미완인데 resend_merged_rounds 1.
+- 고칠 것: :130 을 stale 이 아닐 때만 s.final 을 켜도록 옮긴다. anyFinal 은 원본 프레임에서만 켠다(또는 원본에 final 이 없고 resend 에만 있는 녹화를 형식 오류로 거부하고 method 에 적는다). mergedRounds 는 완결 구간 회차만 센다.
+- 확인 기준: ① 입력 → segment_ids []·incomplete 1개. ② 입력 → segments [7](또는 명시적 형식 오류). ③ 입력 → resend_merged_rounds 0, method 에 "분할로 합산" 없음. F-022 (가)~(라)·F-042·F-047 확인 기준 유지.
+- 권장 모델: opus (같은 도구가 F-022·F-042·F-047 로 거듭 열렸다)
+- 이력: 2026-10-01 19:40 감독 등록(PR #5 중복 감독 실행의 축 1b 보고, 세 입력 모두 감독 직접 재현). 신규 항목. 19:24 실행의 F-047 과 겹치지 않음
+
+### F-050 [열림] (심각도: 낮음) — 테스트 공백·측정 도구 잔여 (PR #5 중복 감독 실행 보충)
+- 위치·문제:
+  ① ref_images/index.mjs:260 CANON_TYPE 별칭(float32·uint8) 테스트 없음 — 정규화 제거 변형 생존(축 4a 사본 실행). :484 normalType 비교를 `!== 'uchar'` 로 바꾼 변형 생존(float 좌표 + int 법선 27 B 디코드 사례 없음). :486 형 정보 없을 때 "x y z undefined" 를 내는 변형 생존(테스트는 '같은 형식' 부재만 봄). F-048 ③(순서) 과 함께 고친다.
+  ② ws_bytes/index.mjs:168 mergedRounds 를 프레임 수−1 로 세는 변형 생존(테스트가 2프레임 회차뿐). [r40, r40, r40] → 1회차 단언 없음.
+  ③ _common/wrapper_delegate.test.mjs:11-13 chromium 이 없으면 3건 모두 건너뛰고 exit 0. 브라우저 없이 감지 스크립트 문법을 보던 browser.test.mjs 의 `new Function(buildDetectScript('#c'))` 테스트가 이번에 지워져(F-036 지시의 "거의 항상 참인 단언" 삭제와 함께), 브라우저 없는 환경에서는 감지 스크립트 문법 오류도 통과한다(축 4b 재현).
+  ④ bundle_status/closure.mjs:58 UTF-8 BOM 으로 시작하는 .map 은 JSON.parse 실패 → 조용히 heuristic (축 7 재현, 감독 코드 확인).
+  ⑤ ws_bytes/index.mjs:285 `segment_ids.includes` 로 O(R·S) (축 6). _common/browser.mjs 상태 메서드 래퍼에 감지 뒤 조기 반환 없음(페이지가 래퍼 참조를 캐시한 경우 감지 뒤에도 해시 비용).
+  ⑥ ref_images.test.mjs:762 주석 "u = 120.893…" 실제 120.89497…. 연구 baseline-fixes-2.md T01H 보충의 "이전 기준 파일×1.3" 서술이 2차 노트 본문(이미 출력 버퍼 상한 196.5 MiB)과 시점이 어긋남 — 기준이 바뀐 커밋을 적는다.
+- 실패 상황: 각 변형이 테스트를 통과하거나(①②③), 판정 근거가 조용히 바뀐다(④).
+- 고칠 것: ① 원시 헤더 `property float32 x`…`uint8 red` 27 B → "같은 형식"·"float32" 없음, N('float','int') 27 B → "같은 형식" 아님, 직접 호출 형 없음 → /undefined/ 없음. ② 3프레임 회차 단언. ③ 브라우저 없이 `new Function(buildDetectScript(sel))` 문법 테스트를 되살리되 단언은 doesNotThrow 하나로(문자열 typeof 단언은 넣지 않음). ④ BOM 제거 뒤 파싱. ⑤ Set 사용, 상태 래퍼 첫 줄 `if (window.__ffMs !== undefined) return orig.apply(this, a)`. ⑥ 주석·노트 정정.
+- 확인 기준: ①②의 각 변형에서 테스트 실패(감독이 사본에서 재실행). ③ PLAYWRIGHT_BROWSERS_PATH=/nonexistent 에서 감지 스크립트 문법 오류 변형이 exit≠0. ④ BOM .map → sourcemap-3d/app.
+- 권장 모델: sonnet (⑥ 은 haiku)
+- 이력: 2026-10-01 19:40 감독 등록(중복 감독 실행 축 1a·4a·4b·5·6·7 보고; ③ ④ 는 감독이 diff·코드 줄 확인, ①② 는 축 4a 사본 실행 — 감독 미재현). 신규 항목
+
