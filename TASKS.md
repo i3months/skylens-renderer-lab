@@ -46,9 +46,9 @@ tools/       명령줄 도구
 - [x] **T01M `baseline-fixes-7`** [cloud] — T01K 검토 잔여: F-053 보충·보충 2(중간), F-056(중간), F-055(낮음). T01.35·T01.36. T02 가 사람 결정 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-7, 연구 experiment/baseline-fixes-7. (2026-10-01 병합, 제품 8b88f98 merge commit, 연구 experiment/baseline-fixes-5 f2d782b, 반려 0회. F-053·F-056 닫음, F-055 ② 와 F-057 → T01N)
 - [x] **T01N `baseline-fixes-8`** [cloud] — T01M 검토 잔여: F-055 ②, F-057(모두 낮음). T01.37·T01.38. T02 가 사람 결정 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-8, 연구 experiment/baseline-fixes-8. 제품 코드·테스트 이름에 FEEDBACK 번호를 넣지 않는다. (2026-10-02 병합, 제품 26b68a3 merge commit, 연구 experiment/baseline-fixes-7 a581af2, 반려 0회. F-055·F-057 닫음, F-058 → T01P)
 - [x] **T01P `baseline-fixes-9`** [cloud] — T01N 검토 잔여: F-058(중간 1·낮음 6). T01.39·T01.40. T02 가 사람 결정 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-9, 연구 experiment/baseline-fixes-9(부모 experiment/baseline-fixes-8). 제품 코드·테스트 이름에 FEEDBACK 번호를 넣지 않는다. (2026-10-02 병합, 제품 11f6bf1 merge commit, 연구 experiment/baseline-fixes-8 acfdd28, 반려 0회. F-058 닫음, F-059 → T02 승인 뒤 첫 작업)
-- [ ] **T02 `stack`** — 스택 선정. 서버 래스터라이저(2단계)·자산 처리 서버·클라이언트 경량 래스터라이저를 무엇으로 쓸지 조사. **감독 승인 전에는 T03 이후를 시작하지 않는다.**
-- [ ] **T03 `asset-format`** — 경량 자산 포맷 계약과 핵심 타입.
-- [ ] **T04 `point-io`** — 27 B 점 형식 입출력과 ENU 좌표.
+- [x] **T02 `stack`** — 스택 선정. 서버 래스터라이저(2단계)·자산 처리 서버·클라이언트 경량 래스터라이저를 무엇으로 쓸지 조사. (2026-10-02 감독 승인, 결정 0009 승인·0012~0014 반영, 연구 PR #3 → research merge commit ddd3219, 제품 변경 없음, 반려 0회)
+- [ ] **T03 `asset-format`** — 경량 자산 포맷 계약과 핵심 타입. 27 B 점·56 B 가우시안 두 입력 형식을 담는다(0012). 첫 하위 작업으로 F-059(T03.F, haiku)를 함께 처리한다.
+- [ ] **T04 `point-io`** — 27 B 점·56 B 가우시안 PLY 입출력과 ENU 좌표.
 - [ ] **T05 `synthetic-scenes`** — 합성 장면·고정 시점 8곳·골든 파일.
 - [ ] **T06 `reference-raster`** — CPU 참조 래스터라이저와 화질 지표.
 - [ ] **T07 `lod`** — 거리 제곱 근거의 LOD 계층.
@@ -150,52 +150,55 @@ tools/       명령줄 도구
 
 ### T03 `asset-format` — [cloud]
 
+스택: Node.js 22 ESM, 테스트 `npm test`(SPEC §8). 입력 형식은 27 B 점과 56 B 가우시안 둘 다(결정 0012). 공통 필드(위치·색)와 형식별 선택 필드(법선 / 불투명도·크기·회전)를 한 포맷에 담는 안을 우선 검토하고, 두 포맷을 따로 두는 안과 비교한 근거를 T03 결정 기록(decisions/)에 남긴다.
+
 | 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
 |---|---|---|---|---|
-| T03.0 | 계약: 포맷 명세(헤더·타일·LOD 단계·조각·구간/수준 식별자·양자화 범위·체크섬), 핵심 타입, 골든 파일 1개 | `contracts/asset/`, `format/`, `fixtures/asset_golden/` | 명세 문서와 타입이 골든 파일을 읽어 필드 일치 | opus |
+| T03.F | F-059 잔여(낮음) 처리 — T03 계약 커밋 전에 먼저 | F-059 위치의 기존 파일 | F-059 확인 기준 | haiku |
+| T03.0 | 계약: 포맷 명세(헤더·형식 표시(27 B 점/56 B 가우시안)·공통/선택 필드·타일·LOD 단계·조각·구간/수준 식별자·양자화 범위·체크섬), 핵심 타입, 골든 파일 형식별 1개씩(2개), 단일 포맷 대 분리 포맷 비교 결정 기록 | `contracts/asset/`, `format/`, `fixtures/asset_golden/` | 명세 문서와 타입이 두 골든 파일을 읽어 필드 일치, decisions/ 에 비교 근거 | opus |
 | T03.1 | 헤더 쓰기·읽기 | `server/asset/header/` | `header_roundtrip` 통과, 잘못된 매직·버전 거부 | sonnet |
 | T03.2 | 타일 색인(ENU 사각 격자) | `server/asset/tile_index/` | `tile_index_lookup` 무작위 1만 점 오분류 0 | sonnet |
 | T03.3 | 조각 경계 상자 계산 | `server/asset/bounds/` | `bounds_contain_all` 모든 점 포함, 여유 ≤ 양자화 1단계 | sonnet |
 | T03.4 | 구간·수준 식별자 인코딩 | `server/asset/ids/` | `ids_roundtrip` 4수준×구간 1,000개 왕복 일치 | sonnet |
 | T03.5 | 체크섬 | `server/asset/checksum/` | `checksum_detects_flip` 무작위 1비트 뒤집기 1,000회 전부 검출 | sonnet |
 | T03.6 | 포맷 검증기(명세 위반 목록 출력) | `tools/asset_validate/` | 골든 통과, 손상 파일 10종 전부 거부 | sonnet |
-| T03.7 | 원본 27 B 로 되돌리기(역변환) | `server/asset/unpack/` | `unpack_error_bound` 좌표 오차 ≤ 명세 상한 | opus |
-| T03.8 | 클라이언트 측 헤더·색인 읽기 | `client/asset/` | 서버 쓰기 → 클라이언트 읽기 필드 일치 `client_header_parity` | sonnet |
+| T03.7 | 원본 형식(27 B 점·56 B 가우시안)으로 되돌리기(역변환) | `server/asset/unpack/` | `unpack_error_bound` 두 형식 모두 좌표 오차 ≤ 명세 상한, 형식별 선택 필드(법선 / 불투명도·크기·회전) 오차 ≤ 명세 상한 | opus |
+| T03.8 | 클라이언트 측 헤더·색인 읽기 | `client/asset/` | 서버 쓰기 → 클라이언트 읽기 필드 일치 `client_header_parity`(두 형식) | sonnet |
 | T03.9 | 포맷 결정성 검사 | `server/asset/determinism/` | 같은 입력 두 번 → 바이트 동일 | haiku |
 | T03.10 | 버전 호환 정책 테스트(구버전 거부·신버전 무시 필드) | `server/asset/compat/` | `compat_matrix` 통과 | sonnet |
 | T03.11 | 포맷 퍼저(손상 입력 패닉 0) | `server/asset/fuzz/` | 10만 회 패닉·무한 루프 0 | sonnet |
 
 ### T04 `point-io` — [cloud]
 
-| 하위 | 내용 | 소유 경로 | 완료 기준 |
-|---|---|---|---|
-| T04.0 | 계약: 점 타입(27 B), PLY 머리 규칙, `Gps`·`GeoAnchor`·`Enu` 타입 | `contracts/points/`, `contracts/geo/` | 타입 크기 27 B 단언 |
-| T04.1 | 이진 PLY 읽기 | `server/points/ply_read/` | `ply_read_golden` 골든 파일 점 수·첫/끝 점 일치 |
-| T04.2 | 이진 PLY 쓰기 | `server/points/ply_write/` | 쓰기→읽기 왕복 바이트 동일 |
-| T04.3 | 스트리밍 읽기(메모리 상한) | `server/points/ply_stream/` | 250만 점 읽기 중 추가 메모리 ≤ 32 MB |
-| T04.4 | 손상·불완전 PLY 거부 | `server/points/ply_robust/` | 손상 10종 패닉 0, 오류 반환 |
-| T04.5 | GPS ↔ ENU (skylens `geo.ts` 와 같은 식) | `server/geo/enu/` | skylens 식과 무작위 1만 점 차 ≤ 1 mm |
-| T04.6 | ENU ↔ 씬 좌표(x=동, y=위, z=−북) | `server/geo/scene/` | `scene_axes` 왕복 일치 |
-| T04.7 | 클라이언트 측 같은 변환 | `client/geo/` | 서버 구현과 무작위 1만 점 차 ≤ 1 mm |
-| T04.8 | 법선 정규화·검사(NaN·0 벡터 처리) | `server/points/normals/` | 단위 길이 오차 ≤ 1e-6, NaN 0 |
-| T04.9 | 점 통계(점 수·경계·밀도) 도구 | `tools/points_stat/` | 골든 파일 통계 일치 |
-| T04.10 | 구간 PLY 묶음 읽기(구간×수준 이름 규칙) | `server/points/segments/` | 4수준×3구간 묶음 식별 100% |
+| 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
+|---|---|---|---|---|
+| T04.0 | 계약: 점 타입(27 B)과 가우시안 타입(56 B, `x y z f_dc_0..2 opacity scale_0..2 rot_0..3`), PLY 머리 규칙(두 형식 판별), `Gps`·`GeoAnchor`·`Enu` 타입 | `contracts/points/`, `contracts/geo/` | 타입 크기 27 B·56 B 단언 | sonnet |
+| T04.1 | 이진 PLY 읽기(27 B·56 B 두 형식) | `server/points/ply_read/` | `ply_read_golden` 형식별 골든 파일 점 수·첫/끝 점 일치 | sonnet |
+| T04.2 | 이진 PLY 쓰기 | `server/points/ply_write/` | 쓰기→읽기 왕복 바이트 동일 | sonnet |
+| T04.3 | 스트리밍 읽기(메모리 상한) | `server/points/ply_stream/` | 250만 점 읽기 중 추가 메모리 ≤ 32 MB | sonnet |
+| T04.4 | 손상·불완전 PLY 거부 | `server/points/ply_robust/` | 손상 10종 패닉 0, 오류 반환 | sonnet |
+| T04.5 | GPS ↔ ENU (skylens `geo.ts` 와 같은 식) | `server/geo/enu/` | skylens 식과 무작위 1만 점 차 ≤ 1 mm | opus |
+| T04.6 | ENU ↔ 씬 좌표(x=동, y=위, z=−북) | `server/geo/scene/` | `scene_axes` 왕복 일치 | opus |
+| T04.7 | 클라이언트 측 같은 변환 | `client/geo/` | 서버 구현과 무작위 1만 점 차 ≤ 1 mm | sonnet |
+| T04.8 | 법선 정규화·검사(NaN·0 벡터 처리) | `server/points/normals/` | 단위 길이 오차 ≤ 1e-6, NaN 0 | sonnet |
+| T04.9 | 점 통계(점 수·경계·밀도) 도구 | `tools/points_stat/` | 골든 파일 통계 일치 | haiku |
+| T04.10 | 구간 PLY 묶음 읽기(구간×수준 이름 규칙) | `server/points/segments/` | 4수준×3구간 묶음 식별 100% | sonnet |
 
 ### T05 `synthetic-scenes` — [cloud]
 
-| 하위 | 내용 | 소유 경로 | 완료 기준 |
-|---|---|---|---|
-| T05.0 | 계약: 장면 생성기 인터페이스(시드·점 수·구간 수·수준 수), 고정 시점 8곳 확정 | `contracts/scenes/`, `fixtures/viewpoints/` | 시점 8곳 위치·자세가 문서와 일치 |
-| T05.1 | 평지 + 상자 건물 장면(무늬 텍스처, 법선 포함) | `fixtures/scenes/flat_boxes/` | 같은 시드 → 바이트 동일 |
-| T05.2 | 완만한 지형 장면 | `fixtures/scenes/terrain/` | 같은 시드 → 바이트 동일 |
-| T05.3 | 무늬 없는 영역(흰 지붕·물) 빈자리 장면 | `fixtures/scenes/holes/` | 빈자리 비율 정답 기록 |
-| T05.4 | 구간×4수준 점 수 사다리(낮은 수준 = 성긴 점) | `fixtures/scenes/levels/` | 수준별 점 수 단조 증가 |
-| T05.5 | 250만 점 규모 장면(성능 시험용, 생성만) | `fixtures/scenes/large/` | 생성 시간 기록, 점 수 정확 |
-| T05.6 | 깊이 오차 모형(Δd ≈ d²/(f·b)) 잡음 주입 | `fixtures/scenes/depth_noise/` | 거리별 잡음 표준편차가 식과 10% 이내 |
-| T05.7 | 건물 외곽 돌출 장면(관제탑용, 1,000동) | `fixtures/scenes/buildings/` | 동 수 정확, 겹침 0 |
-| T05.8 | DEM 타일 합성(관제탑용) | `fixtures/scenes/dem/` | 높이 왕복 오차 ≤ 0.1 m |
-| T05.9 | 카메라 경로(드론 추적·자유 조작) | `fixtures/paths/` | 프레임 수·간격 정확 |
-| T05.10 | 장면 미리보기 도구(CPU, PNG) | `tools/scene_preview/` | 8시점 이미지 생성 |
+| 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
+|---|---|---|---|---|
+| T05.0 | 계약: 장면 생성기 인터페이스(시드·점 수·구간 수·수준 수·출력 형식 27 B/56 B, 결정 0012), 고정 시점 8곳 확정 | `contracts/scenes/`, `fixtures/viewpoints/` | 시점 8곳 위치·자세가 문서와 일치 | opus |
+| T05.1 | 평지 + 상자 건물 장면(무늬 텍스처, 법선 포함) | `fixtures/scenes/flat_boxes/` | 같은 시드 → 바이트 동일 | sonnet |
+| T05.2 | 완만한 지형 장면 | `fixtures/scenes/terrain/` | 같은 시드 → 바이트 동일 | sonnet |
+| T05.3 | 무늬 없는 영역(흰 지붕·물) 빈자리 장면 | `fixtures/scenes/holes/` | 빈자리 비율 정답 기록 | sonnet |
+| T05.4 | 구간×4수준 점 수 사다리(낮은 수준 = 성긴 점) | `fixtures/scenes/levels/` | 수준별 점 수 단조 증가 | sonnet |
+| T05.5 | 250만 점 규모 장면(성능 시험용, 생성만) | `fixtures/scenes/large/` | 생성 시간 기록, 점 수 정확 | haiku |
+| T05.6 | 깊이 오차 모형(Δd ≈ d²/(f·b)) 잡음 주입 | `fixtures/scenes/depth_noise/` | 거리별 잡음 표준편차가 식과 10% 이내 | opus |
+| T05.7 | 건물 외곽 돌출 장면(관제탑용, 1,000동) | `fixtures/scenes/buildings/` | 동 수 정확, 겹침 0 | sonnet |
+| T05.8 | DEM 타일 합성(관제탑용) | `fixtures/scenes/dem/` | 높이 왕복 오차 ≤ 0.1 m | sonnet |
+| T05.9 | 카메라 경로(드론 추적·자유 조작) | `fixtures/paths/` | 프레임 수·간격 정확 | sonnet |
+| T05.10 | 장면 미리보기 도구(CPU, PNG) | `tools/scene_preview/` | 8시점 이미지 생성 | haiku |
 
 ### T06 `reference-raster` — [cloud]
 

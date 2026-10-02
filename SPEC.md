@@ -131,14 +131,15 @@ T01(현재 three.js 구현 기준값 측정) 뒤 **감독이 확정해 고정한
 
 ## 8. 스택
 
-T02 에서 정한다(서버 래스터라이저 후보 조사 → 감독 승인). 확정 전까지 빌드·테스트 명령은 비워 둔다.
+T02 에서 정했다(결정 0009, 감독 승인 2026-10-02; 입력 형식 0012, 결합 방식 0013, 법률 항목 0014). 근거는 연구 `research` 의 experiments/stack.md·experiments/stack/decision.md.
 
 | 항목 | 결정 | 근거 |
 |---|---|---|
-| 서버 언어·런타임 | T02 대기 | |
-| 서버 래스터라이저(2단계) | T02 대기 | |
-| 클라이언트 경량 래스터라이저(B) | T02 대기 | |
-| 빌드·테스트 명령 | T02 대기 | |
+| 서버 언어·런타임 | Node.js 22 (ESM). 무거운 루프는 `worker_threads`. 측정으로 병목이 확인된 루프만 네이티브(Rust/C++, wasm 또는 애드온)로 바꾼다. 별도 서비스로 둔다(0013) | runtime.md(같은 알고리즘 C++ 20.9~25.2 ms, Node 37.9~49.4 ms, 1단계는 오프라인 일괄), 서버·클라이언트 코드 공유, skylens TypeScript |
+| 서버 래스터라이저(2단계) | 미정. 1순위 검토 헤드리스 Chromium + B 의 WebGL2 래스터라이저, 2순위 wgpu(Rust)·Dawn. gsplat·Brush 는 56 B 경로 전용 후보. [local] T20 실측 뒤 확정 | server_web.md, server_native.md, 0012, 0014 |
+| 클라이언트 경량 래스터라이저(B) | WebGL2, three.js 최소 구성에서 시작. 27 B 점 렌더 경로와 56 B 가우시안 스플랫 경로를 둘 다 가진다(0012). S4 여유가 모자라면 ogl·twgl 또는 직접 구현. WebGPU 는 1단계 제외 | client.md(three 최소 130.5 KB gzip 하한), cloud_scope.md(SwiftShader WebGL2 헤드리스 검증 가능) |
+| 입력 형식 | 27 B 점(위치·법선·색)과 56 B 가우시안 스플랫 PLY 둘 다 | 0012 |
+| 빌드·테스트 명령 | 단위 테스트 `npm test`(= `node --test`). 헤드리스 클라이언트 테스트는 기설치 Playwright Chromium(SwiftShader). 번들 크기는 T12 전까지 esbuild 근사 기록만(문턱 아님) | decision.md §3, cloud_scope.md |
 
 ## 9. 라이선스
 
