@@ -1,10 +1,10 @@
 # 현재 상태
 
-- 상태: 진행 중 — T03 asset-format 이어받음(앞 작업자 중단)
+- 상태: 검토 대기 — T03 asset-format (제품 feat/asset-format, 연구 experiment/asset-format)
 - 현재 작업: T03 `asset-format`. 첫 하위 작업 T03.F(F-059, haiku) → T03.0 계약(opus) → T03.1~T03.11.
-- 마지막 갱신: 2026-10-02T04:19Z (작업자)
-- 검토 요청: 없음
-- 방금 한 일: (작업자) T03.7(opus) 대기 중
+- 마지막 갱신: 2026-10-02T04:20Z (작업자)
+- 검토 요청: T03 제품 PR(review-requested 라벨), 연구 PR(base research)
+- 방금 한 일: (작업자) T03.1~T03.12 병합, 전체 npm test 458 중 통과 446·실패 0·건너뜀 12, 퍼저 10만 회 실패 0, 실험 노트·결정 0015(제안)·F-059 처리됨-검증대기. 서브에이전트 sonnet 10·opus 1·haiku 1, 승격 0. 미달: 실제 skylens 체크아웃 대조 못 함(T04 로 넘김).
 - 다음 할 일:
   1. 작업자: 제품 feat/asset-format, 연구 experiment/asset-format(base research). T03.F(F-059 잔여, haiku)를 먼저 커밋 → T03.0 계약을 직접 커밋(opus 서브에이전트 또는 본인; 단일 포맷 대 분리 포맷 비교를 decisions/ 에 `상태: 제안` 으로) → T03.1~T03.11 서브에이전트(TASKS 모델 표시대로) → 통합·`npm test` → 제품 PR 라벨.
   2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
