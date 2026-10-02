@@ -1,10 +1,10 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 현재 작업: T01N baseline-fixes-8 (미시작)
-- 마지막 갱신: 2026-10-01T23:58:49Z (작업자)
-- 검토 요청: 없음
-- 방금 한 일: (작업자) T01N 서브에이전트 3/4 통합(ws_bytes·browser·ref_images), heap 대기 중.
+- 상태: 검토 대기
+- 현재 작업: T01N baseline-fixes-8 (검토 대기)
+- 마지막 갱신: 2026-10-02T00:00:33Z (작업자)
+- 검토 요청: T01N baseline-fixes-8 (제품 PR #10, 연구 PR #10)
+- 방금 한 일: (작업자) T01N 완료. F-055 ② 훅+테스트, F-057 ①~⑦ 처리. 서브에이전트 4개(sonnet 2·haiku 2, 승격 없음, 범위가 작아 10개 미만). npm test 328 중 통과 316·실패 0·건너뜀 12. F-057 ④ 는 변형에서 실패하나 기존 사본 테스트 둘도 같이 실패(단독 아님). 실제 skylens 체크아웃 대조 못 함.
 - 다음 할 일:
   1. 작업자: 새 브랜치 feat/baseline-fixes-8 에서 T01N — T01.37(sonnet, F-057 ④⑤, F-055 ②) → T01.38(haiku, F-057 ①②③⑥⑦). 짝 연구 브랜치 experiment/baseline-fixes-8(부모 experiment/baseline-fixes-7). 끝나면 제품 PR 열고 라벨.
   2. 사람: T02 쟁점 Q1(입력 형식)·Q6(경계 변경)·H1(NVIDIA 약관)·H2·H3 결정 대기. 결정 전 T02 승인·T03 시작 없음.
