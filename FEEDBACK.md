@@ -570,17 +570,18 @@
 - 이력: 2026-10-02 00:04 감독 등록(축 1a·1b·2·3·4a·4b·6+7 보고; ⑧ 은 병합 뒤 도착한 축 4b 보고, ① 도 축 4b 가 같은 결과; ② 감독 사본 재현, ①④⑤ 감독 줄 확인, ③⑥⑦ 줄 근거 있음). 신규 항목(모두 이번 PR 이 만들거나 드러낸 것). 축 1b 가 ① 을 높음으로 보고했으나 조작된 smaps_rollup 에서만 생기고 실제 /proc 에서는 나오기 어려워 중간 항목 안의 낮은 하위로 낮춤.
 - 닫음(2026-10-02 00:20 감독, 제품 PR #11 6ce3122): ② 사본 `copyFrames = 1` → 직접 단언 테스트 1 실패, `>= s.hi` → 1 실패(감독 재현). ① PSS 합 검사(heap/index.mjs:74) 삭제 → PSS 합 테스트 1 실패, RSS 합 검사(:83) 삭제 → RSS 합 테스트 1 실패(감독 재현). 공통 위치 대신 두 곳에 둔 것은 노트에 밝혔고 두 삭제 변형이 모두 잡혀 충족으로 본다. ③④ ws_bytes :71-73·:93·:175·method 줄 확인. ⑤ same 에 colorType==='uchar', 없으면 'rgb', 새 basisNote 단언 통과, 줄 번호 참조 제거. 단 :496 stride 주석은 여전히 부정확 → F-059 ②. ⑥ JSDoc null 조건 넷 확인(개별 PSS unsafe 문구 부정확 → F-059 ①). ⑦ 조기 반환 두 줄 각각 삭제 → wrapper_delegate 1 실패씩(감독 재현). ⑧ :318 값 유도 확인.
 
-### F-059 [열림] (심각도: 낮음) — PR #11 잔여: heap 문서·method 문구, basisNote stride 주석, 지워진 browser 주석, 병합 커밋의 작업 트리 이름
+### F-059 [열림] (심각도: 낮음) — PR #11 잔여: heap 문서·method 문구, basisNote stride 주석, testMode 꺼짐 무검사, 지워진 browser 주석, 병합 커밋의 작업 트리 이름
 - 위치: 제품 feat/baseline-fixes-9 6ce3122(main 병합 뒤 같은 줄)
   ① heap/index.mjs:46 JSDoc "개별 unsafe 는 건너뛰고" — 실제로 개별 unsafe PSS 는 건너뛰지 않고 RSS 로 폴백한다(:72), 건너뛰는 것은 개별 unsafe RSS 뿐(:81). (축 1b·5·6+7, 감독 줄 확인)
   ② heap/index.mjs:98 memoryMethodText 의 pssProcs 0 문구 "smaps_rollup 을 읽지 못해" — 이제 Pss 가 안전 정수가 아니어도 폴백하므로 이유가 좁다. (축 1b, 감독 줄 확인)
   ③ ref_images/index.mjs:496 주석 "propertyOrderCorrect 이 true 이고 정확히 9개 속성일 때만 stride === 27 이다(planPly 의 rgb-u8 검사로 보증)" — 틀림. 순서가 맞아도 double 좌표면 39 B, 반대로 double27(법선 없음)은 27 B 인데 propertyOrderCorrect false. rgb-u8 검사는 색 형만 보증한다. 판정 결과는 AND 조건이라 맞다. (축 2, 감독 줄 확인; F-058 ⑤ 의 :496 문구 정정 미완)
   ④ _common/browser.mjs: 테스트 훅과 무관한 설명 주석 약 10줄이 지워졌다(found() 의 복원 이유·"래퍼일 때만 복원", draw 서명 판독 이유, uniform 제외 이유, RECHECK_MS 재판독 이유, 조기 반환 "해시 없이 위임" 2곳). PR 본문·노트에 언급 없음. (축 5·6+7, 감독 diff 확인)
   ⑤ ws_bytes/index.mjs:71 "(딜레이 패턴이 수준을 교체하므로)" 가 가정의 근거를 도출된 사실처럼 붙인다. :75 "설계상 선택이다" 앞에 가정이 틀리면 정상 완결을 미완으로 잘못 분류한다는 방향을 적는 편이 낫다. (축 3, 감독 줄 확인)
+  ⑦ _common/browser.mjs:160 testHookCode 를 testMode 와 무관하게 항상 생성하는 변형이 모든 테스트를 통과한다(축 4b 사본 실행, 감독이 테스트에서 testMode 쓰임 확인: wrapper_delegate.test.mjs:108·129 의 true 만). 고칠 것: buildDetectScript('#c')·{testMode:false} 결과에 __ffTestHook 이 없고 {testMode:true} 에는 있다는 문자열 테스트. 확인 기준: 그 변형에서 _common 테스트 1건 이상 실패.
   ⑥ 제품 PR 의 병합 커밋 3개 제목이 "Merge branch 'worktree-agent-…'" 로 서브에이전트 작업 트리 이름을 드러낸다(금지 패턴은 아님, main 에 기존 2건 선례). (축 9, 감독 확인)
 - 실패 상황: ①② 문서·method 를 믿은 독자가 unsafe PSS 프로세스가 빠졌다거나 smaps_rollup 을 못 읽었다고 오해 ③ 주석을 믿고 stride 조건을 중복으로 보고 지움 ④ 이후 검토에서 래퍼 복원·서명 해시 설계 의도를 복원할 수 없음 ⑤ 가정이 사실로 읽힘 ⑥ 이력에 도구 작업 흔적
 - 고칠 것: ① "개별 unsafe Pss 는 그 프로세스를 RSS 폴백, 개별 unsafe RSS 는 건너뜀, 합 unsafe 는 null" ② "smaps_rollup 을 읽지 못했거나 Pss 가 안전 정수가 아니어서" ③ "stride 는 속성 형에 따라 달라지는 독립 조건이다(순서가 맞아도 double 좌표면 39 B, 27 B 라도 double 좌표·법선 없음일 수 있다)" + double 좌표·float 법선·uchar rgb 9속성 → propertyOrderCorrect true·stride 39·'와 다름' 테스트 ④ 지운 주석 복원(훅 관련 줄만 testMode 문구로) ⑤ 71·75 문구 정정 ⑥ 서브에이전트 작업 트리 브랜치는 로컬에서 squash 해 feat/* 에 일반 커밋으로 옮기거나 병합 메시지를 직접 쓴다(-m).
 - 확인 기준: ①②⑤ 줄 확인 ③ 새 테스트 통과, :496 문구 확인 ④ origin/main 대비 browser.mjs 제거 줄이 훅 관련 줄뿐 ⑥ 다음 PR 커밋 제목에 worktree-agent 0건
 - 권장 모델: 전부 haiku(③ 테스트 포함)
 - 처리 시점: 별도 주기를 만들지 않는다(결정 0011). 다음 제품 작업(T02 승인 뒤 첫 cloud 작업)의 첫 하위 작업으로 함께 고친다.
-- 이력: 2026-10-02 00:20 감독 등록(축 1b·2·3·5·6+7·9 보고, ①~⑥ 감독 줄·diff 확인). 신규 항목(이번 PR 이 만들거나 F-058 ⑤ 에서 덜 고친 것). 치명·높음 없음.
+- 이력: 2026-10-02 00:20 감독 등록(축 1b·2·3·5·6+7·9 보고, ①~⑥ 감독 줄·diff 확인; ⑦ 은 늦게 도착한 축 4b 보고, 감독 테스트 줄 확인). 신규 항목(이번 PR 이 만들거나 F-058 ⑤ 에서 덜 고친 것). 치명·높음 없음.
