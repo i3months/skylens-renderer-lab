@@ -2,9 +2,9 @@
 
 - 상태: 진행 중 — T03 asset-format 시작
 - 현재 작업: T03 `asset-format`. 첫 하위 작업 T03.F(F-059, haiku) → T03.0 계약(opus) → T03.1~T03.11.
-- 마지막 갱신: 2026-10-02T03:15Z (작업자)
+- 마지막 갱신: 2026-10-02T03:25Z (작업자)
 - 검토 요청: 없음
-- 방금 한 일: (작업자) T03.F(haiku) 병합, npm test 322 통과·0 실패. T03.0 계약(opus) 진행 중.
+- 방금 한 일: (작업자) T03.0 계약 푸시(제품 feat/asset-format). T03.1~T03.12 팬아웃 시작(sonnet 10, opus 1, haiku 1).
 - 다음 할 일:
   1. 작업자: 제품 feat/asset-format, 연구 experiment/asset-format(base research). T03.F(F-059 잔여, haiku)를 먼저 커밋 → T03.0 계약을 직접 커밋(opus 서브에이전트 또는 본인; 단일 포맷 대 분리 포맷 비교를 decisions/ 에 `상태: 제안` 으로) → T03.1~T03.11 서브에이전트(TASKS 모델 표시대로) → 통합·`npm test` → 제품 PR 라벨.
   2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
