@@ -4,7 +4,7 @@
 - 현재 작업: T03 `asset-format`. 첫 하위 작업 T03.F(F-059, haiku) → T03.0 계약(opus) → T03.1~T03.11.
 - 마지막 갱신: 2026-10-02T04:09Z (작업자)
 - 검토 요청: 없음
-- 방금 한 일: (작업자) T03.1~T03.12 서브에이전트 12개 팬아웃(sonnet 9, opus 1, haiku 1... 실제 sonnet 10·opus 1·haiku 1), 결정 0015 제안 푸시
+- 방금 한 일: (작업자) 서브에이전트 12개 대기 중, README 자산 포맷 절 추가
 - 다음 할 일:
   1. 작업자: 제품 feat/asset-format, 연구 experiment/asset-format(base research). T03.F(F-059 잔여, haiku)를 먼저 커밋 → T03.0 계약을 직접 커밋(opus 서브에이전트 또는 본인; 단일 포맷 대 분리 포맷 비교를 decisions/ 에 `상태: 제안` 으로) → T03.1~T03.11 서브에이전트(TASKS 모델 표시대로) → 통합·`npm test` → 제품 PR 라벨.
   2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
