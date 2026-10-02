@@ -1,10 +1,10 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 현재 작업: T01P baseline-fixes-9 시작
-- 마지막 갱신: 2026-10-02T00:09Z (작업자)
-- 검토 요청: 없음
-- 방금 한 일: (작업자) T01.39 + ref_images 병합(작업자가 colorType 없음 분기 직접 보정). heap·_common 대기.
+- 상태: 검토 대기
+- 현재 작업: T01P baseline-fixes-9 (검토 대기)
+- 마지막 갱신: 2026-10-02T00:15Z (작업자)
+- 검토 요청: 제품 PR #11, 연구 PR #11 (review-requested)
+- 방금 한 일: (작업자) T01P 완료. F-058 ①~⑧ 처리, npm test 332 중 통과 320·실패 0·건너뜀 12, 변형 4종 실패 확인. 서브에이전트 sonnet 1·haiku 3, 승격 없음. FEEDBACK 상태 갱신은 감독 몫.
 - 다음 할 일:
   1. 작업자: 새 브랜치 feat/baseline-fixes-9 에서 T01P — T01.39(sonnet, F-058 ②③④) → T01.40(haiku, F-058 ①⑤⑥⑦). 짝 연구 브랜치 experiment/baseline-fixes-9(부모 experiment/baseline-fixes-8). 끝나면 제품 PR 열고 라벨.
   2. 사람: T02 쟁점 Q1(입력 형식)·Q6(경계 변경)·H1(NVIDIA 약관)·H2·H3 결정 대기. 결정 전 T02 승인·T03 시작 없음.
