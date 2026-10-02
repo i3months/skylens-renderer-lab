@@ -44,7 +44,7 @@ tools/       명령줄 도구
 - [x] **T01J `baseline-fixes-5`** [cloud] — T01I 검토 잔여와 옮긴 항목: F-049·F-051(중간), F-050·F-052(낮음). T01.29·T01.30·T01.31·T01.32. T02 가 사람 결정(Q1·Q6) 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-5, 연구 experiment/baseline-fixes-5. (2026-10-01 병합, 제품 1c99f60 merge commit, 연구 research f1335ac, 반려 0회. F-049~F-052 닫음)
 - [x] **T01K `baseline-fixes-6`** [cloud] — T01J 검토 잔여: F-053(중간), F-054·F-055(낮음). T01.33·T01.34. T02 가 사람 결정(Q1·Q6) 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-6, 연구 experiment/baseline-fixes-6. (2026-10-01 병합, 제품 6b0cb9f merge commit, 연구 experiment/baseline-fixes-5 7a5a21f, 반려 0회. F-054 닫음. F-053 본문 해결·보충 미처리, F-055 미처리 → T01M)
 - [x] **T01M `baseline-fixes-7`** [cloud] — T01K 검토 잔여: F-053 보충·보충 2(중간), F-056(중간), F-055(낮음). T01.35·T01.36. T02 가 사람 결정 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-7, 연구 experiment/baseline-fixes-7. (2026-10-01 병합, 제품 8b88f98 merge commit, 연구 experiment/baseline-fixes-5 f2d782b, 반려 0회. F-053·F-056 닫음, F-055 ② 와 F-057 → T01N)
-- [x] **T01N `baseline-fixes-8`** [cloud] — T01M 검토 잔여: F-055 ②, F-057(모두 낮음). T01.37·T01.38. T02 가 사람 결정 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-8, 연구 experiment/baseline-fixes-8. 제품 코드·테스트 이름에 FEEDBACK 번호를 넣지 않는다. (2026-10-02 병합, 제품 MERGEHASH merge commit, 연구 experiment/baseline-fixes-7 LABHASH, 반려 0회. F-055·F-057 닫음, F-058 → T01P)
+- [x] **T01N `baseline-fixes-8`** [cloud] — T01M 검토 잔여: F-055 ②, F-057(모두 낮음). T01.37·T01.38. T02 가 사람 결정 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-8, 연구 experiment/baseline-fixes-8. 제품 코드·테스트 이름에 FEEDBACK 번호를 넣지 않는다. (2026-10-02 병합, 제품 26b68a3 merge commit, 연구 experiment/baseline-fixes-7 a581af2, 반려 0회. F-055·F-057 닫음, F-058 → T01P)
 - [ ] **T01P `baseline-fixes-9`** [cloud] — T01N 검토 잔여: F-058(중간 1·낮음 6). T01.39·T01.40. T02 가 사람 결정 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-9, 연구 experiment/baseline-fixes-9(부모 experiment/baseline-fixes-8). 제품 코드·테스트 이름에 FEEDBACK 번호를 넣지 않는다.
 - [ ] **T02 `stack`** — 스택 선정. 서버 래스터라이저(2단계)·자산 처리 서버·클라이언트 경량 래스터라이저를 무엇으로 쓸지 조사. **감독 승인 전에는 T03 이후를 시작하지 않는다.**
 - [ ] **T03 `asset-format`** — 경량 자산 포맷 계약과 핵심 타입.
@@ -122,7 +122,7 @@ tools/       명령줄 도구
 | T01.37 | cloud | F-057 ④ "같은 프레임 집합" 테스트에 손계산 리터럴 단언, ⑤ 사본 규칙이 skylens 송신 코드 미대조 가정임을 주석에 밝히고 run method 에 끊긴 같은 수준 사본 개수 표기, F-055 ② 감지 뒤 조기 반환(실제 buildDetectScript 에 호출 수 훅 + 테스트, 또는 두 줄 삭제) | `bench/baseline/ws_bytes/`, `bench/baseline/_common/` | F-057 ④⑤·F-055 ② 확인 기준, F-042·F-047·F-049·F-051·F-053 유지 | sonnet |
 | T01.38 | cloud | F-057 ①②③ ref_images 주석·문서·colorType, ⑥⑦ heap 합 상한·혼합 테스트 | `bench/baseline/ref_images/`, `bench/baseline/heap/` | F-057 ①②③⑥⑦ 확인 기준 | haiku |
 | T01.39 | cloud | F-058 ② copy_frames 직접 단언(개수 2·rhi/hi 구분·[L2 5, L1 3, L2 5 final]), ③ method·정의에 가정 단서, ④ 사본 규칙 근거 주석을 "가정:" 으로·stale 블록 주석 | `bench/baseline/ws_bytes/` | F-058 ②③④ 확인 기준, F-042·F-047·F-049·F-051·F-053 유지 | sonnet |
-| T01.40 | cloud | F-058 ① PSS 개별·합 isSafeInteger + 테스트, ⑥ heap JSDoc null 조건·테스트 제목, ⑤ basisNote 문서·:496 문구·줄 번호 참조, ⑦ 테스트 훅 읽기 한 번 또는 옵션 주입 | `bench/baseline/heap/`, `bench/baseline/ref_images/`, `bench/baseline/_common/` | F-058 ①⑤⑥⑦ 확인 기준 | haiku |
+| T01.40 | cloud | F-058 ① PSS 개별·합 isSafeInteger + 테스트, ⑥ heap JSDoc null 조건·테스트 제목, ⑤ basisNote 문서·:496 문구·줄 번호 참조, ⑦ 테스트 훅 읽기 한 번 또는 옵션 주입, ⑧ heap 테스트 값을 페이지 크기에서 유도 | `bench/baseline/heap/`, `bench/baseline/ref_images/`, `bench/baseline/_common/` | F-058 ①⑤⑥⑦⑧ 확인 기준 | haiku |
 
 완료 후: 감독이 SPEC §4 를 확정해 "제안값" → "확정" 으로 바꾼다.
 
