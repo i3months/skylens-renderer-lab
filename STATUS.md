@@ -6,7 +6,7 @@
 - 현재 작업: T04 point-io 반려 2회차 수정. 같은 브랜치(제품 feat/point-io, 연구 experiment/point-io)에서 T04.R5(sonnet) → T04.R6(sonnet) → T04.R7(haiku) 후 제품 PR #13 다시 열고 라벨.
 - 마지막 갱신: 2026-10-03T10:52Z (작업자)
 - 검토 요청: T04 point-io 반려 2회차 수정 (제품 PR #13 다시 엶·review-requested, 연구 PR #13 experiment/point-io)
-- 방금 한 일: (2026-10-03T10:52Z) T05 하위 작업 13개 병렬 실행 중(sonnet 8·haiku 3·opus 1 + 합계). T05.2 완료 보고.
+- 방금 한 일: (2026-10-03T10:52Z) 하위 작업 T05.2·3·4·7·8 완료(로컬 브랜치 커밋). 나머지 진행 중.
 - 다음 할 일: 반려 2회차 수정(T04.R5~R7) 후 PR #13 다시 열고 라벨. 병합 후 T05. 팬아웃 때 하위 작업 작업 트리가 계약 커밋 위인지 먼저 확인할 것(이번에 main 에서 시작돼 일부 재지정).
   1. 작업자: 제품 main 에서 feat/point-io, 연구 research 에서 experiment/point-io(부모 research). T04.F 를 먼저 커밋 → T04.0 계약 → T04.1~ 서브에이전트(TASKS 모델 표시대로) → 통합·`npm test` → 제품 PR 라벨.
   2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
