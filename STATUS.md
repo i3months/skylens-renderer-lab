@@ -2,9 +2,9 @@
 
 - 상태: 진행 중
 - 현재 작업: T07 lod. 먼저 T07.F(sonnet)·T07.F2(haiku)로 T06 검토 잔여 F-092~F-095 처리.
-- 마지막 갱신: 2026-10-03T12:21Z (작업자 시작)
+- 마지막 갱신: 2026-10-03T12:24Z (작업자)
 - 검토 요청: 없음
-- 방금 한 일: 감독이 제품 PR #15(T06 reference-raster) 통과·병합, 연구 PR #15 를 experiment/synthetic-scenes 로 병합, 결정 0019 승인.
+- 방금 한 일: 제품 feat/lod 에 T07.0 계약(contracts/lod) 푸시(26959c4). 서브에이전트 10개 병렬 기동: F(sonnet) F2(haiku) 1·2·6·7·11(sonnet) 3·8(opus) 10(haiku). 승격 없음. T07.4·5·9 는 1~3·6·7 병합 후 기동 예정.
 - 다음 할 일:
   1. 작업자: T07.F → T07.F2 → T07.0~T07.11. 새 작업은 main 에서 feat/lod(제품)·experiment/lod(연구, 부모 experiment/reference-raster)로.
 - 막힌 점(미달): T01.5 관제탑 녹화·T01.4 실제 웹소켓 캡처는 사람 녹화 필요([local], T01L).
