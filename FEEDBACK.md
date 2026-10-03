@@ -1143,25 +1143,25 @@
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 13:45 감독 등록(축 1a·4b·5·6·7). 신규. → 2026-10-03 작업자 처리(제품 902eadf): ① Math.hypot ② 화면 안 부분 한계(I, 점 수 0.6~4 % 감소, 보수성 92,889 선분 최대 0.9727, 결정 0021 보완) ③ 입력 검사 'lod:'(A) ④ 빈 리프 NOT_DRAWN 통일(G) ⑤ 합성 키 정렬(H, 이 머신 약 20 % 감소, 감독 환경 재측정 필요) ⑥⑦⑧(J·F) ⑨ README 반영. → 2026-10-03 14:40 감독 확인 닫음: ①②③④⑥⑦⑧⑨ 확인(축 1·1b·7). ② 보수성은 축 1 퍼저 상자 4,084개 위반 0, 화면 안 부분 후보 제거 변이 모두 시험 실패. ⑤ 축 6 측정 build main 9.2~11.5 s → 브랜치 8.5~9.2 s, 키 정렬 결과가 main 비교 정렬과 바이트 동일(축 1b). 잔여 낮음은 F-107.
 
-### F-105 [처리됨-검증대기] (심각도: 중간) — paths 접선 잔차의 산술 평균 제거가 ±π 감김에 깨져 거짓 통과
+### F-105 [닫힘] (심각도: 중간) — paths 접선 잔차의 산술 평균 제거가 ±π 감김에 깨져 거짓 통과
 - 위치: fixtures/paths/paths.test.mjs:117-118·133-135 (제품 902eadf)
 - 문제: 잔차 e 를 원소마다 (−π, π] 로 감은 뒤 산술 평균을 뺀다. 시작각이 ±π 근처인 시드는 잔차가 −π 와 +π 로 갈라져 폭이 약 2π·60 ≈ 377 m 로 부풀고 무조건 통과한다(감독이 117-118·133 직접 확인).
 - 실패 상황: 축 4b 실행 — 시드 1~10000 중 78개가 감김. jt 진폭 0.3배 변이가 시드 67 에서 통과(감김 보정 시 1만 시드 모두 실패). 현재 시험 시드 1·2·3·99 는 해당 없음(미확인 범위: 시드 67 재현은 서브에이전트 실행).
 - 고칠 것: 원형 평균 c = atan2(Σsin e, Σcos e) 를 쓰고 잔차를 atan2(sin(e−c), cos(e−c)) 로 다시 감는다. 시험 시드에 감김 시드(예: 67) 하나를 넣는다. 주석의 '≈2.5~3 m' 는 일반 시드 최솟값 1.79 m 를 반영해 고친다.
 - 확인 기준: jt 진폭 0.45(0.3배) 변이에서 시드 67 포함 시험 실패, 원본은 통과, 시드 1~10000 최대 폭 ≤ 약 3 m.
 - 권장 모델: haiku
-- 이력: 2026-10-03 14:40 감독 등록(축 4b). 신규(F-102 ④ 처리분의 잔여 공백). → 2026-10-03 작업자 처리(제품 feat/lod-fixes4 23c312f; 연구 experiment/lod-fixes4): A: 원형 평균·시드 67, 변이 실패, 시드 1~10000 폭 1.79~3.07 m.
+- 이력: 2026-10-03 14:40 감독 등록(축 4b). 신규(F-102 ④ 처리분의 잔여 공백). → 2026-10-03 작업자 처리(제품 feat/lod-fixes4 23c312f; 연구 experiment/lod-fixes4): A: 원형 평균·시드 67, 변이 실패, 시드 1~10000 폭 1.79~3.07 m. → 2026-10-03 15:05 감독 확인 닫음: 원본 paths 시험 9/9 통과, jt 1.5→0.45 변이 → 드론 시험 실패(감독 직접). 원형 평균 수식 paths.test.mjs:131-134 확인. 남은 낮음(1.0 m 한계 감도·1.79 m 주석)은 F-111 ③.
 
-### F-106 [처리됨-검증대기] (심각도: 중간) — 결정 기록 공백: levels[l].positions 사본, 0020 ④ d_eff 정의, 코드 주석 옛 식
+### F-106 [닫힘] (심각도: 중간) — 결정 기록 공백: levels[l].positions 사본, 0020 ④ d_eff 정의, 코드 주석 옛 식
 - 위치: ① 연구 experiment/lod-fixes3 decisions/0020-lod-grid-hierarchy.md:57 — "d_eff = d·cMin², 코드 server/lod/budget/index.mjs 와 같은 식". 코드는 screen_error.mjs:154·167-169 의 max(d·cMin², z_P·c_P). ② contracts/lod/index.mjs:39(Level.positions 추가)·select/index.mjs:36-37(필수 검사) — decisions/ 에 positions·12 B 검색 0건(감독 git grep 확인). 대가는 hierarchy/index.mjs:10-13 주석과 experiments/lod-fixes3.md 에만. ③ 옛 식 주석: budget/index.mjs:6·12·110, progressive/index.mjs:3·26, select/index.mjs:10(감독 grep 확인).
 - 문제: 계약 필드 추가·메모리↔시간 교환(+12 B/대표점, 250만 점 약 +68 MB — 축 6 실측 +68 MB)이 결정 형식(선택지·근거·대가·다시 볼 조건)으로 없다. 0020 ④ 는 "코드와 같은 식" 이라 단언하나 틀렸다. 감독이 F-099 이력에서 이 방법을 지시했으므로 반려 사유(높음)로 보지 않고 중간.
 - 실패 상황: 가장자리·카메라 평면 걸친 리프에서 문서·주석 식으로 ΔE·목표 단계를 검산하면 코드와 다르다. 메모리 예산 검토 때 근거를 decisions 에서 못 찾는다.
 - 고칠 것: ① 0020 ④ 를 "d_eff = max(d·cMin², z_P·c_P)(0021 F-104 ② 보완)" 로. ② 0021 보완 항목 또는 0022 로 (가) 사본 보관 (나) gather 유지, 근거(main 최댓값 107 ms → 54.7 ms), 대가(12 B/대표점, +68 MB, applyChunks 는 아직 cloud.positions 직접 읽음), 다시 볼 조건(메모리 예산 초과·다중 장면 캐시). ③ 주석 6곳을 새 식 또는 screen_error.mjs 참조로.
 - 확인 기준: `git grep -n 'levels\[l\].positions' decisions` 결과 있음·네 요소 있음, 0020 ④ 식 = screen_error.mjs:154 식, `grep -rn 'd_eff = d·cMin²' server --include=index.mjs` 0건.
 - 권장 모델: haiku(③), sonnet(①②)
-- 이력: 2026-10-03 14:40 감독 등록(축 2). 신규. → 2026-10-03 작업자 처리(제품 feat/lod-fixes4 23c312f; 연구 experiment/lod-fixes4): C·D·B2: 0020 ④ 식 정정, 결정 0022 positions 사본, 주석 정정.
+- 이력: 2026-10-03 14:40 감독 등록(축 2). 신규. → 2026-10-03 작업자 처리(제품 feat/lod-fixes4 23c312f; 연구 experiment/lod-fixes4): C·D·B2: 0020 ④ 식 정정, 결정 0022 positions 사본, 주석 정정. → 2026-10-03 15:05 감독 확인 닫음: `grep -rn 'd_eff = d·cMin²' server --include=index.mjs` 0건, 0022 에 levels[l].positions·선택지·근거·대가·다시 볼 조건 있음, 0020 ④ 식 = screen_error.mjs:168 식(감독 직접). 0022 대가·다시 볼 조건의 applyChunks 서술이 같은 PR 코드와 어긋남은 F-109 ①.
 
-### F-107 [처리됨-검증대기] (심각도: 낮음) — PR #18 잔여 묶음(대부분 미확인)
+### F-107 [닫힘] (심각도: 낮음) — PR #18 잔여 묶음(대부분 미확인)
 - 위치·고칠 것(제품 902eadf):
   ① select/index.mjs assertHierarchy(:30-41)·budget/index.mjs assertHierarchyInput(:49-58) 두 갈래 — nodeCount·leafIndex 길이(= nodeCount)·boxMin/boxMax 길이(= 3·nodeCount), levels[].normals(Float32Array 3·n)·colors(Uint8Array 3·n)·positions 를 하나의 검사로 통일. nodeCount 없음이면 selectLevels 가 예외 없이 빈 결과(축 7 재현, 감독은 select/index.mjs:69 루프 조건만 확인 — 미확인). (sonnet)
   ② screen_error.mjs:42-48 boxDistanceM 이 Math.sqrt(합) 이라 t ≈ 1e160 에서 Infinity → budget 은 'lod: d 는 양의 유한수' 로 던지고 select·progressive 는 빈 결과(축 7, 감독은 48행 확인). Math.hypot, budget 은 가시성 판정을 rule.leaf 앞으로. (haiku)
@@ -1176,13 +1176,46 @@
 - 기각: 축 4b 'SSIM 1e-6 완화' — F-104 ⑦ 에서 감독이 지시한 값이라 기각.
 - 확인 기준: 항목별 grep 또는 해당 시험·변이.
 - 권장 모델: 항목별 표기
-- 이력: 2026-10-03 14:40 감독 등록(축 1·1b·3·4a·4b·5·6·7). 신규. → 2026-10-03 작업자 처리(제품 feat/lod-fixes4 23c312f; 연구 experiment/lod-fixes4): ①~⑩ 처리(B2·D·E·F·G·H·I), 기준 하한 일부는 이론·절반 규칙 값.
+- 이력: 2026-10-03 14:40 감독 등록(축 1·1b·3·4a·4b·5·6·7). 신규. → 2026-10-03 작업자 처리(제품 feat/lod-fixes4 23c312f; 연구 experiment/lod-fixes4): ①~⑩ 처리(B2·D·E·F·G·H·I), 기준 하한 일부는 이론·절반 규칙 값. → 2026-10-03 15:05 감독 확인 닫음: ①~⑩ 코드·시험 흔적 확인(축 1b·3·4a·4b·7 재현, 감독은 progressive/index.mjs:85-107·select/index.mjs:30-50·screen_error.mjs 직접 읽음). 남은 공백은 F-110·F-111 로 이관.
 
-### F-108 [처리됨-검증대기] (심각도: 중간) — progressive 시험의 판별력 공백(순환 기대값·같은 순서 중복·사후 상수)
+### F-108 [닫힘] (심각도: 중간) — progressive 시험의 판별력 공백(순환 기대값·같은 순서 중복·사후 상수)
 - 위치: server/lod/progressive/progressive.test.mjs:77-79, :201, :217-226 (제품 902eadf, 감독이 세 곳 직접 확인)
 - 문제: ① 목표 단계 기대값을 구현 함수 effectiveDistance 로 계산(순환). 이전의 독립 cMin 계산이 이번 diff 에서 지워졌다. ② '더 거친 조각은 무시' 시험이 dup = [...ch, ...ch] 라 두 번째 사본도 리프마다 거친→고운 순서여서 건너뛰기 규칙이 없어도 결과가 같다. ③ fwd.count 34937 은 정순 측정값 고정.
 - 실패 상황: 축 4a 변이 — z_P·c_P 1.1배·항 제거·cos 인자 제거가 77-79 단언을 통과, 건너뛰기 제거 변이가 217-226 시험을 통과(역순 시험 :191 만 실패), d_eff 를 정당하게 바꿔도 :201 이 깨진다.
 - 고칠 것: ① 기대 d_eff 를 시험 안에서 독립 계산하거나 손계산 리터럴 상자로. ② [...ch, 이미 고운 조각이 있는 리프의 거친 조각] 입력으로 결과 단계·바이트 단언. ③ 상수 대신 '조각 2개 이상인 리프 존재'·'역순 적용 시 건너뛰기 발생'을 직접 단언.
 - 확인 기준: z_P·c_P 1.1배 변이 → 77-79 단언 실패, 건너뛰기 제거 변이 → 217-226 시험 단독 실패, :201 의 수치 리터럴 없음.
 - 권장 모델: sonnet
-- 이력: 2026-10-03 14:40 감독 등록(축 4a). 신규. → 2026-10-03 작업자 처리(제품 feat/lod-fixes4 23c312f; 연구 experiment/lod-fixes4): B1: 독립 d_eff 기대값, 변이 z_P·c_P 1.1배·건너뛰기 제거 실패 직접 확인.
+- 이력: 2026-10-03 14:40 감독 등록(축 4a). 신규. → 2026-10-03 작업자 처리(제품 feat/lod-fixes4 23c312f; 연구 experiment/lod-fixes4): B1: 독립 d_eff 기대값, 변이 z_P·c_P 1.1배·건너뛰기 제거 실패 직접 확인. → 2026-10-03 15:05 감독 확인 닫음: 감독 사본 변이 — 건너뛰기 제거 → progressive 시험 8·9 실패, z_P·c_P 1.1배 → 시험 2 실패. 34937 리터럴 0건.
+
+### F-109 [열림] (심각도: 중간) — 결정·주석이 같은 PR 의 코드와 어긋남(0022 applyChunks 서술, 카메라 평면 걸침 주석)
+- 위치: ① 연구 experiment/lod-fixes4 decisions/0022-lod-levels-positions-copy.md:27·33 ② 제품 server/lod/select/index.mjs:11, server/lod/budget/index.mjs:15 (23c312f) ③ 연구 decisions/0020-lod-grid-hierarchy.md:57 의 'screen_error.mjs:154' (실제 식은 :168) ④ 제품 contracts/lod/index.mjs:7-9(거리 근거가 f·edgeM/d), :43·:67·:70·:73(LOD_API 표에 maxDepth·applyChunks·minEdge0M 누락, 'hierarchy 는 만들지 않는다' 문구)
+- 문제: ① 0022 는 "applyChunks 는 사본이 아닌 cloud.positions 를 점마다 직접 읽는다… 미착수" 라 적고 다시 볼 조건에 "applyChunks 를 구간 복사로 바꾸거나" 를 둔다. 같은 PR 의 progressive/index.mjs:107 은 이미 lv.positions 구간 복사다(감독 직접 확인). ② 두 주석은 "상자가 카메라 평면에 걸치면(cMin ≤ 0)/ d_eff = 0 이면 원본 단계 0" 이라 하나 screen_error.mjs:21·168 은 걸쳐도 P 가 있으면 d_eff = z_P·c_P > 0 이다(축 2 재현: 상자 [5,-1,-2]-[6,1,50] → cosMin 0, effDistM 6.54; 감독은 주석 두 줄과 screen_error.mjs:21 직접 확인).
+- 실패 상황: 0022 를 읽은 다음 작업자가 "사본의 절반만 쓰인다" 고 보고 메모리 대가를 잘못 판단한다. 주석을 믿은 호출자·시험이 걸친 상자는 항상 단계 0 이라고 가정한다.
+- 고칠 것: ① 0022 대가 셋째 줄을 "materialize·applyChunks 모두 사본을 구간 복사(F-107 ④)" 로, 다시 볼 조건에서 applyChunks 항 삭제. ② 두 주석을 "d = 0 이거나, cMin ≤ 0 이고 P 가 비면 단계 0. 걸쳐도 P 가 있으면 z_P·c_P" 로. ③ 줄 번호 대신 함수 이름 effectiveDistance 로 가리킴. ④ 계약 문단에 "d 는 d_eff(screen_error.mjs), f = max(fx,fy)" 한 줄, LOD_API 표를 각 모듈 export 와 일치.
+- 확인 기준: `grep -n 'applyChunks' decisions/0022*` 에 '미착수'·'cloud.positions 를 점마다' 없음. 두 주석이 screen_error.mjs:21 과 같은 조건. 각 server/lod 모듈 `grep ^export` 이름이 LOD_API 에 모두 있음.
+- 권장 모델: haiku(①②③), sonnet(④)
+- 이력: 2026-10-03 15:05 감독 등록(축 2·5). 신규. ①②③ 은 이번 PR 변경분, ④ 는 이전부터 있던 계약 문구(범위 밖 끌어오기 아님 — 이번 PR 이 그 함수들을 고침).
+
+### F-110 [열림] (심각도: 중간) — 시험 문턱 근거·빈 시험(이론 하한 아님, 불필요한 문턱 하향, 루트 노드 변조)
+- 위치(제품 23c312f): ① server/lod/select/screen_error.test.mjs:124-135 ② server/lod/budget/budget_discrim.test.mjs:159-165 (10000 예산) ③ server/lod/select/hierarchy_input.test.mjs:57-66 ④ hierarchy_input.test.mjs:23-24 / select/index.mjs:37
+- 문제: ① minWorstPx 0.29/0.26/0.29/0.25 를 TAU/2 로 내리며 "측정값에 맞춘 수가 아니라 이론 하한" 이라 적었으나, 논증(f·e_l/d_eff > τ/2)은 규칙 추정값의 하한이지 실제 투영 칸 변의 하한이 아니다. 주석도 "작을 수 없다고 본다" 로 끝난다(감독 :126-130 직접 확인). 축 4b 실측: 실제 0.292/0.268/0.298/0.256, 넷째 설정 여유 0.006. d_eff×0.6 변이가 설정 1 에서 0.274 로 통과(옛 0.29 면 실패). ② 10000 예산 minGap 0.28→0.23·minWins 3→2. 현재 측정(합 차 최솟값 0.4602, 이긴 시점 최솟값 5)은 옛 한계를 통과하므로 낮출 필요가 없었다. 감독이 origin/main 에서 같은 시험을 돌려 10000 예산 값이 HEAD 와 동일(시드 1 2.9183/2.4581, 이김 5)함을 확인 — 이번 PR 의 퇴행은 아니고 483f3b4 이후 표가 낡았던 것. ③ 'd 가 Infinity 인 리프' 시험은 boxMin/boxMax[0..2](노드 0, 루트)를 바꾼다. 루트는 리프가 아니라 select·budget 모두 건너뛰고, 단언도 던짐 여부 일치뿐이다(감독 :57-66 직접 확인; 축 4b: budget 가시성 판정 순서를 되돌리는 변이가 16/16 통과 — 미확인). ④ 'nodeCount 없음'·'정수 아님' 은 39행 길이 검사에서도 lod: 로 던져 37행 검사를 독립 검증하지 않는다(축 4b 변이, 미확인).
+- 실패 상황: ① 규칙을 정당하게 더 보수적으로 고치면 넷째 설정이 거짓 실패하고, 과보수 변이 일부는 통과한다. ② 퇴행이 올 때마다 '절반 규칙' 으로 문턱이 내려가 판별력이 계속 준다. ③④ 해당 코드 경로가 깨져도 시험이 통과한다.
+- 고칠 것: ① '이론 하한' 문구 삭제, 하한 대상을 규칙 추정값 f·e_l/d_eff 로 바꾸거나(그러면 τ/2 는 증명된 하한) 실제 값이면 측정 기반이라 밝히고 '한 단계 고운 단계' 변이와의 중간값으로. ② 한계는 올리기만: max(이전 한계, 새 측정 절반) → 10000 예산을 0.28/3 으로 되돌림. ③ leafIndex[n] ≥ 0 인 실제 리프 노드 상자를 바꾸고, 두 경로 모두 던지지 않음과 그 리프 NOT_DRAWN 을 단언. ④ 기대 메시지 지정, 길이가 맞는 nodeCount = leafCount−1 사례 추가.
+- 확인 기준: ① 'd_eff×0.6' 과 '단계 l−1 강제' 변이가 네 설정 중 하나 이상에서 실패, 원본 통과. ② budget_discrim 10000 이 0.28/3 이고 HEAD 에서 통과. ③ budget 가시성 판정을 rule.leaf 뒤로 되돌리고 d 비유한 시 던지는 변이 → 실패. ④ select/index.mjs:37 만 지우는 변이 → 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 15:05 감독 등록(축 4b·5). 신규. 모두 이번 PR 이 고친 시험 안이라 범위 밖 끌어오기 아님.
+
+### F-111 [열림] (심각도: 낮음) — PR #19 잔여 묶음(대부분 미확인)
+- 위치·고칠 것(제품 23c312f):
+  ① applychunks_source.test.mjs:30-38 시험 이름 '같은 출처라 바이트 동일' — 사본이라 출처를 못 가름(cloud.positions 직접 읽기 변이에서 통과, 축 4a). 이름을 '결과 동등' 으로 낮추거나 cloud 변경 뒤 비교. (haiku)
+  ② hierarchy_nokey.test.mjs:28·50 — _forceNoKey 가 실제 비교 함수 경로를 타는지 단언 없음(hierarchy/index.mjs:34 의 `!opts._forceNoKey &&` 삭제 변이 6/6 통과, 축 4a). (haiku)
+  ③ paths.test.mjs:131·136 — '≈1.79 m' 는 측정값(이론 약 1.76 m), 한계 1.0 m 는 jt 0.4배 변이를 못 잡음. 주석 정정, 감지 배율 명시 또는 한계 1.3 m. (haiku)
+  ④ hierarchy_input.test.mjs:49-50 `try { h = mutate(fn) } catch { h = null }` 삭제. (haiku)
+  ⑤ budget_discrim.test.mjs:4·16·150-157 낡은 주석(7.3269/2.0824, −0.0119, 1.2328 → 0.61) 재측정 값으로. (haiku)
+  ⑥ screen_error.mjs:136 cAbs(C_ROUND·‖C‖) 를 덮는 시험 없음(cAbs = 0 변이 18/18 통과, 축 4b). C 에 반올림이 생기는 회전·t 1e9 사례로 z_P ≤ 참값 단언. (sonnet)
+  ⑦ progressive.test.mjs:110 목표 단계 대조가 vps[0] 하나(단계 0·1 만)라 단계 ≥ 2·상한 제한 미검증. (haiku)
+  ⑧ select/index.mjs:30-50 assertHierarchyInput 은 길이·타입만 — leafStart 단조·leafIndex 범위·상자 유한성 없음(축 7 재현: leafIndex 99999 → 리프 조용히 사라짐). 계층 직렬화 경로가 생기기 전엔 낮음. (sonnet)
+  ⑨ 연구 experiments/lod-fixes4.md '미달·남은 것' 의 '0.29→0.25' 는 G(10000 예산 0.28→0.23)와 I(screen_error 하한)를 섞어 적음. 둘을 나눠 적기. (haiku)
+- 확인 기준: 항목별 변이 또는 grep.
+- 권장 모델: 항목별 표기
+- 이력: 2026-10-03 15:05 감독 등록(축 2·4a·4b·5·7·12). 신규.
