@@ -50,7 +50,7 @@ tools/       명령줄 도구
 - [x] **T03 `asset-format`** — 경량 자산 포맷 계약과 핵심 타입. 27 B 점·56 B 가우시안 두 입력 형식을 담는다(0012). 첫 하위 작업으로 F-059(T03.F, haiku)를 함께 처리한다. (2026-10-03 병합, 제품 5b41a3b merge commit, 연구 research f8d847f, 반려 1회. F-059~F-067 닫음, 잔여 F-068~F-070 → T04.F, 결정 0015 승인)
 - [x] **T04 `point-io`** — 27 B 점·56 B 가우시안 PLY 입출력과 ENU 좌표. (2026-10-03 병합, 제품 a89fb27 merge commit, 연구 research 359532d, 반려 2회: 1회 F-071 높음, 2회 F-075 높음. F-068·F-071~F-078 닫음, 잔여 F-079~F-081 → T05.F, 결정 0016 기각·0017 승인)
 - [x] **T05 `synthetic-scenes`** — 합성 장면·고정 시점 8곳·골든 파일. (2026-10-03 병합, 제품 b23c9fd merge commit, 연구 research 5227e84, 반려 1회: F-082·F-083·F-084 높음. F-082~F-088 닫음, 잔여 F-089~F-091 → T06.F·T06.F2, 결정 0018 승인)
-- [x] **T06 `reference-raster`** — CPU 참조 래스터라이저와 화질 지표. (2026-10-03 병합, 제품 MERGEHASH merge commit, 연구 experiment/synthetic-scenes RESHASH, 반려 0회. F-089~F-091 닫음, 잔여 F-092~F-095 → T07.F·T07.F2, 결정 0019 승인)
+- [x] **T06 `reference-raster`** — CPU 참조 래스터라이저와 화질 지표. (2026-10-03 병합, 제품 c64d34e merge commit, 연구 experiment/synthetic-scenes a8c111f, 반려 0회. F-089~F-091 닫음, 잔여 F-092~F-095 → T07.F·T07.F2, 결정 0019 승인)
 - [ ] **T07 `lod`** — 거리 제곱 근거의 LOD 계층.
 - [ ] **T08 `culling`** — 뷰 의존 컬링(절두체·법선·가림).
 - [ ] **T09 `codec`** — 양자화·직렬화·압축.
