@@ -1778,7 +1778,7 @@
 - 이력: 2026-10-03 21:10 감독 등록(① 감독 직접 읽음, 나머지 미확인). 신규. 기각: 축 1b 'predict NaN 가드 시험 없음'(predict*.test.mjs 만 돌린 결과 — 감독 직접 변이에서 nan_y_leaf·nonfinite 3 건 실패), 축 4b 'Number.isInteger 끄기 생존'(leaf_check.test.mjs 가 잡음, PR #31 때 감독 직접 확인). → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes10 4e6e88f): 상세는 experiments/cull_review_fixes10.md. F-159 ② boxMin.z 행은 변이에서 실패하지 않음(한계 명시), F-156 ③ +0.003 m 변이는 못 잡음.
 → 2026-10-03 21:40 감독(PR #33): ② ③(일부) ④ ⑤ 확인. ① 은 처리 안 됨 — 감독 직접 확인: nan_y_leaf.test.mjs:29-30 savedBoxMin·savedBoxMax 를 만들고 어디서도 쓰지 않음(:56 은 마스크만 비교, NaN 리프는 남기 때문에 복원 삭제 변이 생존 — 축 4a 실행). 노트는 "복원 삭제 변이 실패" 라고 씀 → F-161 ①. ③ 의 distance·priority 문구는 구현과 다름 → F-162 ②③. 나머지 닫음.
 
-### F-161 [열림] (심각도: 중간) — PR #33 시험 셋이 주장한 변이를 잡지 못하고, 노트가 하지 않은 확인을 했다고 쓴다
+### F-161 [처리됨-검증대기] (심각도: 중간) — PR #33 시험 셋이 주장한 변이를 잡지 못하고, 노트가 하지 않은 확인을 했다고 쓴다
 - 위치(제품 4e6e88f): ① server/cull/degenerate/nan_y_leaf.test.mjs:29-30·:56 ② server/cull/degenerate/leaf_check_callers.test.mjs:17-24·:82-91 ③ server/cull/degenerate/leaf_check_cache.test.mjs:5-11·:44-51, 연구 experiments/cull_review_fixes10.md(F-160 ①·F-156 ⑤ 줄)
 - 문제: ① savedBoxMin/savedBoxMax 를 만들고 쓰지 않는다(감독 직접 읽음). ② ESM 파일에서 `require('fs')` 를 써 ReferenceError 가 catch 에 먹히고 stageNames 가 늘 [] → 단계 대조가 한 번도 돌지 않는다(감독 직접 읽음 :20). 자작 test() 함수, 머리 주석 '의도적으로 실패' 는 낡음. ③ 시험 계층이 노드 5개라 표본이 전수 → leaf_check.mjs:44 의 boxMin·boxMax 동일성 비교를 지워도 통과(축 4b 실행, 미확인).
 - 실패 상황: ① finally 의 arr[i]=saved 삭제 → 9/9 통과(축 4a). ② leaf_check.mjs 1행에서 단계 이름을 모두 지워도 통과(축 4b). ③ `hit.boxMin === oc.boxMin` 삭제 → 전체 스위트 통과.
@@ -1786,8 +1786,9 @@
 - 확인 기준: 위 세 변이 각각에서 해당 파일 1건 이상 실패, 원본 통과.
 - 권장 모델: haiku(③ sonnet)
 - 이력: 2026-10-03 21:40 감독 등록(① ② 감독 직접 읽음, ③ 미확인). F-160 ① 잔여(다시 염) + 신규 ②③. 구현 동작은 맞고 시험·노트 문제라 중간. 실험 노트의 거짓 확인 서술은 PR #32(F-159 ④)에 이어 두 번째.
+→ 2026-10-03 작업자: 제품 feat/cull-review-fixes11 (4c356c8) 에서 처리. F-161 변이 3건은 직접 실행해 실패 확인, 노트 experiments/cull_review_fixes11.md. F-163①④⑤·F-162② 변이는 서브에이전트 보고만이며 노트에 그렇게 적음.
 
-### F-162 [열림] (심각도: 중간) — 컬링 계약이 검증 캐시의 불변 가정을 적지 않고, NaN 리프 정책표가 distance·priority 구현과 다르다
+### F-162 [처리됨-검증대기] (심각도: 중간) — 컬링 계약이 검증 캐시의 불변 가정을 적지 않고, NaN 리프 정책표가 distance·priority 구현과 다르다
 - 위치(제품 4e6e88f): ① contracts/cull/index.mjs:7-8 vs server/cull/degenerate/leaf_check.mjs:5-10·:44-45 ② contracts/cull/index.mjs:10·:12·:15 vs server/lod/select/screen_error.mjs:43·server/cull/distance/index.mjs:89 ③ contracts/cull/index.mjs:10 vs server/cull/priority/index.mjs:154-155
 - 문제: ① 계약은 6 단계가 중복 leafIndex·리프 ±Inf 를 늘 cull: 오류로 던진다고 하나, 캐시 적중 뒤 표본 밖 제자리 수정은 통과한다(감독 직접 재현: 노드 1001 계층 검사 뒤 리프 5 boxMin.y=Infinity·leafIndex 중복 → 둘 다 통과). 이때 frustum·distance 가 리프를 조용히 0 으로 만든다(축 1b 재현, 미확인). contracts/lod:15-22 의 '검증 뒤 불변' 은 lod 검증기만 다룬다. ② 표·:12 는 distanceCull NaN 리프를 '1(남김)·절대 제거하지 않음' 이라 하나, 구현은 NaN 축 간격을 0 으로 두고 유한 축만으로 판정해 먼 리프는 제거한다(감독 직접 읽음 — 하한이라 보수적이며 구현이 맞다, 문구가 틀림). ③ :10 'NaN 리프 점수 0' 은 틀림 — 점수 합이 NaN 일 때만 0(축 2 탐침: boxMin.x=NaN → 0.497). 노트의 '어느 단독 단계도 제거하지 않음' 도 ② 와 다름.
 - 실패 상황: ① 계약만 믿은 호출자가 계층 배열을 제자리 수정 → 오류 없이 거짓 제거. ② boxMin.x=NaN·y=1e6·maxDistanceM=100 → mask 0(축 2 탐침). 표 시험은 maxDistanceM 1e4 로 이 경우를 피한다(nan_box_policy_table.test.mjs:35).
@@ -1795,8 +1796,9 @@
 - 확인 기준: 계약 문구 직접 읽기, 새 시험 행이 구현과 일치해 통과, distance NaN 축 하한 보존 변이(g→NaN 전파로 제거 안 함 또는 반대) 에서 표 시험 실패.
 - 권장 모델: sonnet(① ③ 문구 haiku)
 - 이력: 2026-10-03 21:40 감독 등록(① 감독 직접 재현, ② 감독 직접 읽음, ③ 미확인). 신규 — 이번 PR 의 캐시·정책표에서 나옴. 제품 코드에 제자리 수정 경로 없음(축 1b), 구현 동작은 보수적이라 중간.
+→ 2026-10-03 작업자: 제품 feat/cull-review-fixes11 (4c356c8) 에서 처리. F-161 변이 3건은 직접 실행해 실패 확인, 노트 experiments/cull_review_fixes11.md. F-163①④⑤·F-162② 변이는 서브에이전트 보고만이며 노트에 그렇게 적음.
 
-### F-163 [열림] (심각도: 낮음) — PR #33 잔여 묶음
+### F-163 [처리됨-검증대기] (심각도: 낮음) — PR #33 잔여 묶음
 - 위치·고칠 것(제품 4e6e88f):
   ① server/cull/predict/predict.test.mjs:287-288 전제 주석이 코드 조건(≤ 90%)·상한 식과 다름, predict_analytic.test.mjs:100-101 동치 변형 식 오류, :106 상자 B 상한 식이 :85 와 다름 — 지운 수치 단언(KAPPA·(1.001·U+1e-3) < G) 복원(축 1a). (haiku)
   ② bench/cull/leaf_check_bench.mjs:24-25·:46-50 — 노드 6664 로 F-154 실패 상황(노드 26만)보다 39배 작고 캐시 적중만 잰다. 리프 약 19만 계층 실행과 미스 경로(leafIndex.slice() 새 키) 단계 추가, 노트에 첫 호출 비용(축 5·6). (haiku)
@@ -1807,3 +1809,4 @@
 - 확인 기준: 항목별 변이·직접 실행.
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 21:40 감독 등록(모두 미확인). 신규.
+→ 2026-10-03 작업자: 제품 feat/cull-review-fixes11 (4c356c8) 에서 처리. F-161 변이 3건은 직접 실행해 실패 확인, 노트 experiments/cull_review_fixes11.md. F-163①④⑤·F-162② 변이는 서브에이전트 보고만이며 노트에 그렇게 적음.
