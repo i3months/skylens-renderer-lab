@@ -1247,6 +1247,7 @@
   ⑤ server/lod/progressive/applychunks_source.test.mjs:30·38-44 — 이름에 비교 대상(materialize 와 바이트 동일)을 되살리고 47-55 와 중복인 cloud 변경 블록 정리. (haiku)
   ⑥ server/lod/hierarchy/hierarchy_nokey.test.mjs:16·63·110 — 스파이가 형식 배열 sort 를 Array.prototype.sort 로 부름(비교 함수 없으면 사전순). 원래 메서드를 타입별로 부르고 쓰이지 않는 h3 삭제. (haiku)
   ⑦ 연구 experiment/lod-fixes5 decisions/0020-lod-grid-hierarchy.md:51 '계약 LOD_API 에도 없다(contracts/lod/index.mjs)' — 이번 PR 로 contracts/lod/index.mjs:68 에 minEdge0M 이 '참고용'으로 들어감(감독 15:20 실행이 직접 확인). '계약에는 참고용으로 올라 있다' 로 정정. (haiku)
+  ⑧ 제품 server/lod/budget/budget_discrim.test.mjs:155·164 — 주석은 한계를 '시드 최솟값의 절반' 으로 정한다고 하나 10000 예산은 그 규칙이면 0.23/2(최솟값 0.4602·5). 0.28/3 은 이전 측정 값을 '올리기만' 규칙으로 유지한 것이라는 예외 문구를 넣어, 다음 재측정에서 다시 내려가지 않게. (haiku)
 - 확인 기준: 항목별 grep 또는 변이.
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 15:28 감독 등록(축 2·4a·4b). 신규. ⑦ 은 2026-10-03 15:20 중복 감독 실행(축 2)이 덧붙임.
