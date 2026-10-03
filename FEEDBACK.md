@@ -1408,16 +1408,16 @@
 - 이력: 2026-10-03 작업자 처리(제품 feat/culling-fixes e9c6eaf, 전체 시험 1498 중 1486 통과·0 실패·12 건너뜀·0 todo). 상세 연구 experiment/culling-fixes 의 experiments/culling_fixes.md. ④ 는 isDegenerateView 대신 R 직교 검사를 distance 에 직접 둠(카메라에 해상도 정보 없음); 비회전 R 은 빈 마스크.
 - 이력: 2026-10-03 16:55 감독 확인 닫음(제품 PR #22 e9c6eaf, npm test 1498 중 1486 통과·0 실패·12 건너뜀·0 todo 직접 확인). 잔여는 F-128~F-131 로 이관.
 
-### F-128 [열림] (심각도: 중간, 일부 미확인) — 결합 기본 경로의 법선 원뿔 캐시가 호출마다 새로 만들어지고, 점 수 선형 비용·벤치 공백이 남았다
+### F-128 [닫힘] (심각도: 중간, 일부 미확인) — 결합 기본 경로의 법선 원뿔 캐시가 호출마다 새로 만들어지고, 점 수 선형 비용·벤치 공백이 남았다
 - 위치: 제품 server/cull/combine/index.mjs:44(loadDefaultImpls 안의 `const cones = new WeakMap()`)·:72(cullAndSelectDefault 가 매번 loadDefaultImpls 호출), server/cull/priority/index.mjs:79-97·131-141, bench/cull/real_stages.mjs:40-66 (feat/culling-fixes e9c6eaf)
 - 문제: ① 주석은 '계층마다 법선 원뿔은 한 번만' 이지만 WeakMap 이 호출 안에서 생겨 시점마다 leafNormalCones(O(N))를 다시 계산한다(감독이 :44·:72 직접 읽음). ② priority 의 coarseWins 는 mask 와 무관하게 단계 0 점 전부를 투영·칠한다(F-121 잔여, 축 6 측정 미확인). ③ 벤치 장면은 뒷면 후보 0·가림 제거 0 이라 덮임 판정 경로와 pointSizeM 전달을 재지 않고, 가짜 시계는 단계가 무엇을 하든 1.00 이다(축 4b 변이: busy-wait·pointSizeM 누락 변이 14/14 통과).
 - 실패 상황: 축 6 측정(미확인) — 100만 점·리프 4096 에서 leafNormalCones 30~40 ms/호출, cullAndSelectDefault 67~179 ms 대 impl 재사용 cullAndSelect 31~87 ms. mask 리프 1개여도 orderChunks 33 ms.
 - 고칠 것: ① cones 캐시를 모듈 최상위로(또는 loadDefaultImpls 결과 캐시). ② coarseWins 에서 mask=0 리프 건너뛰기 검토(순위 의미 변화는 결정에 기록). ③ 뒷면 후보·가림 제거가 생기는 벤치 장면 추가, cold/warm 분리, 단계 팩토리 주입점으로 실제 모듈이 {pointSizeM} 과 함께 불렸는지 단언.
 - 확인 기준: 같은 계층에 cullAndSelectDefault 2회 → leafNormalCones 1회(spy). 벤치 장면에서 backface 후보 > 0 단언. pointSizeM 누락 변이 → 벤치 시험 실패.
 - 권장 모델: sonnet
-- 이력: 2026-10-03 16:55 감독 등록(축 6·4b; ① 감독 직접 확인, ②③ 미확인). 신규.
+- 이력: 2026-10-03 16:55 감독 등록(축 6·4b; ① 감독 직접 확인, ②③ 미확인). 신규. → 2026-10-03 18:00 작업자 처리(제품 90e7a51·00509ea) → 감독 확인 닫음(cone_cache 시험 통과·원뿔 캐시 지역화 변이 실패 확인, 벤치 pointSizeM 누락 변이 5종 실패 확인; ② 는 순위 의미 때문에 하지 않기로 하고 시험 고정 — 수용). 벤치 표 장면이 뒷면 빈 경로만 재는 잔여는 F-137 ④
 
-### F-129 [열림] (심각도: 중간, 미확인) — PR #22 시험 판별력 공백(살아남는 변이)
+### F-129 [닫힘] (심각도: 중간, 미확인) — PR #22 시험 판별력 공백(살아남는 변이)
 - 위치·문제(제품 e9c6eaf, 축 4a·4b·5 변이, 감독 미재현):
   ① server/cull/predict/predict.test.mjs:82-94·107-120 — 예측 마스크 상한·음성 시험 없음. '움직이면 비지 않은 리프 전부 1'·부풀림 ×10·이동항 삭제 변이가 11/11 통과(회전 사례 정상 구현이 83/83 남김, 직선 사례는 m=0 이어도 빠짐 0).
   ② server/lod/select/select_splat.test.mjs:46-90·128 — 원판 여유 크기 고정 없음. lodVisibilityTest 의 지름 ×0.75·×0.9 변이가 전체 통과(u≈−0.8r 점이 래스터엔 그려지는데 NOT_DRAWN).
@@ -1428,16 +1428,16 @@
 - 고칠 것: ① 움직이는 사례에 상한(표본 가시 합집합 + 여유)·장면 밖 리프 0 단언, 시선 수직 고속·작은 steps 직선 사례. ② 네 가장자리에 반경 바로 안쪽(u=−r+0.5) 점 → leafLevel 0. ③ 지문 항목마다 같은 객체 필드 교체 사례. ④ [정상, 나쁜 것] 두 개 목록·마지막 칸 값 2. ⑤ 큰 가까운 리프 뒤 작은 리프 장면에서 occluderPoints 정확값. ⑥ onePointHierarchy 로 cullAndSelect(…{pointSizeM:0.05}) leafLevel[0] ≠ NOT_DRAWN.
 - 확인 기준: 각 변이 → 해당 시험 실패.
 - 권장 모델: sonnet(② 는 opus)
-- 이력: 2026-10-03 16:55 감독 등록(축 4a·4b·5, 미확인). 신규.
+- 이력: 2026-10-03 16:55 감독 등록(축 4a·4b·5, 미확인). 신규. → 2026-10-03 18:00 작업자 처리(제품 1728941·3cbde4c·eec2cd3·98c8ab2·c5d00fa) → 감독 확인 닫음(축 4a·4b 변이: 상한 전부 1 변이·andMasks 첫 마스크 변이·지름 ×0.75/×0.9 변이 모두 실패). 잔여(음성 시험 공허·×0.97 생존)는 F-137 로
 
-### F-130 [열림] (심각도: 중간, 미확인) — 컬링의 딱 맞는 상자 캐시가 계층 객체만 키로 써서, 계약이 허용한다고 읽히는 '같은 객체에 배열 바꿔 끼우기' 뒤 낡은 상자로 지운다
+### F-130 [닫힘] (심각도: 중간, 미확인) — 컬링의 딱 맞는 상자 캐시가 계층 객체만 키로 써서, 계약이 허용한다고 읽히는 '같은 객체에 배열 바꿔 끼우기' 뒤 낡은 상자로 지운다
 - 위치: 제품 server/cull/backface/index.mjs:155-172(tightCache, 이번 PR 신규), server/cull/occlusion/index.mjs:132-151(기존), contracts/lod/index.mjs:20
 - 문제: 계약 :20 은 '배열·객체를 바꿔 끼우면 지문이 달라져 매번 다시 검사' 라 적어 같은 객체의 배열 교체가 안전한 것처럼 읽히지만, 컬링 상자 캐시는 지문 비교가 없다.
 - 실패 상황(축 2 재현, 미확인): flat_boxes 20만 점 hA 로 컬링 뒤 Object.assign(h, hB(z+3 m)) → assertHierarchyInput 통과, 시점 5 에서 occlusion 2 리프·backface 1 리프를 hB 새 객체 결과보다 더 지움(거짓 제거). 저장소 안에 이렇게 쓰는 흐름은 없음(축 2 grep).
 - 고칠 것: (a) 캐시에 levels[0].positions·leafStart 참조와 leafCount 를 함께 저장해 비교하거나, (b) 계약 :20 을 '배열 교체도 금지, 새 계층 객체만' 으로 고치고 컬링 캐시도 이 규칙에 기댄다고 명시.
 - 확인 기준: 위 재현(scratchpad stale.mjs 와 같은 구성)에서 occ·bf 차이 0, 또는 계약 문구 grep.
 - 권장 모델: sonnet
-- 이력: 2026-10-03 16:55 감독 등록(축 2, 미확인). 신규.
+- 이력: 2026-10-03 16:55 감독 등록(축 2, 미확인). 신규. → 2026-10-03 18:00 작업자 처리(제품 e3964bd) → 감독 확인 닫음(stale_box_cache 시험 통과, 비교 제거 변이 실패 — 축 4a). 같은 결함이 원뿔 캐시에 새로 생긴 것은 F-135
 
 ### F-131 [열림] (심각도: 낮음) — PR #22 잔여 묶음
 - 위치·고칠 것(제품 e9c6eaf):
@@ -1451,18 +1451,18 @@
   ⑧ server/cull/occlusion/occlusion.test.mjs:88·104 — 장면 하한이 합 95 → 시점 4·5 각 ≥ 1 로 약해져 장면 시험은 어떤 occlusion 변이도 잡지 않음(판별은 occlusion_unit 이 맡음). 구조 논증으로 더 높은 하한을 둘 수 있으면 올림(축 4a·5). (sonnet)
 - 확인 기준: 항목별 grep 또는 변이.
 - 권장 모델: 항목별 표기
-- 이력: 2026-10-03 16:55 감독 등록(축 1a·1b·2·3·4a·5·11; ⑤ 감독 직접 확인, 나머지 미확인). 신규.
+- 이력: 2026-10-03 16:55 감독 등록(축 1a·1b·2·3·4a·5·11; ⑤ 감독 직접 확인, 나머지 미확인). 신규. → 2026-10-03 18:00 감독: ②③④⑤⑦ 처리 확인(축 2 계약 대조). 남음 ⑥(구멍 난 R·t — 이제 assertCameraShape 의 every 가 구멍을 건너뛰어 서버·클라이언트 모두 퇴화로 빈 결과, 계약 :7 은 수가 아닌 값=던짐. degenerate/index.mjs:58-59·client/cull/index.mjs:47-48 인덱스 루프로)·⑧. 열림 유지
 
-### F-132 [열림] (심각도: 중간) — 카메라 구조 오류(필드 누락·타입 배열·문자열 수)에서 단계마다 던짐/빈 결과가 갈린다
+### F-132 [닫힘] (심각도: 중간) — 카메라 구조 오류(필드 누락·타입 배열·문자열 수)에서 단계마다 던짐/빈 결과가 갈린다
 - 위치: 제품 contracts/cull/index.mjs:7, server/cull/degenerate/index.mjs:28-30, server/cull/occlusion/index.mjs:95-102, server/cull/combine/index.mjs:81-88, server/cull/distance/distance_degenerate.test.mjs:34-35 (feat/cull-degenerate-unify e1d2ef4)
 - 문제: 계약 :7 은 '입력 오류(계층·카메라)는 cull: 오류를 던진다' 인데, isDegenerateView 는 구조 오류도 true 로 삼켜 frustum·backface·distance·predict·priority·client 는 빈 마스크를 돌려주고, occlusion·combine 은 같은 입력에 던진다. distance_degenerate.test.mjs:34-35 는 'width/height 없음'·'K 없음' 을 퇴화(빈 마스크)로 고정했다(감독 직접 읽음). distance 는 이전에 Float32Array R·t 를 받았으나 이제 조용히 전부 제거한다.
 - 실패 상황: 축 1b·2·7 재현(미확인) — {...정상, R: new Float32Array(R)} → distance 25/25→0/25, predict 0/25, occlusion THROW 'cull: 카메라 R 은 길이 9 배열이어야 함'. camera null·width 없음·width '640' 도 같은 갈림.
 - 고칠 것: (a) 공통 구조 검사(combine 의 assertCameraShape 같은 것)를 모든 단계 앞에 두어 구조 오류는 전부 'cull:' 로 던지고 값 퇴화만 isDegenerateView 로 보내거나, (b) 계약 :7 을 '카메라 구조 오류도 퇴화(빈 결과)' 로 고치고 occlusion·combine 을 맞춘다. (b) 를 고르면 결정 0024 를 대체하는 새 결정 파일.
 - 확인 기준: 카메라 null·width 없음·K 없음·R Float32Array·R 길이 8·width '640' 에서 frustum·backface·occlusion(피라미드·cull)·distance·predict·leafPriority·orderChunks·clientFrustumCull·cullAndSelect 가 모두 같은 방식으로 끝나는 시험, 계약 문구와 일치.
 - 권장 모델: sonnet
-- 이력: 2026-10-03 17:15 감독 등록(축 1b·2·7, 감독은 계약 :7·distance_degenerate.test.mjs:34-35 직접 확인, 재현은 미확인). 신규.
+- 이력: 2026-10-03 17:15 감독 등록(축 1b·2·7, 감독은 계약 :7·distance_degenerate.test.mjs:34-35 직접 확인, 재현은 미확인). 신규. → 2026-10-03 18:00 작업자 처리(제품 064c6ea·1211eb4, 결정 0025) → 감독 확인 닫음(축 1b: 구조 오류 8종 × 13개 입구 전부 같은 cull: 오류, 값 퇴화 9종 전부 빈 결과, 정상 카메라 48행 출력 origin/main 과 해시 동일). predictCamera 잔여는 F-136, 구멍 난 배열은 F-131 ⑥
 
-### F-133 [열림] (심각도: 중간, 일부 미확인) — PR #23 시험 판별력 공백
+### F-133 [닫힘] (심각도: 중간, 일부 미확인) — PR #23 시험 판별력 공백
 - 위치·문제(제품 e1d2ef4):
   ① server/cull/predict/index.mjs:102 · predict_degenerate.test.mjs:28-48 · client/cull/degenerate_unified.test.mjs:79 — 퇴화 목록에 camera null·{}·R 없음이 없어 :102 검사를 지운 변이가 통과. 변이에서는 s≥1 의 predictCamera 가 'cull:' 로 던짐(축 4a, 미확인). :112 검사 변이도 통과 — 예측 시점만 퇴화가 되는 입력이 없으면 검사를 지우고 시험 제목(:50-55)을 맞춘다.
   ② server/cull/distance/distance.test.mjs:284-304 — 제목은 '퇴화 시점은 빈 마스크' 인데 단언은 타입·길이뿐, :300-302 주석은 '빈 마스크가 아닌 상태로 반환됨' 으로 반대. cameraBad 에 width·height 가 없어 t=Infinity 가 아니라 해상도 누락으로 퇴화(감독 직접 읽음). :429 F-127④ 시험은 R 을 Float32Array 로 넣어 회전 검사와 무관하게 빈 결과(감독 직접 읽음).
@@ -1472,7 +1472,7 @@
 - 고칠 것: ① bad 목록에 null·{}·R 없음 + doesNotThrow·합 0. ② cameraBad 에 width·height, 전부 0 단언, 주석 정정. :429 는 일반 배열 R. ③ 같은 두 겹 장면에서 backfaceCull 직접 호출 {}→0, {pointSizeM:0.05}→>0. ④ 원판 반경이 격자 틈 경계에 걸리는 합성 장면에서 ×1.01 을 occlusion·backface coverFilter 각각에 주입. ⑤ 뒷면 후보가 생기는 배치·opts 로 기대 마스크, 퇴화 시험에 every(0).
 - 확인 기준: ① :102 를 if(false) 로 바꾼 사본 → 실패. ② distance 퇴화 검사 삭제 변이 → 실패. ③ backface :145 폴백 0.05 변이 → guard 시험 실패. ④ 시드 1~12 모두 ×1.01 변이 실패. ⑤ :142 mask[k]=0 상시 변이·퇴화 분기 삭제 변이 → 실패.
 - 권장 모델: sonnet(④ 는 opus)
-- 이력: 2026-10-03 17:15 감독 등록(축 4a·4b·5; ② 감독 직접 확인, 나머지 미확인). 신규.
+- 이력: 2026-10-03 17:15 감독 등록(축 4a·4b·5; ② 감독 직접 확인, 나머지 미확인). 신규. → 2026-10-03 18:00 작업자 처리(제품 eec2cd3·50fc7ac·ff78313·1728941·616ec8a) → 감독 확인 닫음(축 4a·4b 변이: predict :102 변이·distance 퇴화 삭제·backface 퇴화 분기 삭제·폴백 0.05·occlusion ×1.01 시드 12/12 모두 실패). backface ×1.01 자기 점검이 시험 안에 없는 잔여는 F-137 ③
 
 ### F-134 [열림] (심각도: 낮음) — PR #23 잔여 묶음
 - 위치·고칠 것(제품 e1d2ef4):
@@ -1486,4 +1486,48 @@
   ⑧ combine_removal_005.test.mjs 단독 6.3 s — 점 수·시점 수 축소 검토(축 6). (haiku)
 - 확인 기준: 항목별 grep·변이·실행 시간.
 - 권장 모델: 항목별 표기
-- 이력: 2026-10-03 17:15 감독 등록(축 1a·2·4a·4b·6·7·11; ②④ 감독 직접 확인, 나머지 미확인). 신규.
+- 이력: 2026-10-03 17:15 감독 등록(축 1a·2·4a·4b·6·7·11; ②④ 감독 직접 확인, 나머지 미확인). 신규. → 2026-10-03 18:00 감독: ①②③④⑦⑧ 처리 확인. 남음 ⑤ 일부(degenerate_holes·frustum 이름). ⑥ 은 시간 상한을 10배(1000→10000, 5000→50000 ms, client/cull/degenerate_unified.test.mjs:155·168)로 늘려 처리했으나 주석의 '결과 검사가 할당 회귀를 잡는다' 는 사실과 다름(값·길이만 봄) — 주석 정정 또는 작업량 단언으로. 열림 유지
+
+### F-135 [열림] (심각도: 중간) — 모듈 수준 법선 원뿔 캐시가 계층 객체만 키로 써서, 같은 객체에 배열을 바꿔 끼우면 낡은 원뿔로 뒷면 판정한다(F-130 과 같은 결함, 이번 PR 이 새로 만듦)
+- 위치: 제품 server/cull/combine/index.mjs:33-40(coneCache·cachedNormalCones), 사용처 :59, backface/index.mjs:94-97(checkCones 는 길이만 검사) (feat/cull-review-fixes 616ec8a)
+- 문제: 원뿔 캐시가 호출 안에서 모듈 최상위로 옮겨지면서(F-128 ①), 같은 PR 이 tightBoxes·tightLeafBoxes 에 넣은 입력 참조 비교(F-130)가 원뿔 캐시에는 빠졌다. contracts/lod/index.mjs:20-22 는 같은 객체의 배열 교체를 재검증 대상으로 읽히게 적는다.
+- 실패 상황(감독 직접 재현, scratchpad sup/cone.mjs): flat_boxes 20만 점·시점 5·320×180·stages ['backface']·pointSizeM 0.75. 법선을 뒤집은 계층 h 로 cullAndSelectDefault 1회 → Object.assign(h, 원래 법선 계층) → 다시 호출: 새 객체 결과와 18 리프 다르고 그중 7 리프는 새 객체에서는 남는데 거짓 제거. 리프 수가 바뀌면 'cull: cones 길이가 리프 수와 맞지 않음' 으로 던짐(축 2·1a 재현). 저장소 안에 이렇게 쓰는 흐름은 없음.
+- 고칠 것: 캐시 값에 { cones, normals: levels[0].normals, leafStart, L } 를 함께 두고 하나라도 다르면 다시 계산(tightBoxes 와 같은 방식). 또는 계약 :20 을 '배열 교체 금지, 새 계층 객체만' 으로 고치고 두 캐시 모두 이 규칙에 기댄다고 명시(이 경우 F-130 수정과 일관되게 결정 기록).
+- 확인 기준: 위 재현에서 diff 0. stale_box_cache.test.mjs(또는 cone_cache.test.mjs)에 normals 만 교체·리프 수 교체 두 사례(compute 2회 호출, 결과 = 새 객체 결과).
+- 권장 모델: sonnet
+- 이력: 2026-10-03 18:00 감독 등록(축 1a·2·4b·6·7 공통 보고, 감독 직접 재현). 신규.
+
+### F-136 [열림] (심각도: 중간) — predictCamera 가 공통 카메라 구조 검사 밖에 남아 구조 오류가 값 퇴화로 둔갑한다
+- 위치: 제품 server/cull/predict/index.mjs:37(`!camera.R || !camera.t` 만 검사), 계약 contracts/cull/index.mjs CULL_API.predict, 결정 0025 '서버 단계 전부가 입구에서 쓴다'
+- 문제: predictCamera 는 계약에 올라간 공개 함수인데 assertCameraShape 를 쓰지 않는다(감독이 :37 직접 읽음).
+- 실패 상황(축 1b 재현, 감독 미재현): width 없음·K 없음·R Float32Array·R 길이 8·width '640'·t Float32Array 에서 던지지 않음. R 길이 8 → 마지막 행 NaN 카메라를 돌려주고, 이를 frustumCull 에 넣으면 구조 오류가 퇴화로 바뀌어 빈 마스크.
+- 고칠 것: 입구에서 assertCameraShape(camera). camera_shape_unified.test.mjs 목록에 predictCamera 추가.
+- 확인 기준: 위 6개 입력에서 predictCamera 가 'cull:' 로 던짐.
+- 권장 모델: haiku
+- 이력: 2026-10-03 18:00 감독 등록(축 1b; 위치는 감독 직접 확인). 신규.
+
+### F-137 [열림] (심각도: 중간, 일부 미확인) — PR #24 시험 판별력 공백
+- 위치·문제(제품 616ec8a):
+  ① server/cull/predict/predict.test.mjs:224-230 — '음성: 장면 밖' 시험의 lookAt([0,60,0],[0,300,0]) 은 시선이 위쪽 축과 평행이라 :16 의 x 가 0 벡터 → R·t NaN → 퇴화 카메라. 전제(보이는 리프 0)와 결론(합 0)이 퇴화 처리 때문에 참(감독 직접 읽음). '움직이면 전부 1' 변이에서 이 시험만 통과(축 4a).
+  ② predict.test.mjs:249-258 — '과잉 부풀림 없음' 의 허용 집합이 구현과 같은 식(계수 1.001)이고 거친 반폭 hh 를 그대로 써서 여유가 큼. :257 sum ≤ allowed.size 는 :256 부분집합 검사에서 따라 나와 항상 참. 부풀림 ×1.3·×1.5·+0.2 m 변이 통과(축 4a, 미확인).
+  ③ server/cull/combine/combine_removal_005.test.mjs:238-245 — ×1.01 자기 점검이 occlusion 만 주입. backface coverFilter ×1.01 은 축 4b 변이로 시드 12/12 실패를 확인했으나 시험 안에 고정되지 않음. 연구 노트 experiments/cull_review_fixes.md 의 'occlusion·backface 12/12' 는 시험과 다름(감독 grep 확인).
+  ④ bench/cull/run.mjs:20-21·real_stages.mjs:40-43 — 벤치 표는 평지 장면만 재서 뒷면 후보 0, coverFilter 가 바로 돌아옴. 제거 장면은 시험에서만 씀(축 4b, 미확인). cold 주석(지연 import 포함)과 실제 측정 순서가 다름(축 6).
+  ⑤ server/lod/select/select_splat.test.mjs:97·102·128 — 점을 반경 안쪽 0.75 px 에 둬 원판 여유 ×0.97 변이가 통과(r 최대 22.5 px)(축 4b, 미확인).
+- 고칠 것: ① 비퇴화 카메라(예: 목표 [1,300,0] 또는 수평 시선 반대쪽) + assert.equal(isDegenerateView(cam), false) 전제. ② :257 삭제, 구현 식과 독립인 기하 상한(이동만 있을 때 v·h 등)과 비교. ③ backface coverFilter ×1.01 자기 점검 시험 추가, 노트 문구를 시험과 맞춤. ④ 제거 장면을 표 한 행으로 넣고 그 행에서 backface 후보 > 0 단언, cold 주석 정정. ⑤ 오프셋 r − 0.5 − ε 또는 깊이 축소.
+- 확인 기준: ① '전부 1' 변이 → 이 시험 실패. ② ×1.5 변이 → 실패. ③ backface ×1.01 변이 → 시드 1..12 실패하는 시험이 코드에 있음. ④ run.mjs 출력에 removal 행 backface > 0. ⑤ ×0.99 변이 → 실패.
+- 권장 모델: sonnet(⑤ 는 opus)
+- 이력: 2026-10-03 18:00 감독 등록(축 4a·4b·5·6; ①③ 감독 직접 확인, 나머지 미확인). 신규.
+
+### F-138 [열림] (심각도: 낮음) — PR #24 잔여 묶음(대부분 미확인)
+- 위치·고칠 것(제품 616ec8a):
+  ① contracts/cull/index.mjs:67 — CULL_API.degenerate.fn 에 assertCameraShape·degenerateCamera 추가(축 1b). (haiku)
+  ② server/cull/priority/index.mjs:13 — 머리 주석 '입력 오류(계층·마스크)' 에 카메라 구조 오류 추가(축 1b). (haiku)
+  ③ contracts/cull/cull.test.mjs:18-34 — 마스크 3개 AND 결과 단언, 두 번째 마스크 형식(Uint8Array 아님) throws 단언. slice(0,2) 변이 생존(축 4a). (haiku)
+  ④ server/cull/stale_box_cache.test.mjs:107-113 — positions 만 교체(leafStart 그대로) 사례. 비교 하나만 지운 변이 생존(축 4a). (haiku)
+  ⑤ server/cull/priority/priority_mask_skip.test.mjs:162-169 — mask 가 사실상 전부 1(점수 0 리프 0개). mask 0 리프가 있게 고치고 전제 단언(축 4a). (haiku)
+  ⑥ server/cull/camera_shape_unified.test.mjs:75 — buildDepthPyramid 값 퇴화 사례가 '던지지 않음' 만 봄. 빈 피라미드 단언(축 4a). (haiku)
+  ⑦ server/cull/predict/index.mjs:127-129 — tau=0 에서 m 비유한이면 m=0 으로 두어, 이후 예측 표본이 모두 퇴화면 horizon 을 늘릴수록 남는 리프가 줄어드는 비단조(v=1e10·horizon 1e300 → 8→4). 비현실 입력. out[k]=1 로 보수 처리하거나 docstring·계약에 '퇴화 표본 구간은 덮지 않음' 명시(축 1a). (sonnet)
+  ⑧ 연구 노트 experiments/cull_review_fixes.md — F-133④ 문구를 시험과 맞춤(F-137 ③ 과 함께). (haiku)
+- 확인 기준: 항목별 grep·변이.
+- 권장 모델: 항목별 표기
+- 이력: 2026-10-03 18:00 감독 등록(축 1a·1b·4a·5). 신규.

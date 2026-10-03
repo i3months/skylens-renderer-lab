@@ -285,6 +285,8 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T08.F21 | PR #22 낮음: F-131 | 항목별 경로 | F-131 항목별 | haiku(⑧ sonnet) |
 | T08.F22 | PR #23 검토 중간: F-132(카메라 구조 오류 처리 단계 간 통일 — 계약 :7 과 일치), F-133(시험 판별력 공백 ①~⑤) | `server/cull/`, `client/cull/`, `contracts/cull/` | F-132·F-133 확인 기준 | sonnet(F-133 ④ opus) |
 | T08.F23 | PR #23 낮음: F-134 | 항목별 경로 | F-134 항목별 | haiku(⑥⑦ sonnet) |
+| T08.F24 | (먼저) PR #24 검토 중간: F-135(원뿔 캐시 입력 참조 비교 또는 계약), F-136(predictCamera 구조 검사), F-137(시험 판별력 ①~⑤) — T09 와 별도 PR | `server/cull/`, `server/lod/select/`, `bench/cull/`, `contracts/` | F-135·F-136·F-137 확인 기준 | sonnet(F-136 haiku, F-137 ⑤ opus) |
+| T08.F25 | PR #24 낮음: F-138 — T08.F21·F23 과 함께 처리해도 됨 | 항목별 경로 | F-138 항목별 | haiku(⑦ sonnet) |
 | T08.0 [x] (2026-10-03 PR #21 병합, 제품 df3a5c5) | 계약: 시점 상태·컬링 결과(조각 목록) 타입 | `contracts/cull/` | 타입 문서와 일치 | sonnet |
 | T08.1 [x] (2026-10-03 PR #21 병합, 제품 df3a5c5) | 절두체 컬링 | `server/cull/frustum/` | 거짓 제거 0(보수적), 고정 시점 8곳 | sonnet |
 | T08.2 [x] (2026-10-03 PR #21 병합, 제품 df3a5c5) | 법선 기반 뒷면 제거(조각 단위 법선 원뿔) | `server/cull/backface/` | 렌더 결과 SSIM 변화 ≤ 0.002 | sonnet |
