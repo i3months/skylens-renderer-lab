@@ -282,19 +282,19 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 
 ### T09 `codec` — [cloud]
 
-| 하위 | 내용 | 소유 경로 | 완료 기준 |
-|---|---|---|---|
-| T09.0 | 계약: 양자화 범위·비트 수, 압축 블록 형식 | `contracts/codec/` | 명세와 타입 일치 |
-| T09.1 | 위치 양자화(조각 상자 기준) | `server/codec/position/` | 오차 ≤ 명세 상한(예: 1 cm) |
-| T09.2 | 법선 양자화(팔면체 사상) | `server/codec/normal/` | 각 오차 ≤ 1° |
-| T09.3 | 색 양자화·팔레트 | `server/codec/color/` | 평균 오차 ≤ 2/255 |
-| T09.4 | 순서 재배치(공간 채움 곡선) | `server/codec/order/` | 결정적, 압축률 향상 기록 |
-| T09.5 | 엔트로피 부호화(허용 라이선스 라이브러리 또는 직접 구현) | `server/codec/entropy/` | 왕복 무손실 |
-| T09.6 | 클라이언트 복호기 | `client/codec/` | 서버 부호화 → 클라이언트 복호 일치 |
-| T09.7 | 점 1개당 바이트 측정 | `bench/codec/` | 27 B 대비 비율 기록 |
-| T09.8 | 손상 블록 거부 | `server/codec/robust/` | 퍼저 10만 회 패닉 0 |
-| T09.9 | 복호 속도(클라이언트, CPU) | `bench/codec_client/` | 100만 점 복호 시간 기록 |
-| T09.10 | 양자화 후 화질 | `server/codec/quality/` | 8시점 SSIM ≥ 0.98(양자화 전 대비) |
+| 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
+|---|---|---|---|---|
+| T09.0 | 계약: 양자화 범위·비트 수, 압축 블록 형식 | `contracts/codec/` | 명세와 타입 일치 | sonnet |
+| T09.1 | 위치 양자화(조각 상자 기준) | `server/codec/position/` | 오차 ≤ 명세 상한(예: 1 cm) | opus |
+| T09.2 | 법선 양자화(팔면체 사상) | `server/codec/normal/` | 각 오차 ≤ 1° | opus |
+| T09.3 | 색 양자화·팔레트 | `server/codec/color/` | 평균 오차 ≤ 2/255 | sonnet |
+| T09.4 | 순서 재배치(공간 채움 곡선) | `server/codec/order/` | 결정적, 압축률 향상 기록 | opus |
+| T09.5 | 엔트로피 부호화(허용 라이선스 라이브러리 또는 직접 구현) | `server/codec/entropy/` | 왕복 무손실 | opus |
+| T09.6 | 클라이언트 복호기 | `client/codec/` | 서버 부호화 → 클라이언트 복호 일치 | sonnet |
+| T09.7 | 점 1개당 바이트 측정 | `bench/codec/` | 27 B 대비 비율 기록 | haiku |
+| T09.8 | 손상 블록 거부 | `server/codec/robust/` | 퍼저 10만 회 패닉 0 | sonnet |
+| T09.9 | 복호 속도(클라이언트, CPU) | `bench/codec_client/` | 100만 점 복호 시간 기록 | haiku |
+| T09.10 | 양자화 후 화질 | `server/codec/quality/` | 8시점 SSIM ≥ 0.98(양자화 전 대비) | sonnet |
 
 ### T10 `levels` — [cloud]
 
