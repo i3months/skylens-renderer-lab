@@ -51,7 +51,7 @@ tools/       명령줄 도구
 - [x] **T04 `point-io`** — 27 B 점·56 B 가우시안 PLY 입출력과 ENU 좌표. (2026-10-03 병합, 제품 a89fb27 merge commit, 연구 research 359532d, 반려 2회: 1회 F-071 높음, 2회 F-075 높음. F-068·F-071~F-078 닫음, 잔여 F-079~F-081 → T05.F, 결정 0016 기각·0017 승인)
 - [x] **T05 `synthetic-scenes`** — 합성 장면·고정 시점 8곳·골든 파일. (2026-10-03 병합, 제품 b23c9fd merge commit, 연구 research 5227e84, 반려 1회: F-082·F-083·F-084 높음. F-082~F-088 닫음, 잔여 F-089~F-091 → T06.F·T06.F2, 결정 0018 승인)
 - [x] **T06 `reference-raster`** — CPU 참조 래스터라이저와 화질 지표. (2026-10-03 병합, 제품 c64d34e merge commit, 연구 experiment/synthetic-scenes a8c111f, 반려 0회. F-089~F-091 닫음, 잔여 F-092~F-095 → T07.F·T07.F2, 결정 0019 승인)
-- [ ] **T07 `lod`** — 거리 제곱 근거의 LOD 계층.
+- [x] **T07 `lod`** — 거리 제곱 근거의 LOD 계층. (2026-10-03 병합, 제품 3c150a7 merge commit, 연구 experiment/reference-raster b1a2b3f, 반려 0회. F-092~F-095 닫음, 잔여 F-096~F-100 → T08.F·F2·F3, T07.8 실데이터 순위는 [local] T07L.1, 결정 0020 승인)
 - [ ] **T08 `culling`** — 뷰 의존 컬링(절두체·법선·가림).
 - [ ] **T09 `codec`** — 양자화·직렬화·압축.
 - [ ] **T10 `levels`** — 딜레이 패턴 수준 상태(서버·클라이언트 공통).
