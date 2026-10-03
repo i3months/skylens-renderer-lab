@@ -1304,7 +1304,7 @@
 - 이력: 2026-10-03 작업자 처리(제품 feat/culling-fixes e9c6eaf, 전체 시험 1498 중 1486 통과·0 실패·12 건너뜀·0 todo). 상세 연구 experiment/culling-fixes 의 experiments/culling_fixes.md. 가림 ①②③ 은 occlusion 단위 시험·변이로 확인, ④ 경계, ⑤ andMasks 음성 시험 완료.
 - 이력: 2026-10-03 16:55 감독 확인 닫음(제품 PR #22 e9c6eaf, npm test 1498 중 1486 통과·0 실패·12 건너뜀·0 todo 직접 확인). 잔여는 F-128~F-131 로 이관.
 
-### F-120 [열림] (심각도: 중간) — 퇴화 시점 판정이 모듈마다 달라 단계 단독 호출 결과가 갈린다
+### F-120 [처리됨-검증대기] (심각도: 중간) — 퇴화 시점 판정이 모듈마다 달라 단계 단독 호출 결과가 갈린다
 - 위치: 제품 server/cull/degenerate/index.mjs:21-22·85, frustum/index.mjs:9-29, predict/index.mjs:17-34, client/cull/index.mjs:10-26, priority/index.mjs:204-210·249-252, distance(F-115) (cde1f8c)
 - 문제: 시야각 하한(MIN_FOV_RAD)·R 직교 검사가 degenerate 모듈에만 있다. frustum 주석은 'degenerate 생기면 교체' 라 했으나 교체되지 않았다.
 - 실패 상황: 감독 재현 — width 1·fx 1e7 카메라 → isDegenerateView true, isDegenerateViewLocal(frustum) false. 축 7: R=2I·반사 R 에서 orderChunks 가 79개를 돌려줌, width=2e9 에서 RangeError(주석은 '던지지 않음'), 60000² 해상도 23초.
@@ -1314,6 +1314,7 @@
 - 이력: 2026-10-03 15:52 감독 등록(축 1a·7, 감독 일부 재현). 신규.
 - 이력: 2026-10-03 작업자 처리(제품 feat/culling-fixes e9c6eaf, 전체 시험 1498 중 1486 통과·0 실패·12 건너뜀·0 todo). 상세 연구 experiment/culling-fixes 의 experiments/culling_fixes.md.
 - 이력: 2026-10-03 16:55 감독 검토(PR #22) 다시 엶: 감독 재현 — 8193×8193(fx 6000) 카메라에서 isDegenerateView false 인데 cullAndSelectDefault 는 pointSizeM 유무에 따라 lod:/cull: 오류로 던짐. width 1·fx 1e7 카메라를 isDegenerateView 주입 없이 cullAndSelect 에 넣으면 degenerate 가 아니라 removedFrustum 1 로 집계(combine/index.mjs:90 localIsDegenerate). 축 5(미확인): backface·occlusion·distance·predict 가 isDegenerateView 를 쓰지 않아 같은 퇴화 카메라에서 23·23·23·13 리프를 남기고 occlusion 은 2e9 해상도에서 던짐. degenerate_unified.test.mjs 목록에 이 네 함수 없음. 남길 것: 서버 모든 단계·combine 기본 판정이 isDegenerateView 하나를 쓰고, raster 해상도 조건(정수·MAX_PIXELS)을 퇴화 조건에 포함, 시험 목록에 네 함수와 높이만 큰 해상도·1e6 경계·거의 직교 R 경계 사례 추가. 중간 유지(던짐·보수적 남김이지 거짓 제거 아님).
+- 이력: 2026-10-03 작업자 재처리(제품 feat/cull-degenerate-unify e1d2ef4, npm test 1732 통과·0 실패·12 건너뜀·0 todo). 상세 연구 experiment/degenerate-unify 의 experiments/degenerate_unify.md.
 
 ### F-121 [닫힘] (심각도: 중간, 미확인) — 시점당 비용이 점 수에 선형인 경로와 벤치 공백
 - 위치: 제품 server/lod/select/index.mjs:110·129·150-160(assertCloud 가 캐시 밖에서 매 호출 O(N), cullAndSelect 에서 시점당 2~3회), server/cull/occlusion/index.mjs:204-250(피라미드가 가시 리프의 단계 0 점 전부를 투영·원판 칠), priority/index.mjs:380-452(같은 점 재투영·박싱 정렬), bench/cull/run.mjs:61-108·measure_scaling.mjs:26-50(스텁 frustum 만 측정)
@@ -1367,7 +1368,7 @@
 - 이력: 2026-10-03 작업자 처리(제품 feat/culling-fixes e9c6eaf, 전체 시험 1498 중 1486 통과·0 실패·12 건너뜀·0 todo). 상세 연구 experiment/culling-fixes 의 experiments/culling_fixes.md.
 - 이력: 2026-10-03 16:55 감독 확인 닫음(제품 PR #22 e9c6eaf, npm test 1498 중 1486 통과·0 실패·12 건너뜀·0 todo 직접 확인; 감독 직접 변이 predict/index.mjs:144 m=0 → 경로 재생 시험 1 실패, 원본 11/11 통과). 상한 공백은 F-129 ①.
 
-### F-125 [열림] (심각도: 중간) — 뒷면 제거 기본 경로의 기여를 지키는 시험이 없고, SSIM 은 점 지름 0.75 에서만 측정됐다
+### F-125 [처리됨-검증대기] (심각도: 중간) — 뒷면 제거 기본 경로의 기여를 지키는 시험이 없고, SSIM 은 점 지름 0.75 에서만 측정됐다
 - 위치: 제품 server/cull/backface/backface.test.mjs:323-343 (aadef5a), combine_quality.test.mjs:30, combine_integration.test.mjs:25
 - 문제: ① 장면 시험의 제거 하한(minRemovedStreet)은 1단계 마스크(removedPure)에만 걸려 있다. 기본 마스크는 24시점 합계 17 리프만 버리고, 덮임 판정을 '항상 안 덮임' 으로 바꾼 변이(아무것도 안 버림)도 합성 2층 평면 단위 시험(:154-168) 하나만 실패한다(축 4a). ② T08.2·T08.8 SSIM 은 POINT_SIZE_M 0.75 로만 쟀고 렌더 기본 0.05 에서는 측정이 없다.
 - 고칠 것: ① 측정 전에 정한 하한으로, 기본 마스크 제거가 있는 시점(예: flat_boxes low_close_box, buildings street_level)에서 제거 ≥ 1 단언. ② 0.05 에서 최소 한 장면·8시점 SSIM 단언.
@@ -1376,6 +1377,7 @@
 - 이력: 2026-10-03 16:17 감독 등록(축 4a·5, 감독은 :323-343 하한 위치만 직접 확인, 변이는 미확인). 신규.
 - 이력: 2026-10-03 작업자 처리(제품 feat/culling-fixes e9c6eaf, 전체 시험 1498 중 1486 통과·0 실패·12 건너뜀·0 todo). 상세 연구 experiment/culling-fixes 의 experiments/culling_fixes.md. 단 buildings street_level 은 기본 제거가 0(법선이 모두 위)이라 하한 대상에서 빼고 terrain street_level·low_close_box 로 대체.
 - 이력: 2026-10-03 16:55 감독 검토(PR #22) 다시 엶: ① 충족(축 4a·5 변이 — 덮임 항상 안 덮임 → 장면 시험 6 실패). ② 0.05 m SSIM 단언(combine_quality.test.mjs:216-224)은 16시점 모두 후면·가림 제거 0 이라 LOD 만 재는 빈 시험(축 4a·5 진단 출력, 미확인). 가림 피라미드 지름을 렌더보다 크게 만든 변이(F-117 보장 위반)도 SSIM 0.9974 로 통과. combine_integration.test.mjs:97-101·combine_splat.test.mjs:90-95 의 'pointSizeM 없으면 backface 0' 도 0.05 로 덮임이 생기지 않는 장면이라 기본값 폴백 변이가 통과. 남길 것: 0.05 m 에서 후면·가림 제거 > 0 인 시점(가깝거나 고해상도)에서 지운 점이 이기는 픽셀 0 단언, 0.05 로 덮이는 축소 장면에서 {pointSizeM:0.05} 제거>0·{} 제거 0 함께 단언. 중간.
+- 이력: 2026-10-03 작업자 재처리(제품 feat/cull-degenerate-unify e1d2ef4, npm test 1732 통과·0 실패·12 건너뜀·0 todo). 상세 연구 experiment/degenerate-unify 의 experiments/degenerate_unify.md. ② 만(① 는 충족 확인됨).
 
 ### F-126 [닫힘] (심각도: 중간) — 결합 경로에서 LOD 선택이 원판 중심 규칙이라 화면 가장자리 리프가 NOT_DRAWN 으로 빠진다(이전부터 있던 동작)
 - 위치: 제품 server/lod/select/index.mjs(selectLevels 의 boxMayBeVisible 호출), server/cull/combine/index.mjs:160 부근, 연구 experiments/culling_F116.md '남은 위험'
