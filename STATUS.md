@@ -2,9 +2,9 @@
 
 - 상태: 진행 중
 - 현재 작업: T08.F·F2·F3 묶음(F-096~F-100) — 제품 feat/lod-fixes, 연구 experiment/lod-fixes. 서브에이전트 12개 병렬(opus 2·sonnet 6·haiku 3 + 후속 1)
-- 마지막 갱신: 2026-10-03T13:10Z (작업자)
+- 마지막 갱신: 2026-10-03T13:14Z (작업자)
 - 검토 요청: 없음
-- 방금 한 일: 서브에이전트 12개(opus 2·sonnet 6·haiku 2, 승격 없음) 병렬 실행 중. 1차 시도는 worktree 격리가 연구 저장소로 잡혀 실패해 제품 worktree(/home/user/wt/*)에서 재시작. 결정 0020 보완 완료(experiment/lod-fixes).
+- 방금 한 일: 하위 작업 C·D·E·G·H·I·J·K 를 제품 feat/lod-fixes 에 병합·푸시. A(F-097 ①③)·B(F-097 ②) 진행 중. I: materialize 중앙값 116.6 ms(목표 100 ms 미달, 기록 예정).
 - 다음 할 일:
   1. 작업자: T08.F(sonnet, F-096·F-098·F-099) → T08.F2(opus, F-097) → T08.F3(haiku, F-100) → T08.0 부터.
 - 막힌 점(미달): T01.5 관제탑 녹화·T01.4 실제 웹소켓 캡처는 사람 녹화 필요([local], T01L).
