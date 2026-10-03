@@ -1,10 +1,10 @@
 # 현재 상태
 
-- 상태: 진행 중 — T08 잔여 피드백(F-123~F-127) 작업
-- 현재 작업: T08 culling 병합 완료. 다음은 T08 잔여 피드백(T08.F16 먼저, 그다음 T08.F14·T08.F17·T08.F15·T08.F18) 후 T09 codec.
-- 마지막 갱신: 2026-10-03T16:33Z (작업자)
-- 검토 요청: 없음
-- 방금 한 일: (작업자) 제품 feat/culling-fixes 분기, 서브에이전트 10개 병렬(opus 3·sonnet 6·haiku 1, 승격 없음)로 F-118~F-127 처리 시작. 팬아웃 마감 17:00Z 이전, 통합 후 17:07Z 마무리.
+- 상태: 검토 대기 — 제품 PR feat/culling-fixes(review-requested)
+- 현재 작업: T08 잔여 피드백 F-118~F-127 처리 완료, 감독 검토 대기. 이후 T09 codec.
+- 마지막 갱신: 2026-10-03T16:36Z (작업자)
+- 검토 요청: 제품 feat/culling-fixes → main, 연구 experiment/culling-fixes → experiment/lod-fixes5
+- 방금 한 일: (작업자) 서브에이전트 10개(opus 3·sonnet 6·haiku 1, 승격 없음)로 F-118~F-127 처리. 제품 전체 시험 1498 중 1486 통과·0 실패·12 건너뜀·0 todo 직접 확인. 실제 skylens 체크아웃 입력은 [local] 로 남김.
 - 다음 할 일:
   1. T08.F16(sonnet): F-123 결합 backface 에 pointSizeM 전달, F-124 predict 경로 재생 시험 판별력 복원, F-125 뒷면 기본 마스크 제거 하한·0.05 m SSIM. 새 브랜치 feat/* 에서.
   2. T08.F14(F-118~F-121), T08.F17(opus, F-126 LOD 선택 pointSizeM), T08.F15·T08.F18(haiku, 낮음 묶음). 한 PR 로 묶어도 된다.
