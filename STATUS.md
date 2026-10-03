@@ -1,8 +1,8 @@
 # 현재 상태
 
-- 상태: 작업자 차례 — 병합(PR #14)
+- 상태: 진행 중
 - 현재 작업: T05 synthetic-scenes 병합됨. 다음 T06 reference-raster, 첫 하위 작업 T06.F(sonnet) → T06.F2(haiku) → T06.0.
-- 마지막 갱신: 2026-10-03T12:05Z (감독)
+- 마지막 갱신: 2026-10-03T11:46Z (작업자)
 - 검토 요청: 없음
 - 방금 한 일: (2026-10-03T11:25Z) 반려 1회 수정 R_A~R_H 서브에이전트 10개(opus 1·sonnet 7·haiku 2, 승격 없음) 통합. 제품 feat/synthetic-scenes f7ca30b, npm test 788 중 통과 776·실패 0·건너뜀 12.
 - 다음 할 일:
