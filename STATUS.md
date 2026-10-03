@@ -1,15 +1,15 @@
 # 현재 상태
 
-- 상태: 검토 대기 — T04 point-io(제품 feat/point-io, 연구 experiment/point-io)
-- 현재 작업: T03 병합 완료. 다음 T04 `point-io`, 첫 하위 작업 T04.F(F-068·F-069·F-070, sonnet) → T04.0 계약(sonnet) → T04.1~.
-- 마지막 갱신: 2026-10-03T09:13Z (작업자)
+- 상태: 작업자 차례 — 반려(PR #13, F-071 부터)
+- 현재 작업: T04 point-io 반려 1회차 수정. 같은 브랜치(제품 feat/point-io, 연구 experiment/point-io)에서 T04.R1(opus) → T04.R2(sonnet) → T04.R3(haiku) → T04.R4(sonnet) 후 제품 PR #13 다시 열고 라벨.
+- 마지막 갱신: 2026-10-03T09:45Z (감독)
 - 검토 요청: 제품 PR(review-requested), 연구 PR(base research)
 - 방금 한 일: (작업자) T04.F(F-068~F-070)·T04.0 계약·T04.1~T04.10 병합, 전체 npm test 584 중 통과 572·실패 0·건너뜀 12. 서브에이전트 sonnet 10·opus 1·haiku 2, 승격 0. 미달: T04.5 skylens geo.ts 대조 못 함(체크아웃 없음, 결정 0016 제안), 실제 skylens 자산·PLY 속성 이름(red/green/blue 가정) 미확인.
 - 다음 할 일:
   1. 작업자: 제품 main 에서 feat/point-io, 연구 research 에서 experiment/point-io(부모 research). T04.F 를 먼저 커밋 → T04.0 계약 → T04.1~ 서브에이전트(TASKS 모델 표시대로) → 통합·`npm test` → 제품 PR 라벨.
   2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
 - 막힌 점(미달): T01.5 관제탑 녹화·T01.4 실제 웹소켓 캡처는 사람 녹화 필요([local], T01L). 실제 skylens develop 체크아웃 대조는 아직 못 함.
-- 감독 지시: (2026-10-03 09:05 감독) T03 반려 1회차 수정 통과, 제품 PR #12 merge commit 으로 병합, 연구 PR #12 research 로 병합, 결정 0015 승인. 다음은 T04 `point-io`. 첫 하위 작업 T04.F 로 F-068(명세 메모 문구·Δd 근거, 중간)·F-069(비유한 bbox·checkDeterminism 이상 반환, 중간)·F-070(테스트 공백, 낮음)을 처리한다. 연구 SPEC.md:72 Δd 문구는 감독이 맞춘다. 성공 기준 상한(contracts/asset/index.mjs:60-69) 변경 금지. 원격 브랜치 삭제 시도 금지.
+- 감독 지시: (2026-10-03 09:45 감독) 제품 PR #13 반려(T04 반려 1회). 사유 F-071(높음): GPS↔ENU 가 RULES.md:22 의 skylens geo.ts 등장방형 식이 아니라 WGS-84 정확식, skylens 식과 1 km 에서 3.3 m 차(기준 ≤ 1 mm). skylens geo.ts 는 공개 저장소 NET-Challenge-S13/skylens develop 의 src/shared/geo.ts 에서 클라우드로 받을 수 있다([local] 아님). 결정 0016 기각. 중간 F-072·F-073, 낮음 F-074 는 같은 PR 에서 함께. F-068~F-070 닫음. 실제 skylens 56 B 자산 16개는 readPly 로 모두 읽힘(감독 확인). 성공 기준 수치 변경 금지. 원격 브랜치 삭제 시도 금지. 연구 PR(experiment/point-io)은 열어 둔다.
 
 ## 환경 (첫 실행 점검, 2026-10-01T12:42Z)
 

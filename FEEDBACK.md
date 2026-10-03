@@ -672,27 +672,27 @@
 - 이력: 2026-10-03 08:30 감독 등록. 신규. → 2026-10-03 작업자 처리(제품 feat/asset-format 282d7d8): ①~⑨ 반영(① SPEC 문구는 감독 몫으로 남김). 전체 npm test 510 중 통과 498·실패 0·건너뜀 12 → 2026-10-03 09:05 감독 확인 닫음(①~⑤ 문구 일부가 메모 형태로 남음(ASSET_FORMAT.md:37·249·259·260) → F-068 로 옮겨 닫음. ⑥~⑨ 확인)
 
 
-### F-068 [처리됨-검증대기] (심각도: 중간) — 자산 명세에 메모 문구가 규범 자리에 남고 Δd 근거가 다시 시점 거리로 읽힌다
+### F-068 [닫힘] (심각도: 중간) — 자산 명세에 메모 문구가 규범 자리에 남고 Δd 근거가 다시 시점 거리로 읽힌다
 - 위치: 제품 main(PR #12 병합분) format/ASSET_FORMAT.md:37, :173, :229, :249, :259, :260
 - 문제: :37 "…quant_exp 9 단서." 와 :260 "앵커 일치 검사 책임(T10)을 명세에 한 줄." 은 F-067 ④⑤ 의 지시문이 문장 그대로 들어간 것이다. :249 는 d_c(촬영 깊이)를 정의하고도 "먼 곳은 원래 정밀도가 거리 제곱으로 나빠지므로 점 밀도도 거리에 맞춰 낮춘다" 를 남겨 시점 거리로 읽힌다. :259 는 "같은 수준이면 더한다" 와 "같은 키는 교체" 가 한 항목이다. :173 은 법선을 단위 벡터로 단정하나 renderer_basis 는 3장 평균(길이 미보장). :229 "깊이 45 m" 는 basis 표 45.3 m.
 - 실패 상황: T07 이 시점 거리² 로 LOD 를 성기게 만든다. T10 이 앵커 불일치 조각을 누가 거부하는지 몰라 서로 다른 앵커 조각이 섞여 그려진다(client/asset/index.mjs 는 앵커를 읽기만 함). 쓰는 쪽이 법선 길이 1 을 검사해 정상 입력을 거부한다.
 - 고칠 것: :37 → "타일 전체 폭(≥ 63.999 m)을 쓰는 조각은 quant_exp ≤ 9 를 쓴다(§5.1)." / :260 → "앵커가 다른 조각은 상태 기계(T10)가 거부한다. 파서는 조각 단독이라 앵커를 검사하지 않는다." / :249 콜론 뒤 문장을 "Δd 는 lod 0 밀도의 하한일 뿐, 시점 거리별 간격은 화면 픽셀 크기로 정한다" 로 / :259 같은 키 교체를 별도 항목 4 로 / :173 "단위 길이 미보장" / :229 45.3 m. 연구 SPEC.md:72 의 Δd 문구는 감독이 맞춘다.
 - 확인 기준: `grep -n '단서\.\|명세에 한 줄' format/ASSET_FORMAT.md` 0건, :249 의 "거리" 가 모두 d_c 또는 "시점 거리" 로 구분, §10.2 항목 4 존재.
 - 권장 모델: haiku
-- 이력: 2026-10-03 09:05 감독 등록(축 2·3 보고, 감독 :37·:259·:260 직접 확인, :173·:229·:249 는 축 2 보고). 신규(F-067 잔여). → 2026-10-03 작업자 처리(제품 feat/point-io c891c29): 명세 문구 6곳 정정, grep 0건. 전체 npm test 584 중 통과 572·실패 0·건너뜀 12
+- 이력: 2026-10-03 09:05 감독 등록(축 2·3 보고, 감독 :37·:259·:260 직접 확인, :173·:229·:249 는 축 2 보고). 신규(F-067 잔여). → 2026-10-03 작업자 처리(제품 feat/point-io c891c29): 명세 문구 6곳 정정, grep 0건. 전체 npm test 584 중 통과 572·실패 0·건너뜀 12 → 2026-10-03 09:40 감독 확인 닫음(grep 0건, §10.2 항목 4 존재, :249 d_c 표기. Δd 방향 문구 잔여는 F-074 ①)
 
 
-### F-069 [처리됨-검증대기] (심각도: 중간) — 자산 읽기·검사 함수의 비유한·이상 입력 처리 잔여
+### F-069 [닫힘] (심각도: 중간) — 자산 읽기·검사 함수의 비유한·이상 입력 처리 잔여
 - 위치: 제품 main(PR #12 병합분) server/asset/unpack/index.mjs:120·:161, client/asset/index.mjs:66-74, server/asset/determinism/index.mjs:72-86, server/asset/checksum/index.mjs:25·35-36
 - 문제: ① unpack 은 bboxMin 만 유한 검사하고 bboxMax 와 f32 로 내린 결과는 보지 않는다. bboxMin 이 f64 로 유한한 1e308 이면 positions 가 Inf. ② 클라이언트 readHeaderClient 는 bbox 유한 검사가 없다(서버와 다름, 주석은 같다고 함). ③ checkDeterminism 은 packFn 이 null·문자열을 돌려도 identical:true, times 0·1 이면 비교 없이 identical:true. ④ crc32(ArrayBuffer) 는 0, crc32(null)·computeChecksum(null) 은 TypeError(문서는 AssetFormatError).
 - 실패 상황: (축 7 재현) bboxMin=[1e308,0,0] 골든 변형 → unpackChunk 성공, positions 에 Inf. 무작위 변조 2만 건 중 257 건 비유한 출력(체크섬은 unpack 이 보지 않음). `checkDeterminism(x, 2, () => null)` → identical true.
 - 고칠 것: unpack·클라이언트 모두 bbox 6값 유한 검사 + 복원 위치 유한 아니면 AssetFormatError('bbox'). checkDeterminism 은 결과가 Uint8Array 가 아니면 던지고 times < 2 는 거부(또는 comparisons 반환). checksum 진입부 Uint8Array 검사.
 - 확인 기준: 위 입력 각각 AssetFormatError(또는 명시 오류), 같은 무작위 변조 2만 건에서 비유한 출력 0, 테스트 추가.
 - 권장 모델: sonnet
-- 이력: 2026-10-03 09:05 감독 등록(축 7 보고, 감독 unpack:120 의 bboxMin 단독 검사 직접 확인, 나머지 수치 미재현). 신규. → 2026-10-03 작업자 처리(제품 feat/point-io c891c29): bbox·비유한·입력 형 검사, checkDeterminism times<2 거부. 전체 npm test 584 중 통과 572·실패 0·건너뜀 12
+- 이력: 2026-10-03 09:05 감독 등록(축 7 보고, 감독 unpack:120 의 bboxMin 단독 검사 직접 확인, 나머지 수치 미재현). 신규. → 2026-10-03 작업자 처리(제품 feat/point-io c891c29): bbox·비유한·입력 형 검사, checkDeterminism times<2 거부. 전체 npm test 584 중 통과 572·실패 0·건너뜀 12 → 2026-10-03 09:40 감독 확인 닫음(비유한 테스트 4파일 통과, checkDeterminism(x,2,()=>null)·crc32(null) → AssetFormatError 직접 확인, 축 7 bboxMin 1e308 재현 거부)
 
 
-### F-070 [처리됨-검증대기] (심각도: 낮음) — PR #12 잔여 테스트 공백
+### F-070 [닫힘] (심각도: 낮음) — PR #12 잔여 테스트 공백
 - 위치·고칠 것:
   ① tools/asset_validate/asset_validate.test.mjs:79 — 타일 검사 반복을 `a < 1` 로 줄여도 통과. tileY 손상 사례 추가. (축 4B)
   ② 같은 파일 :87 — anchor 검사를 lat 만 보게 줄여도 통과. lon·alt NaN/Inf 사례 추가. (축 4B)
@@ -703,4 +703,57 @@
 - 확인 기준: 각 변형에서 해당 테스트 fail ≥1, 200 ms 대기 모의 대상으로 퍼저 벽시계 보호 실패 확인.
 - 권장 모델: haiku(①~⑤), sonnet(⑥)
 - 처리 시점: T04 첫 하위 작업(T04.F)에서 F-068·F-069 와 함께.
-- 이력: 2026-10-03 09:05 감독 등록. 신규. → 2026-10-03 작업자 처리(제품 feat/point-io c891c29): 검증기·tile_index·client·determinism 테스트 보강, 퍼저 벽시계 보호 150 s·재시도 통과 건수. 전체 npm test 584 중 통과 572·실패 0·건너뜀 12
+- 이력: 2026-10-03 09:05 감독 등록. 신규. → 2026-10-03 작업자 처리(제품 feat/point-io c891c29): 검증기·tile_index·client·determinism 테스트 보강, 퍼저 벽시계 보호 150 s·재시도 통과 건수. 전체 npm test 584 중 통과 572·실패 0·건너뜀 12 → 2026-10-03 09:40 감독 확인 닫음(축 4B 사본 변형 ①②③⑤⑥ 모두 fail 확인, 관련 테스트 감독 직접 통과)
+
+
+### F-071 [열림] (심각도: 높음) — GPS↔ENU 가 skylens geo.ts(등장방형 근사)가 아니라 WGS-84 정확식이다. T04.5·T04.7 완료 기준 미달
+- 위치: 제품 feat/point-io c891c29 server/geo/enu/index.mjs:1·30-60·78-103, client/geo/index.mjs:1·22-36, contracts/geo/index.mjs:9-10, server/geo/enu/enu.test.mjs:1·118-131, client/geo/geo.test.mjs:22-39·102-110. 규칙: 연구 RULES.md:22, SPEC.md:29, TASKS T04.5
+- 문제: RULES.md:22 는 "skylens src/shared/geo.ts 와 같은 식(등장방형 소영역 근사)" 을 요구한다. skylens develop src/shared/geo.ts 는 공개 저장소(NET-Challenge-S13/skylens, develop)에서 바로 받을 수 있고 식은 `e = Δλ·R·cos(φ0)`, `n = Δφ·R`, `u = alt − alt0`, R = 6378137, 역변환은 그 역이다. 구현은 ECEF 경유 타원체 정확식이라 다른 값을 낸다. 결정 0016 은 "체크아웃 없음" 을 근거로 들었으나 클라우드에서 확인 가능한 항목이다([local] 아님).
+- 실패 상황: 감독 직접 재현 — 앵커 (37.5665, 126.978, 30), 무작위 1만 점에서 skylens 식과의 최대 차: 반경 0.1 km 0.32 m, 0.5 km 1.63 m, 1 km 3.32 m, 5 km 19.2 m(기준 ≤ 1 mm). 앱이 보낸 드론·마커 GPS 와 렌더러 점·타일이 m 단위로 어긋난다. 서버-클라이언트 1만 점 대조(geo.test.mjs:102-110)는 같은 식·같은 상수(WGS84)끼리라 이 차이를 못 잡는다(축 4B: WGS84.f 를 1/290 으로 바꿔도 대조 통과).
+- 고칠 것: server/geo/enu·client/geo 를 geo.ts 와 같은 식·같은 상수(R = 6378137, cos 는 앵커 위도)로 바꾼다. alt 는 그대로 뺀다. 정확식을 남기고 싶으면 별도 함수 이름으로 두고 기본 경로에서 쓰지 않는다. 테스트: geo.ts 를 그대로 옮긴 기준 함수(출처 주석: skylens develop src/shared/geo.ts, 커밋 해시)로 무작위 1만 점(반경 0.1·1·10·50 km) 차 ≤ 1 mm, 왕복(enuToGps∘gpsToEnu) ≤ 1 mm. 결정 0016 은 기각됐으니 새 결정 기록은 필요 없다(근사식 채택은 RULES 그대로). "구면 근사와 10 m 넘게 어긋나야 한다" 같은 테스트(enu.test.mjs:118-131)는 지운다.
+- 확인 기준: 감독이 skylens geo.ts 식으로 같은 1만 점 비교(위 앵커, 반경 0.1~5 km) 최대 차 ≤ 1 mm. client/geo 도 같은 기준. `npm test` 실패 0.
+- 권장 모델: opus
+- 이력: 2026-10-03 09:40 감독 등록(축 3·5 보고, 감독 skylens develop geo.ts 받아 직접 비교 재현). 신규. PR #13 반려 사유.
+
+
+### F-072 [열림] (심각도: 중간) — 좌표 계약이 skylens geo.ts 와 표현·이름이 다르다
+- 위치: 제품 feat/point-io contracts/geo/index.mjs:6·13·15, contracts/geo/stubs.mjs:8-16, server/geo/scene/index.mjs:23·28
+- 문제: ① Enu 가 배열 [e,n,u] 이고 skylens 는 객체 {e,n,u}. ② skylens 의 gpsToScene·sceneToGps 가 없다. ③ contracts enuToScene([0,0,0]) → [0,0,−0], enuArrayToScene 은 0−n 이라 [0,0,0](deepStrictEqual 불일치).
+- 실패 상황: `enuToScene({e:1,n:2,u:3})` → [undefined, undefined, NaN], 오류 없이 조용히 틀린다(축 1 보고, 미확인).
+- 고칠 것: 표현을 하나로 정한다. 배열을 유지하면 경계 함수가 배열이 아닌 입력에 GeoError('range') 를 던지고, skylens 객체 ↔ 배열 어댑터를 둔다. gpsToScene·sceneToGps 추가. −0 처리를 한쪽으로 맞춘다.
+- 확인 기준: 객체 입력 → GeoError 또는 [1,3,−2], n=0 에서 두 함수 결과 deepStrictEqual 같음, skylens 함수 이름 6개가 모두 있음.
+- 권장 모델: sonnet (F-071 과 같은 하위 작업이면 opus)
+- 이력: 2026-10-03 09:40 감독 등록(축 1 보고, contracts/geo/index.mjs:6·13 감독 직접 확인). 신규.
+
+
+### F-073 [열림] (심각도: 중간) — 점 입력 모듈의 이상 입력·큰 입력 처리 잔여
+- 위치·문제·실패 상황(축 6·7 재현 보고, 감독은 points_stat:25-43 코드만 직접 확인):
+  ① server/points/ply_stream/index.mjs:83 — chunkPoints 상한 없음. 헤더 vertexCount=2^31−1, {chunkPoints: 2^31−1} → RangeError(Array buffer allocation failed), PointsError 아님.
+  ② tools/points_stat/index.mjs:25-43 — 첫 점으로 min/max 초기화 후 `<`/`>` 비교. [NaN,0,0, 2,2,0] → min x NaN, [0,0,0, NaN,2,0] → NaN 점이 조용히 빠짐. Inf 는 max 로 나옴.
+  ③ tools/points_stat/index.mjs:11·49 — count 와 positions.length/3 대조 없음. count=5, 점 2개 → density 1.25(맞는 값 0.5). null 입력은 TypeError.
+  ④ contracts/ply/index.mjs:12·15, server/points/ply_read/index.mjs:8 — parsePlyHeader 에 파일 전체를 넘겨 Buffer.from 으로 전체 복사. 67 MB 입력에 약 135 MB 추가 할당.
+  ⑤ server/points/ply_stream/index.mjs:58·62 — readPlyStream(null)·문자열 청크가 TypeError. 머리 단계 Buffer.concat 누적이 O(n²)(1바이트 청크 1M 개 40 s).
+  ⑥ server/geo/enu/index.mjs:94-103 — enuToGps 결과 유한 검사 없음([1.7e308,1.7e308,0] → alt Infinity). F-071 로 식을 바꾸면 같은 검사를 새 식에 둔다.
+- 고칠 것: ① chunkPoints 상한(예: 2^20)과 vertexCount 상한을 PointsError('range') 로. ②③ 비유한 좌표는 거부(PointsError) 또는 건너뛰고 nonFinite 수 보고, 초기값 ±Infinity, 길이 불일치 PointsError('size'). ④ 헤더 탐색은 앞부분(상한 1 MB) subarray 만 넘기거나 복사 없이 래핑. ⑤ 입력 형 검사 → PointsError('header'), 머리 조각은 배열에 모아 마커 찾은 뒤 합친다. ⑥ 결과 비유한이면 GeoError('range').
+- 확인 기준: 위 입력 각각 PointsError/GeoError, 두 NaN 위치 입력의 결과가 같고 NaN 미포함, 250만 점 readPly 헤더 단계 추가 할당 ≈ 0, 1바이트 청크 1M 개 머리 입력 1 s 미만.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 09:40 감독 등록(축 1b·6·7 보고). 신규.
+
+
+### F-074 [열림] (심각도: 낮음) — PR #13 문서·테스트 공백
+- 위치·고칠 것:
+  ① format/ASSET_FORMAT.md:249 — "Δd 는 lod 0 밀도의 하한" 은 방향이 거꾸로다. Δd 는 의미 있는 점 **간격의 하한(밀도 상한)** 이고 깊이(광선) 방향 값이다. lod 0 은 "도착한 점 전부" 라 Δd 가 lod 0 에 쓰일 자리가 없다. 문장을 "Δd 는 의미 있는 점 간격의 하한(=밀도 상한)이며 깊이 방향 값이다" 로. (축 2)
+  ② contracts/points/index.mjs:14 — 27 B 색 이름 red/green/blue 근거 없음. 근거(관례 가정)를 주석에 적는다. 실제 skylens 자산은 모두 56 B(res/static/demo/segments/seg*_step*.ply)이고 감독이 16개 파일 readPly·readPlySafe·identifySegments 로 읽어 모두 성공(점 수 1,147~116,381)했다. 이 실제 헤더(속성 줄 그대로)를 리터럴로 넣은 56 B 테스트를 추가한다. (축 2·5)
+  ③ server/points/normals/index.mjs:18-22 — 정규화로 법선 길이(3장 평균의 일치도)를 버리는 근거를 한 줄 적거나 길이 배열을 함께 돌려준다. (축 2)
+  ④ server/points/ply_stream/ply_stream.test.mjs:101-129 — 본문 67.5 MB 대비 상한 32 MB 가 커서 절반 보관 누수를 놓친다. 증가량을 0 으로 깎지 말고 기록, 56 B 도 시험, "청크마다 GC 후 보유량" 이라는 측정 방식을 테스트 이름에 적는다. (축 4A·5)
+  ⑤ tools/points_stat/points_stat.test.mjs:41-98 — 모든 z=0 이라 `if (z > maxZ)` 를 지워도 통과. z 가 다르고 음수인 점군, NaN·길이 불일치 음성 사례 추가. (축 4A, 변형 생존 보고)
+  ⑥ server/points/ply_write/ply_write.test.mjs:64-69 — 헤더 전체를 리터럴 문자열로 비교. (축 4A)
+  ⑦ client/geo/geo.test.mjs:22-39·62-68 — "독립 구현" 이 구현을 옮겨 적은 것, 손계산 값에 유도 근거 없음. F-071 로 바뀌면 skylens 식 기준으로 다시 쓴다. :102-110 은 "서버·클라이언트 동치 회귀 감시" 로 이름을 바꾼다. (축 4B)
+  ⑧ server/asset/determinism/determinism_nonfinite.test.mjs:11 — times=1 이라 times 검사에서 먼저 던진다. times=2 로. (축 4B)
+  ⑨ server/points/ply_robust/ply_robust.test.mjs:64-66·98 — 벽시계 50 ms 단언 대신 할당 크기 또는 여유+최솟값. (축 4A)
+  ⑩ server/points/segments/index.mjs:14-15 — 규칙 밖 파일 하나(.DS_Store)로 목록 전체 실패. 규칙 밖 이름은 rejected 로 따로 돌려준다(빠진 수준은 채우지 않는다). (축 3)
+  ⑪ server/points/ply_write/index.mjs:43 — 점마다 subarray 뷰 생성, 색은 직접 대입. (축 6)
+- 확인 기준: 각 항목 테스트 추가·변형 시 fail, ① 문구에 "밀도의 하한" 없음.
+- 권장 모델: haiku(①②③⑥⑧ 문구·단순 테스트), sonnet(④⑤⑦⑨⑩⑪)
+- 처리 시점: F-071 과 같은 PR 에서 가능하면 함께. 반려 사유 아님.
+- 이력: 2026-10-03 09:40 감독 등록(축 2·3·4A·4B·5·6 보고, ① :249 문구와 ② 실제 자산 읽기는 감독 직접 확인). 신규.

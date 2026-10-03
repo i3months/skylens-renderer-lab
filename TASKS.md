@@ -48,7 +48,7 @@ tools/       명령줄 도구
 - [x] **T01P `baseline-fixes-9`** [cloud] — T01N 검토 잔여: F-058(중간 1·낮음 6). T01.39·T01.40. T02 가 사람 결정 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-9, 연구 experiment/baseline-fixes-9(부모 experiment/baseline-fixes-8). 제품 코드·테스트 이름에 FEEDBACK 번호를 넣지 않는다. (2026-10-02 병합, 제품 11f6bf1 merge commit, 연구 experiment/baseline-fixes-8 acfdd28, 반려 0회. F-058 닫음, F-059 → T02 승인 뒤 첫 작업)
 - [x] **T02 `stack`** — 스택 선정. 서버 래스터라이저(2단계)·자산 처리 서버·클라이언트 경량 래스터라이저를 무엇으로 쓸지 조사. (2026-10-02 감독 승인, 결정 0009 승인·0012~0014 반영, 연구 PR #3 → research merge commit ddd3219, 제품 변경 없음, 반려 0회)
 - [x] **T03 `asset-format`** — 경량 자산 포맷 계약과 핵심 타입. 27 B 점·56 B 가우시안 두 입력 형식을 담는다(0012). 첫 하위 작업으로 F-059(T03.F, haiku)를 함께 처리한다. (2026-10-03 병합, 제품 5b41a3b merge commit, 연구 research f8d847f, 반려 1회. F-059~F-067 닫음, 잔여 F-068~F-070 → T04.F, 결정 0015 승인)
-- [ ] **T04 `point-io`** — 27 B 점·56 B 가우시안 PLY 입출력과 ENU 좌표.
+- [ ] **T04 `point-io`** — 27 B 점·56 B 가우시안 PLY 입출력과 ENU 좌표. (2026-10-03 PR #13 반려 1회: F-071 높음. T04.R1~R4 처리 후 같은 브랜치로 재검토)
 - [ ] **T05 `synthetic-scenes`** — 합성 장면·고정 시점 8곳·골든 파일.
 - [ ] **T06 `reference-raster`** — CPU 참조 래스터라이저와 화질 지표.
 - [ ] **T07 `lod`** — 거리 제곱 근거의 LOD 계층.
@@ -188,6 +188,10 @@ tools/       명령줄 도구
 | T04.8 | 법선 정규화·검사(NaN·0 벡터 처리) | `server/points/normals/` | 단위 길이 오차 ≤ 1e-6, NaN 0 | sonnet |
 | T04.9 | 점 통계(점 수·경계·밀도) 도구 | `tools/points_stat/` | 골든 파일 통계 일치 | haiku |
 | T04.10 | 구간 PLY 묶음 읽기(구간×수준 이름 규칙) | `server/points/segments/` | 4수준×3구간 묶음 식별 100% | sonnet |
+| T04.R1 | (반려 1회차, 먼저) F-071: GPS↔ENU 를 skylens develop `src/shared/geo.ts` 식(등장방형, R=6378137)으로 교체(서버·클라이언트), geo.ts 기준 1만 점 테스트. F-072 좌표 계약 표현·이름 정리 | `server/geo/`, `client/geo/`, `contracts/geo/` | F-071·F-072 확인 기준 | opus |
+| T04.R2 | F-073 점 입력 이상·큰 입력 처리 | `server/points/`, `tools/points_stat/`, `contracts/ply/` | F-073 확인 기준 | sonnet |
+| T04.R3 | F-074 ①②③⑥⑧ 문구·단순 테스트(실제 skylens 56 B 헤더 리터럴 테스트 포함) | `format/`, `contracts/points/`, `server/points/`, `server/asset/determinism/` | F-074 해당 항목 | haiku |
+| T04.R4 | F-074 ④⑤⑦⑨⑩⑪ 테스트 강화·segments 잡파일·writer 색 대입 | `server/points/`, `tools/points_stat/`, `client/geo/` | F-074 해당 항목 | sonnet |
 
 ### T05 `synthetic-scenes` — [cloud]
 
@@ -209,20 +213,20 @@ tools/       명령줄 도구
 
 renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 모든 화질 비교의 기준이다.
 
-| 하위 | 내용 | 소유 경로 | 완료 기준 |
-|---|---|---|---|
-| T06.0 | 계약: 카메라(K, R, t, 해상도), 렌더 결과(색·깊이·점 번호) 타입 | `contracts/raster/` | 타입 문서와 일치 |
-| T06.1 | 투영 `X_c = R·X_w + t`, `[u,v,1]ᵀ ∝ K·X_c` | `server/raster_ref/project/` | renderer_basis §2-3 예제 픽셀 (396.27, 139.47) 를 0.01 px 이내 재현 |
-| T06.2 | 역투영 `X_c = d·K⁻¹[u,v,1]ᵀ` | `server/raster_ref/unproject/` | 투영→역투영 왕복 ≤ 1e-6 m |
-| T06.3 | 해상도에 따른 K 환산 | `server/raster_ref/intrinsics/` | 2048→960 에서 renderer_basis §1-2 K 값 재현 |
-| T06.4 | 점 스플랫(크기 = 거리 반비례) | `server/raster_ref/splat/` | 단일 점 픽셀 반경 해석해와 일치 |
-| T06.5 | 깊이 버퍼·가까운 점 우선 | `server/raster_ref/zbuffer/` | 겹친 두 점 테스트 100% |
-| T06.6 | 법선 셰이딩(램버트) | `server/raster_ref/shade/` | 해석해 대비 오차 ≤ 1/255 |
-| T06.7 | 빈자리 그대로 두기(메우기 금지 검사) | `server/raster_ref/no_fill/` | holes 장면에서 빈 픽셀 수 = 정답 |
-| T06.8 | SSIM 계산 | `server/metrics/ssim/` | 공개 참조값(표준 시험 영상 쌍)과 1e-3 이내 |
-| T06.9 | PSNR·빈 픽셀 비율 지표 | `server/metrics/psnr/` | 해석 예제 일치 |
-| T06.10 | 고정 시점 8곳 일괄 렌더 도구 | `tools/render_views/` | 8장 생성, 재실행 바이트 동일 |
-| T06.11 | 성능 기록(250만 점 1장 CPU 시간) | `bench/raster_ref/` | 시간 기록(기준 아님) |
+| 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
+|---|---|---|---|---|
+| T06.0 | 계약: 카메라(K, R, t, 해상도), 렌더 결과(색·깊이·점 번호) 타입 | `contracts/raster/` | 타입 문서와 일치 | sonnet |
+| T06.1 | 투영 `X_c = R·X_w + t`, `[u,v,1]ᵀ ∝ K·X_c` | `server/raster_ref/project/` | renderer_basis §2-3 예제 픽셀 (396.27, 139.47) 를 0.01 px 이내 재현 | opus |
+| T06.2 | 역투영 `X_c = d·K⁻¹[u,v,1]ᵀ` | `server/raster_ref/unproject/` | 투영→역투영 왕복 ≤ 1e-6 m | opus |
+| T06.3 | 해상도에 따른 K 환산 | `server/raster_ref/intrinsics/` | 2048→960 에서 renderer_basis §1-2 K 값 재현 | opus |
+| T06.4 | 점 스플랫(크기 = 거리 반비례) | `server/raster_ref/splat/` | 단일 점 픽셀 반경 해석해와 일치 | opus |
+| T06.5 | 깊이 버퍼·가까운 점 우선 | `server/raster_ref/zbuffer/` | 겹친 두 점 테스트 100% | sonnet |
+| T06.6 | 법선 셰이딩(램버트) | `server/raster_ref/shade/` | 해석해 대비 오차 ≤ 1/255 | sonnet |
+| T06.7 | 빈자리 그대로 두기(메우기 금지 검사) | `server/raster_ref/no_fill/` | holes 장면에서 빈 픽셀 수 = 정답 | sonnet |
+| T06.8 | SSIM 계산 | `server/metrics/ssim/` | 공개 참조값(표준 시험 영상 쌍)과 1e-3 이내 | sonnet |
+| T06.9 | PSNR·빈 픽셀 비율 지표 | `server/metrics/psnr/` | 해석 예제 일치 | haiku |
+| T06.10 | 고정 시점 8곳 일괄 렌더 도구 | `tools/render_views/` | 8장 생성, 재실행 바이트 동일 | haiku |
+| T06.11 | 성능 기록(250만 점 1장 CPU 시간) | `bench/raster_ref/` | 시간 기록(기준 아님) | haiku |
 
 ### T07 `lod` — [cloud]
 
