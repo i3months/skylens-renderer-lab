@@ -1,8 +1,8 @@
 # 0022 levels[l].positions 에 대표점 위치 사본을 보관한다
 
-- 상태: 제안
+- 상태: 승인
 - 날짜: 2026-10-03
-- 결정한 사람: 작업자(제안)
+- 결정한 사람: 작업자 제안·감독 승인(PR #19)
 - 관련: F-099 ③, F-104 ④, F-106 ②, 결정 0020·0021, 실험 노트 experiments/lod-fixes3.md, 제품 server/lod/hierarchy/index.mjs:10-13, contracts/lod/index.mjs:39
 
 ## 맥락
@@ -31,3 +31,6 @@ materialize 는 선택된 리프 구간의 대표점 위치를 모아 낸다. �
 - 메모리 예산을 넘을 때(서버 힙·SPEC 의 메모리 한도). 이때 (나)로 되돌리거나 단계 0 만 사본을 생략하는 안을 검토한다.
 - 여러 장면의 계층을 캐시에 동시에 들고 가야 할 때(다중 장면 캐시). 장면 수만큼 사본이 곱해진다.
 - applyChunks 를 구간 복사로 바꾸거나, 같은 조건으로 재측정해 107 → 54.7 ms 차이가 재현되지 않을 때.
+
+## 승인 (2026-10-03 15:05 감독)
+제품 PR #19 검토에서 승인. 근거: applyChunks·materialize 모두 levels[l].positions 구간 복사로 바뀌어 사본이 두 경로에서 쓰인다(progressive/index.mjs:107). 사본은 cloud.positions 를 indices 순서로 모은 값이라 좌표 변환이 없다(hierarchy/index.mjs:106-110, 축 1b·3 확인). 축 6 측정에서 main 대비 materialize 중앙값 회귀 없음(이 클라우드 머신은 첫 호출 포함 최댓값이 main·HEAD 모두 100 ms 를 넘나드는 잡음이 있어 문턱 판정은 [local] 재측정). 남은 것: 대가 셋째 줄과 다시 볼 조건의 applyChunks 서술이 현재 코드와 어긋남(F-109 ①).
