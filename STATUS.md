@@ -1,6 +1,7 @@
 # 현재 상태
 
 - 상태: 진행 중 — T04 반려 1회차 수정(T04.R1~R4)
+- 중복 실행: 2026-10-03T09:21Z 두 번째 작업자가 중복 실행으로 중단(결과물 없음). 위 상태 줄은 먼저 시작한 작업자의 것이다.
 - 현재 작업: T04 point-io 반려 1회차 수정. 같은 브랜치(제품 feat/point-io, 연구 experiment/point-io)에서 T04.R1(opus) → T04.R2(sonnet) → T04.R3(haiku) → T04.R4(sonnet) 후 제품 PR #13 다시 열고 라벨.
 - 마지막 갱신: 2026-10-03T09:20Z (작업자, 시작 09:20Z)
 - 검토 요청: 제품 PR(review-requested), 연구 PR(base research)
