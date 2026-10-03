@@ -281,9 +281,9 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T08.F17 [x] (2026-10-03 PR #22 병합, 제품 bd962ae) | F-126 LOD 선택(selectLevels·budget·progressive)에 선택 인자 pointSizeM, 결합 경로 가장자리 리프 보존 | `server/lod/select/`, `server/lod/budget/`, `server/lod/progressive/`, `server/cull/combine/` | F-126 확인 기준 | opus |
 | T08.F18 [x] (2026-10-03 PR #22 병합, 제품 bd962ae) | PR #21 재검토 낮음: F-127 | 항목별 경로 | F-127 항목별 | haiku(④ sonnet) |
 | T08.F19 [x] (2026-10-03 PR #23 병합, 제품 1b01522) | (먼저) PR #22 검토 잔여 중간: F-120(퇴화 판정 진짜 일원화 — 서버 모든 단계·combine 기본 판정이 isDegenerateView, raster 해상도 조건 포함, 시험 목록 확장), F-125 ②(0.05 m 에서 제거가 생기는 시점의 픽셀 동일 단언, pointSizeM 없음 가드 판별) | `server/cull/`, `client/cull/`, `server/cull/combine/` | F-120·F-125 확인 기준 | sonnet |
-| T08.F20 | PR #22 잔여 중간: F-128(원뿔 캐시 모듈 최상위·priority mask 건너뛰기 검토·벤치 장면), F-129(살아남는 변이 6건), F-130(컬링 상자 캐시 지문 또는 계약) — T09 와 별도 PR 이 좋다 | `server/cull/`, `server/lod/select/`, `bench/cull/`, `contracts/` | F-128·F-129·F-130 확인 기준 | sonnet(F-129 ② opus) |
+| T08.F20 [x] (2026-10-03 PR #24 병합, 제품 a77b99e) | PR #22 잔여 중간: F-128(원뿔 캐시 모듈 최상위·priority mask 건너뛰기 검토·벤치 장면), F-129(살아남는 변이 6건), F-130(컬링 상자 캐시 지문 또는 계약) — T09 와 별도 PR 이 좋다 | `server/cull/`, `server/lod/select/`, `bench/cull/`, `contracts/` | F-128·F-129·F-130 확인 기준 | sonnet(F-129 ② opus) |
 | T08.F21 | PR #22 낮음: F-131 | 항목별 경로 | F-131 항목별 | haiku(⑧ sonnet) |
-| T08.F22 | PR #23 검토 중간: F-132(카메라 구조 오류 처리 단계 간 통일 — 계약 :7 과 일치), F-133(시험 판별력 공백 ①~⑤) | `server/cull/`, `client/cull/`, `contracts/cull/` | F-132·F-133 확인 기준 | sonnet(F-133 ④ opus) |
+| T08.F22 [x] (2026-10-03 PR #24 병합, 제품 a77b99e) | PR #23 검토 중간: F-132(카메라 구조 오류 처리 단계 간 통일 — 계약 :7 과 일치), F-133(시험 판별력 공백 ①~⑤) | `server/cull/`, `client/cull/`, `contracts/cull/` | F-132·F-133 확인 기준 | sonnet(F-133 ④ opus) |
 | T08.F23 | PR #23 낮음: F-134 | 항목별 경로 | F-134 항목별 | haiku(⑥⑦ sonnet) |
 | T08.F24 | (먼저) PR #24 검토 중간: F-135(원뿔 캐시 입력 참조 비교 또는 계약), F-136(predictCamera 구조 검사), F-137(시험 판별력 ①~⑤) — T09 와 별도 PR | `server/cull/`, `server/lod/select/`, `bench/cull/`, `contracts/` | F-135·F-136·F-137 확인 기준 | sonnet(F-136 haiku, F-137 ⑤ opus) |
 | T08.F25 | PR #24 낮음: F-138 — T08.F21·F23 과 함께 처리해도 됨 | 항목별 경로 | F-138 항목별 | haiku(⑦ sonnet) |
