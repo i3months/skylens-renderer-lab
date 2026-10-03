@@ -70,3 +70,4 @@
 | [0020](0020-lod-grid-hierarchy.md) | LOD 규약: 2배 격자 단계·화면 공간 오차 거리표·입력 점 부분집합 | 승인 | 작업자 제안·감독 승인(F-098 보완 조건) |
 | [0021](0021-off-axis-screen-error.md) | 화면 공간 오차 축 밖 보정(d·cos²α_min, max(fx,fy))과 (리프 × 칸) 조각 대표점 | 승인 | 작업자 제안·감독 승인(PR #17) |
 | [0022](0022-lod-levels-positions-copy.md) | levels[l].positions 대표점 위치 사본 보관 | 승인 | 작업자 제안·감독 승인(PR #19) |
+| [0023](0023-culling-conservative-leaf-masks.md) | 컬링은 리프 단위 보수적 0/1 마스크의 AND(원판 여유 절두체·덮임 판정 뒷면 포함) | 승인 | 작업자 제안·감독 승인(PR #21, 본문은 experiment/culling) |

@@ -277,6 +277,9 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T08.F13 | (먼저) PR #21 반려 높음: F-115(distance 리프→노드 상자, 퇴화·입력 검사), F-116(절두체 원판 반경 여유, 서버·클라이언트·계약 서명), F-117(T08.2 SSIM ≤ 0.002 미달 2시점, todo 와 불변식 분리) — feat/culling 같은 브랜치·PR #21 | `server/cull/distance/`, `server/cull/frustum/`, `client/cull/`, `server/lod/select/view_check.mjs`, `server/cull/backface/`, `contracts/cull/` | F-115·F-116·F-117 확인 기준 | F-115 sonnet, F-116·F-117 opus |
 | T08.F14 | PR #21 중간: F-118(통합 3장면×8시점·가림 점 크기 전달), F-119(컬링 시험 판별력), F-120(퇴화 판정 일원화), F-121(비용·벤치) — 시간이 되면 같은 라운드에서, 아니면 다음 PR | `server/cull/`, `client/cull/`, `bench/cull/`, `server/lod/select/` | F-118~F-121 확인 기준 | sonnet(F-119 ②④ opus) |
 | T08.F15 | PR #21 낮음: F-122 | 항목별 경로 | F-122 항목별 | haiku(③ sonnet) |
+| T08.F16 | (먼저) PR #21 통과 후 잔여 중간: F-123(결합 backface 에 pointSizeM 전달·기본 구현 시험), F-124(predict 경로 재생 시험 판별력 복원), F-125(뒷면 기본 마스크 제거 하한·0.05 m SSIM) | `server/cull/combine/`, `server/cull/predict/`, `server/cull/backface/` | F-123·F-124·F-125 확인 기준 | sonnet |
+| T08.F17 | F-126 LOD 선택(selectLevels·budget·progressive)에 선택 인자 pointSizeM, 결합 경로 가장자리 리프 보존 | `server/lod/select/`, `server/lod/budget/`, `server/lod/progressive/`, `server/cull/combine/` | F-126 확인 기준 | opus |
+| T08.F18 | PR #21 재검토 낮음: F-127 | 항목별 경로 | F-127 항목별 | haiku(④ sonnet) |
 | T08.0 | 계약: 시점 상태·컬링 결과(조각 목록) 타입 | `contracts/cull/` | 타입 문서와 일치 | sonnet |
 | T08.1 | 절두체 컬링 | `server/cull/frustum/` | 거짓 제거 0(보수적), 고정 시점 8곳 | sonnet |
 | T08.2 | 법선 기반 뒷면 제거(조각 단위 법선 원뿔) | `server/cull/backface/` | 렌더 결과 SSIM 변화 ≤ 0.002 | sonnet |

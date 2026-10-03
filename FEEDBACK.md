@@ -1253,32 +1253,32 @@
 - 이력: 2026-10-03 15:28 감독 등록(축 2·4a·4b). 신규. ⑦ 은 2026-10-03 15:20 중복 감독 실행(축 2)이 덧붙임. → 2026-10-03 작업자 처리(제품 feat/culling cde1f8c; 연구 experiment/culling): ①~⑥ 제품, 연구 ②③⑦ 처리. npm test 1394 중 1380 통과·0 실패·12 건너뜀·2 todo. 상세 experiments/culling.md. → 2026-10-03 15:55 감독 확인 닫음(PR #21 cde1f8c). ④ 는 감독이 fixtures/paths/paths.test.mjs:132 를 직접 읽음 — '실측 폭 최대값 ≈1.19 m' 가 여전히 틀림(1.19 m 는 0.4배 변이 값) → F-122 ⑩ 로 옮김. budget_discrim.test.mjs:15-16 머리 주석의 낡은 규칙 문장 → F-122 ⑪.
 
 
-### F-115 [처리됨-검증대기] (심각도: 높음) — distanceCull 이 리프 번호로 노드 상자를 읽어 보이는 리프를 버린다(거짓 제거)
+### F-115 [닫힘] (심각도: 높음) — distanceCull 이 리프 번호로 노드 상자를 읽어 보이는 리프를 버린다(거짓 제거)
 - 위치: 제품 server/cull/distance/index.mjs:53-58 (feat/culling cde1f8c), 시험 server/cull/distance/distance.test.mjs:9-20
 - 문제: `octree.boxMin/boxMax` 는 노드 순서(3·nodeCount)인데 `k*3`(k = 리프 번호)으로 잘라 쓴다. 다른 단계(frustum:57-60·backface:34-36·occlusion:60-65)는 leafIndex 로 노드를 찾는다. 시험은 nodeCount = leafCount·leafIndex 항등인 가짜 계층만 써서 못 잡는다. 또 카메라·계층 검사가 없어 t=[NaN,0,0] 에서 점 있는 리프가 전부 1(계약 '퇴화 시점 → 전부 0' 위반), 잘못된 계층에서 'cull:' 대신 TypeError.
 - 실패 상황: 감독 재현 — flat_boxes 2만 점, buildHierarchy(edge0M 0.5, levelCount 6, maxLeafPoints 512) → 리프 86·노드 111, 카메라 중심 (0,5,0), maxDistanceM 20 → 점까지 최소 거리 ≤ 20 m 인 리프 중 9개가 0. 축 7 은 terrain 에서 31개, 축 1b 는 두 무리 장면에서 마스크 [1,0](정답 [0,1]).
 - 고칠 것: 리프→노드 표(leafIndex)로 노드 상자를 읽는다(또는 리프 점들의 꼭 맞는 상자). 계층 검사를 'cull:' 오류로 감싸고, 퇴화 시점이면 빈 마스크. 시험에 내부 노드가 있는 실제 buildHierarchy 계층을 넣는다.
 - 확인 기준: 위 재현(그리고 무작위 시점·maxDistanceM 여러 개)에서 '점까지 최소 거리 ≤ maxDistanceM 인 리프' 가 모두 1. leafIndex 를 k 로 되돌리는 변이 → 시험 실패. NaN 카메라 → 전부 0, 잘못된 계층 → /^cull:/.
 - 권장 모델: sonnet
-- 이력: 2026-10-03 15:52 감독 등록(축 2·1b·7 이 각각 재현, 감독 직접 재현). 신규. → 2026-10-03 작업자 처리(제품 feat/culling aadef5a, sonnet). 상세 experiments/culling.md.
+- 이력: 2026-10-03 15:52 감독 등록(축 2·1b·7 이 각각 재현, 감독 직접 재현). 신규. → 2026-10-03 작업자 처리(제품 feat/culling aadef5a, sonnet). 상세 experiments/culling.md. → 2026-10-03 16:25 감독 확인 닫음(축 1b 무작위 시점·거리 40개 거짓 제거 0, 축 4b 변이 leafIndex→k 시험 실패, NaN 카메라 전부 0·잘못된 계층 /^cull:/).
 
-### F-116 [처리됨-검증대기] (심각도: 높음) — 절두체 판정이 점 원판 반경을 무시해 화면 가장자리의 보이는 리프를 버린다
+### F-116 [닫힘] (심각도: 높음) — 절두체 판정이 점 원판 반경을 무시해 화면 가장자리의 보이는 리프를 버린다
 - 위치: 제품 server/lod/select/view_check.mjs:3-5·24-27, server/cull/frustum/index.mjs:61, client/cull/index.mjs:66-69, 계약 contracts/cull/index.mjs:63·69 (cde1f8c). 참조 래스터는 server/raster_ref/zbuffer/index.mjs:61-62 에서 `u + r < 0` 일 때만 건너뛴다.
 - 문제: 판정이 점 중심의 u∈[0,W]·v∈[0,H] 만 본다. 중심이 화면 밖이어도 원판(r = fx·sizeM/(2d))이 화면에 걸치면 그려진다.
 - 실패 상황: 감독 재현 — 960×540, K=(754.32, 753.85, 480, 270), R=I, t=0, 깊이 1 m·u=−1 인 점 하나 → boxMayBeVisible false, clientFrustumCull 0. 실제 r = 18.86 px, splatPixels 524 픽셀. MAX_FALSE_REMOVALS = 0 위반. 기존 8시점 시험은 이런 가장자리 점이 없어 통과.
 - 고칠 것: 좌·우·위·아래 평면을 원판 반경만큼 바깥으로 민다(리프 최소 깊이에서 r_max, 또는 상자를 sizeM/2 부풀리는 보수 근사). pointSizeM 을 frustumCull·clientFrustumCull 인자로(CULL_API 서명 갱신). LOD 의 boxMayBeVisible 공용 함수를 바꿀지, 컬링 전용으로 둘지 결정 0023 에 적는다(LOD 선택도 같은 가장자리 문제를 가진다).
 - 확인 기준: 위 반례에서 마스크 1. 화면 가장자리 바깥 0~r px 에 점을 무작위로 뿌린 리프들을 zbuffer 로 그렸을 때 index 에 나타난 점의 리프 중 제거된 것 0(서버·클라이언트 둘 다). 원판 여유를 지우는 변이 → 실패.
 - 권장 모델: opus
-- 이력: 2026-10-03 15:52 감독 등록(축 1a, 감독 직접 재현). 신규. → 2026-10-03 작업자 처리(제품 feat/culling aadef5a, opus). 상세 experiments/culling.md.
+- 이력: 2026-10-03 15:52 감독 등록(축 1a, 감독 직접 재현). 신규. → 2026-10-03 작업자 처리(제품 feat/culling aadef5a, opus). 상세 experiments/culling.md. → 2026-10-03 16:25 감독 확인 닫음(감독 직접: 반례 서버 true·클라이언트 1, 반경 바깥 0.5 px 는 false. 축 1a 무작위 600만 건 거짓 제거 0·서버/클라이언트 불일치 0, 축 4b 원판 여유 0·절반 변이 모두 실패).
 
-### F-117 [처리됨-검증대기] (심각도: 높음) — T08.2 완료 기준(SSIM 하락 ≤ 0.002) 미달 2시점, todo 가 불변식 단언까지 숨김
+### F-117 [닫힘] (심각도: 높음) — T08.2 완료 기준(SSIM 하락 ≤ 0.002) 미달 2시점, todo 가 불변식 단언까지 숨김
 - 위치: 제품 server/cull/backface/backface.test.mjs:186·233-234·256·267-268, server/cull/backface/index.mjs:19-22 (cde1f8c)
 - 문제: flat_boxes low_close_box 하락 1.55e-2(기준의 7.8배), tower_mid 3.70e-3. aerial_oblique_ne 는 1.99e-3 으로 기준선에 붙어 있다. 작업자는 기준을 낮추지 않고 todo 로 정직하게 남겼으나, 클라우드에서 검증 가능한 완료 기준이 미달이다. 또 todo 가 시험 전체에 걸려 같은 시험의 '앞면 점 리프 제거 0' 단언(:256·:267)도 두 시점에서 실패해도 통과로 집계된다. 결합 경로에서도 low_close_box 는 SSIM 0.9614(B10 제거)로 0.95 에 가깝다.
 - 실패 상황: npm test 는 '# fail 0' 이지만 T08.2 는 기준 미달. 판정식 자체는 맞다(축 1b·2 확인). 원인은 참조 래스터가 법선을 쓰지 않아 성긴 앞면 틈으로 뒷면 점이 비치는 것.
 - 고칠 것: ① 불변식 단언을 todo 없는 별도 시험으로 분리. ② 뒷면 제거를 더 보수적으로: 예컨대 뒷면 리프를 버리기 전에 같은 화면 영역이 앞면 점으로 '확실히 덮였는지'(occlusion 의 덮임 판정 재사용) 확인하거나, 근거 있는 각도 여유(DEFAULT_MARGIN_DEG 를 원판 번짐에서 유도)를 둔다. 사후 조정 상수 금지 — 여유는 식으로 유도해 주석·결정 0023 에 근거를 적는다. ③ 그래도 구조적으로 불가능하다고 판단되면 측정과 함께 결정 0023 에 '기준 정의 변경 제안'(예: 법선을 쓰는 참조 래스터 대비)을 상태 '제안'으로 올리고 todo 를 유지한다 — 기준 수치는 작업자가 바꾸지 않는다. 이 경우 감독이 범위를 쪼갠다.
 - 확인 기준: 8시점×3장면에서 SSIM 하락 ≤ 0.002 를 todo 없이 단언하고 통과(②), 또는 ③ 의 제안 결정 + 측정 기록. 어느 쪽이든 ① 은 필수.
 - 권장 모델: opus
-- 이력: 2026-10-03 15:52 감독 등록(축 5·4a, 감독 npm test 로 todo 2건 확인). 신규. → 2026-10-03 작업자 처리(제품 feat/culling aadef5a, opus). 상세 experiments/culling.md.
+- 이력: 2026-10-03 15:52 감독 등록(축 5·4a, 감독 npm test 로 todo 2건 확인). 신규. → 2026-10-03 작업자 처리(제품 feat/culling aadef5a, opus). 상세 experiments/culling.md. → 2026-10-03 16:25 감독 확인 닫음(① 불변식 별도 시험 todo 없음, ② 24시점 SSIM 하락 0.00e+0 todo 없이 단언, 기준 0.002 그대로. npm test todo 0 직접 확인. 축 4a 변이 A(덮임 판정 끔) → 19 실패).
 
 ### F-118 [열림] (심각도: 중간) — T08.8 결합 품질이 실제 단계로 측정된 범위가 좁고, 기본 가림 단계가 점 크기를 받지 못한다
 - 위치: 제품 server/cull/combine/index.mjs:48·142-145, combine_integration.test.mjs:22-27·41-57, combine_quality.test.mjs:2·51·104·126-127 (cde1f8c)
@@ -1313,6 +1313,7 @@
 - 위치: 제품 server/lod/select/index.mjs:110·129·150-160(assertCloud 가 캐시 밖에서 매 호출 O(N), cullAndSelect 에서 시점당 2~3회), server/cull/occlusion/index.mjs:204-250(피라미드가 가시 리프의 단계 0 점 전부를 투영·원판 칠), priority/index.mjs:380-452(같은 점 재투영·박싱 정렬), bench/cull/run.mjs:61-108·measure_scaling.mjs:26-50(스텁 frustum 만 측정)
 - 실패 상황(축 6 측정, 미확인): N=100만에서 캐시 적중 검증 6~17 ms, occlusionCull 33~55 ms, orderChunks 46~50 ms.
 - 고칠 것: cloud 검증도 WeakMap 캐시, cullAndSelect 내부 호출은 검증 1회. occluder 를 occluderLevel ≥ 1 또는 리프 수 상한으로. 벤치에 실제 단계·cullAndSelect·리프 수 1천~10만 표. bench/cull/cull_bench.test.mjs:77-101·124·193-194·232-233 은 `median > 0` 만 단언해 단계 시간 누적 기록·perViewMs 마지막 단계만·p95=max·median=min 변이 4건이 모두 통과(축 4b) — 결정적 시간 스텁으로 통계 값을 정확히 단언.
+- 추가(2026-10-03 16:25, 축 6, 미확인): ⑥ server/cull/backface/index.mjs:160 덮임 판정이 후보가 있는 시점마다 비후보 리프의 단계 0 점 전부로 피라미드를 새로 만든다. 점 100만·리프 437 에서 backfaceCull 4.4 ms(cde1f8c) → 29.6~59.0 ms. 후보 사각형과 겹치는 가림막 리프로 제한하거나 occluderLevel·리프 수 상한을 검토하되, 렌더와 같은 점만 덮개로 쓰는 픽셀 동일 조건을 지킨다.
 - 확인 기준: bench 표(리프 수·점 수별 시점당 ms) 기록, 캐시 적중 검증 N=100만에서 1 ms 미만.
 - 권장 모델: sonnet
 - 이력: 2026-10-03 15:52 감독 등록(축 6). 수치 미확인이라 중간. 신규.
@@ -1333,3 +1334,52 @@
 - 확인 기준: 항목별 grep 또는 변이.
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 15:52 감독 등록(축 1a·2·3·4a·7). 신규.
+
+### F-123 [열림] (심각도: 중간) — 결합 경로의 backface 단계가 pointSizeM 을 받지 못해 덮임 판정이 기본 0.05 m 로 돈다
+- 위치: 제품 server/cull/combine/index.mjs:47-50 (feat/culling aadef5a), backface/index.mjs:115(기본값 폴백), 시험 combine_splat.test.mjs:64-71, 계약 contracts/cull/index.mjs:72('모든 단계에 전달')
+- 문제: 커밋 998a506 은 'Pass pointSizeM through combine stages' 라 했으나 backface 래퍼는 `bf.backfaceCull(h, cam, cones.get(h))` 로 opts 를 넘기지 않는다. F-117 의 픽셀 동일 보장 조건(덮임 판정 지름 = 렌더 지름)이 결합 경로에서 깨진다. spy 시험은 stageOpts 만 봐서 못 잡는다.
+- 실패 상황: 통합 시험(렌더 0.75 m)에서 backface 제거 0(지름을 넘기면 low_close_box 2). 지름 불일치가 실제로 화면을 바꾸는 것은 축 1b 가 재현(덮임 0.75·렌더 0.3 → low_close_box 리프 2개 제거, 색 48 바이트 변화). 감독 재현: 덮임 기본 0.05·렌더 0.02(320×180, 960×540)와 렌더 0.75 에서는 화면 변화 0 — 결합 경로 자체의 거짓 제거는 아직 재현 못 해 중간.
+- 고칠 것: `(h, cam, o) => o.pointSizeM 이 undefined·0 이면 전부 1, 아니면 bf.backfaceCull(h, cam, cones, { pointSizeM: o.pointSizeM })`. backfaceCull 단독 호출의 기본값 폴백도 '지름 모름 → 2단계 후보 전부 남김' 으로 바꿀지 결정 0023 에 적는다.
+- 확인 기준: 기본 구현(spy 아님)으로 combine 에 pointSizeM 0.75 를 주면 removedBackface 가 단독 backfaceCull(…{pointSizeM:0.75}) 과 같고 픽셀 차이 0. 인자를 다시 빼는 변이 → 시험 실패. pointSizeM 없으면 backface 제거 0.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 16:25 감독 등록(축 2·3·4a·1b; 감독이 combine/index.mjs:47-50 직접 읽고 지름 불일치 실험 실행). 신규.
+
+### F-124 [열림] (심각도: 중간) — predict 경로 재생 시험이 pointSizeM 규칙 변경 뒤 판별력을 잃었다
+- 위치: 제품 server/cull/predict/predict.test.mjs:86·95(replay), :106-122 (aadef5a), 구현 predict/index.mjs:131
+- 문제: 이 호출들은 pointSizeM 을 넘기지 않는다. 새 규칙에서 pointSizeM 이 없으면 좌·우·위·아래로 아무것도 버리지 않아 카메라 앞 리프가 전부 남고, '빠진 리프 0'·'⊆' 단언이 거의 항상 참이 된다. T08.5 완료 기준(경로 재생 시 빠진 조각 0)을 시험이 더는 지키지 못한다.
+- 실패 상황: 감독 직접 변이 — predict/index.mjs:131 의 시간 부풀림을 `m = 0` 으로: aadef5a 에서 predict 시험 9/9 통과, cde1f8c 에서는 1 실패.
+- 고칠 것: :86·:95 호출에 pointSizeM(0 또는 양수)을 넘기고, 양수면 visibleSet 도 boxMayBeVisibleSplat 을 같은 지름으로 쓴다. 양수 지름에서 가장자리에 걸치는 리프가 남는지 보는 시험 추가.
+- 확인 기준: 부풀림 `m = 0` 변이 → 경로 재생 시험 실패(aadef5a 기준 통과하던 변이).
+- 권장 모델: sonnet
+- 이력: 2026-10-03 16:25 감독 등록(축 4b, 감독 직접 변이 재현). 신규.
+
+### F-125 [열림] (심각도: 중간) — 뒷면 제거 기본 경로의 기여를 지키는 시험이 없고, SSIM 은 점 지름 0.75 에서만 측정됐다
+- 위치: 제품 server/cull/backface/backface.test.mjs:323-343 (aadef5a), combine_quality.test.mjs:30, combine_integration.test.mjs:25
+- 문제: ① 장면 시험의 제거 하한(minRemovedStreet)은 1단계 마스크(removedPure)에만 걸려 있다. 기본 마스크는 24시점 합계 17 리프만 버리고, 덮임 판정을 '항상 안 덮임' 으로 바꾼 변이(아무것도 안 버림)도 합성 2층 평면 단위 시험(:154-168) 하나만 실패한다(축 4a). ② T08.2·T08.8 SSIM 은 POINT_SIZE_M 0.75 로만 쟀고 렌더 기본 0.05 에서는 측정이 없다.
+- 고칠 것: ① 측정 전에 정한 하한으로, 기본 마스크 제거가 있는 시점(예: flat_boxes low_close_box, buildings street_level)에서 제거 ≥ 1 단언. ② 0.05 에서 최소 한 장면·8시점 SSIM 단언.
+- 확인 기준: '항상 안 덮임' 변이 → 장면 시험 실패. 0.05 SSIM 단언 통과.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 16:25 감독 등록(축 4a·5, 감독은 :323-343 하한 위치만 직접 확인, 변이는 미확인). 신규.
+
+### F-126 [열림] (심각도: 중간) — 결합 경로에서 LOD 선택이 원판 중심 규칙이라 화면 가장자리 리프가 NOT_DRAWN 으로 빠진다(이전부터 있던 동작)
+- 위치: 제품 server/lod/select/index.mjs(selectLevels 의 boxMayBeVisible 호출), server/cull/combine/index.mjs:160 부근, 연구 experiments/culling_F116.md '남은 위험'
+- 문제: 절두체 마스크가 원판 여유로 1 이어도 selectLevels 가 중심 규칙으로 NOT_DRAWN 을 주면 cullAndSelect 결과에서 F-116 반례 같은 가장자리 리프가 빠진다. LOD(T07) 병합 때부터 있던 동작이라 이번 PR 의 반려 사유는 아니다.
+- 고칠 것: selectLevels(그리고 budget·progressive)에 선택 인자 pointSizeM 을 추가해 있으면 boxMayBeVisibleSplat 을 쓴다. 없으면 기존 동작(구운 시험 값 불변). combine 은 opts.pointSizeM 을 selectLevels 로 넘긴다.
+- 확인 기준: F-116 반례(깊이 1 m·u=−1, sizeM 0.05)를 리프로 가진 계층에서 cullAndSelect(…{pointSizeM:0.05}) 의 leafLevel 이 NOT_DRAWN 이 아님. pointSizeM 없는 LOD 시험 값 불변.
+- 권장 모델: opus
+- 이력: 2026-10-03 16:25 감독 등록(작업자 노트 culling_F116.md 의 잔여, 감독이 노트와 view_check.mjs 직접 읽음). 신규.
+
+### F-127 [열림] (심각도: 낮음) — PR #21 재검토 잔여 묶음(대부분 미확인)
+- 위치·고칠 것:
+  ① server/cull/distance/index.mjs:51 — maxDistanceM 이 null 이면 검사를 통과해 `d > null` = `d > 0` 으로 보이는 리프를 전부 버림(축 7 재현, 미확인). undefined·문자열은 전부 남김. `typeof !== 'number'` 이면 undefined 는 전부 1, 그 외 'cull:' 오류. (haiku)
+  ② distance/index.mjs:44 opts=null, predict/index.mjs:241·282 null 입력에서 TypeError — 'cull:' 오류로. (haiku)
+  ③ distance/index.mjs:13-16 — leafIndex 값 범위·리프↔노드 일대일 검사 없음(leafCount+5 로 바꾸면 리프 하나가 조용히 0). (haiku)
+  ④ distance/index.mjs:24-31 — R 회전 검사 없음(R=0 이면 중심이 원점이 됨). F-120 퇴화 판정 일원화와 함께. (sonnet)
+  ⑤ frustum_disc.test.mjs:156·cull_disc.test.mjs:121 — 소스 문자열 개수에 묶인 변이 시험. 동치 리팩터링에도 실패하므로 정보용으로 낮추거나 삭제. (haiku)
+  ⑥ client/cull/index.mjs:1 — 머리 주석 '서버 frustumCull(= boxMayBeVisible 규칙)' 을 boxMayBeVisibleSplat·같은 pointSizeM 으로. (haiku)
+  ⑦ contracts/cull/index.mjs:66-67 — backfaceCull opts{pointSizeM, requireCover, marginDeg}·buildDepthPyramid opts{pointSizeM, occluderLevel, occluderMask} 를 서명에 반영. (haiku)
+  ⑧ server/cull/backface/index.mjs:14-26 — 실험 측정 서술(1.55e-2·30°·experiments/culling_F117.md 참조)은 연구 저장소 노트로 옮기고 제품 주석은 판정식·보장 조건만. 코드 주석의 F-xxx 번호도 정리. (haiku)
+  ⑨ 제품 PR #21 본문의 검증 수치(1394·todo 2·T08.2 미달)가 최신 결과(1448 중 1436·todo 0)와 다름 — 다음 PR 부터 갱신. (haiku)
+- 확인 기준: 항목별 grep 또는 변이.
+- 권장 모델: 항목별 표기
+- 이력: 2026-10-03 16:25 감독 등록(축 1a·1b·2·4b·7·11). 신규.
