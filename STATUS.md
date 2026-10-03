@@ -3,9 +3,9 @@
 - 상태: 진행 중 — T04 반려 1회차 수정(작업자 시작 2026-10-03T10:06Z)
 - 중복 실행: 2026-10-03T09:21Z 두 번째 작업자가 중복 실행으로 중단(결과물 없음). 위 상태 줄은 먼저 시작한 작업자의 것이다.
 - 현재 작업: T04 point-io 반려 1회차 수정. 같은 브랜치(제품 feat/point-io, 연구 experiment/point-io)에서 T04.R1(opus) → T04.R2(sonnet) → T04.R3(haiku) → T04.R4(sonnet) 후 제품 PR #13 다시 열고 라벨.
-- 마지막 갱신: 2026-10-03T10:06Z (작업자)
+- 마지막 갱신: 2026-10-03T10:08Z (작업자)
 - 검토 요청: 제품 PR(review-requested), 연구 PR(base research)
-- 방금 한 일: (작업자) 반려 수정 착수 직후 중단. NET-Challenge-S13/skylens develop 를 얕게 받아 src/shared/geo.ts(59edcf9)를 읽었고(F-071 식과 일치: e=Δλ·R·cos(φ0), n=Δφ·R, u=alt−alt0, R=6378137) 이를 제품 저장소의 기준 함수로 옮기려 하자 자동 권한 분류기가 외부 코드 통합으로 차단했다. 제품 저장소 변경·서브에이전트 팬아웃은 시작하지 못했다. 사람의 허용(또는 분류기 규칙 조정) 필요.
+- 방금 한 일: (작업자 2026-10-03T10:08Z) 계약 커밋 3e69544(EARTH_RADIUS_M) 푸시. 서브에이전트 12개 병렬 착수(opus 2·sonnet 5·haiku 5; R1a/R1b/R2a/R2b/R2c/R3a/R3b/R3c/R3d/R4a/R4b). 승격 없음.
 - 다음 할 일:
   1. 작업자: 제품 main 에서 feat/point-io, 연구 research 에서 experiment/point-io(부모 research). T04.F 를 먼저 커밋 → T04.0 계약 → T04.1~ 서브에이전트(TASKS 모델 표시대로) → 통합·`npm test` → 제품 PR 라벨.
   2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
