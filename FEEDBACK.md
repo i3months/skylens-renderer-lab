@@ -1727,7 +1727,7 @@
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 20:30 감독 등록(축 2·4a·4b·7; 감독 직접 확인 없음 — 미확인). 신규.
 
-### F-157 [열림] (심각도: 중간) — 비유한 상자 범위 시험이 반환 형식만 보고, 계약 클라이언트 줄이 구현과 다르다
+### F-157 [처리됨-검증대기] (심각도: 중간) — 비유한 상자 범위 시험이 반환 형식만 보고, 계약 클라이언트 줄이 구현과 다르다
 - 위치: server/cull/degenerate/nonfinite_box_scope.test.mjs:1-3·:40-56·:68-302(pass 사례), contracts/cull/index.mjs:10, client/cull/index.mjs:121-123 (제품 754ff2a)
 - 문제: ① 'pass' 사례 21 개는 `result instanceof Uint8Array/Float64Array` 만 단언한다(감독 직접 읽음 :68-80·:166-170). 'NaN 리프 = 남김' 이라는 이름과 달리 남는지 보지 않는다. 머리 주석(:1-3)대로 관찰 결과를 받아 적은 스냅숏이다. ② 내부 노드 사례가 `if (node < 0) return;` 으로 조용히 건너뛸 수 있다(:70 등). ③ 계약에서 유일하게 '거부' 인 리프 ±Inf 행이 없고, withModifiedBox 의 boxMax(−Inf) 분기·y·z 좌표를 부르는 사례가 없다. ④ 계약 :10 '클라이언트(leafBoxesOf·clientFrustumCull): 모든 노드의 NaN·±Infinity 통과' 는 틀림 — clientFrustumCull 은 ±Inf 상자를 cull: 오류로 던진다(감독 직접 읽음, client_inf_box.test.mjs 도 그렇게 시험). ③ 의 공백 때문에 이 시험이 ④ 를 못 잡았다.
 - 실패 상황: frustum/index.mjs:71 부근에서 NaN 리프를 조용히 제거(mask=0)하는 변이, occlusion/index.mjs:392 의 NaN 판정 포기를 제거로 바꾼 변이가 모두 통과(축 4b 실행, 미확인). 계약만 읽고 클라이언트에 ±Inf 상자를 넘기면 통과를 기대하나 오류.
@@ -1735,8 +1735,9 @@
 - 확인 기준: 위 두 NaN 제거 변이와 client/cull/index.mjs:121-123 검사 제거 변이에서 이 파일이 실패. 원본 통과. ⑤ combine/index.mjs:162·164 leafCount 재독 변이는 실패, select :113 캐시 리팩터는 통과.
 - 권장 모델: sonnet
 - 이력: 2026-10-03 20:40 감독 등록(축 2·4a·4b·5; ①②④ 와 ⑤ 의 검사 뒤 읽기 위치 감독 직접 읽음, 변이 실행은 서브에이전트 — 미확인). 신규 — 이번 PR 이 쓴 시험·계약 문구(F-155 ③ 잔여). 시험 판별력·문서 문제이고 구현 동작은 맞아 중간(F-142·F-148 과 같은 기준).
+→ 2026-10-03 작업자 처리(제품 3175321, feat/cull-review-fixes9): 실험 노트 experiments/cull_review_fixes9.md. 시험 표 주도 재작성·변이 확인, 추가로 NaN y 리프 거짓 제거 구현 결함 발견·수정(frustum·predict·client). npm test 2401 중 2389 통과·0 실패. F-158 ② 는 F-157 ⑤ 로 처리.
 
-### F-158 [열림] (심각도: 낮음) — PR #31 잔여 묶음
+### F-158 [처리됨-검증대기] (심각도: 낮음) — PR #31 잔여 묶음
 - 위치·고칠 것(제품 754ff2a):
   ① server/cull/predict/predict.test.mjs:329·:353 — 해석 배치의 속도가 늘 [vx,0,0] 이라 속력 노름 오류(index.mjs:121 의 |v| 를 |vx|·L1 으로 바꾼 변이)가 predict 시험 61 개를 모두 통과(축 1a 실행, 미확인; main 도 같은 공백). 대각 속도 v=(3,0,4) 해석 사례 추가. (opus)
   ② (F-157 ⑤ 로 올림)
@@ -1747,4 +1748,4 @@
 - 확인 기준: 항목별 변이·직접 실행.
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 20:40 감독 등록(축 1a·1b·2·4a·4b·7; 모두 미확인, ② 는 F-157 ⑤ 로). ① 은 기존 공백, 나머지 신규.
-
+→ 2026-10-03 작업자 처리(제품 3175321, feat/cull-review-fixes9): 실험 노트 experiments/cull_review_fixes9.md. 시험 표 주도 재작성·변이 확인, 추가로 NaN y 리프 거짓 제거 구현 결함 발견·수정(frustum·predict·client). npm test 2401 중 2389 통과·0 실패. F-158 ② 는 F-157 ⑤ 로 처리.
