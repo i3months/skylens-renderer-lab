@@ -1838,16 +1838,16 @@
 → 2026-10-03 작업자 처리(제품 PR #35, 브랜치 feat/cull-review-fixes12, 커밋 ab0af49): ①~⑤ 처리. 노트 experiments/cull_review_fixes12.md.
 → 2026-10-03 22:38 감독 확인 닫음(제품 ab0af49): ① 잘못된 인자 13종 usage+exit 1(축 7), ② large 22690 리프·30069 노드, small 6664 점 재현(축 5·6), 단계별 첫 호출을 새 계층에서 잼(:94-112), ③ combine 변이 9종 중 실제 읽기 8종 모두 잡음·원본 거짓 양성 0(축 4b), ④ predict 주석 식 일치(축 4b), ⑤ 표본 노드 step 계산(축 4a). 서브에이전트 실행 결과. 잔여 낮음은 F-167.
 
-### F-166 [열림] (심각도: 중간) — 계약 cull :10 의 '간격 합이 유한하지 않으면 거리 0' 절이 구현에 없고, lod :21 이 assertHierarchyInput 캐시 동작을 표본 검사로 잘못 돌린다
+### F-166 [닫힘] (심각도: 중간) — 계약 cull :10 의 '간격 합이 유한하지 않으면 거리 0' 절이 구현에 없고, lod :21 이 assertHierarchyInput 캐시 동작을 표본 검사로 잘못 돌린다
 - 위치(제품 ab0af49): ① contracts/cull/index.mjs:10 ② contracts/lod/index.mjs:16-23
 - 문제: ① boxDistanceM(server/lod/select/screen_error.mjs:42-46)은 Math.hypot 결과를 그대로 돌려주고 distanceCull(server/cull/distance/index.mjs:89)은 `> maxDistanceM` 만 비교한다. isFinite 가드가 없으므로 hypot 이 넘치면 거리 Infinity → 제거(0)다. 또 '간격 합' 이 아니라 hypot 이다(감독 직접 읽음). ② :20 예시 중 cloud.positions[0]=NaN·leafStart 변경은 checkLeafIndexOneToOne 의 표본(leafIndex·boxMin·boxMax)이 읽지 않는 배열이고, 이를 맡는 assertHierarchyInput 캐시(server/lod/select/index.mjs:42-60)는 표본 없이 참조·길이·스칼라만 비교해 항상 통과시킨다. :21 은 이것을 'checkLeafIndexOneToOne 의 표본 기반 검사는 감지를 보장하지 않고' 로, :23 은 '제자리 수정은 표본에 걸릴 때만 재검사' 로 써서 assertHierarchyInput 에도 표본이 있는 것처럼 읽힌다(감독 직접 읽음).
 - 실패 상황: ① 비퇴화 카메라 t=[1e308,1e308,1e308], R=I, maxDistanceM=1.7e308 → 72 리프 모두 0(계약대로면 거리 0 이라 1). 실제 거리도 기준 초과라 거짓 제거는 아니고 문구 오류(축 1·2 서브에이전트 실행, 감독 미재현). ② 문구를 믿고 positions·leafStart 제자리 수정이 표본으로 잡힐 수 있다고 기대 → validate_cache.test.mjs:97 처럼 매번 통과.
 - 고칠 것: ① 그 절을 'hypot 이 넘쳐 Infinity 면 먼 것으로 보고 제거(실제 거리도 기준 초과), NaN 이면 남김' 으로 바꾸고 위 카메라 사례를 nan_box_policy_table 또는 distance 시험에 행으로 고정. ② 두 검사를 나눠 쓴다 — 'assertHierarchyInput: 내용 변조를 감지하지 않음(positions·leafStart·leafIndex 등, validate_cache.test.mjs)' / 'checkLeafIndexOneToOne: leafIndex·boxMin·boxMax 표본에 걸릴 때만 감지, 보장 없음(leaf_check_inplace_unguaranteed.test.mjs)'. :23 은 checkLeafIndexOneToOne 에만 해당한다고 밝힌다. 같은 김에 nan_box_policy_table.test.mjs:83-84 주석 'NaN 축 간격 0' 을 :10 과 같은 표현으로.
 - 확인 기준: ① 새 시험 행 통과, 계약 문구와 distanceCull 결과 일치(감독이 위 카메라로 직접 실행). ② 문구의 각 예시가 실제 맡는 검사와 일치(직접 읽기).
 - 권장 모델: haiku(문구), 시험 행 sonnet
-- 이력: 2026-10-03 22:38 감독 등록(① 코드·② 코드 감독 직접 읽음, ① 수치 사례는 서브에이전트). 신규 — F-164 ③ 처리에서 새로 쓴 문구에서 나옴(① 은 감독이 F-164 ③ 에 '구현(!isFinite)' 이라 잘못 적은 것을 작업자가 따른 것). 제품 동작은 맞고 문서 문제라 중간. T09 PR 과 함께 처리.
+- 이력: 2026-10-03 22:38 감독 등록(① 코드·② 코드 감독 직접 읽음, ① 수치 사례는 서브에이전트). 신규 — F-164 ③ 처리에서 새로 쓴 문구에서 나옴(① 은 감독이 F-164 ③ 에 '구현(!isFinite)' 이라 잘못 적은 것을 작업자가 따른 것). 제품 동작은 맞고 문서 문제라 중간. T09 PR 과 함께 처리. → 2026-10-03 23:10 감독 확인 닫음(제품 1b071e0: 계약 cull :10·lod :15-24 문구 직접 읽음, nan_box_policy_table 새 행 2개 npm test 통과, 비교를 isFinite 가드로 바꾸는 변이에 t=1.2e308 행 실패(축 4b)). 새 문구 중 '한 축 간격이 NaN 이면' 절은 도달 경로 없음 → F-172 ⑨.
 
-### F-167 [열림] (심각도: 낮음) — PR #35 잔여 묶음(서브에이전트 보고, 미확인)
+### F-167 [닫힘] (심각도: 낮음) — PR #35 잔여 묶음(서브에이전트 보고, 미확인)
 - 위치·고칠 것(제품 ab0af49):
   ① bench/cull/leaf_check_bench.mjs:20-28 — `--help` 가 usage 를 내지 않고 기본 벤치를 돌림(exit 0), 모르는 플래그(`--run 5`)·중복 플래그(`--runs 1 --runs 2`, 앞 값 사용)를 조용히 받음. `--help/-h` 처리, 모르는·중복 플래그 exit 1(축 5·7). (haiku)
   ② 같은 파일 :145 — `--json` 값 누락·쓸 수 없는 경로가 측정을 다 돈 뒤에야 드러남(스택트레이스). 인자 검사 단계로 올리고 쓰기 실패를 die() 로(축 7). (haiku)
@@ -1857,4 +1857,76 @@
   ⑥ server/cull/predict/predict_analytic.test.mjs:107 줄 참조 ':109' → ':108'(또는 줄 번호 삭제), predict.test.mjs:287 영어 구절을 한국어로(축 4b). (haiku)
 - 확인 기준: 항목별 변이·직접 실행.
 - 권장 모델: 항목별 표기
-- 이력: 2026-10-03 22:38 감독 등록(모두 미확인). 신규. T09 PR 과 함께 처리해도 됨.
+- 이력: 2026-10-03 22:38 감독 등록(모두 미확인). 신규. T09 PR 과 함께 처리해도 됨. → 2026-10-03 23:10 감독 확인 닫음(① --help usage·exit 0, --run 5 → unknown flag exit 1 직접 실행; ④ 주석·템플릿 제거 함수와 변이 시험, ⑤ SENTINEL_SAMPLES import, ⑥ :102·:108 참조 직접 읽음; ②③ 은 축 4b 확인).
+
+### F-168 [열림] (심각도: 높음) — encodeChunk 가 codec 0 입력을 검사하지 않아 잘린·손상된 입력에서 법선·위치를 0 으로 지어내고 새 체크섬을 붙여 "정상" 파일로 내보낸다
+- 위치(제품 feat/codec 1b071e0): server/codec/chunk/index.mjs:24-33(readPlanesRaw `file.slice(rel, rel + p.bytes)` 길이 미확인), :41-51(encodeChunk 가 parseHeader 만 호출 — 파일 길이·body_bytes·체크섬·checkHeaderSemantics 검사 없음, `g16`/`g8` 의 `a[i]` 가 범위 밖이면 undefined → 0)
+- 문제: decodeChunk(:101-115)는 길이·체크섬·헤더 의미를 모두 검사하지만 부호화 쪽은 아무것도 검사하지 않는다. 짧은 평면은 잘린 채 읽히고, 모자란 값은 0 으로 채워진 뒤 새 CRC 가 붙는다. ASSET_FORMAT §5.3(빈 법선을 임의 방향으로 채우지 않음)과 '도착한 것만' 원칙 위반이고, 손상이 감지 없이 하류로 전파된다.
+- 실패 상황(감독 직접 재현):
+  ① 법선 (1,0,0)×2·(0,1,0)×2 4점 codec 0 파일 끝 3 B 를 자름 → encodeChunk·decodeChunk 정상 반환, normal_oct_y [0,0,127,127] → [0,0,0,0](법선 지어냄), 결과에 validateAsset 위반 0.
+  ② 색 바이트 1개를 뒤집어 체크섬이 틀린 codec 0 파일(validateAsset: checksum) → encodeChunk·decodeChunk 후 validateAsset 위반 0(손상 세탁).
+  ③ lod 바이트를 9 로 바꾼 codec 0 파일 → encodeChunk 성공(167 B), 그 출력을 decodeChunk 가 AssetFormatError field 로 거부(자기 복호기가 거부할 파일을 만든다).
+  (축 7 보고, 미재현: pointCount 를 2→3 으로 바꾸면 3점 파일 생성·평면 경계 어긋난 위치, 헤더만 남긴 128 B 입력도 성공.)
+- 고칠 것: encodeChunk 첫머리에서 codec 0 엄격 검사 — `rawFileBytes.length === h.headerSize + h.bodyBytes`, `h.bodyBytes >= bodyLayout(...).requiredBytes`, 체크섬(§7) 일치, `checkHeaderSemantics(h)`(또는 codec 0 용 readHeaderStrict). 실패 시 CodecError('length'|'checksum') 또는 AssetFormatError. readPlanesRaw 에서도 `rel + p.bytes <= file.length` 확인.
+- 확인 기준: chunk.test.mjs 에 (a) 끝 1·3·4 B 자른 입력, (b) 체크섬 틀린 입력, (c) body_bytes 를 줄인 입력, (d) pointCount 를 늘린 입력, (e) lod=9·quantExp 범위 밖·tileSizeM 변경 입력이 모두 throw 하는 시험. 감독이 위 ①②③ 을 다시 돌려 모두 throw. 위 검사 한 줄을 지우는 변이에서 해당 시험 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 23:10 감독 등록(①②③ 감독 직접 재현, 코드 직접 읽음). 신규(축 2·축 7 보고).
+
+### F-169 [열림] (심각도: 중간) — 서버 decodeChunk 의 스트림별 rawLen 상한이 클라이언트보다 느슨하다(작은 파일로 64 MB 할당·수 초 CPU)
+- 위치(제품 1b071e0): server/codec/chunk/index.mjs:120-122(`entropyDecode(...)` 를 기본 상한 STREAM_RAW_BYTES_MAX 로 호출) ↔ client/codec/index.mjs:287-289(pos [n,7n], nrm [2n,6n], col [min(n+5,3n+1), 3n+770]). server/codec/color/index.mjs:66 이 :68 길이 확인보다 먼저 3n B 할당(낮음).
+- 문제: 같은 파일을 서버는 끝까지 풀어 보고 실패하고, 클라이언트는 즉시 'limit' 으로 거부한다. 수용/거부 결과는 같지만 서버 비용이 64 배 정도 증폭된다.
+- 실패 상황: n=1, CRC 정상, pos 스트림 `[01][LEB(2^26)][00×1 MiB]` → 서버 약 3.3 s·RSS +49 MB 후 'stream', 클라이언트 7 ms 'limit'(축 7 실행, 감독은 코드만 직접 읽음 — 미재현).
+- 고칠 것: 서버도 클라이언트와 같은 (최소, 최대) 를 entropyDecode 에 넘기고 범위 밖이면 'limit'. 상한 표를 contracts/codec 에 상수로 한 번만 두고 양쪽이 쓴다. color 는 길이 확인 뒤 할당.
+- 확인 기준: 위 파일이 서버에서 'limit' 으로 50 ms 안에 거부되는 시험, 서버·클라이언트 오류 코드 일치.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 23:10 감독 등록(코드 직접 읽음, 수치는 서브에이전트). 신규.
+
+### F-170 [열림] (심각도: 중간) — T09.10 holes top_down_150 미달의 판정: 기준 렌더를 codec 과 같은 점 순서로 그려 비교한다(감독 결정 0028)
+- 위치(제품 1b071e0): server/codec/quality/quality.test.mjs:53-58(todo 2건), :62-81(원인 분리 시험), server/codec/quality/index.mjs(codecRoundTrip·codecQualityEight)
+- 문제: ① 참조 래스터러(server/raster_ref/zbuffer, 엄격 `<`)는 깊이 동률에서 번호 작은 점이 이긴다. holes 는 y=0 한 평면이라 모턴 재배치만으로 top_down_150 SSIM 이 0.967 로 떨어진다(축 4b 실측: 실제 순열만 0.9678, 실제 양자화만 0.9988). T09.10 의 질문은 '양자화 후 화질' 이므로 순서 차이는 비교에서 빼야 한다. ② 원인 분리 시험은 실제 경로가 아니다 — :73 은 2^-9 격자를 가정하나 실제 quantExp 는 8, :76-78 은 배열 반전(실제 순열 아님). ③ :65 는 미달 시점 이름만 고정해 top_down_150 SSIM 이 0.5 로 떨어져도 통과하고 todo 가 가린다.
+- 고칠 것: codecRoundTrip 이 실제 순열(타일 묶음 순서 + mortonOrder)을 돌려주게 하고, 기준 렌더를 그 순열로 재배열한 원본으로 그린다. 8시점 × 장면 3개(flat_boxes·terrain·holes) × lossyColor 2 모두 SSIM ≥ 0.98 을 todo 없이 단언. 순열만 다른 경우의 값(0.9678)은 진단으로 남겨도 되나 단언 근거로 쓰지 않는다. 문턱 0.98 은 그대로. 래스터러 동률 규칙은 바꾸지 않는다(T05·T06 골든 영향).
+- 확인 기준: `node --test server/codec/quality/quality.test.mjs` todo 0·실패 0, holes 8시점 최소값 진단 출력 ≥ 0.98. 감독이 순열 재배열을 빼는 변이로 holes 단언 실패를 확인.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 23:10 감독 등록(quality.test.mjs:53-81 직접 읽음, 수치는 축 4b 실측). 작업자가 PR 본문에 감독 판정 요청 → 결정 0028.
+
+### F-171 [열림] (심각도: 중간) — 벤치·시험이 주장하는 측정을 하지 않는다
+- 위치(제품 1b071e0): ① bench/codec_client/index.mjs:59·:128-137 ② bench/codec_client/codec_client_bench.test.mjs:8·:105-140 ③ bench/codec/codec_bench.test.mjs:119-123 ④ server/codec/chunk/chunk.test.mjs:241-258 ⑤ server/codec/entropy/entropy.test.mjs:440-441
+- 문제·실패 상황:
+  ① createChunk 가 encodeChunk(rawFile) 를 lossyColor 없이 부르므로 '손실' 행은 시드만 다른 무손실 조각이다(감독 직접 읽음). QUANT2 복호 속도는 측정된 적 없음.
+  ② pointMultiset 을 import 만 하고 쓰지 않는다(감독 grep: :8 한 곳). 주석은 다중집합 비교를 주장. 0..255 범위 검사는 Uint8Array 라 항상 참. 색 DELTA 복원 `+`→`^` 변이에 9/9 통과(축 4b).
+  ③ 정규식이 실제 CLI 출력(탭 구분, 'B/점' 없음)과 맞지 않아 `if (match)` 블록이 실행되지 않음(축 4b, 미재현).
+  ④ 손상 입력 시험이 CRC 를 다시 맞추지 않아 전부 checksum 에서 걸린다 — 길이 합·색 모드 바이트·헤더 의미 검사를 지우는 변이 B·C·D 가 chunk.test 13/13 통과(축 4a, robust 시험만 잡음).
+  ⑤ '할당 전에 거부' 시험이 가드 없이도 같은 'stream' 으로 통과(변이 A 생존, 축 4a).
+- 고칠 것: ① lossy 쪽은 encodeChunk(raw, {lossyColor:true}) 로 만들고 색 모드 1 을 단언. ② 원본 평면과 복호 평면의 pointMultiset deepEqual. ③ `assert.ok(match)` 후 출력 형식에 맞는 정규식. ④ 손상 뒤 CRC 재계산·오류 코드 지정(길이 합 'length', 색 모드 'mode', 헤더 의미 AssetFormatError). ⑤ 경계값(64L+64 통과, 64L+65 즉시 거부) 또는 메시지 단언.
+- 확인 기준: 항목별로 해당 변이에서 시험 실패. ① 은 lossy 행 복호 결과 colorMode === 1.
+- 권장 모델: ①②③ haiku, ④⑤ sonnet
+- 이력: 2026-10-03 23:10 감독 등록(①② 직접 확인, ③④⑤ 미확인). 신규.
+
+### F-172 [열림] (심각도: 낮음) — PR #36 잔여 묶음(대부분 서브에이전트 보고, 미확인)
+- 위치·고칠 것(제품 1b071e0):
+  ① 서버·클라이언트 오류 코드 불일치 — 범위 복호 실패·LEB128 과길이: 서버 'stream'(server/codec/entropy/index.mjs, position/index.mjs:87, normal), 클라이언트 'range'(client/codec/index.mjs:46·57·59·60·86·93·94). 클라이언트를 'stream' 으로 맞추고 robust 퍼저에 `e.code` 일치 단언(축 1a·1b·7). (haiku)
+  ② 위치 LEB128 비최소 표현 수용 — 서버 position/index.mjs:85-93, 클라이언트 :148 `readLeb(..., 'pos')` canonical=false. 법선·rawLen 처럼 거부(축 1a). (haiku)
+  ③ mode 1 비정규 컨테이너 수용 — `[01 00 00 00 00 00 00]` 이 빈 출력으로 통과. mode 1 에서 `rawLen === 0 || payloadLen > rawLen` 거부, 양쪽(축 1b). (sonnet)
+  ④ encodeColorStream 입력 형식 미검사(Uint16Array.of(256) → 팔레트 0 저장) — `instanceof Uint8Array` 확인(축 1b). (haiku)
+  ⑤ 계약 contracts/codec/index.mjs:21 '255 초과는 255' 는 도달 불가(QUANT2 최대 254), chunk.test.mjs:213 주석 '255 는 255 로' → '255 → 254', `quant2(255) === 254` 단언(축 2·4a). (haiku)
+  ⑥ 단일 출처 순환 — contracts/codec:1 은 명세를, ASSET_FORMAT.md:154 는 계약을, entropy/index.mjs:2 는 자기 주석을 단일 출처로 씀. 복호 엄격 규칙(rawLen 최소 표현·끝 code=0·64·P+64 조기 거부·LEB 정규형)과 오류 코드 표를 계약으로 옮기고 하나로 정한다(축 2). (haiku)
+  ⑦ 명세 §3.2 는 codec 1 을 받는다고 바뀌었으나 tools/asset_validate·server/asset/header readHeaderStrict 는 정상 codec 1 을 거부 — §3.2 에 'codec 1 검증은 server/codec/chunk decodeChunk 가 맡는다' 명시 또는 검증기 분기(소유 경로 등록)(축 2). (haiku)
+  ⑧ 손실 색 왕복본에 표시가 없음 — decodeChunk·decodeChunkClient 결과에 colorMode 를 싣거나 §8 색 행에 'codec 1 QUANT2 왕복 최대 2/255' 추가(축 2). (haiku)
+  ⑨ contracts/cull/index.mjs:10·nan_box_policy_table.test.mjs:123 '한 축 간격이 NaN 이면 hypot NaN 이라 남김' — boxDistanceM 의 g() 는 NaN 비교에서 0 또는 유한 간격이라 도달 경로 없음. 삭제 또는 '도달 불가' 명시(축 4b). (haiku)
+  ⑩ client/codec/codec_client.test.mjs:408 `okCount + codecErr + assetErr === 5000` 항상 참, :346-352 법선 누적 ±128 경계 미시험(축 4b). contracts/codec/codec.test.mjs:26-32 pointMultiset 시험이 pos_e 만 바꿈(축 4a). (haiku)
+  ⑪ 측정값 근처 스냅샷·하한(entropy.test.mjs:403·417·508, chunk.test.mjs:273 `bpp > 5.0`, order.test.mjs:285, normal.test.mjs:266 `maxErr > 0.94`)과 시간 상한(entropy.test.mjs:377-378·409-410, order.test.mjs:258) — 근거 있는 값으로 바꾸거나 회귀 감시용이라 표시(축 4a). (haiku)
+  ⑫ 범위 부호기 머리 주석에 참고한 공개 명세 출처(LZMA SDK 문서 등, 코드 차용 없음) 한 줄(축 8). (haiku)
+  ⑬ T09.7 노트·벤치에 27 B 대비 비율을 헤더 포함 total B/점 기준으로도 기록, 1M 클라이언트 결과를 --json 산출물로 남기거나 명령·CPU 병기(축 5). (haiku)
+  ⑭ 성능 낮음: client/codec/index.mjs:263·server/codec/chunk/index.mjs:110 파일 전체 복사(헤더만 복사 또는 crc32 이어 계산), chunk/index.mjs:50-51·color 의 `T.from(ord, cb)` 를 for 루프로(축 6). (haiku)
+  ⑮ 소유 경로 밖 변경(format/ASSET_FORMAT.md, README.md)은 계약 :1 이 같은 커밋 갱신을 요구하므로 감독이 승인한다 — 기록만(축 2).
+- 확인 기준: 항목별 변이·직접 실행.
+- 권장 모델: 항목별 표기
+- 이력: 2026-10-03 23:10 감독 등록(⑤ 계산 직접, ⑨ screen_error.mjs:42-46 직접 읽음, 나머지 미확인). 신규.
+
+### F-173 [열림] (심각도: 중간) — 클라이언트 복호 처리량(약 1 M 점/s, 단일 스레드)이 구간 스트리밍 예산을 메인 스레드에서 감당하지 못한다 — T12 에서 워커 복호로 처리
+- 위치(제품 1b071e0): client/codec/index.mjs:68-92(rangeDecode, 복호 시간의 약 80%), :252(decodeChunkClient 동기)
+- 문제: 축 6 실측 1M 점 약 1.0 s(무손실)·1.16 s(손실), 50만 점 한 조각 약 0.7 s. 구간당 ≤ 3 MB ≈ 60만 점을 메인 스레드에서 풀면 0.6 s 이상 멈춘다(S1·S2·S7 위협). 코덱 라이브러리 자체의 결함이 아니라 통합 문제라 이번 PR 의 반려 사유로 삼지 않는다(축 6 은 높음으로 보고, 감독이 범위 판단으로 하향).
+- 고칠 것: T12.5(프레임 루프) 에서 복호를 Web Worker 로 옮기고 평면 버퍼를 transfer, 조각 단위 병렬 복호. 메인 스레드 최대 블로킹 < 50 ms 를 헤드리스에서 계측. 처리량이 모자라면 바이트 단위 rANS 등 형식 변경은 결정 기록 후.
+- 확인 기준: T12.5 시험에서 60만 점 구간 도착 중 메인 스레드 long task 0(> 50 ms).
+- 권장 모델: sonnet(T12.5 와 함께)
+- 이력: 2026-10-03 23:10 감독 등록(코드 직접 읽음, 수치는 서브에이전트·축 5 의 1M 실행). 신규. 결정 0027 '다시 볼 조건'(복호 속도가 S1·S2 를 해칠 때) 해당.

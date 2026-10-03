@@ -329,7 +329,9 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T09.7 | 점 1개당 바이트 측정 | `bench/codec/` | 27 B 대비 비율 기록 | haiku |
 | T09.8 | 손상 블록 거부 | `server/codec/robust/` | 퍼저 10만 회 패닉 0 | sonnet |
 | T09.9 | 복호 속도(클라이언트, CPU) | `bench/codec_client/` | 100만 점 복호 시간 기록 | haiku |
-| T09.10 | 양자화 후 화질 | `server/codec/quality/` | 8시점 SSIM ≥ 0.98(양자화 전 대비) | sonnet |
+| T09.10 | 양자화 후 화질 | `server/codec/quality/` | 8시점 SSIM ≥ 0.98(양자화 전 대비, 기준 렌더는 codec 점 순서 — 결정 0028) | sonnet |
+| T09.11 | 조각 부호화·복호화 묶음(encodeChunk·decodeChunk), 서버→클라이언트 통합 왕복 | `server/codec/chunk/` | 왕복 점 집합 일치, 손상 입력 거부 | sonnet |
+| T09.F | (먼저, PR #36 반려 1회) 같은 브랜치 feat/codec 에서: F-168(높음, encodeChunk 입력 엄격 검사) → F-170(T09.10 순서 맞춘 기준, todo 0) → F-169(서버 rawLen 상한) → F-171(벤치·시험 판별력) → F-172 낮음 묶음(가능한 만큼). 고친 뒤 PR #36 을 다시 열고 라벨 | `server/codec/`, `client/codec/`, `contracts/codec/`, `bench/codec*/`, `format/ASSET_FORMAT.md`, `contracts/cull/`(F-172 ⑨) | F-168·F-169·F-170·F-171 확인 기준 | sonnet(F-171 ①②③·F-172 대부분 haiku, F-172 ③ sonnet) |
 
 ### T10 `levels` — [cloud]
 
@@ -373,7 +375,7 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T12.2 | 점 셰이더(크기·색·법선 셰이딩) | `client/raster/shader/` | 참조 래스터라이저와 8시점 SSIM ≥ 0.95(헤드리스) |
 | T12.3 | 조각 버퍼 관리(올리기·해제·상한) | `client/raster/buffers/` | 해제 후 누수 0, 상한 준수 |
 | T12.4 | 카메라·K 환산(장치 픽셀 비) | `client/raster/camera/` | 해상도 바꿔도 투영 일치 ≤ 0.5 px |
-| T12.5 | 프레임 루프(조각 도착과 그리기 분리) | `client/raster/loop/` | 도착 폭주 중 프레임 누락 기록 |
+| T12.5 | 프레임 루프(조각 도착과 그리기 분리). codec 복호는 Web Worker 에서(F-173) | `client/raster/loop/` | 도착 폭주 중 프레임 누락 기록, 60만 점 구간 복호 중 메인 스레드 long task(> 50 ms) 0 |
 | T12.6 | 빈자리 표시(메우기 금지) | `client/raster/missing/` | holes 장면 빈 픽셀 = 참조 |
 | T12.7 | 메모리 집계 | `client/raster/memory/` | 집계값과 실제 버퍼 합 일치 |
 | T12.8 | 번들 크기 검사(CI 문턱 300 KB) | `bench/client_bundle/` | gzip ≤ 300 KB |

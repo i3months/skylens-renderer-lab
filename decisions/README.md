@@ -74,3 +74,4 @@
 | [0024](0024-degenerate-raster-limits.md) | 퇴화 시점에 래스터 해상도 조건 포함, 모든 컬링 단계가 isDegenerateView 하나를 씀 | 승인 | 감독(PR #23) |
 | [0025](0025-camera-shape-uniform-throw.md) | 카메라 구조 오류는 모든 컬링 단계가 cull: 로 던지고 값 퇴화만 빈 결과 | 승인 | 작업자 제안·감독 승인(PR #24) |
 | [0026](0026-predict-tau0-pure-frustum.md) | 예측 마스크 tau=0 은 순수 절두체, 퇴화 예측 표본 구간 비단조는 계약 한계 | 승인 | 감독(PR #25·#26) |
+| [0028](0028-codec-quality-order-aligned-reference.md) | codec 화질 시험은 기준 렌더를 codec 점 순서로 그려 양자화 영향만 비교 | 승인 | 감독(PR #36) |
