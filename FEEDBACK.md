@@ -1727,7 +1727,7 @@
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 20:30 감독 등록(축 2·4a·4b·7; 감독 직접 확인 없음 — 미확인). 신규.
 
-### F-157 [처리됨-검증대기] (심각도: 중간) — 비유한 상자 범위 시험이 반환 형식만 보고, 계약 클라이언트 줄이 구현과 다르다
+### F-157 [닫힘] (심각도: 중간) — 비유한 상자 범위 시험이 반환 형식만 보고, 계약 클라이언트 줄이 구현과 다르다
 - 위치: server/cull/degenerate/nonfinite_box_scope.test.mjs:1-3·:40-56·:68-302(pass 사례), contracts/cull/index.mjs:10, client/cull/index.mjs:121-123 (제품 754ff2a)
 - 문제: ① 'pass' 사례 21 개는 `result instanceof Uint8Array/Float64Array` 만 단언한다(감독 직접 읽음 :68-80·:166-170). 'NaN 리프 = 남김' 이라는 이름과 달리 남는지 보지 않는다. 머리 주석(:1-3)대로 관찰 결과를 받아 적은 스냅숏이다. ② 내부 노드 사례가 `if (node < 0) return;` 으로 조용히 건너뛸 수 있다(:70 등). ③ 계약에서 유일하게 '거부' 인 리프 ±Inf 행이 없고, withModifiedBox 의 boxMax(−Inf) 분기·y·z 좌표를 부르는 사례가 없다. ④ 계약 :10 '클라이언트(leafBoxesOf·clientFrustumCull): 모든 노드의 NaN·±Infinity 통과' 는 틀림 — clientFrustumCull 은 ±Inf 상자를 cull: 오류로 던진다(감독 직접 읽음, client_inf_box.test.mjs 도 그렇게 시험). ③ 의 공백 때문에 이 시험이 ④ 를 못 잡았다.
 - 실패 상황: frustum/index.mjs:71 부근에서 NaN 리프를 조용히 제거(mask=0)하는 변이, occlusion/index.mjs:392 의 NaN 판정 포기를 제거로 바꾼 변이가 모두 통과(축 4b 실행, 미확인). 계약만 읽고 클라이언트에 ±Inf 상자를 넘기면 통과를 기대하나 오류.
@@ -1737,7 +1737,9 @@
 - 이력: 2026-10-03 20:40 감독 등록(축 2·4a·4b·5; ①②④ 와 ⑤ 의 검사 뒤 읽기 위치 감독 직접 읽음, 변이 실행은 서브에이전트 — 미확인). 신규 — 이번 PR 이 쓴 시험·계약 문구(F-155 ③ 잔여). 시험 판별력·문서 문제이고 구현 동작은 맞아 중간(F-142·F-148 과 같은 기준).
 → 2026-10-03 작업자 처리(제품 3175321, feat/cull-review-fixes9): 실험 노트 experiments/cull_review_fixes9.md. 시험 표 주도 재작성·변이 확인, 추가로 NaN y 리프 거짓 제거 구현 결함 발견·수정(frustum·predict·client). npm test 2401 중 2389 통과·0 실패. F-158 ② 는 F-157 ⑤ 로 처리.
 
-### F-158 [처리됨-검증대기] (심각도: 낮음) — PR #31 잔여 묶음
+→ 2026-10-03 21:10 감독(PR #32): npm test 2401 중 2389 통과·0 실패·12 건너뜀 직접. 사본 직접 변이: frustum hasNaN6 분기 제거 → nan_y_leaf·nonfinite 3 건 실패, predict NaN 통과 줄 삭제 → 3 건 실패(원본 통과). ① pass 사례가 정상 마스크 비교·got[k]===1 단언(축 4a) ② assert.ok(node >= 0) ③ 리프 +Inf(boxMin)·−Inf(boxMax) x·y·z 행 ④ 계약 :10 정정(직접 읽음) ⑤ 무장 재독 탐침: 재독 변이 C1~C5 실패·select 캐시 리팩터 R1·R2 통과(축 4b 실행). 추가로 NaN y 리프 거짓 제거 구현 결함 수정 — 정상 입력 2160 경우(축 1a)·300 경우(축 1b) 출력 해시 base 와 동일. 닫음. 잔여(occlusion NaN 행 무력·predict x/z 행 판별력·무장 시점)는 F-159.
+
+### F-158 [닫힘] (심각도: 낮음) — PR #31 잔여 묶음
 - 위치·고칠 것(제품 754ff2a):
   ① server/cull/predict/predict.test.mjs:329·:353 — 해석 배치의 속도가 늘 [vx,0,0] 이라 속력 노름 오류(index.mjs:121 의 |v| 를 |vx|·L1 으로 바꾼 변이)가 predict 시험 61 개를 모두 통과(축 1a 실행, 미확인; main 도 같은 공백). 대각 속도 v=(3,0,4) 해석 사례 추가. (opus)
   ② (F-157 ⑤ 로 올림)
@@ -1749,3 +1751,25 @@
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 20:40 감독 등록(축 1a·1b·2·4a·4b·7; 모두 미확인, ② 는 F-157 ⑤ 로). ① 은 기존 공백, 나머지 신규.
 → 2026-10-03 작업자 처리(제품 3175321, feat/cull-review-fixes9): 실험 노트 experiments/cull_review_fixes9.md. 시험 표 주도 재작성·변이 확인, 추가로 NaN y 리프 거짓 제거 구현 결함 발견·수정(frustum·predict·client). npm test 2401 중 2389 통과·0 실패. F-158 ② 는 F-157 ⑤ 로 처리.
+→ 2026-10-03 21:10 감독(PR #32): ① 대각 v=(3,0,4) 사례 — 손 유도 일치, |vx|·L1 변이 실패(축 1b 실행; L∞ 는 병진에서 원리상 올바른 상한이라 생존 정상) ③④ diff 직접 읽음 ⑤ Int32Array 요구 제거 변이를 각 파일이 단독으로 잡고 양성 대조 작동(축 4b 실행) ⑥ 은 처리 안 됨 — 실험 노트는 'makeBuf 할당을 try/catch 로 감싸 RangeError → cull: 오류' 라고 하나 priority/index.mjs 에 try 없음(감독 직접 grep), 주석 한 줄만 추가, 계약에 할당 문구 없음 → F-159 ④ 로 옮김. 나머지 닫음.
+
+### F-159 [열림] (심각도: 중간) — 비유한 상자 시험의 occlusion NaN 행이 판정 경로에 닿지 않고, predict x·z 행·combine 무장 시점에 판별력 공백
+- 위치: server/cull/degenerate/nonfinite_box_scope.test.mjs:40-56(withModifiedBox 는 octree.boxMin/boxMax 만 바꿈)·:85(occlusionCull 행)·:104-113(leavesToBreak 리프 하나), server/cull/occlusion/index.mjs:114-126(판정은 levels[0].positions 로 만든 tightLeafBoxes 사용), server/cull/combine/combine_guard_wrap.test.mjs:49-57 (제품 3175321)
+- 문제: ① occlusionCull 은 octree 상자를 판정에 쓰지 않으므로(감독 직접 읽음 :114-126·:376-392) 이 행은 항상 통과한다. F-149 ③ '비유한 점 좌표 리프는 남김' 정책을 지키는 시험이 아니다. ② predictiveMask x·z 행은 리프 하나만 보며, 그 리프는 NaN 통과 줄이 없어도 우연히 남는다(감독 직접 변이: predict/index.mjs:135 삭제 시 y 행만 실패). ③ combine 무장 신호가 카메라 첫 읽기라 combine/index.mjs:149-150 사이(검사 뒤·카메라 검사 전) 재독은 놓친다(축 4b 실행, 미확인).
+- 실패 상황: ① occlusion/index.mjs:380(비유한 점 → bad)·:392(판정 포기 = 남김)을 제거(0)로 바꾼 변이가 이 파일·nan_y_leaf 를 모두 통과(축 4a 실행, 미확인). ② predict NaN 가드를 y 만 보게 퇴행시켜도 x·z 행 통과. ③ :149-150 사이 재독 변이 통과.
+- 고칠 것: ① occlusion 행은 정상 마스크 1 인 리프의 levels[0].positions 점 좌표 하나를 NaN·±Inf 로 바꿔 그 리프가 1 로 남는지 단언(피라미드는 정상 계층 것). ② nan_y_leaf 처럼 정상 마스크 1 인 리프 전부 × boxMin/boxMax × x·y·z 를 돌린다(withModifiedBox 에 배열 선택 인자). ③ 무장 신호를 combine 검사 블록의 마지막 계층 읽기 직후로 앞당긴다.
+  ④ (F-158 ⑥ 잔여, 감독 직접 확인) 연구 experiments/cull_review_fixes9.md 9행이 'priority makeBuf 할당을 try/catch 로 감싸 RangeError → cull: 오류' 라고 보고했으나 server/cull/priority/index.mjs 에 try/catch 없음(주석 :46 한 줄만), priority_hierarchy_check.test.mjs:63-72 는 RangeError 그대로를 요구. 노트를 사실대로 정정하고, contracts/cull/index.mjs 에 '할당 실패(RangeError)는 범위 밖, cull: 아님' 한 줄을 쓴다(또는 실제로 감싸고 시험을 cull: 로). 실험 노트에 하지 않은 처리를 쓰지 않는다.
+- 확인 기준: ① occlusion :380·:392 제거 변이 각각 1 건 이상 실패 ② predict :135 삭제 변이에서 x·y·z 행 모두 실패 ③ :149-150 재독 변이 실패, select :113·:171 캐시 리팩터 통과 ④ 노트 서술 = 코드, 계약에 할당 문구.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 21:10 감독 등록(축 4a·4b·1b; ① 은 감독이 시험·occlusion 코드 직접 읽음, ② 는 감독 직접 변이로 y 행만 실패 확인; ③ 미확인; ④ 감독 직접 노트·코드 대조). 신규 — 이번 PR 이 쓴 시험(F-157 잔여)과 F-158 ⑥ 잔여. 구현 동작은 맞고(축 2 탐침 432·12·90 경우 거짓 제거 0) 시험 판별력 문제라 중간.
+
+### F-160 [열림] (심각도: 낮음) — PR #32 잔여 묶음
+- 위치·고칠 것(제품 3175321):
+  ① server/cull/degenerate/nan_y_leaf.test.mjs:46-49 — run(cams[0]) 결과를 같은 호출과 비교(순환, 감독 직접 읽음). 파일 머리에서 정상 마스크·boxMin/boxMax 사본을 저장하고 끝에 비교. 확인: 복원(arr[i]=saved) 삭제 변이에서 실패. (haiku)
+  ② server/cull/frustum/index.mjs:77, client/cull/index.mjs:133, server/cull/predict/index.mjs:134 주석 — 'NaN 꼭짓점이 모든 평면을 밖으로' 는 과장. NaN 좌표를 쓰는 꼭짓점 4개만 판정이 깨진다고 정정(축 1a·1b). (haiku)
+  ③ contracts/cull/index.mjs:9 'NaN 은 모두 통과' — distance 는 유한 좌표만으로 확실히 먼 경우 제거(거짓 제거 아님), priority 는 NaN 리프 점수 0(최하위·목록 유지). 이 뜻을 계약에 명시(축 2·7, 미확인). (haiku)
+  ④ leaf_check.mjs:3 '모든 오류는 cull:' 문구에 할당 실패 예외를 적는다(F-159 ④ 와 함께). (haiku)
+  ⑤ combine_guard_wrap.test.mjs:50-51 호출자 판정이 stack 의 [2] 프레임 문자열 'combine' 하나에 의존 — 헬퍼 경유·Reflect.get 재독을 놓침. import.meta.url 기반 경로로 스택 전체 검사(축 4b, 미확인). (sonnet)
+- 확인 기준: 항목별 변이·직접 읽기.
+- 권장 모델: 항목별 표기
+- 이력: 2026-10-03 21:10 감독 등록(① 감독 직접 읽음, 나머지 미확인). 신규. 기각: 축 1b 'predict NaN 가드 시험 없음'(predict*.test.mjs 만 돌린 결과 — 감독 직접 변이에서 nan_y_leaf·nonfinite 3 건 실패), 축 4b 'Number.isInteger 끄기 생존'(leaf_check.test.mjs 가 잡음, PR #31 때 감독 직접 확인).
