@@ -48,7 +48,7 @@ T07 은 원본 점군(format 1, 27 B)을 거리별로 줄이는 LOD 를 만든�
 - 다시 볼 조건: points3D 관측 목록이 입력에 들어오거나, 실데이터 순위가 가림 때문에 어긋남이 확인될 때.
 
 ### ③ Δd 는 edge0M 하한의 근거인데 buildHierarchy 가 하한을 적용하지 않는다
-- 사실: minEdge0M(dCapture, fx, baselineM) = Δd = d²/(f·b) 는 server/lod/distance_table 에 있고 시험에서만 호출된다. buildHierarchy 는 edge0M 하한을 적용하지 않는다(edge0M 0.001 도 받는다). 계약 LOD_API 에도 없다(contracts/lod/index.mjs).
+- 사실: minEdge0M(dCapture, fx, baselineM) = Δd = d²/(f·b) 는 server/lod/distance_table 에 있고 시험에서만 호출된다. buildHierarchy 는 edge0M 하한을 적용하지 않는다(edge0M 0.001 도 받는다). 계약 LOD_API 의 distance_table 항목에 minEdge0M 이 참고용으로 적혀 있다(강제 안 함).
 - 결정: Δd 하한은 '참고 문서용' 으로만 명시한다. 이 결정 기록이 하한을 코드에 강제한다고 읽으면 안 된다. 제품 쪽 코드(하한 적용 여부)는 작업자가 정한다. 이 문서는 코드를 바꾸지 않는다.
 - 대가: 원본 점의 깊이 정밀도(Δd)보다 촘촘한 edge0M 을 호출자가 고르면 의미 없이 단계 0 이 커지고 점이 덜 줄어든다. 방어하는 코드가 없다.
 - 다시 볼 조건: 하한을 buildHierarchy 에 적용하기로 할 때(그 경우 새 결정으로 쓴다), 또는 너무 작은 edge0M 으로 만든 계층이 실제로 문제가 될 때.
