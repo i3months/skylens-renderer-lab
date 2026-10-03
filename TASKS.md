@@ -270,8 +270,10 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T08.F6 [x] (2026-10-03 PR #18 병합, 제품 ab06dc1) | F-104 낮음 묶음 | 항목별 경로 | F-104 해당 항목 | haiku(②는 opus, ③⑤는 sonnet) |
 | T08.F7 [x] (2026-10-03 PR #19 병합, 제품 9b07887) | (먼저) PR #18 검토 잔여 중간: F-106 ①②(결정 0020 ④ d_eff 식, levels[l].positions 결정 기록), F-108(progressive 시험: 독립 d_eff 기대값, 고운 뒤 거친 조각 입력, 사후 상수 제거) | `server/lod/progressive/`, 연구 `decisions/0020-*`·`0021-*` 또는 `0022-*` | F-106 ①②·F-108 확인 기준 | sonnet |
 | T08.F8 [x] (2026-10-03 PR #19 병합, 제품 9b07887) | PR #18 잔여: F-105(paths 원형 평균), F-106 ③(주석 6곳), F-107 낮음 묶음 | `fixtures/paths/`, 항목별 경로 | F-105·F-106 ③·F-107 해당 항목 | haiku(F-107 ①④ 는 sonnet, ⑤ 는 opus) |
-| T08.F9 | (먼저) PR #19 검토 잔여 중간: F-110(screen_error 하한 근거, budget_discrim 10000 문턱 0.28/3 복원, 루트 노드 변조 빈 시험, nodeCount 독립 검증), F-109 ④(계약 거리 근거 문구·LOD_API 표) | `server/lod/select/`, `server/lod/budget/`, `contracts/lod/` | F-110·F-109 ④ 확인 기준 | sonnet |
-| T08.F10 | PR #19 잔여: F-109 ①②③(0022 applyChunks 서술, 걸침 주석 2곳, 0020 줄 번호), F-111 낮음 묶음 | 연구 `decisions/0020-*`·`0022-*`, 항목별 경로 | F-109 ①②③·F-111 해당 항목 | haiku(F-111 ⑥⑧ 은 sonnet) |
+| T08.F9 [x] (2026-10-03 PR #20 병합, 제품 해시 병합 직후 기록) | (먼저) PR #19 검토 잔여 중간: F-110(screen_error 하한 근거, budget_discrim 10000 문턱 0.28/3 복원, 루트 노드 변조 빈 시험, nodeCount 독립 검증), F-109 ④(계약 거리 근거 문구·LOD_API 표) | `server/lod/select/`, `server/lod/budget/`, `contracts/lod/` | F-110·F-109 ④ 확인 기준 | sonnet |
+| T08.F10 [x] (2026-10-03 PR #20 병합, 제품 해시 병합 직후 기록) | PR #19 잔여: F-109 ①②③(0022 applyChunks 서술, 걸침 주석 2곳, 0020 줄 번호), F-111 낮음 묶음 | 연구 `decisions/0020-*`·`0022-*`, 항목별 경로 | F-109 ①②③·F-111 해당 항목 | haiku(F-111 ⑥⑧ 은 sonnet) |
+| T08.F11 | PR #20 검토 잔여 중간: F-112(계층 입력 검사 중복·누락, Infinity 상자 퇴행, 호출마다 전수 검사), F-113(시험 주장과 판별력) — T08.0 과 같은 PR 에서 함께 처리 | `server/lod/select/`, `server/lod/octree/`, 항목별 시험 | F-112·F-113 확인 기준 | sonnet(F-113 ⑤ 는 opus) |
+| T08.F12 | PR #20 잔여 낮음: F-114 — T08.0 과 같은 PR 에서 | 항목별 경로 | F-114 항목별 | haiku |
 | T08.0 | 계약: 시점 상태·컬링 결과(조각 목록) 타입 | `contracts/cull/` | 타입 문서와 일치 | sonnet |
 | T08.1 | 절두체 컬링 | `server/cull/frustum/` | 거짓 제거 0(보수적), 고정 시점 8곳 | sonnet |
 | T08.2 | 법선 기반 뒷면 제거(조각 단위 법선 원뿔) | `server/cull/backface/` | 렌더 결과 SSIM 변화 ≤ 0.002 | sonnet |
