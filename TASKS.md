@@ -262,9 +262,9 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 
 | 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
 |---|---|---|---|---|
-| T08.F [x] (2026-10-03 PR #17 병합) | (먼저) T07 검토 잔여: F-096(T07.4·T07.5·T07.11 판별력 있는 시험, 실제 LOD 경로로 빈자리 검사), F-098(결정 0020 보완·T07.8 §3-6 표 행 순위 시험), F-099(progressive 카메라 검사, psnr 사례 4 복원) | `server/lod/`, `server/metrics/psnr/`, `bench/lod/`, 연구 `decisions/0020-*`·`experiments/lod.md` | F-096·F-098·F-099 확인 기준 | sonnet |
-| T08.F2 [x] (2026-10-03 PR #17 병합) | F-097 기하 보강(축 밖 화면 오차 cos² 보정, 칸이 리프 경계를 걸치지 않게, max(fx,fy)) | `server/lod/select/`, `server/lod/budget/`, `server/lod/progressive/`, `server/lod/hierarchy/` | F-097 확인 기준 | opus |
-| T08.F3 [x] (2026-10-03 PR #17 병합) | F-100 낮음 묶음(시험 정리·주석·계약 문구) | 항목별 경로 | F-100 해당 항목 | haiku |
+| T08.F [x] (2026-10-03 PR #17 병합, 제품 0ebcc40) | (먼저) T07 검토 잔여: F-096(T07.4·T07.5·T07.11 판별력 있는 시험, 실제 LOD 경로로 빈자리 검사), F-098(결정 0020 보완·T07.8 §3-6 표 행 순위 시험), F-099(progressive 카메라 검사, psnr 사례 4 복원) | `server/lod/`, `server/metrics/psnr/`, `bench/lod/`, 연구 `decisions/0020-*`·`experiments/lod.md` | F-096·F-098·F-099 확인 기준 | sonnet |
+| T08.F2 [x] (2026-10-03 PR #17 병합, 제품 0ebcc40) | F-097 기하 보강(축 밖 화면 오차 cos² 보정, 칸이 리프 경계를 걸치지 않게, max(fx,fy)) | `server/lod/select/`, `server/lod/budget/`, `server/lod/progressive/`, `server/lod/hierarchy/` | F-097 확인 기준 | opus |
+| T08.F3 [x] (2026-10-03 PR #17 병합, 제품 0ebcc40) | F-100 낮음 묶음(시험 정리·주석·계약 문구) | 항목별 경로 | F-100 해당 항목 | haiku |
 | T08.F4 | (먼저) PR #17 검토 잔여: F-101(applyChunks 추월 건너뛰기, 빈자리 실경로 단계 0~3), F-102(시험 판별력: 4 평면·회전 카메라·paths jt·render_views 리터럴·budget_discrim 다중 시드), F-103(결정 0020 기록 보완·§3-6 상위 8 단언) | `server/lod/`, `fixtures/paths/`, `tools/render_views/`, 연구 `decisions/0020-*` | F-101·F-102·F-103 확인 기준 | sonnet |
 | T08.F5 | F-099 ③ materialize 위치 구간 복사(단계별 대표점 위치 미리 담기), 첫 호출 포함 최댓값 < 100 ms | `server/lod/select/`, `server/lod/hierarchy/`, `bench/lod/` | F-099 ③ 확인 기준 | opus |
 | T08.F6 | F-104 낮음 묶음 | 항목별 경로 | F-104 해당 항목 | haiku(②는 opus, ③⑤는 sonnet) |
