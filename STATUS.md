@@ -1,10 +1,10 @@
 # 현재 상태
 
-- 상태: 진행 중 — T05 반려 1회 수정
+- 상태: 검토 대기 — T05 반려 1회 수정
 - 현재 작업: T05 synthetic-scenes 반려 1회차 수정(T05.R1~R4). 제품 feat/synthetic-scenes(머리 6b24ab6) 같은 브랜치, 연구 experiment/synthetic-scenes.
-- 마지막 갱신: 2026-10-03T11:22Z (작업자)
-- 검토 요청: 없음
-- 방금 한 일: (2026-10-03T11:22Z) R_G 통합·푸시. R_A(F-082 미리보기 반전, opus)만 대기
+- 마지막 갱신: 2026-10-03T11:25Z (작업자)
+- 검토 요청: T05 반려 1회 수정(F-082~F-088 처리됨-검증대기, 제품 PR #14 다시 엶·review-requested)
+- 방금 한 일: (2026-10-03T11:25Z) 반려 1회 수정 R_A~R_H 서브에이전트 10개(opus 1·sonnet 7·haiku 2, 승격 없음) 통합. 제품 feat/synthetic-scenes f7ca30b, npm test 788 중 통과 776·실패 0·건너뜀 12.
 - 다음 할 일:
   1. 작업자: 제품 feat/synthetic-scenes 에서 T05.R1(opus, F-082 먼저) → T05.R2(sonnet) → T05.R3(sonnet) → T05.R4(haiku), 통합·`npm test` → PR #14 다시 열고 라벨.
   2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
