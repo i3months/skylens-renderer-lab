@@ -289,8 +289,8 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T08.F25 | PR #24 낮음: F-138 — T08.F21·F23 과 함께 처리해도 됨 | 항목별 경로 | F-138 항목별 | haiku(⑦ sonnet) |
 | T08.F26 [x] (2026-10-03 PR #26 병합, 제품 3059380) | (먼저) PR #25 검토 중간: F-139(predict 회전 부풀림 판별 시험, 과잉 상한 독립화), F-140(backface 상자 캐시 positions 교체 시험) — T09 와 별도 PR | `server/cull/` | F-139·F-140 확인 기준 | sonnet(F-139 opus) |
 | T08.F27 [x] (2026-10-03 PR #26 병합, 제품 3059380; F-141 ⑦ 미처리 → T08.F29) | PR #25 낮음: F-141 — T08.F21·F23·F25 와 함께 처리해도 됨 | 항목별 경로 | F-141 항목별 | haiku(⑤ sonnet) |
-| T08.F28 [x] (2026-10-03 PR #27 병합) | (먼저) PR #26 검토 중간: F-142(① 클라이언트 구멍 시험, ② 퇴화 우선순위 단언, ③ 합법 해상도 정상 출력 단언, ④ 회전 하한 판별 사례) — T09 와 별도 PR | `server/cull/`, `client/cull/` | F-142 확인 기준 | sonnet(①② haiku, ④ opus) |
-| T08.F29 [x] (2026-10-03 PR #27 병합; F-143 ③ backface·F-138 ⑧ 미처리 → T08.F31) | PR #26 낮음: F-143, F-141 ⑦(cachedNormalCones 입력 검사·시험), F-138 ⑧ — T08.F21·F23·F25 와 함께 처리해도 됨 | 항목별 경로 | F-143·F-141 ⑦·F-138 ⑧ 항목별 | haiku(F-143 ④⑦ sonnet) |
+| T08.F28 [x] (2026-10-03 PR #27 병합, 제품 9b92c6e) | (먼저) PR #26 검토 중간: F-142(① 클라이언트 구멍 시험, ② 퇴화 우선순위 단언, ③ 합법 해상도 정상 출력 단언, ④ 회전 하한 판별 사례) — T09 와 별도 PR | `server/cull/`, `client/cull/` | F-142 확인 기준 | sonnet(①② haiku, ④ opus) |
+| T08.F29 [x] (2026-10-03 PR #27 병합, 제품 9b92c6e; F-143 ③ backface·F-138 ⑧ 미처리 → T08.F31) | PR #26 낮음: F-143, F-141 ⑦(cachedNormalCones 입력 검사·시험), F-138 ⑧ — T08.F21·F23·F25 와 함께 처리해도 됨 | 항목별 경로 | F-143·F-141 ⑦·F-138 ⑧ 항목별 | haiku(F-143 ④⑦ sonnet) |
 | T08.F30 | (먼저) PR #27 검토 중간: F-144(predict 상한 식 교차항·사례 3·4 건너뜀·하한 여유), F-145(리프 0 개 계층 규칙 통일·계약 문구) — T09 와 별도 PR | `server/cull/`, `client/cull/`, `contracts/cull/` | F-144·F-145 확인 기준 | sonnet(F-144 opus) |
 | T08.F31 | PR #27 낮음: F-146, F-143 ③(backface leafStart 판별), F-138 ⑧ — T08.F21·F23·F25 와 함께 처리해도 됨 | 항목별 경로 | F-146·F-143 ③ 항목별 | haiku(F-143 ③ sonnet) |
 | T08.0 [x] (2026-10-03 PR #21 병합, 제품 df3a5c5) | 계약: 시점 상태·컬링 결과(조각 목록) 타입 | `contracts/cull/` | 타입 문서와 일치 | sonnet |
