@@ -1253,32 +1253,32 @@
 - 이력: 2026-10-03 15:28 감독 등록(축 2·4a·4b). 신규. ⑦ 은 2026-10-03 15:20 중복 감독 실행(축 2)이 덧붙임. → 2026-10-03 작업자 처리(제품 feat/culling cde1f8c; 연구 experiment/culling): ①~⑥ 제품, 연구 ②③⑦ 처리. npm test 1394 중 1380 통과·0 실패·12 건너뜀·2 todo. 상세 experiments/culling.md. → 2026-10-03 15:55 감독 확인 닫음(PR #21 cde1f8c). ④ 는 감독이 fixtures/paths/paths.test.mjs:132 를 직접 읽음 — '실측 폭 최대값 ≈1.19 m' 가 여전히 틀림(1.19 m 는 0.4배 변이 값) → F-122 ⑩ 로 옮김. budget_discrim.test.mjs:15-16 머리 주석의 낡은 규칙 문장 → F-122 ⑪.
 
 
-### F-115 [열림] (심각도: 높음) — distanceCull 이 리프 번호로 노드 상자를 읽어 보이는 리프를 버린다(거짓 제거)
+### F-115 [처리됨-검증대기] (심각도: 높음) — distanceCull 이 리프 번호로 노드 상자를 읽어 보이는 리프를 버린다(거짓 제거)
 - 위치: 제품 server/cull/distance/index.mjs:53-58 (feat/culling cde1f8c), 시험 server/cull/distance/distance.test.mjs:9-20
 - 문제: `octree.boxMin/boxMax` 는 노드 순서(3·nodeCount)인데 `k*3`(k = 리프 번호)으로 잘라 쓴다. 다른 단계(frustum:57-60·backface:34-36·occlusion:60-65)는 leafIndex 로 노드를 찾는다. 시험은 nodeCount = leafCount·leafIndex 항등인 가짜 계층만 써서 못 잡는다. 또 카메라·계층 검사가 없어 t=[NaN,0,0] 에서 점 있는 리프가 전부 1(계약 '퇴화 시점 → 전부 0' 위반), 잘못된 계층에서 'cull:' 대신 TypeError.
 - 실패 상황: 감독 재현 — flat_boxes 2만 점, buildHierarchy(edge0M 0.5, levelCount 6, maxLeafPoints 512) → 리프 86·노드 111, 카메라 중심 (0,5,0), maxDistanceM 20 → 점까지 최소 거리 ≤ 20 m 인 리프 중 9개가 0. 축 7 은 terrain 에서 31개, 축 1b 는 두 무리 장면에서 마스크 [1,0](정답 [0,1]).
 - 고칠 것: 리프→노드 표(leafIndex)로 노드 상자를 읽는다(또는 리프 점들의 꼭 맞는 상자). 계층 검사를 'cull:' 오류로 감싸고, 퇴화 시점이면 빈 마스크. 시험에 내부 노드가 있는 실제 buildHierarchy 계층을 넣는다.
 - 확인 기준: 위 재현(그리고 무작위 시점·maxDistanceM 여러 개)에서 '점까지 최소 거리 ≤ maxDistanceM 인 리프' 가 모두 1. leafIndex 를 k 로 되돌리는 변이 → 시험 실패. NaN 카메라 → 전부 0, 잘못된 계층 → /^cull:/.
 - 권장 모델: sonnet
-- 이력: 2026-10-03 15:52 감독 등록(축 2·1b·7 이 각각 재현, 감독 직접 재현). 신규.
+- 이력: 2026-10-03 15:52 감독 등록(축 2·1b·7 이 각각 재현, 감독 직접 재현). 신규. → 2026-10-03 작업자 처리(제품 feat/culling aadef5a, sonnet). 상세 experiments/culling.md.
 
-### F-116 [열림] (심각도: 높음) — 절두체 판정이 점 원판 반경을 무시해 화면 가장자리의 보이는 리프를 버린다
+### F-116 [처리됨-검증대기] (심각도: 높음) — 절두체 판정이 점 원판 반경을 무시해 화면 가장자리의 보이는 리프를 버린다
 - 위치: 제품 server/lod/select/view_check.mjs:3-5·24-27, server/cull/frustum/index.mjs:61, client/cull/index.mjs:66-69, 계약 contracts/cull/index.mjs:63·69 (cde1f8c). 참조 래스터는 server/raster_ref/zbuffer/index.mjs:61-62 에서 `u + r < 0` 일 때만 건너뛴다.
 - 문제: 판정이 점 중심의 u∈[0,W]·v∈[0,H] 만 본다. 중심이 화면 밖이어도 원판(r = fx·sizeM/(2d))이 화면에 걸치면 그려진다.
 - 실패 상황: 감독 재현 — 960×540, K=(754.32, 753.85, 480, 270), R=I, t=0, 깊이 1 m·u=−1 인 점 하나 → boxMayBeVisible false, clientFrustumCull 0. 실제 r = 18.86 px, splatPixels 524 픽셀. MAX_FALSE_REMOVALS = 0 위반. 기존 8시점 시험은 이런 가장자리 점이 없어 통과.
 - 고칠 것: 좌·우·위·아래 평면을 원판 반경만큼 바깥으로 민다(리프 최소 깊이에서 r_max, 또는 상자를 sizeM/2 부풀리는 보수 근사). pointSizeM 을 frustumCull·clientFrustumCull 인자로(CULL_API 서명 갱신). LOD 의 boxMayBeVisible 공용 함수를 바꿀지, 컬링 전용으로 둘지 결정 0023 에 적는다(LOD 선택도 같은 가장자리 문제를 가진다).
 - 확인 기준: 위 반례에서 마스크 1. 화면 가장자리 바깥 0~r px 에 점을 무작위로 뿌린 리프들을 zbuffer 로 그렸을 때 index 에 나타난 점의 리프 중 제거된 것 0(서버·클라이언트 둘 다). 원판 여유를 지우는 변이 → 실패.
 - 권장 모델: opus
-- 이력: 2026-10-03 15:52 감독 등록(축 1a, 감독 직접 재현). 신규.
+- 이력: 2026-10-03 15:52 감독 등록(축 1a, 감독 직접 재현). 신규. → 2026-10-03 작업자 처리(제품 feat/culling aadef5a, opus). 상세 experiments/culling.md.
 
-### F-117 [열림] (심각도: 높음) — T08.2 완료 기준(SSIM 하락 ≤ 0.002) 미달 2시점, todo 가 불변식 단언까지 숨김
+### F-117 [처리됨-검증대기] (심각도: 높음) — T08.2 완료 기준(SSIM 하락 ≤ 0.002) 미달 2시점, todo 가 불변식 단언까지 숨김
 - 위치: 제품 server/cull/backface/backface.test.mjs:186·233-234·256·267-268, server/cull/backface/index.mjs:19-22 (cde1f8c)
 - 문제: flat_boxes low_close_box 하락 1.55e-2(기준의 7.8배), tower_mid 3.70e-3. aerial_oblique_ne 는 1.99e-3 으로 기준선에 붙어 있다. 작업자는 기준을 낮추지 않고 todo 로 정직하게 남겼으나, 클라우드에서 검증 가능한 완료 기준이 미달이다. 또 todo 가 시험 전체에 걸려 같은 시험의 '앞면 점 리프 제거 0' 단언(:256·:267)도 두 시점에서 실패해도 통과로 집계된다. 결합 경로에서도 low_close_box 는 SSIM 0.9614(B10 제거)로 0.95 에 가깝다.
 - 실패 상황: npm test 는 '# fail 0' 이지만 T08.2 는 기준 미달. 판정식 자체는 맞다(축 1b·2 확인). 원인은 참조 래스터가 법선을 쓰지 않아 성긴 앞면 틈으로 뒷면 점이 비치는 것.
 - 고칠 것: ① 불변식 단언을 todo 없는 별도 시험으로 분리. ② 뒷면 제거를 더 보수적으로: 예컨대 뒷면 리프를 버리기 전에 같은 화면 영역이 앞면 점으로 '확실히 덮였는지'(occlusion 의 덮임 판정 재사용) 확인하거나, 근거 있는 각도 여유(DEFAULT_MARGIN_DEG 를 원판 번짐에서 유도)를 둔다. 사후 조정 상수 금지 — 여유는 식으로 유도해 주석·결정 0023 에 근거를 적는다. ③ 그래도 구조적으로 불가능하다고 판단되면 측정과 함께 결정 0023 에 '기준 정의 변경 제안'(예: 법선을 쓰는 참조 래스터 대비)을 상태 '제안'으로 올리고 todo 를 유지한다 — 기준 수치는 작업자가 바꾸지 않는다. 이 경우 감독이 범위를 쪼갠다.
 - 확인 기준: 8시점×3장면에서 SSIM 하락 ≤ 0.002 를 todo 없이 단언하고 통과(②), 또는 ③ 의 제안 결정 + 측정 기록. 어느 쪽이든 ① 은 필수.
 - 권장 모델: opus
-- 이력: 2026-10-03 15:52 감독 등록(축 5·4a, 감독 npm test 로 todo 2건 확인). 신규.
+- 이력: 2026-10-03 15:52 감독 등록(축 5·4a, 감독 npm test 로 todo 2건 확인). 신규. → 2026-10-03 작업자 처리(제품 feat/culling aadef5a, opus). 상세 experiments/culling.md.
 
 ### F-118 [열림] (심각도: 중간) — T08.8 결합 품질이 실제 단계로 측정된 범위가 좁고, 기본 가림 단계가 점 크기를 받지 못한다
 - 위치: 제품 server/cull/combine/index.mjs:48·142-145, combine_integration.test.mjs:22-27·41-57, combine_quality.test.mjs:2·51·104·126-127 (cde1f8c)
