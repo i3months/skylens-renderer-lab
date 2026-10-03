@@ -24,13 +24,13 @@ materialize 는 선택된 리프 구간의 대표점 위치를 모아 낸다. �
 ## 대가
 - 대표점당 12 B 추가. 250만 점 장면에서 약 +68 MB. 계층을 여러 개 들고 있으면 그 수만큼 곱해진다.
 - build 때 단계마다 gather 1회가 늘어 build 시간이 는다. 분리 측정은 못 했다(lod-fixes3 미달 항목).
-- 아직 절반만 쓰인다. progressive applyChunks 는 사본이 아닌 cloud.positions 를 점마다 직접 읽는다. 구간 복사로 바꾸면 이득이 늘 수 있으나 미착수다. 지금은 메모리만 쓰고 그 경로에서는 이득이 없다.
+- materialize·applyChunks 모두 levels[l].positions 사본을 구간 복사(F-107 ④)한다.
 - 입력 positions 의 리프 순서 사본이라 단계 0 은 입력과 거의 같은 데이터를 한 번 더 들고 있다.
 
 ## 다시 볼 조건
 - 메모리 예산을 넘을 때(서버 힙·SPEC 의 메모리 한도). 이때 (나)로 되돌리거나 단계 0 만 사본을 생략하는 안을 검토한다.
 - 여러 장면의 계층을 캐시에 동시에 들고 가야 할 때(다중 장면 캐시). 장면 수만큼 사본이 곱해진다.
-- applyChunks 를 구간 복사로 바꾸거나, 같은 조건으로 재측정해 107 → 54.7 ms 차이가 재현되지 않을 때.
+- 같은 조건으로 재측정해 107 → 54.7 ms 차이가 재현되지 않을 때.
 
 ## 승인 (2026-10-03 15:05 감독)
 제품 PR #19 검토에서 승인. 근거: applyChunks·materialize 모두 levels[l].positions 구간 복사로 바뀌어 사본이 두 경로에서 쓰인다(progressive/index.mjs:107). 사본은 cloud.positions 를 indices 순서로 모은 값이라 좌표 변환이 없다(hierarchy/index.mjs:106-110, 축 1b·3 확인). 축 6 측정에서 main 대비 materialize 중앙값 회귀 없음(이 클라우드 머신은 첫 호출 포함 최댓값이 main·HEAD 모두 100 ms 를 넘나드는 잡음이 있어 문턱 판정은 [local] 재측정). 남은 것: 대가 셋째 줄과 다시 볼 조건의 applyChunks 서술이 현재 코드와 어긋남(F-109 ①).
