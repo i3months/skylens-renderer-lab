@@ -50,7 +50,7 @@ tools/       명령줄 도구
 - [x] **T03 `asset-format`** — 경량 자산 포맷 계약과 핵심 타입. 27 B 점·56 B 가우시안 두 입력 형식을 담는다(0012). 첫 하위 작업으로 F-059(T03.F, haiku)를 함께 처리한다. (2026-10-03 병합, 제품 5b41a3b merge commit, 연구 research f8d847f, 반려 1회. F-059~F-067 닫음, 잔여 F-068~F-070 → T04.F, 결정 0015 승인)
 - [x] **T04 `point-io`** — 27 B 점·56 B 가우시안 PLY 입출력과 ENU 좌표. (2026-10-03 병합, 제품 a89fb27 merge commit, 연구 research 359532d, 반려 2회: 1회 F-071 높음, 2회 F-075 높음. F-068·F-071~F-078 닫음, 잔여 F-079~F-081 → T05.F, 결정 0016 기각·0017 승인)
 - [x] **T05 `synthetic-scenes`** — 합성 장면·고정 시점 8곳·골든 파일. (2026-10-03 병합, 제품 b23c9fd merge commit, 연구 research 5227e84, 반려 1회: F-082·F-083·F-084 높음. F-082~F-088 닫음, 잔여 F-089~F-091 → T06.F·T06.F2, 결정 0018 승인)
-- [ ] **T06 `reference-raster`** — CPU 참조 래스터라이저와 화질 지표.
+- [x] **T06 `reference-raster`** — CPU 참조 래스터라이저와 화질 지표. (2026-10-03 병합, 제품 MERGEHASH merge commit, 연구 experiment/synthetic-scenes RESHASH, 반려 0회. F-089~F-091 닫음, 잔여 F-092~F-095 → T07.F·T07.F2, 결정 0019 승인)
 - [ ] **T07 `lod`** — 거리 제곱 근거의 LOD 계층.
 - [ ] **T08 `culling`** — 뷰 의존 컬링(절두체·법선·가림).
 - [ ] **T09 `codec`** — 양자화·직렬화·압축.
@@ -240,20 +240,22 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 
 ### T07 `lod` — [cloud]
 
-| 하위 | 내용 | 소유 경로 | 완료 기준 |
-|---|---|---|---|
-| T07.0 | 계약: LOD 노드·단계·선택 함수 서명, 단계별 밀도 규칙(거리 제곱) | `contracts/lod/` | 서명 문서와 일치 |
-| T07.1 | 격자 대표점 축소(복셀) | `server/lod/voxel/` | 축소 후 점이 입력 점의 부분집합(새 점 생성 0) |
-| T07.2 | 팔진 트리 계층 구축 | `server/lod/octree/` | 모든 점이 정확히 한 잎에 있음 |
-| T07.3 | 단계 간격 = Δd ≈ d²/(f·b) 근거 거리표 | `server/lod/distance_table/` | 거리별 단계가 식과 일치 |
-| T07.4 | 화면 공간 오차 기반 단계 선택 | `server/lod/select/` | 고정 시점 8곳 SSIM ≥ 0.95(참조 래스터라이저) |
-| T07.5 | 점 예산 상한 하 선택 | `server/lod/budget/` | 예산 초과 0, 예산 내 SSIM 최대 |
-| T07.6 | 법선 대표값(축소 시) | `server/lod/normals/` | 대표 법선 단위 길이, 각 오차 기록 |
-| T07.7 | 색 대표값(축소 시) | `server/lod/colors/` | 평균색 오차 ≤ 1/255 |
-| T07.8 | 이웃 시점 점수(공유 점·광선 각·축척) 기반 우선순위 | `server/lod/view_score/` | renderer_basis §3 예제 순위 재현 |
-| T07.9 | 점진 순서(거친 단계 먼저) | `server/lod/progressive/` | 앞부분 k% 만으로 SSIM 단조 증가 |
-| T07.10 | 구간당 크기 집계 | `bench/lod/` | 250만 점 구간 → 자산 크기 기록(목표 ≤ 3 MB 대비) |
-| T07.11 | 빈자리 보존 검사 | `server/lod/no_fill/` | holes 장면 빈 픽셀 비율 원본과 같음 |
+| 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
+|---|---|---|---|---|
+| T07.F | (먼저) T06 검토 잔여: F-092(T06.1 반올림 전 입력 0.01 px 단언, T06.8 scikit-image 표준 영상 쌍 리터럴, 실험 노트 T06.8 표기), F-093(render_views 시야각 검사, 길이 0 법선 규칙, no_fill 점 수 정의, 56 B opacity·scale 기록, ssim 값 범위), F-094(no_fill 독립 정답, 시점 카메라 리터럴·골든, 경로 시드 선택), F-095 sonnet 표기 항목 | `server/raster_ref/`, `server/metrics/`, `contracts/raster/`, `tools/render_views/`, `bench/raster_ref/`, `fixtures/paths/`, 연구 `decisions/0019-*`·`experiments/reference-raster.md` | F-092·F-093·F-094·F-095(sonnet) 확인 기준 | sonnet |
+| T07.F2 | F-095 haiku 표기 항목(①③④⑤⑥: 계약 문구·음성 시험·항상 참 시험 정리) | 위와 같음, `fixtures/scenes/terrain/`, `contracts/scenes/` | F-095 해당 항목 | haiku |
+| T07.0 | 계약: LOD 노드·단계·선택 함수 서명, 단계별 밀도 규칙(거리 제곱) | `contracts/lod/` | 서명 문서와 일치 | sonnet |
+| T07.1 | 격자 대표점 축소(복셀) | `server/lod/voxel/` | 축소 후 점이 입력 점의 부분집합(새 점 생성 0) | sonnet |
+| T07.2 | 팔진 트리 계층 구축 | `server/lod/octree/` | 모든 점이 정확히 한 잎에 있음 | sonnet |
+| T07.3 | 단계 간격 = Δd ≈ d²/(f·b) 근거 거리표 | `server/lod/distance_table/` | 거리별 단계가 식과 일치 | opus |
+| T07.4 | 화면 공간 오차 기반 단계 선택 | `server/lod/select/` | 고정 시점 8곳 SSIM ≥ 0.95(참조 래스터라이저) | opus |
+| T07.5 | 점 예산 상한 하 선택 | `server/lod/budget/` | 예산 초과 0, 예산 내 SSIM 최대 | opus |
+| T07.6 | 법선 대표값(축소 시) | `server/lod/normals/` | 대표 법선 단위 길이, 각 오차 기록 | sonnet |
+| T07.7 | 색 대표값(축소 시) | `server/lod/colors/` | 평균색 오차 ≤ 1/255 | sonnet |
+| T07.8 | 이웃 시점 점수(공유 점·광선 각·축척) 기반 우선순위 | `server/lod/view_score/` | renderer_basis §3 예제 순위 재현 | opus |
+| T07.9 | 점진 순서(거친 단계 먼저) | `server/lod/progressive/` | 앞부분 k% 만으로 SSIM 단조 증가 | sonnet |
+| T07.10 | 구간당 크기 집계 | `bench/lod/` | 250만 점 구간 → 자산 크기 기록(목표 ≤ 3 MB 대비) | haiku |
+| T07.11 | 빈자리 보존 검사 | `server/lod/no_fill/` | holes 장면 빈 픽셀 비율 원본과 같음 | sonnet |
 
 ### T08 `culling` — [cloud]
 

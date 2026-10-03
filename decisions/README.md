@@ -66,3 +66,4 @@
 | [0014](0014-defer-legal.md) | 약관·특허·AI 제한 라이선스(H1~H3)는 2단계에서 결정 | 승인 | 사람 |
 | [0017](0017-geo-dateline-wrap.md) | GPS↔ENU 날짜변경선 경도 감싸기(geo.ts 이탈) 허용 | 승인 | 감독 |
 | [0018](0018-geo-polar-anchor.md) | 극 앵커 e=0·위도 ±90 붙임·경도 −180→180(geo.ts 이탈) | 승인 | 작업자 제안·감독 승인 |
+| [0019](0019-raster-reference-conventions.md) | 참조 래스터 규약: OpenCV 카메라·칸 모서리 픽셀 좌표·빈 칸 표시·단순 배율 K 환산 | 승인 | 작업자 제안·감독 승인 |

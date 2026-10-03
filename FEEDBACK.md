@@ -931,7 +931,7 @@
  → 2026-10-03 작업자 처리(제품 feat/synthetic-scenes f7ca30b, 연구 experiment/synthetic-scenes): 반려 1회차 수정. 전체 npm test 788 중 통과 776·실패 0·건너뜀 12, 바뀐 테스트 10회 반복 실패 0. 세부는 experiments/synthetic-scenes.md
  → 2026-10-03 12:05 감독 확인 닫음(PR #14 f7ca30b): ①~⑰ grep·시험 확인(축 1·4B·5·6·11), README T05 절 한·영 일치.
 
-### F-089 [처리됨-검증대기] (심각도: 중간) — T05 시험의 하한·정답 연결 공백 묶음(구현은 맞음, 변이가 살아남음)
+### F-089 [닫힘] (심각도: 중간) — T05 시험의 하한·정답 연결 공백 묶음(구현은 맞음, 변이가 살아남음)
 - 위치·고칠 것(제품 main(PR #14 병합분) f7ca30b, 축 4A·4B 보고. 구현 정상 여부는 감독 직접 확인: dronePath 300프레임 회전 합 6.286 rad, freePath 600프레임 누적 199.7 m):
   ① fixtures/paths/paths.test.mjs:71-82 — 드론 이동 상한만 있다. 정지·2바퀴·0.5바퀴·역방향 변이 생존(미확인). 회전 합 +2π±0.05, 프레임 이동 하한, 지터 >0, 80행 주석 15 m/s 와 단언 ≤90 불일치 정리.
   ② fixtures/paths/paths.test.mjs:43-55 — 자유 경로 속도 하한·누적 이동·시선 변화 없음. speed 0·시선 고정 변이 생존(미확인). 누적 199.7 m ±5%, 프레임 속도 9~11 m/s, yaw 범위 >10°.
@@ -946,8 +946,9 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 12:05 감독 등록(축 4A·4B, ④ 감독 직접 줄 확인, ①② 구현은 감독 직접 실행으로 정상). 신규. 반려 사유 아님(구현 결함 없음, 시험 공백).
 - 이력: 2026-10-03 작업자 처리(제품 feat/reference-raster, A 49287bc ①②③, B 48f4fdb ④⑤⑥, G 13fbe91 ⑦, E 561c235 ⑧, D 785b459 ⑨). 각 항목 변이 실패 확인. ⑨ 는 상한 때문에 비유한 검사가 도달 불가한 방어 코드라서 시험 이름만 정정했다(검사 삭제 변이는 검증 불가).
+- 이력: 2026-10-03 12:20 감독 확인 닫음(축 4b 사본 변이: ②~⑧ 변이 모두 fail, ⑨ 이름 정정 확인. ① 수직·접선 지터 제거 변이 생존은 F-095 ⑥ 으로 이관).
 
-### F-090 [처리됨-검증대기] (심각도: 중간) — 장면·계약·좌표 입력의 유한성 공백(조용히 비유한 점을 낸다)
+### F-090 [닫힘] (심각도: 중간) — 장면·계약·좌표 입력의 유한성 공백(조용히 비유한 점을 낸다)
 - 위치·고칠 것(제품 f7ca30b):
   ① fixtures/scenes/depth_noise/index.mjs:140 — f·b 가 `>0` 만 검사. 감독 직접 확인: `generate({count:10,f:1e-300})` → positions 비유한, 오류 없음. f=Infinity 는 재시도 끝에 수 초 뒤 실패(축 7, 미확인). 유한·범위 검사.
   ② fixtures/scenes/dem/index.mjs:48 — cell 유한성 없음. 감독 직접 확인: `generate({tile:4,count:16,cell:Infinity})` → positions 비유한.
@@ -959,8 +960,9 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 12:05 감독 등록(축 1·4A·4B·7, ①②③ 감독 직접 실행). 신규. 반려 사유 아님(합성 시험 도구의 비정상 매개변수, 기본 경로 정상).
 - 이력: 2026-10-03 작업자 처리(A 49287bc ⑥, B 48f4fdb ①②, C 242f219 ③, D 785b459 ④, F ba3feae ⑤). 각 입력 명시 Error 시험 통과. ④ 는 극 앵커에서 1 m 만으로도 증분이 51470° 라 정상 경로에서도 거부된다(시험은 1 µm 사용).
+- 이력: 2026-10-03 12:20 감독 확인 닫음(축 4b 사본 변이: ①~⑥ 검사 제거 변이 모두 fail, 기존 시험 통과. npm test 900 중 888 통과·0 실패).
 
-### F-091 [처리됨-검증대기] (심각도: 낮음) — PR #14 재검토 잔여 묶음
+### F-091 [닫힘] (심각도: 낮음) — PR #14 재검토 잔여 묶음
 - 위치·고칠 것(제품 f7ca30b / 연구 experiment/synthetic-scenes, 대부분 미확인):
   ① tools/scene_preview/index.mjs:102 — 같은 깊이 "먼저 온 점" 시험 없음(`<=` 변이 생존). (haiku)
   ② tools/scene_preview/scene_preview.test.mjs:595-613 — colors 길이·크기 상한·encodePng 스캔라인 상한·거의 평행 판정 거부 시험. (haiku)
@@ -979,3 +981,52 @@
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 12:05 감독 등록(축 1·2·3·4A·4B·5·6·7). 신규. 반려 사유 아님.
 - 이력: 2026-10-03 작업자 처리 ①②③⑤(F ba3feae) ④(E 561c235) ⑥(A·B) ⑦⑧⑪(B 48f4fdb, C 242f219) ⑨⑫(H 3004329·27ed222, D 785b459) ⑩(C: 해시 불변; 시간은 sha256 이 대부분이라 2.5M format 2 resultHash 약 0.44~1.7 s 로 변동, 속도 목표는 못 박지 않음) ⑬(연구 experiment/reference-raster 의 experiments/synthetic-scenes.md).
+- 이력: 2026-10-03 12:20 감독 확인 닫음(①④⑦ 변이 fail, ②③⑤⑥⑧⑨⑩⑪⑫ grep·코드 확인, README 한·영 일치 확인. ⑦ terrain bounds 전수 시험이 항상 참인 점은 F-095 ⑥ 으로 이관).
+
+### F-092 [열림] (심각도: 중간) — T06 완료 기준을 문자 그대로 단언하는 시험이 없다(구현은 기준 충족, 감독 직접 확인)
+- 위치(제품 main(PR #15 병합분) 0767918):
+  ① server/raster_ref/project/project.test.mjs:23-33 — renderer_basis §2-3 예제를 반올림된 X_c(−5.03,…)로만 시험하고 문서 u 396.27 은 0.083 px 허용. 반올림 전 X_c.x=−5.02611 입력이 없다(제품 grep '5.0261' 0건). 결정 0019 근거 절은 "반올림 전 좌표로 0.01 px, project·unproject 둘 다" 라고 적고 있어 서술과 시험이 어긋난다. 0.083 px 한계는 z 반올림 항(fx·|x|·0.005/d² ≈ 0.009 px)을 빠뜨렸다.
+  ② server/raster_ref/unproject/unproject.test.mjs:81-85 — 문서 픽셀 역투영 허용이 0.01 m 로 느슨하다.
+  ③ server/metrics/ssim/ssim.test.mjs 전체 — T06.8 완료 기준 "공개 참조값(표준 시험 영상 쌍)과 1e-3 이내" 단언이 없다(자체 naive 구현·상수 영상 해석해만). 실험 노트 구현 요약 표는 미달 표기 없이 확인으로 적었다(알려진 편차 절에만 미달).
+- 실패 상황: ① 투영에 0.06 px 오프셋이 생겨도 통과. ③ naive 와 같은 오해(창 정규화·경계)를 공유하면 둘 다 틀려도 통과. 지금 구현은 맞다: 감독이 직접 project → u 396.2698·v 139.4747, scikit-image 0.26 structural_similarity(gaussian_weights, σ1.5, 모집단 공분산, data_range 255)와 camera 1/4 축소+잡음 쌍 0.4227369914(차 1.7e-15)·astronaut 1/8 축소 컬러+잡음 쌍 0.8492168088(차 5.6e-16).
+- 고칠 것: ① project([-5.02611,-7.84,45.28]) 에 |u−396.27|≤0.01, |v−139.47|≤0.01 단언 추가, 반올림 한계 주석에 z 항 포함. ② 같은 입력의 역투영을 그에 맞는 허용으로. ③ scikit-image 로 구한 표준 영상 쌍 값을 리터럴로 박는다(영상 쌍은 생성 규칙이 재현 가능하게 시험 픽스처로: 예 skimage.data 영상 축소본을 작은 바이너리로 넣거나 결정적 생성 영상+skimage 값). 리터럴 출처(skimage 버전·호출 인자)를 주석에. 실험 노트 T06.8 행을 사실대로 고친다.
+- 확인 기준: ① u 에 0.05 px 오프셋 변이가 실패. ③ K2·σ 변이가 리터럴 시험만으로 실패, |ssim−참조| ≤ 1e-3 단언 존재.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 12:20 감독 등록(축 2·5, ①③ 감독 직접 실행으로 구현 정상 확인). 신규. 반려 사유 아님(축 5 가 ③ 을 높음으로 보고했으나 구현이 공개 참조와 일치함을 감독이 직접 확인해 시험 공백 중간으로 낮춤).
+
+### F-093 [열림] (심각도: 중간) — 참조 래스터 입력 규칙 공백(조용히 잘못된 카메라·영상, 한 점이 전체를 멈춤)
+- 위치·고칠 것(제품 0767918):
+  ① tools/render_views/index.mjs:48-52 — 문서 주석은 fov 0 초과 180 미만인데 검사가 없다. 감독 직접 실행: fov 180 → fy 1.47e-15 통과, fov 400 → fy 65.94(fov 40 과 같은 카메라) 통과. 축 7: 문자열 '60' 통과, 1e-300 → fx 4.6e302(미확인). bench/baseline/ref_images 의 assertView 를 먼저 호출.
+  ② server/raster_ref/shade/index.mjs:78·11-18 — 점 하나의 법선 길이가 0 이면 shadeResult 전체가 'shade:' 오류. 감독 직접 줄 확인. normalizeNormals(T04.8)는 길이 0 을 (0,0,0) 으로 남기도록 설계돼 있어 실데이터에서 생길 수 있다. 규칙(셰이딩 생략·입력색 유지 등)을 정해 결정 0019 에 덧붙인다.
+  ③ server/raster_ref/no_fill/index.mjs:26 은 cloud.count, server/raster_ref/zbuffer/index.mjs:45 는 positions.length/3. 감독 직접 줄 확인. 축 7 실행: positions 3점·count 1 → 'no_fill: … 칠해짐(메움)' 허위 실패(미확인). 같은 점 수 정의, 불일치는 양쪽 명시 오류.
+  ④ server/raster_ref/zbuffer/index.mjs:21-29·40·59 — 56 B 에서 opacity·scale·rot 를 쓰지 않고 고정 pointSizeM 으로 그린다(축 2, 미확인). 이 선택과 근거를 계약(contracts/raster)·결정 0019 에 적거나 구현.
+  ⑤ server/metrics/ssim/index.mjs:57-63 — 유한성만 보고 0..255 범위를 안 본다. 축 7 실행: 1e200 → NaN, −255 vs 255 → −0.9999(미확인). 범위 밖 거부 또는 문서화된 클램프, 결과 NaN 이면 오류.
+- 실패 상황: 위 각 줄.
+- 확인 기준: ① fov 0·180·400·'60'·NaN 거부 시험. ② 법선 (0,0,0) 점이 섞인 format 1 장면에서 shadeResult 성공·정한 규칙대로의 색. ③ count≠positions/3 이 두 함수에서 같은 명시 오류. ④ 결정 0019·계약 문구 또는 opacity 시험. ⑤ 1e200·−255 입력 처리 시험.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 12:20 감독 등록(축 1b·2·7, ①은 감독 직접 실행, ②③은 감독 직접 줄 확인). 신규. 반려 사유 아님(참조 도구의 비정상 입력·기록 공백, 기본 경로 정상).
+
+### F-094 [열림] (심각도: 중간) — 순환·사후 기준 시험(변이가 살아남음)
+- 위치·고칠 것(제품 0767918):
+  ① server/raster_ref/no_fill/index.mjs:22-33 — 정답 집합 reachablePixelSet 이 렌더러와 같은 project·splatRadiusPx·splatPixels 를 쓴다(주석 "독립" 은 zbuffer 와만 독립). 축 4a 변이: splat dx 를 i−u 로 바꿔도 assertNoFill 통과(미확인). 시험 안에 독립 스칼라 구현으로 정답을 만든다.
+  ② server/raster_ref/no_fill/no_fill.test.mjs:59 — EXPECTED_EMPTY 75097 의 출처가 "도달 1703" 주석뿐. 손으로 셀 수 있는 작은 장면 리터럴을 추가하거나 독립 계산 출처를 남긴다.
+  ③ tools/render_views/render_views.test.mjs:36·42-46 — expectedFy 를 구현과 같은 식으로 계산, 중앙 판정도 camera.K.cx 와 비교. 축 4a 변이 cx+3·fx=1.2fy·t[0] 부호 반전 생존(미확인). fy 771.9745…·cx 640·cy 360 리터럴, eye.x≠0 시점의 R·t·한 점 u·v 리터럴, 좌우(u>cx) 단언.
+  ④ render_views.test.mjs:99·103-135 — nonEmptyCount>0, 같은 프로세스 두 번 해시 비교뿐. 골든 해시나 시점별 칠한 픽셀 수 리터럴(출처 기록), opts 반영 확인.
+  ⑤ fixtures/paths/paths.test.mjs:57-59 — 자유 경로 등속 시험이 시드 3 을 "자르기에 걸려 느려짐" 으로 제외(감독 직접 줄 확인). 축 4b 실측 시드 1~200 중 35개가 9 m/s 미만(미확인). 시드를 고르지 말고 구현(웨이포인트를 bounds 안쪽 여유에) 또는 문서·시험 정의(자르지 않은 프레임만 9~11 m/s)를 고친다.
+- 확인 기준: 각 변이가 fail, 원본 통과. ⑤ 시드 1~200 전부에서 정한 정의 성립.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 12:20 감독 등록(축 3·4a·4b, ⑤ 감독 직접 줄 확인). 신규. 반려 사유 아님(구현 결함 확인 안 됨, 시험 공백).
+
+### F-095 [열림] (심각도: 낮음) — PR #15 잔여 묶음(대부분 미확인)
+- 위치·고칠 것(제품 0767918):
+  ① server/raster_ref/project/index.mjs:25-27, contracts/raster/index.mjs:39 — d 가 아주 작은 양수면 u,v ±Infinity(축 1a 실행 project([1,1,1e-310])). 계약에 명시하거나 NaN 통일. (haiku)
+  ② no_fill/index.mjs:30-31 — fround(d)=0 인 점을 렌더러는 건너뛰고 정답 집합은 포함(축 1b). 같은 건너뛰기 규칙. (sonnet)
+  ③ render_views.test.mjs:5x — 좌우 반전 미검사(F-094 ③ 과 함께). (haiku)
+  ④ render_views 음성 시험 없음(빈 viewpoints·null cloud·null 시점), contracts/raster/index.mjs:104 깊이>0 음성 시험 없음, psnr/index.mjs:11·51·56 음성 시험 없음, psnr.test.mjs 가 node:test 미사용. (haiku)
+  ⑤ shade.test.mjs:41·67-73, splat.test.mjs:26-34, project.test.mjs:60-86, ssim.test.mjs:88-97 — 구현을 부르지 않는 '변이' 시험(항상 참). 삭제하거나 실제 구현 주입으로. no_fill.test.mjs:62-65 항상 참. (haiku)
+  ⑥ fixtures/paths/paths.test.mjs:101·108·120 — 드론 수직·접선 지터 제거 변이 생존(F-089 ① 잔여). terrain.test.mjs:92-96 bounds 시험이 항상 참(F-091 ⑦ 잔여). contracts/scenes/scenes.test.mjs:182-196 이름과 본문 불일치. (haiku)
+  ⑦ contracts/raster/index.mjs:65-67 index −5 등 허용, shade/index.mjs:13 법선 문자열 허용·:67 format 2 광원 미검증, unproject·splatRadiusPx·scaleIntrinsics 극단값 비유한 반환, contracts/raster/index.mjs:52 해상도 상한 없음(raw RangeError). (sonnet)
+  ⑧ 성능(축 6, 회귀 벤치 품질): bench/raster_ref/index.mjs:46-64·72 — 워밍업 없음·n=3·마지막 4번째 렌더 낭비, 장면 r<1 px 라 큰 원판 경로 미측정(mean_pixels_per_point 기록·큰 r 케이스 추가). splat/index.mjs:36-45 점마다 배열 push+Int32Array.from, zbuffer 점마다 카메라 재검사, ssim 버퍼 재할당. 기준 아님, 회귀 주기 벤치 신뢰도용. (sonnet)
+- 확인 기준: 항목별 grep 또는 해당 시험.
+- 권장 모델: 항목별 표기
+- 이력: 2026-10-03 12:20 감독 등록(축 1a·1b·4a·4b·6·7). 신규. 반려 사유 아님.
