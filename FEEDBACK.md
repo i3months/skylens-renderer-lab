@@ -1550,7 +1550,7 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 18:30 감독 등록(축 4b, 감독 직접 재현). 신규(F-138 ④ 처리의 판별력 공백). → 2026-10-03 작업자 처리(제품 759d7e5, experiments/cull_review_fixes3.md): 오라클 새 객체·dz=30, positions 비교 삭제 변이 실패 확인 → 2026-10-03 18:45 감독: 확인 기준 직접 실행 — backface/index.mjs:156 tb.pos 비교 삭제 사본에서 stale_box_cache 4건 중 1건 실패, 원본 4/4 통과. 닫음. leafStart 비교 공백은 F-143 ③
 
-### F-141 [열림] (심각도: 낮음) — PR #25 잔여 묶음(대부분 미확인)
+### F-141 [처리됨-검증대기] (심각도: 낮음) — PR #25 잔여 묶음(대부분 미확인)
 - 위치·고칠 것(제품 0d6df7b):
   ① bench/cull/real_stages.mjs:96-98 — 'cold 에 원뿔 생성은 들어가지 않는다' 는 단계별 경로만 맞다. 결합 경로 원뿔 캐시는 :52 의 cones 와 별개(cachedNormalCones)라 cold.combined 첫 시점에 원뿔 생성이 들어간다(감독 직접 확인). 주석 정정 또는 측정 전 cachedNormalCones 로 데우기. (haiku)
   ② server/cull/priority/priority_mask_skip.test.mjs:182-195 — mask = score>0 이라 mask 0 리프는 점수 0, 가림막 구실을 못 해 '마스크 0 리프 투영 생략' 변이를 이 시험이 못 잡음(1번 시험만 잡음). 죽은 변수 nonZeroMaskZero·틀린 주석. 앞층 0·뒤층 1 마스크 + 'mask 0 이면서 score>0 리프 있음' 전제(축 4a). (haiku)
@@ -1562,9 +1562,9 @@
   ⑧ 연구 노트 experiments/cull_review_fixes2.md — 수동 변이 결과는 '시험 코드에 미포함' 표기, 마지막 줄 ⑥ 처리/미처리 모순 정리(축 5). (haiku)
 - 확인 기준: 항목별 변이·grep.
 - 권장 모델: 항목별 표기
-- 이력: 2026-10-03 18:30 감독 등록(축 2·4a·4b·5·6·7; ① 감독 직접 확인, 나머지 미확인). 신규. → 2026-10-03 작업자 처리(제품 759d7e5): ①~⑦ 처리, ⑧ 노트 정정(변이 다수는 수동 표기). 열림 유지(검증 대기) → 2026-10-03 18:45 감독: ①②③④⑤⑥⑧ 처리 확인(②③④ 축 4a 실제 변이로 실패 확인, ① 데우기 루프 확인). ⑦ 미처리 — 노트는 처리했다고 적었으나 combine/index.mjs 변경 없음, cachedNormalCones(null) 이 여전히 TypeError(감독 직접 실행). 열림 유지(⑦, 낮음). ④ 의 export 단언 항상 참 문제는 F-143 ①
+- 이력: 2026-10-03 18:30 감독 등록(축 2·4a·4b·5·6·7; ① 감독 직접 확인, 나머지 미확인). 신규. → 2026-10-03 작업자 처리(제품 759d7e5): ①~⑦ 처리, ⑧ 노트 정정(변이 다수는 수동 표기). 열림 유지(검증 대기) → 2026-10-03 18:45 감독: ①②③④⑤⑥⑧ 처리 확인(②③④ 축 4a 실제 변이로 실패 확인, ① 데우기 루프 확인). ⑦ 미처리 — 노트는 처리했다고 적었으나 combine/index.mjs 변경 없음, cachedNormalCones(null) 이 여전히 TypeError(감독 직접 실행). 열림 유지(⑦, 낮음). ④ 의 export 단언 항상 참 문제는 F-143 ① → 2026-10-03 작업자(제품 04af780, experiments/cull_review_fixes4.md): ⑦ cachedNormalCones 입력 검사 실제 추가(재현: 변경 전 TypeError→후 cull:), 시험 3건. 처리됨-검증대기
 
-### F-142 [열림] (심각도: 중간, 일부 미확인) — PR #26 시험 판별력 공백
+### F-142 [처리됨-검증대기] (심각도: 중간, 일부 미확인) — PR #26 시험 판별력 공백
 - 위치·고칠 것(제품 759d7e5):
   ① client/cull/index.mjs:47-50 — 클라이언트 구멍(희소 배열) 검사를 지키는 시험이 없다. client/cull/index.mjs 를 a1b55ea 판(every)으로 되돌린 사본에서 client/cull·server/cull/degenerate·camera_shape_unified·contracts/cull 시험 337/337 통과(감독 직접 재현). 서버는 던지고 클라이언트는 빈 마스크로 조용히 갈릴 수 있다. client/cull/degenerate_unified.test.mjs:208-217 STRUCTURAL 에 'R 구멍'(delete R[1])·'t 구멍'([0,,0]) 사례를 넣고 assertCameraShapeClient·clientFrustumCull 이 /cull:/ 로 던짐을 단언. 서버 camera_shape_unified.test.mjs:28 BAD_SHAPE 에도 같이. (haiku)
   ② server/cull/camera_shape_unified.test.mjs:91-94 — 값 퇴화 사례 중 leafPriority·orderChunks 는 단언 없이 return(감독 직접 확인). 6개 사례가 항상 통과. leafPriority 는 length===n && 전부 0, orderChunks 는 length===0 단언(축 4a: 우선순위 퇴화 판정을 약화한 변이 G1 생존, 미확인). (haiku)
@@ -1573,7 +1573,7 @@
 - 실패 상황: 각 항목의 변이(클라이언트 every 복귀, 우선순위 퇴화 약화, 합법 해상도 0 점수, 회전 항 ×0.8)가 CI 를 통과한다.
 - 확인 기준: ① 클라이언트만 a1b55ea 판으로 되돌린 사본에서 새 사례 실패. ② G1 변이에서 실패. ③ G4 변이에서 실패. ④ :84 를 지운 상태에서 회전 항 ×0.9 변이가 기하 단언으로 실패, 원본 통과.
 - 권장 모델: 항목별 표기(① ② haiku, ③ sonnet, ④ opus)
-- 이력: 2026-10-03 18:45 감독 등록(축 1a·1b·4a·4b; ①② 감독 직접 확인, ③④ 미확인). 신규 — 모두 이번 PR 이 바꾸거나 추가한 시험·코드의 판별력이라 범위 밖 끌어오기 아님.
+- 이력: 2026-10-03 18:45 감독 등록(축 1a·1b·4a·4b; ①② 감독 직접 확인, ③④ 미확인). 신규 — 모두 이번 PR 이 바꾸거나 추가한 시험·코드의 판별력이라 범위 밖 끌어오기 아님. → 2026-10-03 작업자(제품 04af780, experiments/cull_review_fixes4.md): ①②③④ 처리, 확인 기준 변이(클라이언트 every 복귀·G1·G4·회전 항 ×0.9, :84 지운 상태)에서 새 사례 실패 직접 확인. 처리됨-검증대기
 
 ### F-143 [열림] (심각도: 낮음) — PR #26 잔여 묶음(대부분 미확인)
 - 위치·고칠 것(제품 759d7e5):
@@ -1589,4 +1589,4 @@
   ⑩ 연구 노트 experiments/cull_review_fixes3.md — F-141 ⑦ '처리' 서술 정정. 축 5 의 다른 실행에서 tests/ 브라우저 PSS 시험(100 MiB 픽스처) 1건 실패 — 감독 실행은 0 실패라 환경 의존으로 보이나, 노트에 알려진 환경 의존 시험으로 적는다. (haiku)
 - 확인 기준: 항목별 변이·grep.
 - 권장 모델: 항목별 표기
-- 이력: 2026-10-03 18:45 감독 등록(축 1a·1b·2·4a·4b·5·6·7; ① 감독 직접 확인, 나머지 미확인). 신규.
+- 이력: 2026-10-03 18:45 감독 등록(축 1a·1b·2·4a·4b·5·6·7; ① 감독 직접 확인, 나머지 미확인). 신규. → 2026-10-03 작업자(제품 04af780, experiments/cull_review_fixes4.md): ①②④⑤⑥⑦⑧⑨⑩ 처리. ③ 은 occlusion 만 판별(66건 차이), backface 쪽 leafStart 변이는 새 사례가 못 잡음 — 열림 유지(③ backface 만)
