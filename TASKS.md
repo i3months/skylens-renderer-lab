@@ -200,6 +200,7 @@ tools/       명령줄 도구
 
 | 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
 |---|---|---|---|---|
+| T05.F | (먼저) T04 검토 잔여: F-079 GPS↔ENU 경계 왕복·날짜변경선 테스트(sonnet), F-080 복사 측정 테스트(sonnet), F-081 ①~⑥ 문구·소소한 검사(haiku 몫) | `server/geo/`, `client/geo/`, `server/points/`, `contracts/ply/`, `format/`, `README.md` | F-079·F-080·F-081 확인 기준 | sonnet |
 | T05.0 | 계약: 장면 생성기 인터페이스(시드·점 수·구간 수·수준 수·출력 형식 27 B/56 B, 결정 0012), 고정 시점 8곳 확정 | `contracts/scenes/`, `fixtures/viewpoints/` | 시점 8곳 위치·자세가 문서와 일치 | opus |
 | T05.1 | 평지 + 상자 건물 장면(무늬 텍스처, 법선 포함) | `fixtures/scenes/flat_boxes/` | 같은 시드 → 바이트 동일 | sonnet |
 | T05.2 | 완만한 지형 장면 | `fixtures/scenes/terrain/` | 같은 시드 → 바이트 동일 | sonnet |
