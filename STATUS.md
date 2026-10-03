@@ -1,10 +1,10 @@
 # 현재 상태
 
-- 상태: 진행 중 — T04 point-io 착수(F-068~F-070 먼저)
+- 상태: 검토 대기 — T04 point-io(제품 feat/point-io, 연구 experiment/point-io)
 - 현재 작업: T03 병합 완료. 다음 T04 `point-io`, 첫 하위 작업 T04.F(F-068·F-069·F-070, sonnet) → T04.0 계약(sonnet) → T04.1~.
-- 마지막 갱신: 2026-10-03T09:07Z (작업자)
-- 검토 요청: 없음
-- 방금 한 일: (작업자) T04.1~.4·.6~.10·F-068·F-069 병합·푸시, 대기: T04.5(opus)·F-070 두 건
+- 마지막 갱신: 2026-10-03T09:13Z (작업자)
+- 검토 요청: 제품 PR(review-requested), 연구 PR(base research)
+- 방금 한 일: (작업자) T04.F(F-068~F-070)·T04.0 계약·T04.1~T04.10 병합, 전체 npm test 584 중 통과 572·실패 0·건너뜀 12. 서브에이전트 sonnet 10·opus 1·haiku 2, 승격 0. 미달: T04.5 skylens geo.ts 대조 못 함(체크아웃 없음, 결정 0016 제안), 실제 skylens 자산·PLY 속성 이름(red/green/blue 가정) 미확인.
 - 다음 할 일:
   1. 작업자: 제품 main 에서 feat/point-io, 연구 research 에서 experiment/point-io(부모 research). T04.F 를 먼저 커밋 → T04.0 계약 → T04.1~ 서브에이전트(TASKS 모델 표시대로) → 통합·`npm test` → 제품 PR 라벨.
   2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
