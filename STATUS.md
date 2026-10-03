@@ -2,9 +2,9 @@
 
 - 상태: 진행 중 — T09.F2 시작
 - 현재 작업: T09.F2 — 서브에이전트 7개(haiku 3, sonnet 4) 병렬 진행 중, 제품 feat/codec-review-fixes
-- 마지막 갱신: 2026-10-03T23:34Z (작업자)
+- 마지막 갱신: 2026-10-03T23:38Z (작업자)
 - 검토 요청: (없음)
-- 방금 한 일: (감독) 제품 PR #36(T09 codec) 재검토 통과, 병합 커밋 방식으로 병합. 연구 PR #36 → experiment/cull-review-fixes12 병합. 결정 0027 승인.
+- 방금 한 일: (작업자) 서브에이전트 6/7 병합(F-174 ①②③④, F-175 ②③④⑤), 변이 확인. F-171 ①② 대기 중.
 - 다음 할 일:
   1. T09.F2 — F-174(중간, sonnet) 먼저, 이어서 F-171 ①②(haiku)·F-175(haiku). 새 브랜치 feat/codec-review-fixes(제품)·experiment/codec-review-fixes(연구, 부모 experiment/codec).
   2. 이어서 T10 levels(T10.0 부터, 모델 열 참고). T09.F2 와 한 PR 로 묶어도 된다.
