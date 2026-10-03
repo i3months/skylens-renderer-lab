@@ -28,3 +28,10 @@
 - F-113 ④: F-107 ② 순서 회귀를 실제로 잡으려면 budget 이 screenErrorRule 을 주입받아야 함(소유 경로 밖).
 - 계약 보완 필요: occlusionCull 의 pointSizeM, backfaceCull 의 opts, combine 의 chunks 가 NOT_DRAWN 리프를 포함할 수 있음, 퇴화 판정(1e-6 직교 허용, 화각 1e-6 rad)이 모듈마다 자체 구현이라 통합 시 degenerate 모듈로 일원화 필요.
 - 성공 기준 수치는 바꾸지 않았다. T08.2 영상 기준 미달 2건은 감독 판단 대상.
+
+## 반려 1회 수정 (F-115·F-116·F-117, 제품 aadef5a)
+- F-115 sonnet: distance 가 leafIndex 로 노드 상자를 읽도록 수정, 계층 검사('cull:')·퇴화 시점 빈 마스크, 실제 buildHierarchy 시험과 변이 시험 추가.
+- F-116 opus: 절두체 4면에 원판 반경 여유(m = fx·pointSizeM/2, 식으로 유도), 서버·클라이언트·predict·combine 에 pointSizeM 전달. 상세 culling_F116.md. LOD 선택(selectLevels·budget·progressive)은 여전히 중심점 규칙 — 잔여로 결정 0023 에 적을 것.
+- F-117 opus: 뒷면 제거를 가림 덮임 판정과 결합해 24시점 SSIM 하락 0, todo 없음. 단 뒷면 단계가 가림 단계의 부분집합이라 독립 기여 0 — 기준 재정의는 감독 판단. 상세 culling_F117.md.
+- combine/predict 채택 sonnet 1개. 이번 실행 서브에이전트: sonnet 2, opus 2, haiku 0. 승격 없음.
+- npm test 1448 중 1436 통과·0 실패·12 건너뜀·0 todo. 실제 skylens 체크아웃 입력은 [local].
