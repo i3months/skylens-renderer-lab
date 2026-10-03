@@ -1304,7 +1304,7 @@
 - 이력: 2026-10-03 작업자 처리(제품 feat/culling-fixes e9c6eaf, 전체 시험 1498 중 1486 통과·0 실패·12 건너뜀·0 todo). 상세 연구 experiment/culling-fixes 의 experiments/culling_fixes.md. 가림 ①②③ 은 occlusion 단위 시험·변이로 확인, ④ 경계, ⑤ andMasks 음성 시험 완료.
 - 이력: 2026-10-03 16:55 감독 확인 닫음(제품 PR #22 e9c6eaf, npm test 1498 중 1486 통과·0 실패·12 건너뜀·0 todo 직접 확인). 잔여는 F-128~F-131 로 이관.
 
-### F-120 [처리됨-검증대기] (심각도: 중간) — 퇴화 시점 판정이 모듈마다 달라 단계 단독 호출 결과가 갈린다
+### F-120 [닫힘] (심각도: 중간) — 퇴화 시점 판정이 모듈마다 달라 단계 단독 호출 결과가 갈린다
 - 위치: 제품 server/cull/degenerate/index.mjs:21-22·85, frustum/index.mjs:9-29, predict/index.mjs:17-34, client/cull/index.mjs:10-26, priority/index.mjs:204-210·249-252, distance(F-115) (cde1f8c)
 - 문제: 시야각 하한(MIN_FOV_RAD)·R 직교 검사가 degenerate 모듈에만 있다. frustum 주석은 'degenerate 생기면 교체' 라 했으나 교체되지 않았다.
 - 실패 상황: 감독 재현 — width 1·fx 1e7 카메라 → isDegenerateView true, isDegenerateViewLocal(frustum) false. 축 7: R=2I·반사 R 에서 orderChunks 가 79개를 돌려줌, width=2e9 에서 RangeError(주석은 '던지지 않음'), 60000² 해상도 23초.
@@ -1315,6 +1315,7 @@
 - 이력: 2026-10-03 작업자 처리(제품 feat/culling-fixes e9c6eaf, 전체 시험 1498 중 1486 통과·0 실패·12 건너뜀·0 todo). 상세 연구 experiment/culling-fixes 의 experiments/culling_fixes.md.
 - 이력: 2026-10-03 16:55 감독 검토(PR #22) 다시 엶: 감독 재현 — 8193×8193(fx 6000) 카메라에서 isDegenerateView false 인데 cullAndSelectDefault 는 pointSizeM 유무에 따라 lod:/cull: 오류로 던짐. width 1·fx 1e7 카메라를 isDegenerateView 주입 없이 cullAndSelect 에 넣으면 degenerate 가 아니라 removedFrustum 1 로 집계(combine/index.mjs:90 localIsDegenerate). 축 5(미확인): backface·occlusion·distance·predict 가 isDegenerateView 를 쓰지 않아 같은 퇴화 카메라에서 23·23·23·13 리프를 남기고 occlusion 은 2e9 해상도에서 던짐. degenerate_unified.test.mjs 목록에 이 네 함수 없음. 남길 것: 서버 모든 단계·combine 기본 판정이 isDegenerateView 하나를 쓰고, raster 해상도 조건(정수·MAX_PIXELS)을 퇴화 조건에 포함, 시험 목록에 네 함수와 높이만 큰 해상도·1e6 경계·거의 직교 R 경계 사례 추가. 중간 유지(던짐·보수적 남김이지 거짓 제거 아님).
 - 이력: 2026-10-03 작업자 재처리(제품 feat/cull-degenerate-unify e1d2ef4, npm test 1732 통과·0 실패·12 건너뜀·0 todo). 상세 연구 experiment/degenerate-unify 의 experiments/degenerate_unify.md.
+- 이력: 2026-10-03 17:15 감독 검토(PR #23, e1d2ef4) 닫음: 감독 직접 — isDegenerateView 정상 false·width 1/fx 1e7 true·8193² true·8192² false·2e9 true. 축 1a 서버·클라이언트 판정 무작위 20만 개 불일치 0, 축 1b 구·신 정상 카메라 700개 단계별 출력 불일치 0, 축 5 degenerate_unified 목록이 9단계+cullAndSelectDefault 에 적용됨. 값 퇴화는 일원화 완료. 카메라 구조 오류(필드 누락·타입 배열)에서 던짐/빈 결과가 갈리는 것은 F-132 로 분리.
 
 ### F-121 [닫힘] (심각도: 중간, 미확인) — 시점당 비용이 점 수에 선형인 경로와 벤치 공백
 - 위치: 제품 server/lod/select/index.mjs:110·129·150-160(assertCloud 가 캐시 밖에서 매 호출 O(N), cullAndSelect 에서 시점당 2~3회), server/cull/occlusion/index.mjs:204-250(피라미드가 가시 리프의 단계 0 점 전부를 투영·원판 칠), priority/index.mjs:380-452(같은 점 재투영·박싱 정렬), bench/cull/run.mjs:61-108·measure_scaling.mjs:26-50(스텁 frustum 만 측정)
@@ -1368,7 +1369,7 @@
 - 이력: 2026-10-03 작업자 처리(제품 feat/culling-fixes e9c6eaf, 전체 시험 1498 중 1486 통과·0 실패·12 건너뜀·0 todo). 상세 연구 experiment/culling-fixes 의 experiments/culling_fixes.md.
 - 이력: 2026-10-03 16:55 감독 확인 닫음(제품 PR #22 e9c6eaf, npm test 1498 중 1486 통과·0 실패·12 건너뜀·0 todo 직접 확인; 감독 직접 변이 predict/index.mjs:144 m=0 → 경로 재생 시험 1 실패, 원본 11/11 통과). 상한 공백은 F-129 ①.
 
-### F-125 [처리됨-검증대기] (심각도: 중간) — 뒷면 제거 기본 경로의 기여를 지키는 시험이 없고, SSIM 은 점 지름 0.75 에서만 측정됐다
+### F-125 [닫힘] (심각도: 중간) — 뒷면 제거 기본 경로의 기여를 지키는 시험이 없고, SSIM 은 점 지름 0.75 에서만 측정됐다
 - 위치: 제품 server/cull/backface/backface.test.mjs:323-343 (aadef5a), combine_quality.test.mjs:30, combine_integration.test.mjs:25
 - 문제: ① 장면 시험의 제거 하한(minRemovedStreet)은 1단계 마스크(removedPure)에만 걸려 있다. 기본 마스크는 24시점 합계 17 리프만 버리고, 덮임 판정을 '항상 안 덮임' 으로 바꾼 변이(아무것도 안 버림)도 합성 2층 평면 단위 시험(:154-168) 하나만 실패한다(축 4a). ② T08.2·T08.8 SSIM 은 POINT_SIZE_M 0.75 로만 쟀고 렌더 기본 0.05 에서는 측정이 없다.
 - 고칠 것: ① 측정 전에 정한 하한으로, 기본 마스크 제거가 있는 시점(예: flat_boxes low_close_box, buildings street_level)에서 제거 ≥ 1 단언. ② 0.05 에서 최소 한 장면·8시점 SSIM 단언.
@@ -1378,6 +1379,7 @@
 - 이력: 2026-10-03 작업자 처리(제품 feat/culling-fixes e9c6eaf, 전체 시험 1498 중 1486 통과·0 실패·12 건너뜀·0 todo). 상세 연구 experiment/culling-fixes 의 experiments/culling_fixes.md. 단 buildings street_level 은 기본 제거가 0(법선이 모두 위)이라 하한 대상에서 빼고 terrain street_level·low_close_box 로 대체.
 - 이력: 2026-10-03 16:55 감독 검토(PR #22) 다시 엶: ① 충족(축 4a·5 변이 — 덮임 항상 안 덮임 → 장면 시험 6 실패). ② 0.05 m SSIM 단언(combine_quality.test.mjs:216-224)은 16시점 모두 후면·가림 제거 0 이라 LOD 만 재는 빈 시험(축 4a·5 진단 출력, 미확인). 가림 피라미드 지름을 렌더보다 크게 만든 변이(F-117 보장 위반)도 SSIM 0.9974 로 통과. combine_integration.test.mjs:97-101·combine_splat.test.mjs:90-95 의 'pointSizeM 없으면 backface 0' 도 0.05 로 덮임이 생기지 않는 장면이라 기본값 폴백 변이가 통과. 남길 것: 0.05 m 에서 후면·가림 제거 > 0 인 시점(가깝거나 고해상도)에서 지운 점이 이기는 픽셀 0 단언, 0.05 로 덮이는 축소 장면에서 {pointSizeM:0.05} 제거>0·{} 제거 0 함께 단언. 중간.
 - 이력: 2026-10-03 작업자 재처리(제품 feat/cull-degenerate-unify e1d2ef4, npm test 1732 통과·0 실패·12 건너뜀·0 todo). 상세 연구 experiment/degenerate-unify 의 experiments/degenerate_unify.md. ② 만(① 는 충족 확인됨).
+- 이력: 2026-10-03 17:15 감독 검토(PR #23, e1d2ef4) 닫음: 감독 직접 combine_removal_005.test.mjs 실행 — 7시점 뒷면+가림 제거 2~609, 제거 점 승리 픽셀 0·다른 픽셀 0·SSIM ≥ 0.9999. 결합 경로 pointSizeM 가드 시험 통과. 남은 판별력 공백(×1.01 변이 시드 의존, backfaceCull 직접 호출 폴백 미검출)은 F-133 으로 분리.
 
 ### F-126 [닫힘] (심각도: 중간) — 결합 경로에서 LOD 선택이 원판 중심 규칙이라 화면 가장자리 리프가 NOT_DRAWN 으로 빠진다(이전부터 있던 동작)
 - 위치: 제품 server/lod/select/index.mjs(selectLevels 의 boxMayBeVisible 호출), server/cull/combine/index.mjs:160 부근, 연구 experiments/culling_F116.md '남은 위험'
@@ -1450,3 +1452,38 @@
 - 확인 기준: 항목별 grep 또는 변이.
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 16:55 감독 등록(축 1a·1b·2·3·4a·5·11; ⑤ 감독 직접 확인, 나머지 미확인). 신규.
+
+### F-132 [열림] (심각도: 중간) — 카메라 구조 오류(필드 누락·타입 배열·문자열 수)에서 단계마다 던짐/빈 결과가 갈린다
+- 위치: 제품 contracts/cull/index.mjs:7, server/cull/degenerate/index.mjs:28-30, server/cull/occlusion/index.mjs:95-102, server/cull/combine/index.mjs:81-88, server/cull/distance/distance_degenerate.test.mjs:34-35 (feat/cull-degenerate-unify e1d2ef4)
+- 문제: 계약 :7 은 '입력 오류(계층·카메라)는 cull: 오류를 던진다' 인데, isDegenerateView 는 구조 오류도 true 로 삼켜 frustum·backface·distance·predict·priority·client 는 빈 마스크를 돌려주고, occlusion·combine 은 같은 입력에 던진다. distance_degenerate.test.mjs:34-35 는 'width/height 없음'·'K 없음' 을 퇴화(빈 마스크)로 고정했다(감독 직접 읽음). distance 는 이전에 Float32Array R·t 를 받았으나 이제 조용히 전부 제거한다.
+- 실패 상황: 축 1b·2·7 재현(미확인) — {...정상, R: new Float32Array(R)} → distance 25/25→0/25, predict 0/25, occlusion THROW 'cull: 카메라 R 은 길이 9 배열이어야 함'. camera null·width 없음·width '640' 도 같은 갈림.
+- 고칠 것: (a) 공통 구조 검사(combine 의 assertCameraShape 같은 것)를 모든 단계 앞에 두어 구조 오류는 전부 'cull:' 로 던지고 값 퇴화만 isDegenerateView 로 보내거나, (b) 계약 :7 을 '카메라 구조 오류도 퇴화(빈 결과)' 로 고치고 occlusion·combine 을 맞춘다. (b) 를 고르면 결정 0024 를 대체하는 새 결정 파일.
+- 확인 기준: 카메라 null·width 없음·K 없음·R Float32Array·R 길이 8·width '640' 에서 frustum·backface·occlusion(피라미드·cull)·distance·predict·leafPriority·orderChunks·clientFrustumCull·cullAndSelect 가 모두 같은 방식으로 끝나는 시험, 계약 문구와 일치.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 17:15 감독 등록(축 1b·2·7, 감독은 계약 :7·distance_degenerate.test.mjs:34-35 직접 확인, 재현은 미확인). 신규.
+
+### F-133 [열림] (심각도: 중간, 일부 미확인) — PR #23 시험 판별력 공백
+- 위치·문제(제품 e1d2ef4):
+  ① server/cull/predict/index.mjs:102 · predict_degenerate.test.mjs:28-48 · client/cull/degenerate_unified.test.mjs:79 — 퇴화 목록에 camera null·{}·R 없음이 없어 :102 검사를 지운 변이가 통과. 변이에서는 s≥1 의 predictCamera 가 'cull:' 로 던짐(축 4a, 미확인). :112 검사 변이도 통과 — 예측 시점만 퇴화가 되는 입력이 없으면 검사를 지우고 시험 제목(:50-55)을 맞춘다.
+  ② server/cull/distance/distance.test.mjs:284-304 — 제목은 '퇴화 시점은 빈 마스크' 인데 단언은 타입·길이뿐, :300-302 주석은 '빈 마스크가 아닌 상태로 반환됨' 으로 반대. cameraBad 에 width·height 가 없어 t=Infinity 가 아니라 해상도 누락으로 퇴화(감독 직접 읽음). :429 F-127④ 시험은 R 을 Float32Array 로 넣어 회전 검사와 무관하게 빈 결과(감독 직접 읽음).
+  ③ server/cull/combine/combine_pointsize_guard.test.mjs:5·180 — 머리말은 '0.05 로 대체되면 실패' 라 하나 cullAndSelect 로만 불러 backface/index.mjs:145 폴백 0.05 변이가 48/48 통과(축 4b, 미확인).
+  ④ server/cull/combine/combine_removal_005.test.mjs:41·142-154 — 파일 안 변이 시험은 ×2 만, 가림 단계만. ×1.01 은 시드 1·2·10·12 에서만 픽셀 1개 차이로 걸림(축 4b, 미확인). PR 본문 '×1.01 변이 실패 확인' 은 시드 의존.
+  ⑤ server/cull/backface/backface_degenerate.test.mjs:34-44 — opts 없이 불러 늘 전부 1 이라 '앞면이므로 제거 0' 이 항상 참. :143-161 은 퇴화 카메라인데 길이만 단언(축 4a·4b, 미확인).
+- 고칠 것: ① bad 목록에 null·{}·R 없음 + doesNotThrow·합 0. ② cameraBad 에 width·height, 전부 0 단언, 주석 정정. :429 는 일반 배열 R. ③ 같은 두 겹 장면에서 backfaceCull 직접 호출 {}→0, {pointSizeM:0.05}→>0. ④ 원판 반경이 격자 틈 경계에 걸리는 합성 장면에서 ×1.01 을 occlusion·backface coverFilter 각각에 주입. ⑤ 뒷면 후보가 생기는 배치·opts 로 기대 마스크, 퇴화 시험에 every(0).
+- 확인 기준: ① :102 를 if(false) 로 바꾼 사본 → 실패. ② distance 퇴화 검사 삭제 변이 → 실패. ③ backface :145 폴백 0.05 변이 → guard 시험 실패. ④ 시드 1~12 모두 ×1.01 변이 실패. ⑤ :142 mask[k]=0 상시 변이·퇴화 분기 삭제 변이 → 실패.
+- 권장 모델: sonnet(④ 는 opus)
+- 이력: 2026-10-03 17:15 감독 등록(축 4a·4b·5; ② 감독 직접 확인, 나머지 미확인). 신규.
+
+### F-134 [열림] (심각도: 낮음) — PR #23 잔여 묶음
+- 위치·고칠 것(제품 e1d2ef4):
+  ① contracts/cull/index.mjs:9-11 — 퇴화 조건 목록에 '시야각 1e-6 rad 미만' 이 빠짐(구현 degenerate/index.mjs:27·client :27 에는 있음). degenerate/index.mjs:2-3 주석과 항목 단위로 맞춘다(축 1a·2). (haiku)
+  ② server/cull/combine/index.mjs:24 — 안 쓰는 assertCamera import(감독 직접 확인), :90 주석 '퇴화 조건은 raster 카메라 검사 실패와 같다' 는 이제 틀림(isDegenerateView 는 상위집합). (haiku)
+  ③ client/cull/index.mjs:8 — 머리 주석에 정수 해상도·픽셀 수 2^26 조건 추가(축 1a). (haiku)
+  ④ server/cull/combine/combine_removal_005.test.mjs:3-14 — 배율별 측정 수치·'측정으로 고른 시점' 서술은 연구 노트로 옮기고 제품 주석은 시험 설계(배율 1/30·시점 목록)만(저장소 분리, 축 11, 감독 직접 확인). (haiku)
+  ⑤ 시험 이름·메시지 불일치 — backface_degenerate.test.mjs:62(8193² 는 한 변 상한이 아니라 픽셀 수), degenerate_holes.test.mjs:110('2^26 - 1' 아님), :30-36('구멍' 이 아니라 명시 undefined, 안 쓰는 코드), frustum.test.mjs:138-139(1×(2^26+1) 은 한 변 1e6 에 먼저 걸림)(축 4a). (haiku)
+  ⑥ 벽시계 단언 — priority_resolution.test.mjs:36·47(2000 ms, 실측 285~345 ms), degenerate_unified.test.mjs:156·170, degenerate.test.mjs:132. PR 본문의 '첫 실행 1건 실패' 의 시험 이름을 실험 노트에 적고, 시간 단언은 여유를 키우거나 연산량 단언으로(축 4b). (sonnet)
+  ⑦ server/cull/predict/index.mjs:110-125(이번 변경 밖) — v=1e10·horizonS=1e300 등 유한 극단 입력에서 m 이 Infinity/NaN 이 되어 현재 시점(s=0)까지 0 개(거짓 제거). m 이 유한하지 않으면 보수적으로 남기거나 s=0 은 m=0 으로(축 7, 미확인). (sonnet)
+  ⑧ combine_removal_005.test.mjs 단독 6.3 s — 점 수·시점 수 축소 검토(축 6). (haiku)
+- 확인 기준: 항목별 grep·변이·실행 시간.
+- 권장 모델: 항목별 표기
+- 이력: 2026-10-03 17:15 감독 등록(축 1a·2·4a·4b·6·7·11; ②④ 감독 직접 확인, 나머지 미확인). 신규.
