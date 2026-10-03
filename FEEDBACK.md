@@ -1220,25 +1220,25 @@
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 15:05 감독 등록(축 2·4a·4b·5·7·12). 신규. → 2026-10-03 작업자 처리(제품 feat/lod-fixes5 cf1a8c0; 연구 experiment/lod-fixes5): 항목별 변이 확인과 npm test 1201 중 1189 통과·0 실패·12 건너뜀은 experiments/lod-fixes5.md. F-110 ③ 은 F-111 ⑧ 입력 검사와 충돌해 카메라 t 오버플로 방식으로 바꿈. F-110 ① 설정 1 의 d_eff×0.6 변이는 실제 칸 변으로는 통과, 설정 2·3 이 잡음(노트 참조). → 2026-10-03 15:28 감독 확인 닫음: ②(nokey 변이 6/6 실패)·③(jt 0.4배 → 1.3 m 한계에 5시드 모두 걸림)·⑥(cAbs=0 → 3건 실패)·⑧(검사별 삭제 변이 모두 실패)은 축 1a·4a·4b 재현, ①④⑤⑦⑨ 는 diff 로 확인. 남은 것: ⑦ 상한 제한 주장(F-113 ①), ⑧ 의 중복·누락·Infinity 상자(F-112).
 
-### F-112 [처리됨-검증대기] (심각도: 중간) — assertHierarchyInput: 리프 번호 중복·누락 미검사, 빌더가 만든 Infinity 상자 거부(퇴행), 호출마다 전수 검사
+### F-112 [닫힘] (심각도: 중간) — assertHierarchyInput: 리프 번호 중복·누락 미검사, 빌더가 만든 Infinity 상자 거부(퇴행), 호출마다 전수 검사
 - 위치: 제품 server/lod/select/index.mjs:57-66 (cf1a8c0), 원인 쪽 server/lod/octree/index.mjs:120-121 (`f32Up(c[a] + h)`)
 - 문제: ① 노드 순회가 leafIndex 범위만 보고 0..leafCount−1 이 정확히 한 번씩 나오는지 보지 않는다(감독이 :57-66 직접 읽음). ② 상자 유한성 검사가 빌더 자신이 만든 계층을 거부한다: 정육면체 루트의 c+h 가 Float32 최댓값을 넘으면 boxMax 가 Infinity(감독 재현: 점 (0,2e38,1)·(2e38,3e38,1) → boxMax[1] = Infinity). origin/main 은 같은 입력에 빈 결과를 돌려줬다. ③ 이 전수 검사가 selectLevels·materialize·selectWithBudget 호출마다 돈다(축 6: 노드 44k 계층에서 selectLevels +15~20%, selectWithBudget +20~30% — 미확인, 기본 maxLeafPoints 4096 에서는 잡음 수준).
 - 실패 상황: ① 두 노드가 같은 리프 번호면 selectLevels 가 pointCount 3094(실제 2886)를 던지지 않고 돌려주고, 리프 노드 하나를 −1 로 바꾸면 그 리프가 조용히 사라진다(축 7 재현). ② 극단 좌표의 정상 계층이 'lod:' 오류. ③ 잘게 쪼갠 계층에서 프레임마다 수 ms.
 - 고칠 것: ① seen 배열로 리프 번호가 정확히 한 번씩인지 검사. ② octree 상자를 ±Float32 최댓값으로 자르거나, 검사를 NaN·lo>hi 거부로 좁힘(둘 중 하나, 이유를 주석에). ③ 검증한 계층을 WeakSet 에 기억해 재검사를 건너뛰거나(변조 가능성 문서화) 전수 검사를 buildHierarchy 시점으로 옮김.
 - 확인 기준: ① 중복·누락 사례가 'lod:' 로 던지는 시험. ② 위 두 점 입력에서 selectLevels 가 던지지 않고 main 과 같은 결과인 회귀 시험. ③ 44k 노드 계층 selectLevels 중앙값이 main 대비 +10% 이내(측정 기록).
 - 권장 모델: sonnet
-- 이력: 2026-10-03 15:28 감독 등록(축 1b·6·7). 신규. 이번 PR 이 추가한 검사(F-111 ⑧) 안이라 범위 밖 끌어오기 아님. → 2026-10-03 작업자 처리(제품 feat/culling cde1f8c; 연구 experiment/culling): ①리프 번호 일대일 검사 ②octree 상자 ±Float32 최댓값 자름(main 도 같은 입력에서 던짐을 확인) ③O(노드) 훑기 WeakMap 캐시(selectLevels +2%, 노드 37~39k·편차 ±30%, 44k 미달). npm test 1394 중 1380 통과·0 실패·12 건너뜀·2 todo. 상세 experiments/culling.md.
+- 이력: 2026-10-03 15:28 감독 등록(축 1b·6·7). 신규. 이번 PR 이 추가한 검사(F-111 ⑧) 안이라 범위 밖 끌어오기 아님. → 2026-10-03 작업자 처리(제품 feat/culling cde1f8c; 연구 experiment/culling): ①리프 번호 일대일 검사 ②octree 상자 ±Float32 최댓값 자름(main 도 같은 입력에서 던짐을 확인) ③O(노드) 훑기 WeakMap 캐시(selectLevels +2%, 노드 37~39k·편차 ±30%, 44k 미달). npm test 1394 중 1380 통과·0 실패·12 건너뜀·2 todo. 상세 experiments/culling.md. → 2026-10-03 15:55 감독 확인 닫음(PR #21 cde1f8c): 감독 사본 변이 — seen 검사 삭제 → hierarchy_leafid 1 실패, 리프 수 비교까지 삭제 → 3 실패, 원본 10/10 통과. ② octree 자르기 삭제 → octree_f32max 4 실패(축 4b). ③ 축 4b 재측정 노드 85,749·30,178 중앙값 main 대비 잡음 범위(+10% 이내). 캐시 불변 규약의 계약 기재는 F-122 ②.
 
-### F-113 [처리됨-검증대기] (심각도: 중간) — 시험 이름·주석이 주장하는 판별력과 실제가 어긋남
+### F-113 [닫힘] (심각도: 중간) — 시험 이름·주석이 주장하는 판별력과 실제가 어긋남
 - 위치(제품 cf1a8c0): ① server/lod/progressive/progressive.test.mjs:110·143-150 ② server/lod/budget/budget_discrim.test.mjs:155-156·164 ③ server/lod/select/screen_error.test.mjs:131(설정 1·4 의 l−1 값)·161·176(maxEst) ④ server/lod/select/hierarchy_input.test.mjs:72-91 ⑤ server/lod/select/screen_error_cabs.test.mjs:11·30-39
 - 문제: ① 주석은 상한 제한을 검증한다고 하나 levelForDistance 가 이미 levelCount−1 을 넘지 않아 `Math.min(maxLevel, level)` 제거 변이가 10/10 통과(축 4b; 동작 동치 변이). 기대값도 같은 제한을 다시 계산한다. ② 주석의 사전 규칙(최솟값 절반 내림)대로면 10000 은 0.23/2 인데 값은 0.28/3(감독 지시 '올리기만' 의 결과) — 규칙 문장에 그 예외가 없다. ③ 설정 1·4 의 '단계 l−1 강제' 값 0.146/0.128 은 측정이 아니라 절반 계산(실제 변이에서는 cornerChecked=0 으로 다른 경로로 실패, 축 1a). maxEst 는 계산만 하고 단언에 안 쓴다. ④ 이름은 'd 가 비유한' 경로를 시험한다고 하나, rule.leaf 는 비유한 d 에서도 던지지 않아(distM Infinity, effDistM 0) 순서만 바꾸는 변이는 동치로 통과한다(축 4a). 감독 변이(순서 + 던짐)는 잡힘. ⑤ 참값을 C = −Rᵀt 로 잡는데 실제 꼭짓점은 −R⁻¹t 이고 차이(최대 3e-7 m)가 잡으려는 오차와 같은 크기(축 1a, 미확인).
 - 실패 상황: 읽는 사람이 실제로 지켜지지 않는 성질을 시험이 지킨다고 믿는다. ⑤ 는 정당한 수정이 거짓 실패하거나 cAbs 축소 변이가 통과할 수 있다.
 - 고칠 것: ① 상한 주장을 빼거나 levelCount 보다 큰 단계를 내는 규칙을 주입해 제한을 직접 시험. ② 규칙 문장에 'max(이전 한계, 새 측정 절반)' 을 적음. ③ 설정 1·4 값을 실측하거나 '추정' 으로 표기, maxEst 를 단언에 쓰거나 삭제. ④ 이름·주석을 '시야 밖 비유한 d 리프는 NOT_DRAWN, 던지지 않음' 으로, F-107 ② 회귀 주장은 rule.leaf 스텁이 던지게 하는 단위 시험으로. ⑤ 참값을 R⁻¹(BigInt 여인수)로, 또는 'Rᵀ 모형 기준' 과 비직교 오차 한계를 주석에.
 - 확인 기준: ① 상한 제거 변이 → 실패(또는 주장 삭제 grep). ② 표에서 계산한 값 = DISCRIM 값(모든 행). ③ 주석 수치 = 변이 실행 로그. ④ 순서만 바꾸는 변이 → 실패(스텁 시험), 또는 이름 정정. ⑤ R⁻¹ 참값으로 원본 통과·cAbs=0 변이 3건 실패.
 - 권장 모델: sonnet(⑤ 는 opus)
-- 이력: 2026-10-03 15:28 감독 등록(축 1a·4a·4b·5). 신규. 모두 이번 PR 이 고친 시험 안이라 범위 밖 끌어오기 아님. → 2026-10-03 작업자 처리(제품 feat/culling cde1f8c; 연구 experiment/culling): ①상한 주장 삭제 ②규칙 문장·DISCRIM 대조 시험 ③실측 수치 ④이름 정정(스텁 시험은 소유 경로 밖 변경 필요) ⑤R⁻¹ 참값·cAbs 변이 3건 실패. npm test 1394 중 1380 통과·0 실패·12 건너뜀·2 todo. 상세 experiments/culling.md.
+- 이력: 2026-10-03 15:28 감독 등록(축 1a·4a·4b·5). 신규. 모두 이번 PR 이 고친 시험 안이라 범위 밖 끌어오기 아님. → 2026-10-03 작업자 처리(제품 feat/culling cde1f8c; 연구 experiment/culling): ①상한 주장 삭제 ②규칙 문장·DISCRIM 대조 시험 ③실측 수치 ④이름 정정(스텁 시험은 소유 경로 밖 변경 필요) ⑤R⁻¹ 참값·cAbs 변이 3건 실패. npm test 1394 중 1380 통과·0 실패·12 건너뜀·2 todo. 상세 experiments/culling.md. → 2026-10-03 15:55 감독 확인 닫음(PR #21 cde1f8c, 축 4b 변이: ② 0.23/2 하향·minGap 하향 → 실패, ⑤ cAbs=0 변이 3배치 실패). ③ 의 '단계 l−1' 주석 수치 불일치는 F-122 ⑨ 로 옮김.
 
-### F-114 [처리됨-검증대기] (심각도: 낮음) — 문서·주석 잔여
+### F-114 [닫힘] (심각도: 낮음) — 문서·주석 잔여
 - 위치·고칠 것:
   ① 제품 contracts/lod/index.mjs:6·11 — f 가 7행에서 뷰어 max(fx,fy) 인데 11행 minEdge0M 의 f 는 촬영 카메라 fx. 기호를 나누고, 6행은 'Δd 는 edge0M 하한에만 쓴다' 로(축 2). (haiku)
   ② 연구 experiment/lod-fixes5 decisions/0022-lod-levels-positions-copy.md:36 '남은 것: … 어긋남(F-109 ①)' → '반영됨(lod-fixes5)'. (haiku)
@@ -1250,5 +1250,86 @@
   ⑧ 제품 server/lod/budget/budget_discrim.test.mjs:155·164 — 주석은 한계를 '시드 최솟값의 절반' 으로 정한다고 하나 10000 예산은 그 규칙이면 0.23/2(최솟값 0.4602·5). 0.28/3 은 이전 측정 값을 '올리기만' 규칙으로 유지한 것이라는 예외 문구를 넣어, 다음 재측정에서 다시 내려가지 않게. (haiku)
 - 확인 기준: 항목별 grep 또는 변이.
 - 권장 모델: 항목별 표기
-- 이력: 2026-10-03 15:28 감독 등록(축 2·4a·4b). 신규. ⑦ 은 2026-10-03 15:20 중복 감독 실행(축 2)이 덧붙임. → 2026-10-03 작업자 처리(제품 feat/culling cde1f8c; 연구 experiment/culling): ①~⑥ 제품, 연구 ②③⑦ 처리. npm test 1394 중 1380 통과·0 실패·12 건너뜀·2 todo. 상세 experiments/culling.md.
+- 이력: 2026-10-03 15:28 감독 등록(축 2·4a·4b). 신규. ⑦ 은 2026-10-03 15:20 중복 감독 실행(축 2)이 덧붙임. → 2026-10-03 작업자 처리(제품 feat/culling cde1f8c; 연구 experiment/culling): ①~⑥ 제품, 연구 ②③⑦ 처리. npm test 1394 중 1380 통과·0 실패·12 건너뜀·2 todo. 상세 experiments/culling.md. → 2026-10-03 15:55 감독 확인 닫음(PR #21 cde1f8c). ④ 는 감독이 fixtures/paths/paths.test.mjs:132 를 직접 읽음 — '실측 폭 최대값 ≈1.19 m' 가 여전히 틀림(1.19 m 는 0.4배 변이 값) → F-122 ⑩ 로 옮김. budget_discrim.test.mjs:15-16 머리 주석의 낡은 규칙 문장 → F-122 ⑪.
 
+
+### F-115 [열림] (심각도: 높음) — distanceCull 이 리프 번호로 노드 상자를 읽어 보이는 리프를 버린다(거짓 제거)
+- 위치: 제품 server/cull/distance/index.mjs:53-58 (feat/culling cde1f8c), 시험 server/cull/distance/distance.test.mjs:9-20
+- 문제: `octree.boxMin/boxMax` 는 노드 순서(3·nodeCount)인데 `k*3`(k = 리프 번호)으로 잘라 쓴다. 다른 단계(frustum:57-60·backface:34-36·occlusion:60-65)는 leafIndex 로 노드를 찾는다. 시험은 nodeCount = leafCount·leafIndex 항등인 가짜 계층만 써서 못 잡는다. 또 카메라·계층 검사가 없어 t=[NaN,0,0] 에서 점 있는 리프가 전부 1(계약 '퇴화 시점 → 전부 0' 위반), 잘못된 계층에서 'cull:' 대신 TypeError.
+- 실패 상황: 감독 재현 — flat_boxes 2만 점, buildHierarchy(edge0M 0.5, levelCount 6, maxLeafPoints 512) → 리프 86·노드 111, 카메라 중심 (0,5,0), maxDistanceM 20 → 점까지 최소 거리 ≤ 20 m 인 리프 중 9개가 0. 축 7 은 terrain 에서 31개, 축 1b 는 두 무리 장면에서 마스크 [1,0](정답 [0,1]).
+- 고칠 것: 리프→노드 표(leafIndex)로 노드 상자를 읽는다(또는 리프 점들의 꼭 맞는 상자). 계층 검사를 'cull:' 오류로 감싸고, 퇴화 시점이면 빈 마스크. 시험에 내부 노드가 있는 실제 buildHierarchy 계층을 넣는다.
+- 확인 기준: 위 재현(그리고 무작위 시점·maxDistanceM 여러 개)에서 '점까지 최소 거리 ≤ maxDistanceM 인 리프' 가 모두 1. leafIndex 를 k 로 되돌리는 변이 → 시험 실패. NaN 카메라 → 전부 0, 잘못된 계층 → /^cull:/.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 15:52 감독 등록(축 2·1b·7 이 각각 재현, 감독 직접 재현). 신규.
+
+### F-116 [열림] (심각도: 높음) — 절두체 판정이 점 원판 반경을 무시해 화면 가장자리의 보이는 리프를 버린다
+- 위치: 제품 server/lod/select/view_check.mjs:3-5·24-27, server/cull/frustum/index.mjs:61, client/cull/index.mjs:66-69, 계약 contracts/cull/index.mjs:63·69 (cde1f8c). 참조 래스터는 server/raster_ref/zbuffer/index.mjs:61-62 에서 `u + r < 0` 일 때만 건너뛴다.
+- 문제: 판정이 점 중심의 u∈[0,W]·v∈[0,H] 만 본다. 중심이 화면 밖이어도 원판(r = fx·sizeM/(2d))이 화면에 걸치면 그려진다.
+- 실패 상황: 감독 재현 — 960×540, K=(754.32, 753.85, 480, 270), R=I, t=0, 깊이 1 m·u=−1 인 점 하나 → boxMayBeVisible false, clientFrustumCull 0. 실제 r = 18.86 px, splatPixels 524 픽셀. MAX_FALSE_REMOVALS = 0 위반. 기존 8시점 시험은 이런 가장자리 점이 없어 통과.
+- 고칠 것: 좌·우·위·아래 평면을 원판 반경만큼 바깥으로 민다(리프 최소 깊이에서 r_max, 또는 상자를 sizeM/2 부풀리는 보수 근사). pointSizeM 을 frustumCull·clientFrustumCull 인자로(CULL_API 서명 갱신). LOD 의 boxMayBeVisible 공용 함수를 바꿀지, 컬링 전용으로 둘지 결정 0023 에 적는다(LOD 선택도 같은 가장자리 문제를 가진다).
+- 확인 기준: 위 반례에서 마스크 1. 화면 가장자리 바깥 0~r px 에 점을 무작위로 뿌린 리프들을 zbuffer 로 그렸을 때 index 에 나타난 점의 리프 중 제거된 것 0(서버·클라이언트 둘 다). 원판 여유를 지우는 변이 → 실패.
+- 권장 모델: opus
+- 이력: 2026-10-03 15:52 감독 등록(축 1a, 감독 직접 재현). 신규.
+
+### F-117 [열림] (심각도: 높음) — T08.2 완료 기준(SSIM 하락 ≤ 0.002) 미달 2시점, todo 가 불변식 단언까지 숨김
+- 위치: 제품 server/cull/backface/backface.test.mjs:186·233-234·256·267-268, server/cull/backface/index.mjs:19-22 (cde1f8c)
+- 문제: flat_boxes low_close_box 하락 1.55e-2(기준의 7.8배), tower_mid 3.70e-3. aerial_oblique_ne 는 1.99e-3 으로 기준선에 붙어 있다. 작업자는 기준을 낮추지 않고 todo 로 정직하게 남겼으나, 클라우드에서 검증 가능한 완료 기준이 미달이다. 또 todo 가 시험 전체에 걸려 같은 시험의 '앞면 점 리프 제거 0' 단언(:256·:267)도 두 시점에서 실패해도 통과로 집계된다. 결합 경로에서도 low_close_box 는 SSIM 0.9614(B10 제거)로 0.95 에 가깝다.
+- 실패 상황: npm test 는 '# fail 0' 이지만 T08.2 는 기준 미달. 판정식 자체는 맞다(축 1b·2 확인). 원인은 참조 래스터가 법선을 쓰지 않아 성긴 앞면 틈으로 뒷면 점이 비치는 것.
+- 고칠 것: ① 불변식 단언을 todo 없는 별도 시험으로 분리. ② 뒷면 제거를 더 보수적으로: 예컨대 뒷면 리프를 버리기 전에 같은 화면 영역이 앞면 점으로 '확실히 덮였는지'(occlusion 의 덮임 판정 재사용) 확인하거나, 근거 있는 각도 여유(DEFAULT_MARGIN_DEG 를 원판 번짐에서 유도)를 둔다. 사후 조정 상수 금지 — 여유는 식으로 유도해 주석·결정 0023 에 근거를 적는다. ③ 그래도 구조적으로 불가능하다고 판단되면 측정과 함께 결정 0023 에 '기준 정의 변경 제안'(예: 법선을 쓰는 참조 래스터 대비)을 상태 '제안'으로 올리고 todo 를 유지한다 — 기준 수치는 작업자가 바꾸지 않는다. 이 경우 감독이 범위를 쪼갠다.
+- 확인 기준: 8시점×3장면에서 SSIM 하락 ≤ 0.002 를 todo 없이 단언하고 통과(②), 또는 ③ 의 제안 결정 + 측정 기록. 어느 쪽이든 ① 은 필수.
+- 권장 모델: opus
+- 이력: 2026-10-03 15:52 감독 등록(축 5·4a, 감독 npm test 로 todo 2건 확인). 신규.
+
+### F-118 [열림] (심각도: 중간) — T08.8 결합 품질이 실제 단계로 측정된 범위가 좁고, 기본 가림 단계가 점 크기를 받지 못한다
+- 위치: 제품 server/cull/combine/index.mjs:48·142-145, combine_integration.test.mjs:22-27·41-57, combine_quality.test.mjs:2·51·104·126-127 (cde1f8c)
+- 문제: ① 실제 모듈 통합 시험은 flat_boxes 8시점뿐이고 terrain·holes(0.9828·0.9877)는 임시 절두체 단계 값이다. 노트의 'flat 1.0000' 도 임시 단계 값(실제 0.9614). ② 기본 occlusion 단계가 `occlusionCull(h, cam)` 로 불려 pointSizeM 기본 0.05 를 쓴다. 통합 출력은 8시점 모두 O0 이라 가림이 결합 품질에 반영되지 않았다. 실제 점 크기가 0.05 보다 작으면 빈자리를 가림막으로 보아 거짓 제거 위험. ③ 통합 시험은 결과를 r.cull.mask 와만 비교해, combine 이 backface·occlusion 마스크를 무시해도 통과(축 4a 변이, 미확인). ④ 모듈이 다 있는데 skip 분기가 남아 있다. ⑤ chunks 가 LOD 의 NOT_DRAWN 리프도 포함한다(:18·:164).
+- 고칠 것: ① 통합 시험을 3장면×8시점으로. ② pointSizeM 을 opts→stageOpts 로 넘기고, 없으면 가림 단계는 아무것도 버리지 않음(distance 와 같은 규칙). ③ mask = 단계별 실제 마스크 AND 단언, 낮은 flat 시점에서 removedBackface·removedOcclusion > 0 단언. ④ skip 제거. ⑤ chunks 에서 NOT_DRAWN 제외(또는 계약에 명시).
+- 확인 기준: 3장면×8시점 cullAndSelectDefault SSIM ≥ 0.95 단언, O>0 인 시점 존재, 단계 무시 변이 → 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 15:52 감독 등록(축 3·5·4a; ②는 감독이 combine:48·occlusion:185 직접 읽음, ③ 미확인). 신규.
+
+### F-119 [열림] (심각도: 중간, 일부 미확인) — 컬링 시험의 판별력 공백
+- 위치·문제(제품 cde1f8c):
+  ① server/cull/occlusion/occlusion_unit.test.mjs:208-213 — 카메라 평면 걸침 시험이 가림막을 카메라 뒤에 둬서 빈 시험. index.mjs:347 `nearHit ||` 삭제 변이가 통과(축 4a).
+  ② occlusion/index.mjs:348-349 — rmax 의 +1 삭제, 사각형 왼쪽 끝 축소 변이가 두 시험 파일을 통과(축 4a).
+  ③ occlusion.test.mjs:14·88 — `removedSum >= 95` 가 측정값(29+66) 그대로(주석도 '측정값 그대로'). 사후 기준.
+  ④ backface/index.mjs:21-22 — F_MARGIN=−0.5·BOX_PAD=0 변이가 34개 시험 통과(축 4a).
+  ⑤ contracts/cull/cull.test.mjs:18-22 — andMasks 음성 시험 없음(길이 다름·값 2·빈 목록).
+- 고칠 것: ① 걸친 상자 앞에 확실한 가림막. ② 가림막 끝이 상자 투영 옆 1~2 px 에서 끝나는 손계산 장면 4방향. ③ 측정 전에 정할 수 있는 하한(예: 시점 4·5 각각 ≥ 1)과 근거. ④ f 가 0 근처 양수인 경계 사례(반드시 남김). ⑤ 세 음성 시험.
+- 확인 기준: 각 변이 → 해당 시험 실패.
+- 권장 모델: sonnet(②④ 는 opus)
+- 이력: 2026-10-03 15:52 감독 등록(축 4a). 감독은 :88 주석만 직접 확인, 변이 결과는 미확인. 신규.
+
+### F-120 [열림] (심각도: 중간) — 퇴화 시점 판정이 모듈마다 달라 단계 단독 호출 결과가 갈린다
+- 위치: 제품 server/cull/degenerate/index.mjs:21-22·85, frustum/index.mjs:9-29, predict/index.mjs:17-34, client/cull/index.mjs:10-26, priority/index.mjs:204-210·249-252, distance(F-115) (cde1f8c)
+- 문제: 시야각 하한(MIN_FOV_RAD)·R 직교 검사가 degenerate 모듈에만 있다. frustum 주석은 'degenerate 생기면 교체' 라 했으나 교체되지 않았다.
+- 실패 상황: 감독 재현 — width 1·fx 1e7 카메라 → isDegenerateView true, isDegenerateViewLocal(frustum) false. 축 7: R=2I·반사 R 에서 orderChunks 가 79개를 돌려줌, width=2e9 에서 RangeError(주석은 '던지지 않음'), 60000² 해상도 23초.
+- 고칠 것: 서버 단계는 isDegenerateView 를 import, 클라이언트는 같은 식 복제(시야각 포함). priority 에 픽셀 수 상한.
+- 확인 기준: 같은 퇴화 카메라 목록에 모든 공개 함수가 같은 판정(빈 결과). 해상도 2e9 → 던지지 않고 빈 결과.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 15:52 감독 등록(축 1a·7, 감독 일부 재현). 신규.
+
+### F-121 [열림] (심각도: 중간, 미확인) — 시점당 비용이 점 수에 선형인 경로와 벤치 공백
+- 위치: 제품 server/lod/select/index.mjs:110·129·150-160(assertCloud 가 캐시 밖에서 매 호출 O(N), cullAndSelect 에서 시점당 2~3회), server/cull/occlusion/index.mjs:204-250(피라미드가 가시 리프의 단계 0 점 전부를 투영·원판 칠), priority/index.mjs:380-452(같은 점 재투영·박싱 정렬), bench/cull/run.mjs:61-108·measure_scaling.mjs:26-50(스텁 frustum 만 측정)
+- 실패 상황(축 6 측정, 미확인): N=100만에서 캐시 적중 검증 6~17 ms, occlusionCull 33~55 ms, orderChunks 46~50 ms.
+- 고칠 것: cloud 검증도 WeakMap 캐시, cullAndSelect 내부 호출은 검증 1회. occluder 를 occluderLevel ≥ 1 또는 리프 수 상한으로. 벤치에 실제 단계·cullAndSelect·리프 수 1천~10만 표. bench/cull/cull_bench.test.mjs:77-101·124·193-194·232-233 은 `median > 0` 만 단언해 단계 시간 누적 기록·perViewMs 마지막 단계만·p95=max·median=min 변이 4건이 모두 통과(축 4b) — 결정적 시간 스텁으로 통계 값을 정확히 단언.
+- 확인 기준: bench 표(리프 수·점 수별 시점당 ms) 기록, 캐시 적중 검증 N=100만에서 1 ms 미만.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 15:52 감독 등록(축 6). 수치 미확인이라 중간. 신규.
+
+### F-122 [열림] (심각도: 낮음) — PR #21 잔여 묶음(대부분 미확인)
+- 위치·고칠 것:
+  ① server/cull/predict/index.mjs:119-133 — 빈 리프를 남긴다(frustum:59 는 거름). v=ω=0 이면 frustumCull 과 바이트 동일해야. (haiku)
+  ② server/lod/select/index.mjs:26-27·59-66 — 검증 캐시가 '검증 뒤 계층 불변' 을 전제한다. contracts/lod 에 규약을 적고 결정에 남김. (haiku)
+  ③ contracts/cull/index.mjs:66 — maxDistanceM 이 근거 없는 자유 인자. Δd ≈ d²/(f·b) 또는 화면 오차를 근거로 쓸지 결정 기록. (sonnet)
+  ④ contracts/cull/index.mjs:54 — '보이는 리프 제거 = 거짓 제거' 문구와 backface 시험의 정의(앞면으로 그려진 점만)가 다르다. 계약에 backface 정의를 적음. (haiku)
+  ⑤ combine_quality.test.mjs:2 — '단계 구현이 아직 없다' 낡은 주석. (haiku)
+  ⑥ client/cull/index.mjs:29-43 — boxMin·boxMax 길이 검사 없음. (haiku)
+  ⑦ 결정 0023 '대가' 의 pointSizeM 계약 보완을 F-116·F-118 결과로 갱신. (haiku)
+  ⑧ ② 와 함께: 캐시가 내용 변조를 못 잡는 동작을 고정하는 시험(축 4b 재현: selectLevels 뒤 leafIndex[L1]=leafIndex[L0] → pointCount 2943→3094 를 오류 없이 반환). (haiku)
+  ⑨ server/lod/select/screen_error.test.mjs:132-133 — '단계 l−1' 변이에서 설정 2·3 은 앞 단언 '추정 ≤ τ/2'(0.165/0.170)에서 실패한다. 0.134·0.149 는 d_eff×0.6 값. 주석을 변이 로그에 맞춤. (haiku)
+  ⑩ fixtures/paths/paths.test.mjs:132 — '0.4배 변이 최대 ≈1.19 m < 한계 1.3 m < 실측 최소 2.52 m' 로 정정, '큰 마진·안전율 1.09배' 삭제(감독 직접 확인). (haiku)
+  ⑪ server/lod/budget/budget_discrim.test.mjs:15-16 — '(시드 최솟값의 절반)' 을 'DISCRIM 주석의 max(이전 한계, 새 측정 절반) 규칙' 으로(감독 직접 확인). (haiku)
+- 확인 기준: 항목별 grep 또는 변이.
+- 권장 모델: 항목별 표기
+- 이력: 2026-10-03 15:52 감독 등록(축 1a·2·3·4a·7). 신규.
