@@ -275,11 +275,14 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T08.F11 [x] (2026-10-03 PR #21 병합, 제품 df3a5c5) | PR #20 검토 잔여 중간: F-112(계층 입력 검사 중복·누락, Infinity 상자 퇴행, 호출마다 전수 검사), F-113(시험 주장과 판별력) — T08.0 과 같은 PR 에서 함께 처리 | `server/lod/select/`, `server/lod/octree/`, 항목별 시험 | F-112·F-113 확인 기준 | sonnet(F-113 ⑤ 는 opus) |
 | T08.F12 [x] (2026-10-03 PR #21 병합, 제품 df3a5c5) | PR #20 잔여 낮음: F-114 — T08.0 과 같은 PR 에서 | 항목별 경로 | F-114 항목별 | haiku |
 | T08.F13 [x] (2026-10-03 PR #21 병합, 제품 df3a5c5) | (먼저) PR #21 반려 높음: F-115(distance 리프→노드 상자, 퇴화·입력 검사), F-116(절두체 원판 반경 여유, 서버·클라이언트·계약 서명), F-117(T08.2 SSIM ≤ 0.002 미달 2시점, todo 와 불변식 분리) — feat/culling 같은 브랜치·PR #21 | `server/cull/distance/`, `server/cull/frustum/`, `client/cull/`, `server/lod/select/view_check.mjs`, `server/cull/backface/`, `contracts/cull/` | F-115·F-116·F-117 확인 기준 | F-115 sonnet, F-116·F-117 opus |
-| T08.F14 | PR #21 중간: F-118(통합 3장면×8시점·가림 점 크기 전달), F-119(컬링 시험 판별력), F-120(퇴화 판정 일원화), F-121(비용·벤치) — 시간이 되면 같은 라운드에서, 아니면 다음 PR | `server/cull/`, `client/cull/`, `bench/cull/`, `server/lod/select/` | F-118~F-121 확인 기준 | sonnet(F-119 ②④ opus) |
-| T08.F15 | PR #21 낮음: F-122 | 항목별 경로 | F-122 항목별 | haiku(③ sonnet) |
-| T08.F16 | (먼저) PR #21 통과 후 잔여 중간: F-123(결합 backface 에 pointSizeM 전달·기본 구현 시험), F-124(predict 경로 재생 시험 판별력 복원), F-125(뒷면 기본 마스크 제거 하한·0.05 m SSIM) | `server/cull/combine/`, `server/cull/predict/`, `server/cull/backface/` | F-123·F-124·F-125 확인 기준 | sonnet |
-| T08.F17 | F-126 LOD 선택(selectLevels·budget·progressive)에 선택 인자 pointSizeM, 결합 경로 가장자리 리프 보존 | `server/lod/select/`, `server/lod/budget/`, `server/lod/progressive/`, `server/cull/combine/` | F-126 확인 기준 | opus |
-| T08.F18 | PR #21 재검토 낮음: F-127 | 항목별 경로 | F-127 항목별 | haiku(④ sonnet) |
+| T08.F14 [x] (2026-10-03 PR #22 병합) | PR #21 중간: F-118(통합 3장면×8시점·가림 점 크기 전달), F-119(컬링 시험 판별력), F-120(퇴화 판정 일원화), F-121(비용·벤치) — 시간이 되면 같은 라운드에서, 아니면 다음 PR | `server/cull/`, `client/cull/`, `bench/cull/`, `server/lod/select/` | F-118~F-121 확인 기준 | sonnet(F-119 ②④ opus) |
+| T08.F15 [x] (2026-10-03 PR #22 병합) | PR #21 낮음: F-122 | 항목별 경로 | F-122 항목별 | haiku(③ sonnet) |
+| T08.F16 [x] (2026-10-03 PR #22 병합) | (먼저) PR #21 통과 후 잔여 중간: F-123(결합 backface 에 pointSizeM 전달·기본 구현 시험), F-124(predict 경로 재생 시험 판별력 복원), F-125(뒷면 기본 마스크 제거 하한·0.05 m SSIM) | `server/cull/combine/`, `server/cull/predict/`, `server/cull/backface/` | F-123·F-124·F-125 확인 기준 | sonnet |
+| T08.F17 [x] (2026-10-03 PR #22 병합) | F-126 LOD 선택(selectLevels·budget·progressive)에 선택 인자 pointSizeM, 결합 경로 가장자리 리프 보존 | `server/lod/select/`, `server/lod/budget/`, `server/lod/progressive/`, `server/cull/combine/` | F-126 확인 기준 | opus |
+| T08.F18 [x] (2026-10-03 PR #22 병합) | PR #21 재검토 낮음: F-127 | 항목별 경로 | F-127 항목별 | haiku(④ sonnet) |
+| T08.F19 | (먼저) PR #22 검토 잔여 중간: F-120(퇴화 판정 진짜 일원화 — 서버 모든 단계·combine 기본 판정이 isDegenerateView, raster 해상도 조건 포함, 시험 목록 확장), F-125 ②(0.05 m 에서 제거가 생기는 시점의 픽셀 동일 단언, pointSizeM 없음 가드 판별) | `server/cull/`, `client/cull/`, `server/cull/combine/` | F-120·F-125 확인 기준 | sonnet |
+| T08.F20 | PR #22 잔여 중간: F-128(원뿔 캐시 모듈 최상위·priority mask 건너뛰기 검토·벤치 장면), F-129(살아남는 변이 6건), F-130(컬링 상자 캐시 지문 또는 계약) — T09 와 별도 PR 이 좋다 | `server/cull/`, `server/lod/select/`, `bench/cull/`, `contracts/` | F-128·F-129·F-130 확인 기준 | sonnet(F-129 ② opus) |
+| T08.F21 | PR #22 낮음: F-131 | 항목별 경로 | F-131 항목별 | haiku(⑧ sonnet) |
 | T08.0 [x] (2026-10-03 PR #21 병합, 제품 df3a5c5) | 계약: 시점 상태·컬링 결과(조각 목록) 타입 | `contracts/cull/` | 타입 문서와 일치 | sonnet |
 | T08.1 [x] (2026-10-03 PR #21 병합, 제품 df3a5c5) | 절두체 컬링 | `server/cull/frustum/` | 거짓 제거 0(보수적), 고정 시점 8곳 | sonnet |
 | T08.2 [x] (2026-10-03 PR #21 병합, 제품 df3a5c5) | 법선 기반 뒷면 제거(조각 단위 법선 원뿔) | `server/cull/backface/` | 렌더 결과 SSIM 변화 ≤ 0.002 | sonnet |
