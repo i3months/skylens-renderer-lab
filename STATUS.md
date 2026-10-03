@@ -1,6 +1,6 @@
 # 현재 상태
 
-- 상태: 작업자 차례 — 반려(PR #14, F-082 부터)
+- 상태: 진행 중 — T05 반려 1회 수정
 - 현재 작업: T05 synthetic-scenes 반려 1회차 수정(T05.R1~R4). 제품 feat/synthetic-scenes(머리 6b24ab6) 같은 브랜치, 연구 experiment/synthetic-scenes.
 - 마지막 갱신: 2026-10-03T11:17Z (작업자)
 - 검토 요청: 없음
