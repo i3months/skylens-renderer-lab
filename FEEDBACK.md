@@ -1652,25 +1652,25 @@
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 19:25 감독 등록(축 4a·5·7; 감독 직접 확인 없음 — 미확인). 신규. → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes6 1f9f917): ① ② ③ ④ ⑤ 모두 처리(③ 은 NaN 통과로 정책 통일, ⑤ 는 F-147 단언으로 대체). 단 ④ 의 검사표가 퇴화 경로 할당을 늘려 degenerate_unified 합계 문턱을 2n→3n 으로 올림(올리기만). → 2026-10-03 19:58 감독(PR #29): ①~⑤ 확인(축 1b 정상 입력 555 키 base 와 해시 동일, 축 7 occlusion NaN 리프 남김·다른 단계와 같은 정책, frustum leafIndex 중복·범위 밖 cull:). ④ 의 할당 문턱 2n→3n 은 실재 할당(frustum/index.mjs:25 검사표)이나 피할 수 있음 → F-152 ①. 닫음.
 
-### F-150 [처리됨-검증대기] (심각도: 중간) — predict·frustum 계층 검사가 다른 단계보다 약해 잘못된 계층에서 거짓 제거
+### F-150 [닫힘] (심각도: 중간) — predict·frustum 계층 검사가 다른 단계보다 약해 잘못된 계층에서 거짓 제거
 - 위치: server/cull/predict/index.mjs:61-74 leafBoxes; server/cull/frustum/index.mjs:15-41·client/cull/index.mjs:109-135 상자 유한성 (제품 1f9f917)
 - 문제: ① predict 는 leafIndex 의 범위 상한과 개수(found === n)만 본다. 같은 k 가 두 번 나오고 다른 리프가 빠지면 found 가 n 과 같아 통과하고, 빠진 리프 상자는 Float64Array 초기값 (0,0,0)-(0,0,0) 이 된다(감독 직접 읽음 :65·:71·:74). 이번 PR 이 frustum·distance 에 넣은 일대일 검사(frustum/index.mjs:24-38)가 predict 에는 없다. ② 상자에 ±Infinity 가 있으면 frustum·predict·clientFrustumCull 은 0(제거), distance 는 1(남김), NaN 상자는 모든 단계가 1 — 정책 불일치(축 7 실행, 미확인).
 - 실패 상황: ① leafIndex 에 중복 k 를 넣은 계층 → frustum·distance 는 'cull: leafIndex[..] 가 범위를 벗어났거나 중복됨', predictiveMask 는 오류 없이 마스크 합 45→44(보여야 할 리프 제거, 축 7 사본 재현). ② boxMin=-Inf·boxMax=+Inf 노드 → frustum 0, distance 1.
 - 고칠 것: ① leafBoxes 에 frustum 과 같은 seen 표 검사(중복·범위 밖 → cull: 오류), 가능하면 공용 함수로 frustum·distance·predict 가 같은 검사를 쓰게. ② 상자 좌표가 유한하지 않으면 구조 오류(cull:)로 통일(계약 7줄 목록에 추가).
 - 확인 기준: 중복 leafIndex 계층에서 predictiveMask 가 /^Error: cull:/. ±Inf 상자 계층에서 frustum·distance·predict·clientFrustumCull·occlusion 이 모두 cull: 오류. 정상 입력 출력은 base 와 해시 동일.
 - 권장 모델: sonnet
-- 이력: 2026-10-03 19:58 감독 등록(축 7; ① 은 감독이 코드 직접 읽어 확인, 재현 수치는 서브에이전트, ② 미확인). 신규 — 이번 PR 이 frustum 에 일대일 검사를 넣으며 드러난 불일치(predict 코드 자체는 기존). 운영 경로 미도달(잘못된 계층)이라 중간(F-143 ⑨·F-148 과 같은 기준). → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes7 0fdf241): 공용 leaf_check.mjs 를 frustum·distance·predict·occlusion·priority 가 사용, predict leafBoxes 일대일·범위 검사, ±Inf 리프 상자 cull: 오류(frustum·distance·predict·occlusion·clientFrustumCull), 전 단계 표 시험 leafindex_inf_all_stages. npm test 2234 중 2222 통과·0 실패·12 건너뜀(직접).
+- 이력: 2026-10-03 19:58 감독 등록(축 7; ① 은 감독이 코드 직접 읽어 확인, 재현 수치는 서브에이전트, ② 미확인). 신규 — 이번 PR 이 frustum 에 일대일 검사를 넣으며 드러난 불일치(predict 코드 자체는 기존). 운영 경로 미도달(잘못된 계층)이라 중간(F-143 ⑨·F-148 과 같은 기준). → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes7 0fdf241): 공용 leaf_check.mjs 를 frustum·distance·predict·occlusion·priority 가 사용, predict leafBoxes 일대일·범위 검사, ±Inf 리프 상자 cull: 오류(frustum·distance·predict·occlusion·clientFrustumCull), 전 단계 표 시험 leafindex_inf_all_stages. npm test 2234 중 2222 통과·0 실패·12 건너뜀(직접). → 2026-10-03 20:30 감독(PR #30) 직접 재현: 사본 predict/index.mjs:73 checkLeafIndexOneToOne 호출 제거 변이 → leafindex_inf_all_stages 의 predictiveMask 3 사례(중복·−Inf·+Inf) 실패, 원본 통과. 정상 입력(flat_boxes 시드 1·2·3 × 시점 3) frustum·distance·predict 출력 해시 base 와 동일(96079afb…). 축 1b 도 9 출력 해시 동일 보고. 닫음. 잔여(leafIndex 정수·타입 미검사, NaN 정책)는 F-153·F-156.
 
-### F-151 [처리됨-검증대기] (심각도: 중간) — predict 결합 운동 시험: 상한 여유가 구현 배율보다 작고 판별 전제가 시드 3 에 맞춰짐
+### F-151 [닫힘] (심각도: 중간) — predict 결합 운동 시험: 상한 여유가 구현 배율보다 작고 판별 전제가 시드 3 에 맞춰짐
 - 위치: server/cull/predict/predict.test.mjs:201·207(eps 1e-3 절대), :277-286 BASE, :309-313 전제 문턱; 구현 server/cull/predict/index.mjs:127 (제품 1f9f917)
 - 문제: ① 구현 부풀림은 1.0001·U + 1e-9(:127, 감독 직접 읽음), 시험 허용은 U + 1e-3. U > 10 m 이면 구현이 시험 상한보다 크다(사례 4~6 steps=1 U≈16 m 에서 약 0.6 mm, 사례 7 U=800 m 에서 0.08 m). 지금은 경계에 걸린 리프가 없어 드러나지 않을 뿐 올바른 구현이 거짓 실패할 수 있다. ② 판별 전제 total(4) >= 6 은 BASE 의 h/2 열 합과 정확히 같고(사례 7·steps=1 한 칸, 감독 직접 읽음), ×1.2 ≥ 20·×1.5 ≥ 50 도 시드 3 실측(26·59) 바로 아래다. BASE deepEqual 은 시드 3 스냅샷. 시드를 바꾸면 9 개 중 8 개에서 전제 실패, h/2·+0.02 m 구현 변이가 시드 42 등에서 안 잡힘(축 4b 실행, 미확인).
 - 실패 상황: ① 사례 7 처럼 U 가 큰 사례에서 리프 경계가 0.08 m 틈에 걸리면 '허용 밖 리프' 거짓 실패. ② 픽스처 생성기가 바뀌면 구현과 무관하게 전제 실패 → 문턱을 다시 낮추는 사후 완화로 이어질 위험.
 - 고칠 것: ① allowedUnion 의 M 을 upperDisp·(1+1e-3) + eps 처럼 상대 여유 포함(구현 배율 1.0001 보다 크게), 모든 (사례·steps·리프)에서 1.0001·U+1e-9 <= M 을 시험 쪽 식으로 단언. ② 판별 사례를 시드에 기대지 않게: 합성 상자 계층에 경계까지 거리를 해석적으로 정한 카메라로 변이별 판별 리프 ≥ 1 을 단언, BASE deepEqual 삭제(또는 여러 시드 합으로 전제). :191 주석의 far 기준점(표본 중심 C)과 재묶음 식 p'−p = (Qᵀ−I)(p−C) − Qᵀvδ 로 정정(축 1a, 낮음).
 - 확인 기준: 시드 1·2·42·99 로 바꿔도 전제 통과, h/2·전체 ×1.2·회전 ×1.5 변이가 모든 시드에서 실패, 교차항 제거 변이는 통과. 시험 쪽 단언 1.0001·U+1e-9 <= M 이 모든 경우 참.
 - 권장 모델: opus
-- 이력: 2026-10-03 19:58 감독 등록(축 1a·4b; ① 은 감독이 :127·:207 직접 읽어 확인, ② 의 문턱=실측은 감독이 BASE 표 직접 합산해 확인, 시드 실행은 미확인). 신규 — 이번 PR 이 쓴 시험. 반려 사유 아님(구현 결함 아님, 현재 시드에서 판별력 있음). → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes7 0fdf241, opus): 상한 M=U(1+1e-3)+1e-3 와 1.0001U+1e-9<=M 단언, BASE 삭제, 합성 상자 해석 시험 predict_analytic(시드 1·2·3·42·99 에서 h/2·×1.2·×1.5 실패, 교차항 제거 통과). 단 결합 운동 시험의 h/2 변이는 시드 42 에서 통과, '잘게/성기게 나눈 직선 이동' 시험은 시드 1·2·42·99 에서 전제가 깨짐(시드 3 탐색 기반) — 해석 배치로 교체는 잔여.
+- 이력: 2026-10-03 19:58 감독 등록(축 1a·4b; ① 은 감독이 :127·:207 직접 읽어 확인, ② 의 문턱=실측은 감독이 BASE 표 직접 합산해 확인, 시드 실행은 미확인). 신규 — 이번 PR 이 쓴 시험. 반려 사유 아님(구현 결함 아님, 현재 시드에서 판별력 있음). → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes7 0fdf241, opus): 상한 M=U(1+1e-3)+1e-3 와 1.0001U+1e-9<=M 단언, BASE 삭제, 합성 상자 해석 시험 predict_analytic(시드 1·2·3·42·99 에서 h/2·×1.2·×1.5 실패, 교차항 제거 통과). 단 결합 운동 시험의 h/2 변이는 시드 42 에서 통과, '잘게/성기게 나눈 직선 이동' 시험은 시드 1·2·42·99 에서 전제가 깨짐(시드 3 탐색 기반) — 해석 배치로 교체는 잔여. → 2026-10-03 20:30 감독(PR #30): 상한 M=U(1+1e-3)+1e-3 와 1.0001U+1e-9<=M 단언, BASE 삭제, 해석 시험 확인(축 1a 손 유도 일치, 축 4a 변이 h/2·×1.2·회전×1.5 실패·교차항 제거 통과). 결합 운동·해석 시험 부분 닫음. 잔여 '잘게/성기게 나눈 직선 이동' 시험 시드 의존(축 4a·5 일치 보고)은 F-155 ④ 로 옮김.
 
-### F-152 [처리됨-검증대기] (심각도: 낮음) — PR #29 잔여 묶음(대부분 미확인)
+### F-152 [닫힘] (심각도: 낮음) — PR #29 잔여 묶음(대부분 미확인)
 - 위치·고칠 것(제품 1f9f917):
   ① server/cull/frustum/index.mjs:25 — leafIndex 검사표 Uint8Array(leafCount) 를 따로 할당. 결과 마스크(:72)를 먼저 할당해 검사표로 쓰고 fill(0) 하면 퇴화 경로 할당 합계가 2n 으로 돌아온다(축 4b 사본: total 46=2n, 시험 190 통과). client/cull/degenerate_unified.test.mjs:176 문턱을 2n 으로 되돌린다. (sonnet)
   ② client/cull/degenerate_unified.test.mjs:31 trackAlloc names 에 Int8·Int16·Uint16·Uint8Clamped·BigInt64·BigUint64 Array 추가(축 4b: Int16Array 4n 추가 할당을 못 잡음). (haiku)
@@ -1683,4 +1683,46 @@
   ⑨ server/cull/occlusion/index.mjs:110-112 vs :124 — 건너뛴 비유한 점까지 occluderPoints·budget 에 셈. (haiku)
 - 확인 기준: 항목별 변이·직접 실행.
 - 권장 모델: 항목별 표기
-- 이력: 2026-10-03 19:58 감독 등록(축 2·4a·4b·5·7; 감독 직접 확인 없음 — 미확인). 신규. → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes7 0fdf241): ① frustum 이 결과 마스크를 검사표로 재사용(단독 할당 ≤ n 단언). 단 ⑧ 이 priority 에 검사표를 더해 세 함수 합계 문턱은 2n 으로 못 돌리고 4n(이유는 시험 주석) — 감독 판단 요청. ②③⑤⑥⑦⑧⑨ 처리, ④ 는 계약 문구(검사 뒤 상태형 접근자는 범위 밖)로 처리, combine 중복 가드 제거.
+- 이력: 2026-10-03 19:58 감독 등록(축 2·4a·4b·5·7; 감독 직접 확인 없음 — 미확인). 신규. → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes7 0fdf241): ① frustum 이 결과 마스크를 검사표로 재사용(단독 할당 ≤ n 단언). 단 ⑧ 이 priority 에 검사표를 더해 세 함수 합계 문턱은 2n 으로 못 돌리고 4n(이유는 시험 주석) — 감독 판단 요청. ②③⑤⑥⑦⑧⑨ 처리, ④ 는 계약 문구(검사 뒤 상태형 접근자는 범위 밖)로 처리, combine 중복 가드 제거. → 2026-10-03 20:30 감독(PR #30): ①~⑨ 처리 확인(축 4b 변이: 검사 제거·단계별 호출 제거·fill(0) 제거 모두 실패). ① 의 합계 4n 은 실제 필요량(leafPriority 2n + orderChunks n + frustum n, 축 4b 계수)이나 priority 쪽 재사용으로 줄일 여지 → F-155 ①. 닫음.
+
+### F-153 [열림] (심각도: 중간) — 공용 리프 검사가 leafIndex 정수·타입을 보지 않아 predict·priority 에서 거짓 제거·점수 0
+- 위치: server/cull/degenerate/leaf_check.mjs:14-19; 호출 server/cull/predict/index.mjs:63-73 readLeaves(leafIndex 타입 검사 없음), server/cull/priority/index.mjs:34 부근 (제품 0fdf241)
+- 문제: 검사는 `k >= 0 && k < leafCount` 와 `seen[k]` 만 본다. k=1.5 이면 범위 안이고 Uint8Array 의 seen[1.5] 쓰기는 무시되어 중복으로도 안 걸리며 leaves 는 1 늘어 개수 검사도 통과한다(감독 직접 읽음). predict·priority 는 leafIndex 를 Int32Array 로 강제하지 않는다(frustum·distance·occlusion 은 강제).
+- 실패 상황: leafIndex 를 Float32Array 로 주고 한 칸을 1.5 로 → 리프 1 상자가 (0,0,0) 으로 남아 predictiveMask 가 리프 1 을 1→0 거짓 제거, leafPriority 0.497→0, 오류 없음(축 7 실행, 미확인).
+- 고칠 것: checkLeafIndexOneToOne 에서 `Number.isInteger(k)` 요구, predict·priority 에서 leafIndex instanceof Int32Array 요구(다른 단계와 같게).
+- 확인 기준: leafindex_inf_all_stages 에 '정수 아닌 leafIndex'·'Float32Array leafIndex' 사례 추가 → 5 단계 모두 /^Error: cull:/. Number.isInteger 검사 제거 변이에서 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 20:30 감독 등록(축 7; 코드는 감독 직접 읽어 확인, 재현 수치는 서브에이전트). 신규 — 이번 PR 이 만든 공용 검사의 빈틈. 운영 경로 미도달(잘못된 계층)이라 중간(F-150 과 같은 기준).
+
+### F-154 [열림] (심각도: 중간) — 공용 리프 검사로 컬링 단계 시간 +15~45%
+- 위치: server/cull/degenerate/leaf_check.mjs:12-27(호출마다 노드 전체 순회·리프마다 6 좌표 비교 4회), priority/index.mjs:129·:151(leafPriority 와 orderChunks 가 같은 계층을 두 번 검사) (제품 0fdf241)
+- 문제: 같은 계층을 단계마다 반복 전체 검증한다.
+- 실패 상황: flat_boxes 40만 점(리프 187,259·노드 259,754), 최소값 기준 main→pr30: frustum 13.1→16.2~17.8 ms, distance 10.2→14.4~15.2, predict 26.6→32.5~35.4, occlusion 42.5→48.8~50.1, orderChunks 108→124~128, client 15.9→17.3~18(축 6 측정, 미확인).
+- 고칠 것: 계층 객체당 검증 결과를 WeakSet 등으로 한 번만(입력 불변 가정을 계약에 명시하거나 typed array 동일성으로 무효화), ±Inf 비교를 `Math.abs(x) === Infinity` 한 번으로.
+- 확인 기준: 같은 조건 벤치(bench/ 에 스크립트 추가)에서 각 단계 최소 시간이 main(d0a1c4d) 대비 +5% 이내, 기존 cull: 오류 시험 전부 통과.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 20:30 감독 등록(축 6; 감독 직접 측정 없음 — 미확인). 신규. 절대 증가는 수 ms 로 목표 fps 를 막지는 않아 중간.
+
+### F-155 [열림] (심각도: 중간) — PR #30 시험·계약 정합
+- 위치·고칠 것(제품 0fdf241):
+  ① client/cull/degenerate_unified.test.mjs:182 합계 4n, server/cull/priority/priority_resolution.test.mjs:100-101 n→2n — priority 검사표(Uint8Array n)가 원인. 4n 은 실제 필요량과 정확히 같아 여유 0(축 4b 계수). leafPriority 는 결과 Float64Array 를 먼저 만들고 그 버퍼의 Uint8Array 뷰(앞 n 바이트)를 검사표로 쓴 뒤 fill(0), orderChunks 는 입력 마스크 복사 대신 결과 쪽 버퍼 재사용 등으로 검사표 할당을 없애 문턱을 3n(가능하면 2n)·priority_resolution n 으로 되돌린다. 불가하면 근거를 시험 주석에 식으로. (sonnet)
+  ② server/cull/combine/combine_guard_wrap.test.mjs:37-47 — 접근자가 늘 같은 값을 주고 단언이 reads >= 1 뿐이라, 검사 뒤 leafCount 를 다시 읽는 변이가 통과(축 4b mut_cbre). 첫 읽기 뒤 다른 값/예외를 주거나 reads === 기대 횟수로. (haiku)
+  ③ contracts/cull/index.mjs:7 — '리프 ±Inf 만 오류, NaN 은 단계별, occlusion 은 NaN 리프 유지' 라고 하나 backface·combine 은 lod assertHierarchyInput 로 모든 노드의 NaN·±Inf 를 거부(축 2 실행). 단계별 범위를 계약에 적거나 구현 통일. (haiku)
+  ④ F-151 잔여: predict.test.mjs '잘게/성기게 나눈 직선 이동' 시험(:321-322·:361 부근)의 시점이 시드 3 탐색값이라 시드 1·5·42 에서 전제 실패(축 4a·5). predict_analytic 처럼 해석 배치로 옮긴다. (opus)
+- 확인 기준: ① 문턱 복귀 후 통과 ② mut_cbre 변이에서 실패 ③ 내부 노드 ±Inf·리프 NaN 표 시험 결과가 계약 문구와 일치 ④ 시드 1·2·3·5·42 에서 전제 통과·+0.02 m 변이 실패.
+- 권장 모델: 항목별 표기
+- 이력: 2026-10-03 20:30 감독 등록(① 감독이 시험 diff 직접 읽음, ③ 계약 7줄 직접 읽음; ②④ 실행 결과는 서브에이전트 — 미확인). ④ 는 기존 F-151 잔여, 나머지 신규.
+
+### F-156 [열림] (심각도: 낮음) — PR #30 잔여 묶음(미확인)
+- 위치·고칠 것(제품 0fdf241):
+  ① server/cull/predict/predict_analytic.test.mjs:96·:101 상수끼리 산술 단언(항상 참) — 지우거나 '전제' 주석. (haiku)
+  ② predict.test.mjs:284-286 tight >= 8 실측 문턱 — 근거 식 주석 또는 사례별 단언. (haiku)
+  ③ predict.test.mjs:204·206, predict_analytic.test.mjs:21·25 — 상한이 구현 상수(IMPL_REL·IMPL_ABS)를 복사. 기하 상한 |v|·hh+2·far·sin(ω·hh/2) 기반으로 하고 교차항 여유는 별도 상수로. (sonnet)
+  ④ server/cull/predict/predict_hierarchy.test.mjs — 리프 누락 없는 순수 중복 사례, levels[0].leafStart 길이 오류 사례 추가. (haiku)
+  ⑤ server/cull/degenerate/leaf_check.mjs:1 사용처 목록에 priority 누락. (haiku)
+  ⑥ leafindex_inf_all_stages.test.mjs:53 clientFrustumCull 행은 실제로 leafBoxesOf 의 '리프 노드를 찾지 못함' 을 시험 — 행 이름·정규식 정정. client/cull/index.mjs leafBoxesOf 범위 검사(k >= leafCount) 단독 시험 없음. (haiku)
+  ⑦ NaN 리프 상자 정책: frustum·predict·client(pointSizeM 지정)는 제거, distance·occlusion 은 남김, priority 0 — 단독 호출 시 갈림(combine 은 거부). 정책 하나로(③ 과 함께). (sonnet)
+  ⑧ contracts/cull/index.mjs:8 끝 '상태 접근자' 문장과 combine/index.mjs:140-141 '계약 밖' 주석 불일치. (haiku)
+- 확인 기준: 항목별 변이·직접 실행.
+- 권장 모델: 항목별 표기
+- 이력: 2026-10-03 20:30 감독 등록(축 2·4a·4b·7; 감독 직접 확인 없음 — 미확인). 신규.
