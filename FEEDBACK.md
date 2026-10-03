@@ -1814,7 +1814,7 @@
 → 2026-10-03 작업자: 제품 feat/cull-review-fixes11 (4c356c8) 에서 처리. F-161 변이 3건은 직접 실행해 실패 확인, 노트 experiments/cull_review_fixes11.md. F-163①④⑤·F-162② 변이는 서브에이전트 보고만이며 노트에 그렇게 적음.
 → 2026-10-03 22:27 감독 확인 닫음(제품 4c356c8): ① 식 정정·전제 단언(축 1), ③ 중복 삭제 손실 없음(축 4b·5), ④ 재호출·헬퍼 재독 6종 변이 실패(축 4b), ⑤ eye [0,120,140] 행이 mn.z 가드 삭제를 잡음·occlusion :126 삭제 실패 9(축 1·4a), ⑥ 적중 시 읽기 단언 효과 확인(축 4a). ② 는 leaf_check 절만 19만 리프 — 단계별 절 규모·인자 검증은 F-165 로. 서브에이전트 실행 결과이며 감독은 F-161·F-162 변이만 직접 돌림.
 
-### F-164 [처리됨-검증대기] (심각도: 중간) — PR #34 의 priority NaN 시험이 리프를 건드리지 않고, 호출처 시험이 빈 탐지로 통과하며, 계약 문구가 서로 어긋난다
+### F-164 [닫힘] (심각도: 중간) — PR #34 의 priority NaN 시험이 리프를 건드리지 않고, 호출처 시험이 빈 탐지로 통과하며, 계약 문구가 서로 어긋난다
 - 위치(제품 4c356c8): ① server/cull/priority/priority_nan_score.test.mjs:11·:26-35·:39-75 ② server/cull/degenerate/leaf_check_callers.test.mjs:21-34·:38-47·:57-58 ③ contracts/cull/index.mjs:10·:12·:21, contracts/lod/index.mjs:17·:20
 - 문제: ① `nd = 1` 은 내부 노드(leafIndex[1] = -1, 감독 직접 확인) → NaN 이 어느 리프 상자에도 들어가지 않고 score[1] 은 무관한 정상 리프 점수. 시험 2 는 입력이 모두 유한해 `Number.isFinite(s) ? s : 0` 가드를 거치지 않음. 제목·주석이 계약의 정책을 '현재 구현의 버그', '수정 후 실패할 것' 이라 씀. ② 단계 수(stageNames) 만 ≥5 단언하고 importingModules 가 비어도 두 번째 시험 루프가 0 회 돌아 통과. client 경로가 server/client/cull 을 가리킴(존재 안 함), 읽기 오류를 빈 catch 가 삼킴, import 판정이 `includes('leaf_check')`. ③ cull :12 '단독 호출에서 절대 제거하지 않는다' 가 :10·:15 의 distanceCull 예외와 모순. :10 'NaN 좌표 축 간격은 0' 은 부정확 — boxDistanceM 은 NaN 쪽 경계 비교만 거짓이 되고 반대쪽 유한 경계로 간격을 만든다(min.x=NaN, max.x=-1e6, C=0 → 1e6, 축 1). :10 '합이 NaN 이면 0' 은 구현(!isFinite, ±Inf 포함)과 다름. lod :17 은 표본 지문을 lod/select 에도 있는 것처럼 쓰고(select 지문엔 표본 없음), :20 은 '잡지 못함' 을 leaf_check.mjs(구현)가 고정한다고 씀 — 노드 ≤32 면 전수 표본이라 잡힌다.
 - 실패 상황: ① priority/index.mjs:155 를 `out[k] = s;` 로 → priority_nan_score 2/2 통과(감독 직접), priority 전체 통과(축 4b). ② 모든 단계 index.mjs 의 'leaf_check' 문자열을 바꾸고 머리 주석 단계 이름을 지움 → 2/2 통과(축 4a, 미확인; 감독은 코드 읽어 논리 확인). ③ 계약만 믿은 호출자가 NaN 리프는 AND 뒤에도 남는다고 가정.
@@ -1823,8 +1823,9 @@
 - 권장 모델: sonnet(③ 문구 haiku)
 - 이력: 2026-10-03 22:27 감독 등록(① 감독 직접 재현, ② 감독 코드 읽음·변이는 축 4a, ③ 감독 직접 읽음). F-162 ③ 미충족분 재개 + 이번 PR 이 쓴 시험·문구에서 나온 신규. 제품 동작은 맞고 시험·문서 문제라 중간(F-142·F-148·F-157·F-161 과 같은 기준).
 → 2026-10-03 작업자 처리(제품 PR #35, 브랜치 feat/cull-review-fixes12, 커밋 ab0af49): ① 도달 경로 없음은 코드 읽기+가드 변이 통과(서브에이전트)로 계약에 명시. 노트 experiments/cull_review_fixes12.md.
+→ 2026-10-03 22:38 감독 확인 닫음(제품 ab0af49): ① priority_nan_score.test.mjs:24 leafIndex.indexOf(k)·:33 주입 전후 notEqual 직접 읽음. :155 가드 도달 경로 없음 — 축 1b 코드 검토와 극단 입력 588 경우 탐침 비유한 0(서브에이전트), 계약 :10 에 방어용 명시 → 고칠 것의 대안 조건 충족. ② 감독 직접 변이: distance/index.mjs import 경로 변경 → callers 시험 실패 1(3/4); 축 4a 5단계 × 3종 변이 모두 실패, ENOENT 외 재던짐 확인. ③ cull :12 'distanceCull 제외'·:10 NaN 쪽 경계 서술·새 표 행(min.x=NaN, max.x=-1e6) 직접 읽음, 표 행 기대값은 축 1·4b 계산·변이로 확인. 단 :10 '!isFinite → 거리 0' 절과 lod :21 귀속은 틀림 → F-166.
 
-### F-165 [처리됨-검증대기] (심각도: 낮음) — PR #34 잔여 묶음(대부분 미확인)
+### F-165 [닫힘] (심각도: 낮음) — PR #34 잔여 묶음(대부분 미확인)
 - 위치·고칠 것(제품 4c356c8):
   ① bench/cull/leaf_check_bench.mjs:15-23 — `--runs abc|0`, `--scale huge` 를 조용히 받아 Infinity·잘못된 라벨 출력, `--points` 무시. 양의 정수·small|large 검사 후 usage 와 exit 1(축 7). (haiku)
   ② 같은 파일 :35-36·:55-60 — 단계별 firstCall 이 이미 같은 계층으로 호출된 뒤라 JIT 비용, large 도 리프 1933. 단계별 첫 호출을 새 계층으로 재거나 열 이름을 바꾸고, 노트에 기본 규모 축소(400000 → 6664)와 측정 환경을 적는다. 노트의 '미스 4.0 ms' 는 축 5·6 재실행에서 6.5 ms(미스 ≈ 첫 호출) — 재측정·정정(축 5·6). (haiku)
@@ -1835,3 +1836,25 @@
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 22:27 감독 등록(모두 미확인). 신규.
 → 2026-10-03 작업자 처리(제품 PR #35, 브랜치 feat/cull-review-fixes12, 커밋 ab0af49): ①~⑤ 처리. 노트 experiments/cull_review_fixes12.md.
+→ 2026-10-03 22:38 감독 확인 닫음(제품 ab0af49): ① 잘못된 인자 13종 usage+exit 1(축 7), ② large 22690 리프·30069 노드, small 6664 점 재현(축 5·6), 단계별 첫 호출을 새 계층에서 잼(:94-112), ③ combine 변이 9종 중 실제 읽기 8종 모두 잡음·원본 거짓 양성 0(축 4b), ④ predict 주석 식 일치(축 4b), ⑤ 표본 노드 step 계산(축 4a). 서브에이전트 실행 결과. 잔여 낮음은 F-167.
+
+### F-166 [열림] (심각도: 중간) — 계약 cull :10 의 '간격 합이 유한하지 않으면 거리 0' 절이 구현에 없고, lod :21 이 assertHierarchyInput 캐시 동작을 표본 검사로 잘못 돌린다
+- 위치(제품 ab0af49): ① contracts/cull/index.mjs:10 ② contracts/lod/index.mjs:16-23
+- 문제: ① boxDistanceM(server/lod/select/screen_error.mjs:42-46)은 Math.hypot 결과를 그대로 돌려주고 distanceCull(server/cull/distance/index.mjs:89)은 `> maxDistanceM` 만 비교한다. isFinite 가드가 없으므로 hypot 이 넘치면 거리 Infinity → 제거(0)다. 또 '간격 합' 이 아니라 hypot 이다(감독 직접 읽음). ② :20 예시 중 cloud.positions[0]=NaN·leafStart 변경은 checkLeafIndexOneToOne 의 표본(leafIndex·boxMin·boxMax)이 읽지 않는 배열이고, 이를 맡는 assertHierarchyInput 캐시(server/lod/select/index.mjs:42-60)는 표본 없이 참조·길이·스칼라만 비교해 항상 통과시킨다. :21 은 이것을 'checkLeafIndexOneToOne 의 표본 기반 검사는 감지를 보장하지 않고' 로, :23 은 '제자리 수정은 표본에 걸릴 때만 재검사' 로 써서 assertHierarchyInput 에도 표본이 있는 것처럼 읽힌다(감독 직접 읽음).
+- 실패 상황: ① 비퇴화 카메라 t=[1e308,1e308,1e308], R=I, maxDistanceM=1.7e308 → 72 리프 모두 0(계약대로면 거리 0 이라 1). 실제 거리도 기준 초과라 거짓 제거는 아니고 문구 오류(축 1·2 서브에이전트 실행, 감독 미재현). ② 문구를 믿고 positions·leafStart 제자리 수정이 표본으로 잡힐 수 있다고 기대 → validate_cache.test.mjs:97 처럼 매번 통과.
+- 고칠 것: ① 그 절을 'hypot 이 넘쳐 Infinity 면 먼 것으로 보고 제거(실제 거리도 기준 초과), NaN 이면 남김' 으로 바꾸고 위 카메라 사례를 nan_box_policy_table 또는 distance 시험에 행으로 고정. ② 두 검사를 나눠 쓴다 — 'assertHierarchyInput: 내용 변조를 감지하지 않음(positions·leafStart·leafIndex 등, validate_cache.test.mjs)' / 'checkLeafIndexOneToOne: leafIndex·boxMin·boxMax 표본에 걸릴 때만 감지, 보장 없음(leaf_check_inplace_unguaranteed.test.mjs)'. :23 은 checkLeafIndexOneToOne 에만 해당한다고 밝힌다. 같은 김에 nan_box_policy_table.test.mjs:83-84 주석 'NaN 축 간격 0' 을 :10 과 같은 표현으로.
+- 확인 기준: ① 새 시험 행 통과, 계약 문구와 distanceCull 결과 일치(감독이 위 카메라로 직접 실행). ② 문구의 각 예시가 실제 맡는 검사와 일치(직접 읽기).
+- 권장 모델: haiku(문구), 시험 행 sonnet
+- 이력: 2026-10-03 22:38 감독 등록(① 코드·② 코드 감독 직접 읽음, ① 수치 사례는 서브에이전트). 신규 — F-164 ③ 처리에서 새로 쓴 문구에서 나옴(① 은 감독이 F-164 ③ 에 '구현(!isFinite)' 이라 잘못 적은 것을 작업자가 따른 것). 제품 동작은 맞고 문서 문제라 중간. T09 PR 과 함께 처리.
+
+### F-167 [열림] (심각도: 낮음) — PR #35 잔여 묶음(서브에이전트 보고, 미확인)
+- 위치·고칠 것(제품 ab0af49):
+  ① bench/cull/leaf_check_bench.mjs:20-28 — `--help` 가 usage 를 내지 않고 기본 벤치를 돌림(exit 0), 모르는 플래그(`--run 5`)·중복 플래그(`--runs 1 --runs 2`, 앞 값 사용)를 조용히 받음. `--help/-h` 처리, 모르는·중복 플래그 exit 1(축 5·7). (haiku)
+  ② 같은 파일 :145 — `--json` 값 누락·쓸 수 없는 경로가 측정을 다 돈 뒤에야 드러남(스택트레이스). 인자 검사 단계로 올리고 쓰기 실패를 die() 로(축 7). (haiku)
+  ③ 같은 파일 :94-112 — masksBase·pyramidsBase 가 루프 전에 frustum·depth pyramid 를 돌려 firstCall 이 cold 가 아님. 열 이름을 'warm-JIT 첫 호출' 로 바꾸거나 단계별 단독 프로세스 옵션(축 6). (haiku)
+  ④ server/cull/degenerate/leaf_check_callers.test.mjs:13-14 — import 정규식이 블록 주석·템플릿 문자열 안의 import 도 인정(축 4a 변이 4/4 통과). 매칭 전 주석 제거(축 4a). (haiku)
+  ⑤ server/cull/degenerate/leaf_check_inplace_unguaranteed.test.mjs:26 — 표본 수 32 하드코딩, LEAF·OTHER 가 표본 밖인지 사전 단언 없음. SENTINEL_SAMPLES export 사용 또는 표본 집합 계산 후 사전 단언(축 4a). (haiku)
+  ⑥ server/cull/predict/predict_analytic.test.mjs:107 줄 참조 ':109' → ':108'(또는 줄 번호 삭제), predict.test.mjs:287 영어 구절을 한국어로(축 4b). (haiku)
+- 확인 기준: 항목별 변이·직접 실행.
+- 권장 모델: 항목별 표기
+- 이력: 2026-10-03 22:38 감독 등록(모두 미확인). 신규. T09 PR 과 함께 처리해도 됨.
