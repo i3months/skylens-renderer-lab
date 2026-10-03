@@ -4,9 +4,9 @@
 - 상태: 진행 중 — T05 synthetic-scenes 시작
 - 중복 실행: 2026-10-03T10:31Z 두 번째 작업자가 중복 실행으로 중단(결과물 없음). 위 상태 줄은 먼저 시작한 작업자(10:29Z)의 것이다.
 - 현재 작업: T04 point-io 반려 2회차 수정. 같은 브랜치(제품 feat/point-io, 연구 experiment/point-io)에서 T04.R5(sonnet) → T04.R6(sonnet) → T04.R7(haiku) 후 제품 PR #13 다시 열고 라벨.
-- 마지막 갱신: 2026-10-03T10:48Z (작업자, T05 착수)
+- 마지막 갱신: 2026-10-03T10:50Z (작업자)
 - 검토 요청: T04 point-io 반려 2회차 수정 (제품 PR #13 다시 엶·review-requested, 연구 PR #13 experiment/point-io)
-- 방금 한 일: (2026-10-03T10:40Z) 반려 2회차 R5(sonnet)·R6(sonnet)·R7(haiku) 통합, 승격 없음. 제품 feat/point-io d3a8147, npm test 633 중 통과 621·실패 0·건너뜀 12, 바뀐 테스트 반복 실행 실패 0, 실제 skylens develop 자산 16/16 readPly 성공. F-068·F-075~F-078 처리됨-검증대기. geo.ts 이탈 1건(날짜변경선 ±360)을 노트에 기록.
+- 방금 한 일: (2026-10-03T10:50Z) T05 계약(contracts/scenes, fixtures/viewpoints/synthetic.json) 제품 feat/synthetic-scenes e18f7c4 푸시. 팬아웃 시작.
 - 다음 할 일: 반려 2회차 수정(T04.R5~R7) 후 PR #13 다시 열고 라벨. 병합 후 T05. 팬아웃 때 하위 작업 작업 트리가 계약 커밋 위인지 먼저 확인할 것(이번에 main 에서 시작돼 일부 재지정).
   1. 작업자: 제품 main 에서 feat/point-io, 연구 research 에서 experiment/point-io(부모 research). T04.F 를 먼저 커밋 → T04.0 계약 → T04.1~ 서브에이전트(TASKS 모델 표시대로) → 통합·`npm test` → 제품 PR 라벨.
   2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
