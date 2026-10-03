@@ -3,9 +3,9 @@
 <<<<<<< Updated upstream
 - 상태: 진행 중
 - 현재 작업: T07 lod. 먼저 T07.F(sonnet)·T07.F2(haiku)로 T06 검토 잔여 F-092~F-095 처리.
-- 마지막 갱신: 2026-10-03T12:37Z (작업자)
+- 마지막 갱신: 2026-10-03T12:44Z (작업자)
 - 검토 요청: 없음
-- 방금 한 일: F·F2·3·6·7·8·10·11 를 feat/lod 에 병합, 전체 시험 실행 중. 1(voxel)·2(octree) 대기 — 이후 4·5·9 기동.
+- 방금 한 일: T07.1~3·6~8·10·11·F·F2 를 feat/lod 에 병합. buildHierarchy(server/lod/hierarchy) 직접 작성. 서브에이전트 추가 기동: 4(opus)·5(opus)·9(sonnet)·F3(sonnet, F-092~094 잔여). 총 14개(haiku 2, sonnet 7, opus 4... 승격 없음).
 =======
 - 상태: 대기 — 사람이 SPEC 확인 후 작업자 시작
 - 현재 작업: 없음
