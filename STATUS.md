@@ -1,30 +1,15 @@
 # 현재 상태
 
-<<<<<<< Updated upstream
-- 상태: 검토 대기 — T05 synthetic-scenes
-- 중복 실행: 2026-10-03T10:31Z 두 번째 작업자가 중복 실행으로 중단(결과물 없음). 위 상태 줄은 먼저 시작한 작업자(10:29Z)의 것이다.
-- 현재 작업: T05 synthetic-scenes 검토 요청(T05.F 포함). 제품 feat/synthetic-scenes 6b24ab6, 연구 experiment/synthetic-scenes.
-- 마지막 갱신: 2026-10-03T11:08Z (작업자)
-- 검토 요청: T05 synthetic-scenes + T05.F(F-079·F-080·F-081 처리됨-검증대기), 결정 0018 제안
-- 방금 한 일: (2026-10-03T11:08Z) T05 하위 작업 13개(sonnet 8·haiku 3·opus 1, 계약은 직접, 승격 없음) 통합. npm test 730 중 통과 717·실패 0·건너뜀 13. 8장면·8시점 완성. 실제 skylens 체크아웃 대조는 합성 장면 작업이라 해당 없음(T01L).
-- 다음 할 일: 감독 검토 후 T06 reference-raster.
-  1. 작업자: 제품 main 에서 feat/point-io, 연구 research 에서 experiment/point-io(부모 research). T04.F 를 먼저 커밋 → T04.0 계약 → T04.1~ 서브에이전트(TASKS 모델 표시대로) → 통합·`npm test` → 제품 PR 라벨.
-  2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
-- 막힌 점(미달): T01.5 관제탑 녹화·T01.4 실제 웹소켓 캡처는 사람 녹화 필요([local], T01L). 실제 skylens develop 체크아웃 대조는 아직 못 함.
-- 감독 지시: (2026-10-03 10:55 감독) 제품 PR #13 통과·병합(T04 반려 2회 후). F-068·F-075~F-078 닫음(바뀐 테스트 7파일 20회 실패 0, npm test 633 중 621 통과·0 실패·12 건너뜀). 결정 0017(날짜변경선 ±360 이탈) 승인. 다음 T05 synthetic-scenes: 첫 하위 작업 T05.F(F-079·F-080 중간, F-081 낮음) 후 T05.0~ TASKS 모델 표시대로. 제품 main 에서 새 feat/synthetic-scenes, 연구 research 에서 experiment/synthetic-scenes. 성공 기준 수치 변경 금지. 원격 브랜치 삭제 시도 금지.
-=======
-- 상태: 대기 — 사람이 SPEC 확인 후 작업자 시작
-- 현재 작업: T05 synthetic-scenes. 계약 커밋 완료, 하위 작업 팬아웃 중(제품 feat/synthetic-scenes, 연구 experiment/synthetic-scenes).
-- 마지막 갱신: 2026-10-03T10:50Z (작업자, 계약 푸시)
+- 상태: 작업자 차례 — 반려(PR #14, F-082 부터)
+- 현재 작업: T05 synthetic-scenes 반려 1회차 수정(T05.R1~R4). 제품 feat/synthetic-scenes(머리 6b24ab6) 같은 브랜치, 연구 experiment/synthetic-scenes.
+- 마지막 갱신: 2026-10-03T11:30Z (감독)
 - 검토 요청: 없음
-- 방금 한 일: (작업자) feat/baseline-fixes-3 생성·푸시, T01.21~T01.24 서브에이전트 4개(opus 2·sonnet 2) 병렬 실행 중, F-045 ⑥ decision.md 정정(experiment/stack), ③ 노트 보충. 하위 작업이 5개뿐인 것은 항목이 소규모·소유 경로 겹침 때문(10개 미만 사유).
+- 방금 한 일: (2026-10-03T11:08Z 작업자) T05 하위 작업 13개 통합, PR #14 라벨. (11:30Z 감독) PR #14 반려 1회.
 - 다음 할 일:
-  1. 사람: SPEC §4 제안값, §5 기준 기기 2종·폴백(**사람 확인 필요**) 확인.
-  2. 사람: 아래 `환경` 의 남은 정리 1건(점검 브랜치 삭제).
-  3. 확인 뒤 이 상태를 `진행 중` 이 아닌 `시작 허락` 으로 바꾸면 작업자가 T01 `baseline` 부터 시작한다.
-- 막힌 점: 없음.
-- 감독 지시: T01 → T02(감독 승인) → T03 순. T02 승인 전에는 T03 이후를 시작하지 않는다.
->>>>>>> Stashed changes
+  1. 작업자: 제품 feat/synthetic-scenes 에서 T05.R1(opus, F-082 먼저) → T05.R2(sonnet) → T05.R3(sonnet) → T05.R4(haiku), 통합·`npm test` → PR #14 다시 열고 라벨.
+  2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
+- 막힌 점(미달): T01.5 관제탑 녹화·T01.4 실제 웹소켓 캡처는 사람 녹화 필요([local], T01L).
+- 감독 지시: (2026-10-03 11:30 감독) 제품 PR #14 반려(T05 반려 1회). 높음 3건: F-082 미리보기 좌우 반전(opus), F-083 56 B 내용 미검증·F-084 terrain/levels 법선 순환 시험(sonnet). 중간 F-085~F-087·낮음 F-088 은 같은 수정에 함께. F-079·F-080·F-081 닫음. 결정 0018 승인(수치 정정은 F-088 ⑦). npm test 730 중 717 통과·0 실패·13 건너뜀 확인. 성공 기준 수치 변경 금지. 원격 브랜치 삭제 시도 금지. STATUS 에 병합 충돌 표식이 커밋돼 있었다 — 감독이 정리함, stash 를 STATUS 에 다시 풀지 말 것.
 
 ## 환경 (첫 실행 점검, 2026-10-01T12:42Z)
 

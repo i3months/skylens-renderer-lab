@@ -49,7 +49,7 @@ tools/       명령줄 도구
 - [x] **T02 `stack`** — 스택 선정. 서버 래스터라이저(2단계)·자산 처리 서버·클라이언트 경량 래스터라이저를 무엇으로 쓸지 조사. (2026-10-02 감독 승인, 결정 0009 승인·0012~0014 반영, 연구 PR #3 → research merge commit ddd3219, 제품 변경 없음, 반려 0회)
 - [x] **T03 `asset-format`** — 경량 자산 포맷 계약과 핵심 타입. 27 B 점·56 B 가우시안 두 입력 형식을 담는다(0012). 첫 하위 작업으로 F-059(T03.F, haiku)를 함께 처리한다. (2026-10-03 병합, 제품 5b41a3b merge commit, 연구 research f8d847f, 반려 1회. F-059~F-067 닫음, 잔여 F-068~F-070 → T04.F, 결정 0015 승인)
 - [x] **T04 `point-io`** — 27 B 점·56 B 가우시안 PLY 입출력과 ENU 좌표. (2026-10-03 병합, 제품 a89fb27 merge commit, 연구 research 359532d, 반려 2회: 1회 F-071 높음, 2회 F-075 높음. F-068·F-071~F-078 닫음, 잔여 F-079~F-081 → T05.F, 결정 0016 기각·0017 승인)
-- [ ] **T05 `synthetic-scenes`** — 합성 장면·고정 시점 8곳·골든 파일.
+- [ ] **T05 `synthetic-scenes`** — 합성 장면·고정 시점 8곳·골든 파일. (2026-10-03 반려 1회: F-082·F-083·F-084 높음 → T05.R1~R4)
 - [ ] **T06 `reference-raster`** — CPU 참조 래스터라이저와 화질 지표.
 - [ ] **T07 `lod`** — 거리 제곱 근거의 LOD 계층.
 - [ ] **T08 `culling`** — 뷰 의존 컬링(절두체·법선·가림).
@@ -212,6 +212,10 @@ tools/       명령줄 도구
 | T05.8 | DEM 타일 합성(관제탑용) | `fixtures/scenes/dem/` | 높이 왕복 오차 ≤ 0.1 m | sonnet |
 | T05.9 | 카메라 경로(드론 추적·자유 조작) | `fixtures/paths/` | 프레임 수·간격 정확 | sonnet |
 | T05.10 | 장면 미리보기 도구(CPU, PNG) | `tools/scene_preview/` | 8시점 이미지 생성 | haiku |
+| T05.R1 | (반려 1회차, 먼저) F-082 미리보기 좌우 반전: 카메라 기저를 GL 오른손계로(ref_images cameraExtrinsics 재사용 권장), floor 픽셀 규약, u 부호·8시점 ref_images 대조 시험 | `tools/scene_preview/` | F-082 확인 기준 | opus |
+| T05.R2 | F-083 56 B 위치·fdc·scales·오프셋 레이아웃 시험, F-084 terrain·levels 법선을 유한차분 독립 정답으로 | `contracts/scenes/`, `fixtures/scenes/terrain/`, `fixtures/scenes/levels/` | F-083·F-084 확인 기준 | sonnet |
+| T05.R3 | F-085 장면·도구 시험 공백(large 기본 실행 포함), F-086 입력 검증 공통화, F-087 depth_noise 기선 근거 | `fixtures/scenes/`, `fixtures/paths/`, `tools/scene_preview/`, `contracts/scenes/`, `contracts/ply/` | F-085·F-086·F-087 확인 기준 | sonnet |
+| T05.R4 | F-088 haiku 표기 항목(③⑥⑦⑧⑨⑫⑬⑮⑯: 주석·README 한·영 T05 절·measure·결정 0018 수치·단순 시험). sonnet 표기 항목은 R2·R3 와 같은 소유 경로에서 함께 | `README.md`, `fixtures/scenes/large/measure.mjs`, 연구 `decisions/0018-*` | F-088 해당 항목 | haiku |
 
 ### T06 `reference-raster` — [cloud]
 
