@@ -22,7 +22,7 @@
 - ④ contracts/cull/cull.test.mjs: 마스크마다 다른 위치 0, CULL_API fn 이름 동적 import 확인. 수동 변이(첫 마스크 생략) → 실패.
 - ⑤ predict.test.mjs 사례 2·3 을 탐색값으로 교체(옛 값은 변이를 못 잡았음을 주석에 기록), 사례 2~5 에 가산 변이(+0.02, +0.2) 전제를 시험 안에서 단언. 수동 변이 +0.2·+0.02 → 실패. 사례 4·5 만 따로 변이에 돌리지는 않음.
 - ⑥ degenerate_holes 항상 참 단언 삭제, stale_box_cache 주석 세미콜론 정리.
-- ⑦ cachedNormalCones(null/undefined) 가 'cull:' 오류. bench/cull/run.mjs 가 occlusion > 0 단언(bench: backface 1000·occlusion 7408).
+- ⑦ cachedNormalCones(null/undefined) 가 'cull:' 오류. bench/cull/run.mjs 가 occlusion > 0 단언(bench: backface 1000·occlusion 7408). [정정 표시(F-146 ⑧, 2026-10-03): 이 서술은 실제 동작과 달랐다 — cachedNormalCones 비정상 입력의 cull: 오류는 fixes4 노트에서 정정·보강됨. 원문은 그대로 둔다.]
 - ⑧ 위 cull_review_fixes2 노트 정정.
 
 ## F-131
