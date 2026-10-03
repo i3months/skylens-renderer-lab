@@ -1187,25 +1187,25 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 14:40 감독 등록(축 4a). 신규. → 2026-10-03 작업자 처리(제품 feat/lod-fixes4 23c312f; 연구 experiment/lod-fixes4): B1: 독립 d_eff 기대값, 변이 z_P·c_P 1.1배·건너뛰기 제거 실패 직접 확인. → 2026-10-03 15:05 감독 확인 닫음: 감독 사본 변이 — 건너뛰기 제거 → progressive 시험 8·9 실패, z_P·c_P 1.1배 → 시험 2 실패. 34937 리터럴 0건.
 
-### F-109 [열림] (심각도: 중간) — 결정·주석이 같은 PR 의 코드와 어긋남(0022 applyChunks 서술, 카메라 평면 걸침 주석)
+### F-109 [처리됨-검증대기] (심각도: 중간) — 결정·주석이 같은 PR 의 코드와 어긋남(0022 applyChunks 서술, 카메라 평면 걸침 주석)
 - 위치: ① 연구 experiment/lod-fixes4 decisions/0022-lod-levels-positions-copy.md:27·33 ② 제품 server/lod/select/index.mjs:11, server/lod/budget/index.mjs:15 (23c312f) ③ 연구 decisions/0020-lod-grid-hierarchy.md:57 의 'screen_error.mjs:154' (실제 식은 :168) ④ 제품 contracts/lod/index.mjs:7-9(거리 근거가 f·edgeM/d), :43·:67·:70·:73(LOD_API 표에 maxDepth·applyChunks·minEdge0M 누락, 'hierarchy 는 만들지 않는다' 문구)
 - 문제: ① 0022 는 "applyChunks 는 사본이 아닌 cloud.positions 를 점마다 직접 읽는다… 미착수" 라 적고 다시 볼 조건에 "applyChunks 를 구간 복사로 바꾸거나" 를 둔다. 같은 PR 의 progressive/index.mjs:107 은 이미 lv.positions 구간 복사다(감독 직접 확인). ② 두 주석은 "상자가 카메라 평면에 걸치면(cMin ≤ 0)/ d_eff = 0 이면 원본 단계 0" 이라 하나 screen_error.mjs:21·168 은 걸쳐도 P 가 있으면 d_eff = z_P·c_P > 0 이다(축 2 재현: 상자 [5,-1,-2]-[6,1,50] → cosMin 0, effDistM 6.54; 감독은 주석 두 줄과 screen_error.mjs:21 직접 확인).
 - 실패 상황: 0022 를 읽은 다음 작업자가 "사본의 절반만 쓰인다" 고 보고 메모리 대가를 잘못 판단한다. 주석을 믿은 호출자·시험이 걸친 상자는 항상 단계 0 이라고 가정한다.
 - 고칠 것: ① 0022 대가 셋째 줄을 "materialize·applyChunks 모두 사본을 구간 복사(F-107 ④)" 로, 다시 볼 조건에서 applyChunks 항 삭제. ② 두 주석을 "d = 0 이거나, cMin ≤ 0 이고 P 가 비면 단계 0. 걸쳐도 P 가 있으면 z_P·c_P" 로. ③ 줄 번호 대신 함수 이름 effectiveDistance 로 가리킴. ④ 계약 문단에 "d 는 d_eff(screen_error.mjs), f = max(fx,fy)" 한 줄, LOD_API 표를 각 모듈 export 와 일치.
 - 확인 기준: `grep -n 'applyChunks' decisions/0022*` 에 '미착수'·'cloud.positions 를 점마다' 없음. 두 주석이 screen_error.mjs:21 과 같은 조건. 각 server/lod 모듈 `grep ^export` 이름이 LOD_API 에 모두 있음.
 - 권장 모델: haiku(①②③), sonnet(④)
-- 이력: 2026-10-03 15:05 감독 등록(축 2·5). 신규. ①②③ 은 이번 PR 변경분, ④ 는 이전부터 있던 계약 문구(범위 밖 끌어오기 아님 — 이번 PR 이 그 함수들을 고침).
+- 이력: 2026-10-03 15:05 감독 등록(축 2·5). 신규. ①②③ 은 이번 PR 변경분, ④ 는 이전부터 있던 계약 문구(범위 밖 끌어오기 아님 — 이번 PR 이 그 함수들을 고침). → 2026-10-03 작업자 처리(제품 feat/lod-fixes5 cf1a8c0; 연구 experiment/lod-fixes5): 항목별 변이 확인과 npm test 1201 중 1189 통과·0 실패·12 건너뜀은 experiments/lod-fixes5.md. F-110 ③ 은 F-111 ⑧ 입력 검사와 충돌해 카메라 t 오버플로 방식으로 바꿈. F-110 ① 설정 1 의 d_eff×0.6 변이는 실제 칸 변으로는 통과, 설정 2·3 이 잡음(노트 참조).
 
-### F-110 [열림] (심각도: 중간) — 시험 문턱 근거·빈 시험(이론 하한 아님, 불필요한 문턱 하향, 루트 노드 변조)
+### F-110 [처리됨-검증대기] (심각도: 중간) — 시험 문턱 근거·빈 시험(이론 하한 아님, 불필요한 문턱 하향, 루트 노드 변조)
 - 위치(제품 23c312f): ① server/lod/select/screen_error.test.mjs:124-135 ② server/lod/budget/budget_discrim.test.mjs:159-165 (10000 예산) ③ server/lod/select/hierarchy_input.test.mjs:57-66 ④ hierarchy_input.test.mjs:23-24 / select/index.mjs:37
 - 문제: ① minWorstPx 0.29/0.26/0.29/0.25 를 TAU/2 로 내리며 "측정값에 맞춘 수가 아니라 이론 하한" 이라 적었으나, 논증(f·e_l/d_eff > τ/2)은 규칙 추정값의 하한이지 실제 투영 칸 변의 하한이 아니다. 주석도 "작을 수 없다고 본다" 로 끝난다(감독 :126-130 직접 확인). 축 4b 실측: 실제 0.292/0.268/0.298/0.256, 넷째 설정 여유 0.006. d_eff×0.6 변이가 설정 1 에서 0.274 로 통과(옛 0.29 면 실패). ② 10000 예산 minGap 0.28→0.23·minWins 3→2. 현재 측정(합 차 최솟값 0.4602, 이긴 시점 최솟값 5)은 옛 한계를 통과하므로 낮출 필요가 없었다. 감독이 origin/main 에서 같은 시험을 돌려 10000 예산 값이 HEAD 와 동일(시드 1 2.9183/2.4581, 이김 5)함을 확인 — 이번 PR 의 퇴행은 아니고 483f3b4 이후 표가 낡았던 것. ③ 'd 가 Infinity 인 리프' 시험은 boxMin/boxMax[0..2](노드 0, 루트)를 바꾼다. 루트는 리프가 아니라 select·budget 모두 건너뛰고, 단언도 던짐 여부 일치뿐이다(감독 :57-66 직접 확인; 축 4b: budget 가시성 판정 순서를 되돌리는 변이가 16/16 통과 — 미확인). ④ 'nodeCount 없음'·'정수 아님' 은 39행 길이 검사에서도 lod: 로 던져 37행 검사를 독립 검증하지 않는다(축 4b 변이, 미확인).
 - 실패 상황: ① 규칙을 정당하게 더 보수적으로 고치면 넷째 설정이 거짓 실패하고, 과보수 변이 일부는 통과한다. ② 퇴행이 올 때마다 '절반 규칙' 으로 문턱이 내려가 판별력이 계속 준다. ③④ 해당 코드 경로가 깨져도 시험이 통과한다.
 - 고칠 것: ① '이론 하한' 문구 삭제, 하한 대상을 규칙 추정값 f·e_l/d_eff 로 바꾸거나(그러면 τ/2 는 증명된 하한) 실제 값이면 측정 기반이라 밝히고 '한 단계 고운 단계' 변이와의 중간값으로. ② 한계는 올리기만: max(이전 한계, 새 측정 절반) → 10000 예산을 0.28/3 으로 되돌림. ③ leafIndex[n] ≥ 0 인 실제 리프 노드 상자를 바꾸고, 두 경로 모두 던지지 않음과 그 리프 NOT_DRAWN 을 단언. ④ 기대 메시지 지정, 길이가 맞는 nodeCount = leafCount−1 사례 추가.
 - 확인 기준: ① 'd_eff×0.6' 과 '단계 l−1 강제' 변이가 네 설정 중 하나 이상에서 실패, 원본 통과. ② budget_discrim 10000 이 0.28/3 이고 HEAD 에서 통과. ③ budget 가시성 판정을 rule.leaf 뒤로 되돌리고 d 비유한 시 던지는 변이 → 실패. ④ select/index.mjs:37 만 지우는 변이 → 실패.
 - 권장 모델: sonnet
-- 이력: 2026-10-03 15:05 감독 등록(축 4b·5). 신규. 모두 이번 PR 이 고친 시험 안이라 범위 밖 끌어오기 아님.
+- 이력: 2026-10-03 15:05 감독 등록(축 4b·5). 신규. 모두 이번 PR 이 고친 시험 안이라 범위 밖 끌어오기 아님. → 2026-10-03 작업자 처리(제품 feat/lod-fixes5 cf1a8c0; 연구 experiment/lod-fixes5): 항목별 변이 확인과 npm test 1201 중 1189 통과·0 실패·12 건너뜀은 experiments/lod-fixes5.md. F-110 ③ 은 F-111 ⑧ 입력 검사와 충돌해 카메라 t 오버플로 방식으로 바꿈. F-110 ① 설정 1 의 d_eff×0.6 변이는 실제 칸 변으로는 통과, 설정 2·3 이 잡음(노트 참조).
 
-### F-111 [열림] (심각도: 낮음) — PR #19 잔여 묶음(대부분 미확인)
+### F-111 [처리됨-검증대기] (심각도: 낮음) — PR #19 잔여 묶음(대부분 미확인)
 - 위치·고칠 것(제품 23c312f):
   ① applychunks_source.test.mjs:30-38 시험 이름 '같은 출처라 바이트 동일' — 사본이라 출처를 못 가름(cloud.positions 직접 읽기 변이에서 통과, 축 4a). 이름을 '결과 동등' 으로 낮추거나 cloud 변경 뒤 비교. (haiku)
   ② hierarchy_nokey.test.mjs:28·50 — _forceNoKey 가 실제 비교 함수 경로를 타는지 단언 없음(hierarchy/index.mjs:34 의 `!opts._forceNoKey &&` 삭제 변이 6/6 통과, 축 4a). (haiku)
@@ -1218,4 +1218,4 @@
   ⑨ 연구 experiments/lod-fixes4.md '미달·남은 것' 의 '0.29→0.25' 는 G(10000 예산 0.28→0.23)와 I(screen_error 하한)를 섞어 적음. 둘을 나눠 적기. (haiku)
 - 확인 기준: 항목별 변이 또는 grep.
 - 권장 모델: 항목별 표기
-- 이력: 2026-10-03 15:05 감독 등록(축 2·4a·4b·5·7·12). 신규.
+- 이력: 2026-10-03 15:05 감독 등록(축 2·4a·4b·5·7·12). 신규. → 2026-10-03 작업자 처리(제품 feat/lod-fixes5 cf1a8c0; 연구 experiment/lod-fixes5): 항목별 변이 확인과 npm test 1201 중 1189 통과·0 실패·12 건너뜀은 experiments/lod-fixes5.md. F-110 ③ 은 F-111 ⑧ 입력 검사와 충돌해 카메라 t 오버플로 방식으로 바꿈. F-110 ① 설정 1 의 d_eff×0.6 변이는 실제 칸 변으로는 통과, 설정 2·3 이 잡음(노트 참조).
