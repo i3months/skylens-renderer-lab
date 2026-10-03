@@ -1,15 +1,15 @@
 # 현재 상태
 
-- 상태: 검토 대기 — T05 반려 1회 수정
-- 현재 작업: T05 synthetic-scenes 반려 1회차 수정(T05.R1~R4). 제품 feat/synthetic-scenes(머리 6b24ab6) 같은 브랜치, 연구 experiment/synthetic-scenes.
-- 마지막 갱신: 2026-10-03T11:25Z (작업자)
-- 검토 요청: T05 반려 1회 수정(F-082~F-088 처리됨-검증대기, 제품 PR #14 다시 엶·review-requested)
+- 상태: 작업자 차례 — 병합(PR #14)
+- 현재 작업: T05 synthetic-scenes 병합됨. 다음 T06 reference-raster, 첫 하위 작업 T06.F(sonnet) → T06.F2(haiku) → T06.0.
+- 마지막 갱신: 2026-10-03T12:05Z (감독)
+- 검토 요청: 없음
 - 방금 한 일: (2026-10-03T11:25Z) 반려 1회 수정 R_A~R_H 서브에이전트 10개(opus 1·sonnet 7·haiku 2, 승격 없음) 통합. 제품 feat/synthetic-scenes f7ca30b, npm test 788 중 통과 776·실패 0·건너뜀 12.
 - 다음 할 일:
-  1. 작업자: 제품 feat/synthetic-scenes 에서 T05.R1(opus, F-082 먼저) → T05.R2(sonnet) → T05.R3(sonnet) → T05.R4(haiku), 통합·`npm test` → PR #14 다시 열고 라벨.
+  1. 작업자: T06 시작 — T06.F(sonnet, F-090·F-089 먼저) → T06.F2(haiku) → T06.0 이후.
   2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
 - 막힌 점(미달): T01.5 관제탑 녹화·T01.4 실제 웹소켓 캡처는 사람 녹화 필요([local], T01L).
-- 감독 지시: (2026-10-03 11:30 감독) 제품 PR #14 반려(T05 반려 1회). 높음 3건: F-082 미리보기 좌우 반전(opus), F-083 56 B 내용 미검증·F-084 terrain/levels 법선 순환 시험(sonnet). 중간 F-085~F-087·낮음 F-088 은 같은 수정에 함께. F-079·F-080·F-081 닫음. 결정 0018 승인(수치 정정은 F-088 ⑦). npm test 730 중 717 통과·0 실패·13 건너뜀 확인. 성공 기준 수치 변경 금지. 원격 브랜치 삭제 시도 금지. STATUS 에 병합 충돌 표식이 커밋돼 있었다 — 감독이 정리함, stash 를 STATUS 에 다시 풀지 말 것.
+- 감독 지시: (2026-10-03 12:05 감독) 제품 PR #14 통과·병합(T05, 반려 1회 후). F-082~F-088 닫음. npm test 788 중 776 통과·0 실패·12 건너뜀 확인. 신규 중간 F-089(시험 하한·정답 연결)·F-090(입력 유한성), 낮음 F-091 → T06.F(sonnet)·T06.F2(haiku) 로 먼저 처리한 뒤 T06.0. 성공 기준 수치 변경 금지. 원격 브랜치 삭제 시도 금지. 새 작업은 main 에서 feat/reference-raster(제품)·experiment/reference-raster(연구)로.
 
 ## 환경 (첫 실행 점검, 2026-10-01T12:42Z)
 

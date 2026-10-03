@@ -223,6 +223,8 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 
 | 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
 |---|---|---|---|---|
+| T06.F | (먼저) T05 검토 잔여: F-090 입력 유한성(depth_noise f·b, dem cell, 56 B 계약 필드, ENU 극 근처 경도 증분, 미리보기 픽셀 상한, 경로 fps·frames), F-089 시험 하한·정답 연결(paths·levels·terrain·buildings·viewpoints·ply_stream·enu), F-091 sonnet 표기 항목 | `fixtures/`, `contracts/scenes/`, `contracts/ply/`, `server/geo/enu/`, `server/points/ply_stream/`, `tools/scene_preview/`, `tests/` | F-089·F-090·F-091 확인 기준 | sonnet |
+| T06.F2 | F-091 haiku 표기 항목(①②③⑤⑥⑨⑪⑫⑬: 단순 시험·주석·README 한·영·measure·연구 노트 수치) | `tools/scene_preview/`, `fixtures/scenes/large/measure.mjs`, `README.md`, 연구 `experiments/synthetic-scenes.md` | F-091 해당 항목 | haiku |
 | T06.0 | 계약: 카메라(K, R, t, 해상도), 렌더 결과(색·깊이·점 번호) 타입 | `contracts/raster/` | 타입 문서와 일치 | sonnet |
 | T06.1 | 투영 `X_c = R·X_w + t`, `[u,v,1]ᵀ ∝ K·X_c` | `server/raster_ref/project/` | renderer_basis §2-3 예제 픽셀 (396.27, 139.47) 를 0.01 px 이내 재현 | opus |
 | T06.2 | 역투영 `X_c = d·K⁻¹[u,v,1]ᵀ` | `server/raster_ref/unproject/` | 투영→역투영 왕복 ≤ 1e-6 m | opus |

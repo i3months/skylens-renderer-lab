@@ -839,7 +839,7 @@
  → 2026-10-03 11:30 감독 확인 닫음: ①②③ grep 확인(normals:20, ASSET_FORMAT.md:249, README.md:63·131 한·영 일치), ⑤ `element vertex 0x10` → ply 오류. ④⑥ 은 작업자 노트 기준(미확인).
 
 
-### F-082 [처리됨-검증대기] (심각도: 높음) — 장면 미리보기 화면이 좌우로 뒤집힌다(오른쪽 축 부호 반대)
+### F-082 [닫힘] (심각도: 높음) — 장면 미리보기 화면이 좌우로 뒤집힌다(오른쪽 축 부호 반대)
 - 위치: 제품 feat/synthetic-scenes 6b24ab6 tools/scene_preview/index.mjs:84-85(`right = cross(normalize(up), forwardNorm)`), :145-146(Math.round), 테스트 tools/scene_preview/scene_preview.test.mjs:174-235·377-397
 - 문제: forward 는 target−eye 인데 up × forward 로 right 를 잡아 right 가 반대 방향이 되고 기저가 왼손계(det −1)가 된다. 제품 GL 규약 구현 bench/baseline/ref_images/index.mjs:24·68(x_c = normalize(up × z_c), z_c = eye − target)과 반대. 축 밖 점 테스트가 x=0 인 점만 봐서 u 부호를 못 잡는다(u 계산 부호를 뒤집은 변형도 8/8 생존). 부가로 픽셀 반올림이 Math.round 라 ref_images 의 floor([i,i+1)) 규약과 반 픽셀 어긋난다.
 - 실패 상황: 감독 직접 실행 — eye (0,0,10)·target 원점·up (0,1,0)·64×48 에서 동쪽 점 (3,0,0) → u=20(중앙 32 왼쪽). GL 오른손계면 u≈44. top_down 시점에서 동쪽 (30,0,0) 이 u=524(참조 cameraExtrinsics 755.8). 8시점 미리보기 PNG 전부 거울상.
@@ -848,7 +848,8 @@
 - 권장 모델: opus
 - 이력: 2026-10-03 11:30 감독 등록(축 1b 높음·축 4B 중간 보고, 감독 직접 재현). 신규. 반려 사유(PR #14).
 
-### F-083 [처리됨-검증대기] (심각도: 높음) — 56 B 형식 출력의 위치·크기·레이아웃을 어느 테스트도 검증하지 않는다
+ → 2026-10-03 12:05 감독 확인 닫음(PR #14 f7ca30b): 감독 직접 eye(0,0,10) 동쪽 점 → u=44(중앙 오른쪽), 8시점 미리보기와 ref_images rasterize 바이트 동일(축 1), u 부호·floor→round 변이 fail.
+### F-083 [닫힘] (심각도: 높음) — 56 B 형식 출력의 위치·크기·레이아웃을 어느 테스트도 검증하지 않는다
 - 위치: 제품 6b24ab6 contracts/scenes/index.mjs:67-75(point27ToGauss56)·:106-117(56 B 직렬화), contracts/scenes/scenes.test.mjs:29-47, fixtures/scenes/levels/levels.test.mjs:29-43, 각 장면의 format 2 시험
 - 문제: format 2 시험은 assertSceneResult(위치 유한성)와 해시 자기 비교뿐이다. 56 B 오프셋별 레이아웃, positions 가 27 B 와 같은지, scales = ln σ 인지 보지 않는다. levels 의 부분집합 검사는 위치가 모두 0 이면 key 가 전부 같아 항상 참이 된다.
 - 실패 상황: 감독 직접 실행 — 사본에서 `positions: new Float32Array(c.positions.length)`(56 B 위치 전부 0)로 바꿔도 contracts/scenes·fixtures/scenes 테스트 64/64 통과. 축 4A 보고(미확인): 56 B 필드 순서 opacity↔fdc 교체, `scales.fill(sigma)`(log 빠짐), levels format 2 색 0 변형도 전부 통과.
@@ -857,7 +858,8 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 11:30 감독 등록(축 4A 보고, 위치 0 변형 감독 직접 재현). 신규. 반려 사유(PR #14).
 
-### F-084 [처리됨-검증대기] (심각도: 높음) — terrain·levels 법선 시험이 순환이다(생성기 함수로 정답을 만든다)
+ → 2026-10-03 12:05 감독 확인 닫음(PR #14 f7ca30b): 감독 직접 56 B positions 0 변이 → 10 fail, opacity↔fdc·log 누락·levels 색 0 변이 모두 fail(축 4A).
+### F-084 [닫힘] (심각도: 높음) — terrain·levels 법선 시험이 순환이다(생성기 함수로 정답을 만든다)
 - 위치: 제품 6b24ab6 fixtures/scenes/terrain/terrain.test.mjs:41-52(normalAt·gradientAt 를 정답으로 씀), 대상 fixtures/scenes/terrain/index.mjs:22-36; fixtures/scenes/levels/levels.test.mjs:52-53(단위 길이·y>0 만), 대상 levels/index.mjs:25-32
 - 문제: 생성기와 시험이 같은 normalAt/gradientAt 을 써서 기울기 식이 틀려도 오차 0. 최대 경사 15° 검사도 같은 gradientAt 으로 잰다. levels 법선은 정답 비교가 없다.
 - 실패 상황: 감독 직접 실행 — 사본에서 terrain/index.mjs:35 를 `[gx * inv, inv, gz * inv]`(법선 기울기 부호 반전)로 바꿔도 terrain 테스트 11/11 통과. 축 4A 보고(미확인): gradientAt 의 kx↔kz 교체 생존, levels `nx = hx, nz = hz` 부호 반전 6/6 생존.
@@ -866,7 +868,8 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 11:30 감독 등록(축 4A 높음·중간 보고, terrain 부호 변형 감독 직접 재현). 신규. 반려 사유(PR #14).
 
-### F-085 [처리됨-검증대기] (심각도: 중간) — 장면·도구 테스트의 순환·음성 시험 공백 묶음
+ → 2026-10-03 12:05 감독 확인 닫음(PR #14 f7ca30b): 감독 직접 terrain 법선 부호 변이 → 5 fail, kx↔kz·levels nx/nz 변이 fail(축 4A).
+### F-085 [닫힘] (심각도: 중간) — 장면·도구 테스트의 순환·음성 시험 공백 묶음
 - 위치·고칠 것(모두 제품 6b24ab6, 축 4A·4B·5 보고, 미확인 표기 외 감독 줄 확인):
   ① fixtures/scenes/depth_noise/depth_noise.test.mjs:14-41 — 잔차 통계가 모듈 자신의 sceneToCamera/project/trueDepthAt 를 씀. `d < best.d` → `d > best.d`(가장 먼 평면) 변형 8/8 생존(미확인). 시험 안에 독립 광선-평면 교차를 둔다.
   ② fixtures/scenes/flat_boxes/flat_boxes.test.mjs:43-58 — 벽 위치·바깥 법선·건물 밑 바닥 점 비움을 검사하지 않음(+x 벽 법선 [-1,0,0], 벽 원점 이동, index.mjs:140 삭제 변형 생존, 미확인). y>0 점은 어떤 상자 면 위(1e-4)·그 면 바깥 법선, y=0 점은 모든 상자 밑면 밖 단언.
@@ -879,7 +882,8 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 11:30 감독 등록. 신규. 반려 사유 아님(다음 수정과 함께).
 
-### F-086 [처리됨-검증대기] (심각도: 중간) — 장면·경로·미리보기 입력 검증 부재로 조용히 쓰레기를 낸다
+ → 2026-10-03 12:05 감독 확인 닫음(PR #14 f7ca30b): ①②③④⑤⑥⑦ 변이 모두 fail(축 4A·4B), large 250만 점 기본 실행(건너뜀 0).
+### F-086 [닫힘] (심각도: 중간) — 장면·경로·미리보기 입력 검증 부재로 조용히 쓰레기를 낸다
 - 위치·고칠 것(제품 6b24ab6, 축 7 보고):
   ① 점 수: fixtures/scenes/flat_boxes·terrain·holes·large·buildings 의 generate — 감독 직접 확인: flat_boxes `count: NaN` → 결과 count NaN 반환. 축 7: `-5` 는 내부 TypedArray 오류, `10.5` 는 count 10.5 반환(미확인). contracts/scenes 에 checkCount(정수 ≥0) 를 두고 7개 장면 공통 사용.
   ② format: contracts/scenes/index.mjs makeResult 가 format 을 검증하지 않음(`format:3` → r.format 3·cloud 27 B, 미확인). 1·2 외 거부.
@@ -891,7 +895,8 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 11:30 감독 등록(축 7 보고, ①④⑥ 일부 감독 직접 확인). 신규. 반려 사유 아님.
 
-### F-087 [처리됨-검증대기] (심각도: 중간) — depth_noise 기선 b=0.5 m 의 출처·가정이 없다
+ → 2026-10-03 12:05 감독 확인 닫음(PR #14 f7ca30b): ①~⑥ 입력 각각 명시적 Error, count 0·1 통과(축 7 실행 확인). 남은 유한성 공백은 F-090.
+### F-087 [닫힘] (심각도: 중간) — depth_noise 기선 b=0.5 m 의 출처·가정이 없다
 - 위치: 제품 6b24ab6 fixtures/scenes/depth_noise/index.mjs:26, depth_noise.test.mjs:53
 - 문제: renderer_basis.md:229-234 의 기선은 1.04/4.14/8.26/15.37 m 뿐이다. 0.5 m 는 문서에 없고, σ 를 1 px 시차 Δd 로 잡았는데 renderer_basis.md:583 은 부화소 정합 0.1~0.2 px 를 말한다. 차이가 적혀 있지 않다.
 - 실패 상황: 기본 장면 80 m 에서 σ≈17 m(깊이의 21%), 문서 1위 이웃 조건(b 8.26)이면 약 1 m. 후속 화질·LOD 시험이 과장된 잡음을 "실제 복원 오차 모형"으로 쓰게 된다(축 2 보고, 미확인).
@@ -900,7 +905,8 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 11:30 감독 등록(축 2 보고). 신규. 반려 사유 아님.
 
-### F-088 [처리됨-검증대기] (심각도: 낮음) — PR #14 잔여 묶음
+ → 2026-10-03 12:05 감독 확인 닫음(PR #14 f7ca30b): 기본 b 8.26 m(renderer_basis.md:233), 1 px Δd 가정 주석·truth, 시험 2.61/0.33 m 고정(축 2).
+### F-088 [닫힘] (심각도: 낮음) — PR #14 잔여 묶음
 - 위치·고칠 것(제품 6b24ab6 / 연구 experiment/synthetic-scenes, 대부분 미확인):
   ① fixtures/scenes/levels/index.mjs:35-38·55 — count<8 이면 수준 점 수가 엄격 증가하지 않음([1,1,1,1] 등). levels=4 일 때 count≥8 요구. (sonnet)
   ② levels/index.mjs:37·85 — levels<4 일 때 step 표기가 아래부터 붙어 최고 수준에 1000 이 붙음. step = LEVEL_STEPS[k+(4−levels)] 또는 levels 4 고정. (sonnet)
@@ -922,4 +928,51 @@
 - 확인 기준: 항목별 grep 또는 해당 시험.
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 11:30 감독 등록(축 1·1b·2·4A·4B·5·6·7 보고, ⑧ 감독 직접 확인). 신규. 반려 사유 아님.
- → 2026-10-03 작업자 처리(제품 feat/synthetic-scenes f7ca30b, 연구 experiment/synthetic-scenes): 반려 1회차 수정. 전체 npm test 788 중 통과 776·실패 0·건너뜀 12, 바뀐 테스트 10회 반복 실패 0. 세부는 experiments/synthetic-scenes.md → 2026-10-03 작업자 처리(제품 feat/synthetic-scenes f7ca30b, 연구 experiment/synthetic-scenes): 반려 1회차 수정. 전체 npm test 788 중 통과 776·실패 0·건너뜀 12, 바뀐 테스트 10회 반복 실패 0. 세부는 experiments/synthetic-scenes.md → 2026-10-03 작업자 처리(제품 feat/synthetic-scenes f7ca30b, 연구 experiment/synthetic-scenes): 반려 1회차 수정. 전체 npm test 788 중 통과 776·실패 0·건너뜀 12, 바뀐 테스트 10회 반복 실패 0. 세부는 experiments/synthetic-scenes.md → 2026-10-03 작업자 처리(제품 feat/synthetic-scenes f7ca30b, 연구 experiment/synthetic-scenes): 반려 1회차 수정. 전체 npm test 788 중 통과 776·실패 0·건너뜀 12, 바뀐 테스트 10회 반복 실패 0. 세부는 experiments/synthetic-scenes.md → 2026-10-03 작업자 처리(제품 feat/synthetic-scenes f7ca30b, 연구 experiment/synthetic-scenes): 반려 1회차 수정. 전체 npm test 788 중 통과 776·실패 0·건너뜀 12, 바뀐 테스트 10회 반복 실패 0. 세부는 experiments/synthetic-scenes.md → 2026-10-03 작업자 처리(제품 feat/synthetic-scenes f7ca30b, 연구 experiment/synthetic-scenes): 반려 1회차 수정. 전체 npm test 788 중 통과 776·실패 0·건너뜀 12, 바뀐 테스트 10회 반복 실패 0. 세부는 experiments/synthetic-scenes.md → 2026-10-03 작업자 처리(제품 feat/synthetic-scenes f7ca30b, 연구 experiment/synthetic-scenes): 반려 1회차 수정. 전체 npm test 788 중 통과 776·실패 0·건너뜀 12, 바뀐 테스트 10회 반복 실패 0. 세부는 experiments/synthetic-scenes.md
+ → 2026-10-03 작업자 처리(제품 feat/synthetic-scenes f7ca30b, 연구 experiment/synthetic-scenes): 반려 1회차 수정. 전체 npm test 788 중 통과 776·실패 0·건너뜀 12, 바뀐 테스트 10회 반복 실패 0. 세부는 experiments/synthetic-scenes.md
+ → 2026-10-03 12:05 감독 확인 닫음(PR #14 f7ca30b): ①~⑰ grep·시험 확인(축 1·4B·5·6·11), README T05 절 한·영 일치.
+
+### F-089 [열림] (심각도: 중간) — T05 시험의 하한·정답 연결 공백 묶음(구현은 맞음, 변이가 살아남음)
+- 위치·고칠 것(제품 main(PR #14 병합분) f7ca30b, 축 4A·4B 보고. 구현 정상 여부는 감독 직접 확인: dronePath 300프레임 회전 합 6.286 rad, freePath 600프레임 누적 199.7 m):
+  ① fixtures/paths/paths.test.mjs:71-82 — 드론 이동 상한만 있다. 정지·2바퀴·0.5바퀴·역방향 변이 생존(미확인). 회전 합 +2π±0.05, 프레임 이동 하한, 지터 >0, 80행 주석 15 m/s 와 단언 ≤90 불일치 정리.
+  ② fixtures/paths/paths.test.mjs:43-55 — 자유 경로 속도 하한·누적 이동·시선 변화 없음. speed 0·시선 고정 변이 생존(미확인). 누적 199.7 m ±5%, 프레임 속도 9~11 m/s, yaw 범위 >10°.
+  ③ fixtures/paths/paths.test.mjs:57-61 — bounds 시험 시드 5 는 원래 안쪽이라 index.mjs:124 자르기 제거 변이 생존(미확인). 오버슈트 시드로.
+  ④ fixtures/scenes/levels/levels.test.mjs:49 — 하위 수준 색인 중복을 보지 않음(감독 확인: 시험은 포함·개수만 봄, 구현 spaced() 는 엄격 증가). 색인 엄격 증가·서로 다른 위치 키 수 = count.
+  ⑤ fixtures/scenes/terrain/terrain.test.mjs:39 — 높이를 모듈 heightAt 과 비교(순환), 같은 파일 9행 hRef 로.
+  ⑥ fixtures/scenes/buildings/buildings.test.mjs:48-52 — 지붕 점 x·z·y 가 truth 건물 중심·높이와 일치하는지 안 봄.
+  ⑦ tests/viewpoints_synthetic.test.mjs:14-30 — 8시점 eye/target/up/width/height/fov 미고정(aerial_overview eye y 변이 생존, 미확인). deepEqual 고정.
+  ⑧ server/points/ply_stream/ply_stream.test.mjs:185-219 — 버퍼 재사용 소스 시험 없음(머리 청크 무복사 변이 생존, 미확인).
+  ⑨ server/geo/enu/enu.test.mjs:269-282 — 1e300 입력이 상한에서 먼저 걸려 결과 비유한 검사(index.mjs:187-189)에 도달하지 않음. 이름 정정 또는 도달 입력.
+- 확인 기준: 각 변이가 fail, 원본 통과.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 12:05 감독 등록(축 4A·4B, ④ 감독 직접 줄 확인, ①② 구현은 감독 직접 실행으로 정상). 신규. 반려 사유 아님(구현 결함 없음, 시험 공백).
+
+### F-090 [열림] (심각도: 중간) — 장면·계약·좌표 입력의 유한성 공백(조용히 비유한 점을 낸다)
+- 위치·고칠 것(제품 f7ca30b):
+  ① fixtures/scenes/depth_noise/index.mjs:140 — f·b 가 `>0` 만 검사. 감독 직접 확인: `generate({count:10,f:1e-300})` → positions 비유한, 오류 없음. f=Infinity 는 재시도 끝에 수 초 뒤 실패(축 7, 미확인). 유한·범위 검사.
+  ② fixtures/scenes/dem/index.mjs:48 — cell 유한성 없음. 감독 직접 확인: `generate({tile:4,count:16,cell:Infinity})` → positions 비유한.
+  ③ contracts/scenes/index.mjs:150 — 유한성 검사가 positions 뿐. 감독 직접 확인: format 2 opacity NaN·rotations 전부 0 이 assertSceneResult 통과. fdc·opacity·scales·rotations 유한, 사원수 길이 1±1e-3, 거부 시험.
+  ④ server/geo/enu/index.mjs:21·186-192 — 상한이 미터 기준이라 극 근처 앵커(lat 89.99999999)에서 e=1e8 이 수십조 도 경도로 감싸져 1 m 차에 10° 바뀜(축 1·4B, 미확인). 감싸기 전 경도 증분 ≤ 1440° 검사.
+  ⑤ tools/scene_preview/index.mjs:33 — 상한 width·height·3 ≤ 2^31 이면 zBuffer 5.7 GB(축 7, 계산). 픽셀 수 상한(예: 1.6e7).
+  ⑥ fixtures/paths/index.mjs:15-17·13 — fps 1e-320 → t Infinity, frames 1e9 사실상 멈춤, bounds ±1e308 TypeError(축 7, 미확인). fps 하한·frames 상한·결과 유한 검사.
+- 확인 기준: 위 입력 각각 명시적 Error, 기존 시험 통과.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 12:05 감독 등록(축 1·4A·4B·7, ①②③ 감독 직접 실행). 신규. 반려 사유 아님(합성 시험 도구의 비정상 매개변수, 기본 경로 정상).
+
+### F-091 [열림] (심각도: 낮음) — PR #14 재검토 잔여 묶음
+- 위치·고칠 것(제품 f7ca30b / 연구 experiment/synthetic-scenes, 대부분 미확인):
+  ① tools/scene_preview/index.mjs:102 — 같은 깊이 "먼저 온 점" 시험 없음(`<=` 변이 생존). (haiku)
+  ② tools/scene_preview/scene_preview.test.mjs:595-613 — colors 길이·크기 상한·encodePng 스캔라인 상한·거의 평행 판정 거부 시험. (haiku)
+  ③ tools/scene_preview/scene_preview.test.mjs:89-98 — 시점 8곳을 손으로 다시 적음, SYNTHETIC_VIEWPOINTS 사용. (haiku)
+  ④ contracts/ply/index.mjs:29-39 — vertexCount 안전 정수, element vertex 중복, property 이름 중복·누락 거부. (sonnet)
+  ⑤ tools/scene_preview/cli.mjs:56 — `sceneName in SCENES` → Object.hasOwn. (haiku)
+  ⑥ 장면·경로 generate(null) → TypeError, `opts ?? {}`. depth_noise `noise:'no'` 불리언 검사. (haiku)
+  ⑦ fixtures/scenes/holes/holes.test.mjs:121 — 띠 기준 80% 가 느슨(0.15 m 확장 변이 생존, 30 시드 최소 0.958). 0.9 로. holes·terrain 점이 truth.bounds 안인지 전수. (sonnet)
+  ⑧ holes.test.mjs:78 — 색 무늬 시험이 잡음만으로 통과, flat_boxes 색 시험 없음. (sonnet)
+  ⑨ fixtures/scenes/large/measure.mjs:80-81·96-99 — maxRSS 가 프로세스 누적이라 format 2 단독 피크가 아님(축 6 실측 format1 118.7 MB, format2 224.3 MB). format 별 별도 프로세스. (haiku)
+  ⑩ contracts/scenes/index.mjs:102-121 — packRecords 점마다 배열·DataView 호출, 250만 점 resultHash 약 1.3 s(축 6). Float32Array 인터리브·청크 해시. (sonnet)
+  ⑪ contracts/scenes/index.mjs:152-157 — 법선 단위 길이 강제가 ASSET_FORMAT.md:173(단위 길이 미보장)보다 엄격한 이유 주석(합성 전용). depth_noise/index.mjs:33 깊이 5~80 m 가 renderer_basis.md:256(27.6~52.8 m)보다 넓은 이유 주석. (haiku)
+  ⑫ server/geo/enu/index.mjs:355-362 — |Δλ|>180 감싸기와 극 앵커 eastScale 0 분기가 geo.ts 와 다른 범위라는 것을 README 한·영에 명시(결정 0017·0018 참조). (haiku)
+  ⑬ 연구 experiments/synthetic-scenes.md:18·25·50 — 730/717/13(R1 이전)과 788/776/12 가 같은 문서에 섞임, large 106 ms·165 ms 불일치. 현재 값 구분 표기. (haiku)
+- 확인 기준: 항목별 grep 또는 해당 시험.
+- 권장 모델: 항목별 표기
+- 이력: 2026-10-03 12:05 감독 등록(축 1·2·3·4A·4B·5·6·7). 신규. 반려 사유 아님.
