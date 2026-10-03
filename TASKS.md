@@ -167,6 +167,10 @@ tools/       명령줄 도구
 | T03.9 | 포맷 결정성 검사 | `server/asset/determinism/` | 같은 입력 두 번 → 바이트 동일 | haiku |
 | T03.10 | 버전 호환 정책 테스트(구버전 거부·신버전 무시 필드) | `server/asset/compat/` | `compat_matrix` 통과 | sonnet |
 | T03.11 | 포맷 퍼저(손상 입력 패닉 0) | `server/asset/fuzz/` | 10만 회 패닉·무한 루프 0 | sonnet |
+| T03.R1 | (반려 1회차, 먼저) F-060 checkDeterminism 기본 packFn·실제 pack 테스트 skip 제거·times 검사 | `server/asset/determinism/` | F-060 확인 기준 | sonnet |
+| T03.R2 | (반려 1회차) F-061 unpack_error_bound 끝점 사례·제품 packChunk 경로·quantExp 등호 경계 | `server/asset/unpack/`, `server/asset/pack/`, `fixtures/asset_golden/` | F-061 확인 기준(변형 3종 각각 실패) | opus |
+| T03.R3 | (반려 1회차, 중간) F-062 명세·0015 바이트 수치, F-063 pack lod 검사 | `format/`, `server/asset/pack/`, 연구 decisions/0015 | F-062·F-063 확인 기준 | haiku |
+| T03.R4 | (반려 1회차, 중간) F-064 클라이언트 codec·음성 테스트, F-065 f32Toward 할당 제거, F-066 음성 테스트 | `client/asset/`, `server/asset/unpack/`, `tools/asset_validate/`, `server/asset/fuzz/` | F-064·F-065·F-066 확인 기준 | sonnet |
 
 ### T04 `point-io` — [cloud]
 

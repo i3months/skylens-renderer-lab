@@ -570,7 +570,7 @@
 - 이력: 2026-10-02 00:04 감독 등록(축 1a·1b·2·3·4a·4b·6+7 보고; ⑧ 은 병합 뒤 도착한 축 4b 보고, ① 도 축 4b 가 같은 결과; ② 감독 사본 재현, ①④⑤ 감독 줄 확인, ③⑥⑦ 줄 근거 있음). 신규 항목(모두 이번 PR 이 만들거나 드러낸 것). 축 1b 가 ① 을 높음으로 보고했으나 조작된 smaps_rollup 에서만 생기고 실제 /proc 에서는 나오기 어려워 중간 항목 안의 낮은 하위로 낮춤.
 - 닫음(2026-10-02 00:20 감독, 제품 PR #11 6ce3122): ② 사본 `copyFrames = 1` → 직접 단언 테스트 1 실패, `>= s.hi` → 1 실패(감독 재현). ① PSS 합 검사(heap/index.mjs:74) 삭제 → PSS 합 테스트 1 실패, RSS 합 검사(:83) 삭제 → RSS 합 테스트 1 실패(감독 재현). 공통 위치 대신 두 곳에 둔 것은 노트에 밝혔고 두 삭제 변형이 모두 잡혀 충족으로 본다. ③④ ws_bytes :71-73·:93·:175·method 줄 확인. ⑤ same 에 colorType==='uchar', 없으면 'rgb', 새 basisNote 단언 통과, 줄 번호 참조 제거. 단 :496 stride 주석은 여전히 부정확 → F-059 ②. ⑥ JSDoc null 조건 넷 확인(개별 PSS unsafe 문구 부정확 → F-059 ①). ⑦ 조기 반환 두 줄 각각 삭제 → wrapper_delegate 1 실패씩(감독 재현). ⑧ :318 값 유도 확인.
 
-### F-059 [처리됨-검증대기] (심각도: 낮음) — PR #11 잔여: heap 문서·method 문구, basisNote stride 주석, testMode 꺼짐 무검사, 지워진 browser 주석, 병합 커밋의 작업 트리 이름
+### F-059 [닫힘] (심각도: 낮음) — PR #11 잔여: heap 문서·method 문구, basisNote stride 주석, testMode 꺼짐 무검사, 지워진 browser 주석, 병합 커밋의 작업 트리 이름
 - 위치: 제품 feat/baseline-fixes-9 6ce3122(main 병합 뒤 같은 줄)
   ① heap/index.mjs:46 JSDoc "개별 unsafe 는 건너뛰고" — 실제로 개별 unsafe PSS 는 건너뛰지 않고 RSS 로 폴백한다(:72), 건너뛰는 것은 개별 unsafe RSS 뿐(:81). (축 1b·5·6+7, 감독 줄 확인)
   ② heap/index.mjs:98 memoryMethodText 의 pssProcs 0 문구 "smaps_rollup 을 읽지 못해" — 이제 Pss 가 안전 정수가 아니어도 폴백하므로 이유가 좁다. (축 1b, 감독 줄 확인)
@@ -584,4 +584,82 @@
 - 확인 기준: ①②⑤ 줄 확인 ③ 새 테스트 통과, :496 문구 확인 ④ origin/main 대비 browser.mjs 제거 줄이 훅 관련 줄뿐 ⑥ 다음 PR 커밋 제목에 worktree-agent 0건
 - 권장 모델: 전부 haiku(③ 테스트 포함)
 - 처리 시점: 별도 주기를 만들지 않는다(결정 0011). 다음 제품 작업(T02 승인 뒤 첫 cloud 작업)의 첫 하위 작업으로 함께 고친다.
-- 이력: 2026-10-02 00:20 감독 등록(축 1b·2·3·5·6+7·9 보고, ①~⑥ 감독 줄·diff 확인; ⑦ 은 늦게 도착한 축 4b 보고, 감독 테스트 줄 확인). 신규 항목(이번 PR 이 만들거나 F-058 ⑤ 에서 덜 고친 것). 치명·높음 없음. → 2026-10-02 작업자 처리(제품 feat/asset-format dc55b2b 병합, T03.F): ①~⑥ 수정, ⑦ 테스트 추가, 병합 커밋 제목에 worktree-agent 0건(이번 실행 병합은 직접 쓴 메시지)
+- 이력: 2026-10-02 00:20 감독 등록(축 1b·2·3·5·6+7·9 보고, ①~⑥ 감독 줄·diff 확인; ⑦ 은 늦게 도착한 축 4b 보고, 감독 테스트 줄 확인). 신규 항목(이번 PR 이 만들거나 F-058 ⑤ 에서 덜 고친 것). 치명·높음 없음. → 2026-10-02 작업자 처리(제품 feat/asset-format dc55b2b 병합, T03.F): ①~⑥ 수정, ⑦ 테스트 추가, 병합 커밋 제목에 worktree-agent 0건(이번 실행 병합은 직접 쓴 메시지) → 2026-10-03 08:30 감독 확인 닫음(PR #12 e3133dc: ①②③⑤ 줄 확인, ③ 새 테스트 ref_images.test.mjs:979, ④ browser.mjs 제거 줄 1줄(주석 붙여 같은 줄 재추가)·주석 복원 확인, ⑦ browser.test.mjs:141, ⑥ main..feat/asset-format 커밋 제목 worktree 0건)
+
+### F-060 [열림] (심각도: 높음) — checkDeterminism 이 계약 서명대로 부르면 항상 던지고, 실제 pack 결정성 테스트는 모든 import 실패를 건너뛴다
+- 위치: 제품 feat/asset-format e3133dc — server/asset/determinism/index.mjs:11,19-30, server/asset/determinism/determinism.test.mjs:110-119, 계약 contracts/asset/stubs.mjs:323
+- 문제: 계약은 `checkDeterminism(input, times)` 인데 구현은 packFn 이 없으면 무조건 Error 를 던진다(:22-29 의 try { throw } catch { throw } 는 의미 없는 코드). JSDoc(:8)은 "기본은 ../pack/index.mjs 의 packChunk" 라고 해 문서와도 다르다. 실제 packChunk 로 도는 유일한 테스트(:110-119)는 catch 가 모든 오류를 받아 t.skip 하므로 pack 이 깨져도 녹색이다. T03.9 완료 기준(같은 입력 두 번 → 바이트 동일)을 제품 경로로 지키는 테스트가 사실상 없다.
+- 실패 상황: (감독 재현) `checkDeterminism({})` → "packFn not provided" Error. 사본에서 server/asset/pack/index.mjs 끝에 문법 오류 한 줄을 넣고 `node --test server/asset/determinism/determinism.test.mjs` → pass 7·fail 0·skipped 1("packChunk module not found").
+- 고칠 것: determinism/index.mjs 에서 `import { packChunk } from '../pack/index.mjs'` 정적 import, packFn 기본값을 packChunk 로. 쓸모없는 try/throw/catch 삭제. 테스트는 정적 import 로 실제 packChunk 를 두 형식 입력(골든 입력)으로 `checkDeterminism(input)`(packFn 생략) 호출해 `{identical:true, firstDiffOffset:null}` 단언. times 는 `Number.isInteger(times) && times >= 0` 이 아니면 던지고(NaN·1.5·Infinity), 결과를 전부 쌓지 말고 첫 결과와 하나씩 비교.
+- 확인 기준: ① `checkDeterminism(point27 입력)`·`(gauss56 입력)` 이 packFn 없이 identical true ② 사본에서 pack/index.mjs 에 문법 오류를 넣으면 determinism 테스트가 fail ≥1(skip 아님) ③ times NaN·1.5·Infinity 가 즉시 던짐 ④ 전체 npm test 실패 0
+- 권장 모델: sonnet
+- 이력: 2026-10-03 08:30 감독 등록(축 4B 보고, 감독 직접 재현). 신규.
+
+### F-061 [열림] (심각도: 높음) — unpack_error_bound 가 f_dc 반올림 방향 수정(f32Toward)을 고정하지 못하고, 오차 상한 시험이 제품 packChunk 가 아닌 복사본 부호기를 쓴다
+- 위치: 제품 e3133dc — server/asset/unpack/unpack.test.mjs:16-113(참조 부호기 복사본), :275·:285·:306(EDGE_FDC), server/asset/unpack/index.mjs:168·175, server/asset/pack/pack.test.mjs:77-88
+- 문제: 실험 노트 발견 1은 "f32 로 내릴 때 반올림 몇 ulp 가 상한을 넘어 처음 구현에서 위반 4건, 반올림 방향을 골라 해결" 이라고 적는다. 그런데 그 수정을 되돌려도 테스트가 통과한다. EDGE_FDC 는 0, ±0.5/C0 근처, 127.5 동점만 넣어 문제 경계(각 색 코드 c 의 하한 끝 f32 원본)를 포함하지 않는다. 또 무작위 왕복 상한 시험의 입력은 테스트 안의 복사본 부호기(packPoint27/packGauss56)로 만들고, 골든도 같은 식의 generate.mjs 로 만들어 제품 packChunk 와 복사본이 함께 틀리면 잡히지 않는다. quantExp 등호 경계(extent = 65535·2^-k)도 시험하지 않아 pack/index.mjs:112 의 `<=`→`<` 변형이 살아남는다(축 4A 보고).
+- 실패 상황: (감독 재현) 사본에서 unpack/index.mjs:168 `f32Toward(…, -1)` → `Math.fround(…)` 로 바꾸고 `node --test server/asset/unpack/unpack.test.mjs` → pass 4·fail 0. 축 4A 계산: c=1·17·33·207 의 하한 끝 f32 원본에서 이 변형은 ERROR_BOUNDS.gaussFdc 를 넘는다(미확인 수치, 감독은 변형 생존만 확인).
+- 고칠 것: ① EDGE_FDC 에 c=0..255 각각 "부호화하면 c 가 되는 가장 작은·가장 큰 f32 원본" 을 넣고, opacity(로짓, :175)도 같은 방식으로 각 q 의 끝점 f32 원본을 넣는다. ② 무작위 왕복 상한 시험(두 형식)의 부호화를 제품 `packChunk` 로 바꾼다(복사본 부호기는 손계산 사이드카 대조용으로만). ③ pack.test 에 `mk(65535/1024)`→10, `mk(65535/512)`→9, `mk(65535/256)`→8 과 바로 위 f32 값 → 한 단계 아래를 추가. ④ 사이드카에 접힘 법선(z<0) 점과 회전 m≠0 점의 손계산 stored 값 추가.
+- 확인 기준: 사본 변형 세 가지 각각에서 해당 테스트 fail ≥1 — (a) unpack:168 f32Toward→Math.fround (b) unpack:175 opacity f32Toward→Math.fround (c) pack:112 `<=`→`<`. 원본에서 전체 npm test 실패 0, 상한 값(contracts/asset/index.mjs:60-69) 변경 없음.
+- 권장 모델: opus(수치 경계 계산)
+- 이력: 2026-10-03 08:30 감독 등록(축 4A 보고, (a) 감독 직접 재현). 신규.
+
+### F-062 [열림] (심각도: 중간) — 명세·결정 0015 의 형식 1 점당 본문 바이트가 13 B 로 틀렸다(실제 11 B)
+- 위치: 제품 format/ASSET_FORMAT.md:20, :144, :287, :288 / 연구 experiment/asset-format decisions/0015-asset-single-format.md "13 B/점", "48%"
+- 문제: :144 식 `3·pad4(2n) + 5·pad4(n)` 은 n 이 4의 배수면 6n+5n = 11n 인데 같은 줄이 13n 이라 적는다. 평면은 위치 u16×3(6)+색 u8×3(3)+법선 i8×2(2) = 11 B. 명세 :5 는 "문서가 이긴다" 이므로 틀린 수치가 규범이 된다.
+- 실패 상황: `bodyLayout(1, 32).requiredBytes/32` = 11, 골든 본문 352 = 32×11. 문서대로 S6 용량을 추정하면 32.5 MB(실제 27.5 MB), 3 MB 당 23만 점(실제 약 27만 점).
+- 고칠 것: :20 → 11 B(40.7%), :144 → 11n, :287 → 27.5 MB, :288 → 약 27만 점. 0015 의 13 B·48% 도 같이.
+- 확인 기준: `grep -n '13 B\|13n' format/ASSET_FORMAT.md` 0건, 0015 수치 정정.
+- 권장 모델: haiku
+- 이력: 2026-10-03 08:30 감독 등록(축 1 보고, 감독 줄 확인). 신규.
+
+### F-063 [열림] (심각도: 중간) — packChunk 가 lod > 7 조각을 만든다(검증기·엄격 읽기가 거부)
+- 위치: server/asset/pack/index.mjs:86, :118-122
+- 문제: pack 은 lod 를 LOD_MAX(7)로 검사하지 않고 serializeHeader(0..255)만 거친다.
+- 실패 상황: `packChunk({...골든 입력, lod:255})` → 정상 반환, validateAsset → `field: lod 255 > 7`, readHeaderStrict 던짐(축 7 재현, 감독은 :86·:120 에 검사 없음 확인).
+- 고칠 것: pack 에서 lod 정수·0..LOD_MAX 검사(AssetFormatError 'field'), 또는 출력 직후 readHeaderStrict 로 자체 검증.
+- 확인 기준: `packChunk({lod:8})` 이 AssetFormatError('field'), 테스트 1건.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 08:30 감독 등록(축 7). 신규.
+
+### F-064 [열림] (심각도: 중간) — 클라이언트 읽기가 codec 을 검사하지 않고 헤더 의미 검사·음성 테스트가 거의 없다
+- 위치: client/asset/index.mjs:42(codec 읽기만), :72-88(readPlanesClient: 파일이 길어도 통과), client/asset/client_asset.test.mjs:15·22·24(gauss56 기준값 0 으로 꺼짐), :64-70(음성 2개)
+- 문제: 명세 §9 는 모르는 codec 을 거부하라는데 서버 unpack 만 거부한다. 클라이언트는 codec≠0 본문을 무압축 평면으로 해석한다(도착하지 않은 표면을 그리는 셈, RULES §1.2). quantExp·tileSizeM·pointCount·bbox·뒤 바이트도 보지 않는다.
+- 실패 상황: codec=1 골든 변형 → readPlanesClient 가 쓰레기 위치를 돌려줌. version·header_size·본문 길이 검사를 지운 변형이 5/5 통과(축 4B).
+- 고칠 것: codec≠CODEC_RAW_PLANAR → AssetFormatError('codec'). quantExp 8..10·pointCount≥1·tileSizeM 64·headerSize+bodyBytes = 길이 검사(또는 서버 parseHeader 와 같은 최소 검사만 한다는 계약을 명세 §15 T03.8 줄에 명시하고 codec 만 추가). 음성 테스트: 주 버전 2, header_size 130, format 3, 잘린 본문, codec 1. gauss56 기준값 512·21·384 채우고 if 제거.
+- 확인 기준: 위 입력마다 AssetFormatError, 해당 검사를 지운 사본에서 테스트 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 08:30 감독 등록(축 3·4B·7, 감독 :42 확인). 신규.
+
+### F-065 [열림] (심각도: 중간) — f32Toward 가 호출마다 타입 배열을 할당해 가우시안 unpack 이 100만 점에 3.3 s, 퍼저 시간 상한 여유가 얇다
+- 위치: server/asset/unpack/index.mjs:25-28(f32Toward), :168·:175 호출, server/asset/fuzz/fuzz.test.mjs:13(MAX_CALL_MS 50)·:171-179
+- 문제: `new Float32Array([f])`·`new Int32Array(buf.buffer)` 를 점당 최대 4회 만든다. 축 6 측정: GAUSS56 100만 점 unpackChunk 3272 ms(POINT27 169 ms), 프로파일 1위 f32Toward·2위 GC. 축 5 실행에서 퍼저 toSourceRecords 최대 45.14 ms(상한 50 ms), 노트는 11.3 ms 라고 적음.
+- 실패 상황: 250만 점 구간 가우시안 unpack 약 8 s 동기 차단. 부하 걸린 npm test 에서 퍼저 간헐 실패(노트 발견 3 의 원인 미확인 실패와 같은 증상일 수 있음).
+- 고칠 것: 모듈 수준 스크래치 Float32Array(1)·Int32Array 뷰 재사용. 실험 노트의 퍼저 최대 지연을 실측으로 정정.
+- 확인 기준: 100만 점 GAUSS56 unpackChunk ≤ 0.5 s(같은 기계 기준, 측정 명령 노트에), unpack 오차 테스트 그대로 통과.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 08:30 감독 등록(축 5·6, 감독 :25-28 확인, 시간 수치 미확인). 신규.
+
+### F-066 [열림] (심각도: 중간) — 검증기·unpack 음성 테스트 누락(변형 생존)
+- 위치: tools/asset_validate/asset_validate.test.mjs:136-176(손상 목록), :102 / server/asset/unpack/unpack.test.mjs:468-486 / server/asset/fuzz/fuzz.test.mjs:204-208·:392-395·:398-403
+- 문제: 검증기의 tile·codec·anchor·pointCount 검사를 각각 `if (false)` 로 바꿔도 19/19 통과. unpack 의 pointCount 0·bboxMin 비유한 거부를 지워도 통과(NaN 좌표 출력). 퍼저는 형제 모듈 import 실패를 skip 으로 돌리고, 필드 표 오프셋을 OFFSETS 와 같은지 비교하지 않는다. 무작위 입력 테스트는 'validator failure'(내부 예외)를 걸러내지 않는다.
+- 고칠 것: 검증기 손상 사례 추가(tileX 2, codec 1, anchor NaN, point_count 0, tile_size 63, lod 8 — 체크섬 재계산). unpack 에 bboxMin NaN/±Inf→'bbox', pointCount 0→'field'. 퍼저 import 는 파일이 없을 때만 skip, `OFFSETS[key]+8*axis === off` 단언. 무작위 입력 위반 메시지에 'validator failure' 없음 단언.
+- 확인 기준: 위 각 검사를 지운 사본에서 테스트 fail ≥1.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 08:30 감독 등록(축 4A·4B, 변형 결과는 서브에이전트 보고, 감독 미재현). 신규.
+
+### F-067 [열림] (심각도: 낮음) — 명세 문구·잔여 정리 묶음
+- 위치·고칠 것:
+  ① format/ASSET_FORMAT.md:247(및 연구 SPEC.md:72) — Δd ≈ d²/(f·b) 의 d 는 촬영 깊이(renderer_basis.md:227-233)인데 시점 거리로 읽힌다. "d = 촬영 깊이, Δd 는 원본 정밀도 하한(이보다 촘촘할 필요 없음), 시점 거리별 단계 간격은 화면 픽셀 크기로" 를 다른 기호로 구분해 적는다(SPEC 문구는 감독이 다음 실행에서 맞춘다; 수치 아님). (축 2)
+  ② :227·:247 출처 "renderer_basis §9" → "§3-7(§11 Q 참조)", :227 예시 "고도 30 m" → "깊이 45 m(고도 30 m, 60° 사선)·기선 8.26 m 에서 0.33 m". (축 2)
+  ③ §1.1 또는 §5.3 에 "법선 = 위치와 같은 ENU 축 세계 좌표 단위 벡터, 원본 부호 보존, 축 변환 시 같은 회전" 추가. :27 "PLY x y z = ENU" 를 "가정(T04 확인 전)" 으로. (축 2·3)
+  ④ :37 에 "타일 전체 폭(≥ 63.999 m)을 쓰는 조각은 quant_exp 9" 단서. (축 1)
+  ⑤ §10.2 규칙 3 에 "같은 키(§11) 조각은 교체(중복 더하기 금지)" 추가, 앵커 일치 검사 책임(T10)을 명세에 한 줄. (축 3)
+  ⑥ checksum/index.mjs verifyChecksum(null)·(ArrayBuffer) 가 TypeError → false 반환. (축 1b·7)
+  ⑦ unpackChunk 의 의미 검사 범위(lod·tileSizeM·bboxMax)를 JSDoc 에 명시하거나 readHeaderStrict 재사용. (축 1b·7)
+  ⑧ client/asset/index.mjs 평면 뷰가 LE 호스트를 가정함을 주석으로. compat.test.mjs:90-102 의 평면 값 비교를 readPlanesClient 결과로. bounds.test.mjs:58 항상 참 단언 정리. tile_index.test.mjs:21 의 283 을 독립 계산으로. determinism.test.mjs:69 offset 정확값 0, 3회째만 다른 경우 테스트. (축 1·4B)
+  ⑨ generate.mjs 가 부호화 함수를 내보내지 않아 테스트가 복사(노트 발견 5) — F-061 ② 와 함께 정리.
+- 확인 기준: 각 줄 확인, 해당 테스트 추가 통과.
+- 권장 모델: haiku(①~⑤·⑧ 문구), sonnet(⑥⑦)
+- 처리 시점: F-060·F-061 과 같은 PR 에서 가능하면 함께, 아니면 T04 첫 하위 작업(결정 0011).
+- 이력: 2026-10-03 08:30 감독 등록. 신규.
