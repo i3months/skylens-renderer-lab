@@ -706,27 +706,27 @@
 - 이력: 2026-10-03 09:05 감독 등록. 신규. → 2026-10-03 작업자 처리(제품 feat/point-io c891c29): 검증기·tile_index·client·determinism 테스트 보강, 퍼저 벽시계 보호 150 s·재시도 통과 건수. 전체 npm test 584 중 통과 572·실패 0·건너뜀 12 → 2026-10-03 09:40 감독 확인 닫음(축 4B 사본 변형 ①②③⑤⑥ 모두 fail 확인, 관련 테스트 감독 직접 통과)
 
 
-### F-071 [열림] (심각도: 높음) — GPS↔ENU 가 skylens geo.ts(등장방형 근사)가 아니라 WGS-84 정확식이다. T04.5·T04.7 완료 기준 미달
+### F-071 [처리됨-검증대기] (심각도: 높음) — GPS↔ENU 가 skylens geo.ts(등장방형 근사)가 아니라 WGS-84 정확식이다. T04.5·T04.7 완료 기준 미달
 - 위치: 제품 feat/point-io c891c29 server/geo/enu/index.mjs:1·30-60·78-103, client/geo/index.mjs:1·22-36, contracts/geo/index.mjs:9-10, server/geo/enu/enu.test.mjs:1·118-131, client/geo/geo.test.mjs:22-39·102-110. 규칙: 연구 RULES.md:22, SPEC.md:29, TASKS T04.5
 - 문제: RULES.md:22 는 "skylens src/shared/geo.ts 와 같은 식(등장방형 소영역 근사)" 을 요구한다. skylens develop src/shared/geo.ts 는 공개 저장소(NET-Challenge-S13/skylens, develop)에서 바로 받을 수 있고 식은 `e = Δλ·R·cos(φ0)`, `n = Δφ·R`, `u = alt − alt0`, R = 6378137, 역변환은 그 역이다. 구현은 ECEF 경유 타원체 정확식이라 다른 값을 낸다. 결정 0016 은 "체크아웃 없음" 을 근거로 들었으나 클라우드에서 확인 가능한 항목이다([local] 아님).
 - 실패 상황: 감독 직접 재현 — 앵커 (37.5665, 126.978, 30), 무작위 1만 점에서 skylens 식과의 최대 차: 반경 0.1 km 0.32 m, 0.5 km 1.63 m, 1 km 3.32 m, 5 km 19.2 m(기준 ≤ 1 mm). 앱이 보낸 드론·마커 GPS 와 렌더러 점·타일이 m 단위로 어긋난다. 서버-클라이언트 1만 점 대조(geo.test.mjs:102-110)는 같은 식·같은 상수(WGS84)끼리라 이 차이를 못 잡는다(축 4B: WGS84.f 를 1/290 으로 바꿔도 대조 통과).
 - 고칠 것: server/geo/enu·client/geo 를 geo.ts 와 같은 식·같은 상수(R = 6378137, cos 는 앵커 위도)로 바꾼다. alt 는 그대로 뺀다. 정확식을 남기고 싶으면 별도 함수 이름으로 두고 기본 경로에서 쓰지 않는다. 테스트: geo.ts 를 그대로 옮긴 기준 함수(출처 주석: skylens develop src/shared/geo.ts, 커밋 해시)로 무작위 1만 점(반경 0.1·1·10·50 km) 차 ≤ 1 mm, 왕복(enuToGps∘gpsToEnu) ≤ 1 mm. 결정 0016 은 기각됐으니 새 결정 기록은 필요 없다(근사식 채택은 RULES 그대로). "구면 근사와 10 m 넘게 어긋나야 한다" 같은 테스트(enu.test.mjs:118-131)는 지운다.
 - 확인 기준: 감독이 skylens geo.ts 식으로 같은 1만 점 비교(위 앵커, 반경 0.1~5 km) 최대 차 ≤ 1 mm. client/geo 도 같은 기준. `npm test` 실패 0.
 - 권장 모델: opus
-- 이력: 2026-10-03 09:40 감독 등록(축 3·5 보고, 감독 skylens develop geo.ts 받아 직접 비교 재현). 신규. PR #13 반려 사유.
+- 이력: 2026-10-03 09:40 감독 등록(축 3·5 보고, 감독 skylens develop geo.ts 받아 직접 비교 재현). 신규. PR #13 반려 사유. → 2026-10-03 작업자 처리(제품 feat/point-io 병합 커밋 후속, 연구 experiment/point-io 349339f): geo.ts 식(R=6378137)으로 서버·클라이언트 교체, 기준 함수 대비 최대 차 0 m·왕복 ≤1.4e-9 m, 실제 skylens develop 자산 16개 readPly 성공. 전체 npm test 619 중 통과 607·실패 0·건너뜀 12
 
 
-### F-072 [열림] (심각도: 중간) — 좌표 계약이 skylens geo.ts 와 표현·이름이 다르다
+### F-072 [처리됨-검증대기] (심각도: 중간) — 좌표 계약이 skylens geo.ts 와 표현·이름이 다르다
 - 위치: 제품 feat/point-io contracts/geo/index.mjs:6·13·15, contracts/geo/stubs.mjs:8-16, server/geo/scene/index.mjs:23·28
 - 문제: ① Enu 가 배열 [e,n,u] 이고 skylens 는 객체 {e,n,u}. ② skylens 의 gpsToScene·sceneToGps 가 없다. ③ contracts enuToScene([0,0,0]) → [0,0,−0], enuArrayToScene 은 0−n 이라 [0,0,0](deepStrictEqual 불일치).
 - 실패 상황: `enuToScene({e:1,n:2,u:3})` → [undefined, undefined, NaN], 오류 없이 조용히 틀린다(축 1 보고, 미확인).
 - 고칠 것: 표현을 하나로 정한다. 배열을 유지하면 경계 함수가 배열이 아닌 입력에 GeoError('range') 를 던지고, skylens 객체 ↔ 배열 어댑터를 둔다. gpsToScene·sceneToGps 추가. −0 처리를 한쪽으로 맞춘다.
 - 확인 기준: 객체 입력 → GeoError 또는 [1,3,−2], n=0 에서 두 함수 결과 deepStrictEqual 같음, skylens 함수 이름 6개가 모두 있음.
 - 권장 모델: sonnet (F-071 과 같은 하위 작업이면 opus)
-- 이력: 2026-10-03 09:40 감독 등록(축 1 보고, contracts/geo/index.mjs:6·13 감독 직접 확인). 신규.
+- 이력: 2026-10-03 09:40 감독 등록(축 1 보고, contracts/geo/index.mjs:6·13 감독 직접 확인). 신규. → 2026-10-03 작업자 처리(제품 feat/point-io 병합 커밋 후속, 연구 experiment/point-io 349339f): 배열 유지·경계 입력 검사·−0 정규화·skylens 이름 6개·어댑터. 전체 npm test 619 중 통과 607·실패 0·건너뜀 12
 
 
-### F-073 [열림] (심각도: 중간) — 점 입력 모듈의 이상 입력·큰 입력 처리 잔여
+### F-073 [처리됨-검증대기] (심각도: 중간) — 점 입력 모듈의 이상 입력·큰 입력 처리 잔여
 - 위치·문제·실패 상황(축 6·7 재현 보고, 감독은 points_stat:25-43 코드만 직접 확인):
   ① server/points/ply_stream/index.mjs:83 — chunkPoints 상한 없음. 헤더 vertexCount=2^31−1, {chunkPoints: 2^31−1} → RangeError(Array buffer allocation failed), PointsError 아님.
   ② tools/points_stat/index.mjs:25-43 — 첫 점으로 min/max 초기화 후 `<`/`>` 비교. [NaN,0,0, 2,2,0] → min x NaN, [0,0,0, NaN,2,0] → NaN 점이 조용히 빠짐. Inf 는 max 로 나옴.
@@ -737,10 +737,10 @@
 - 고칠 것: ① chunkPoints 상한(예: 2^20)과 vertexCount 상한을 PointsError('range') 로. ②③ 비유한 좌표는 거부(PointsError) 또는 건너뛰고 nonFinite 수 보고, 초기값 ±Infinity, 길이 불일치 PointsError('size'). ④ 헤더 탐색은 앞부분(상한 1 MB) subarray 만 넘기거나 복사 없이 래핑. ⑤ 입력 형 검사 → PointsError('header'), 머리 조각은 배열에 모아 마커 찾은 뒤 합친다. ⑥ 결과 비유한이면 GeoError('range').
 - 확인 기준: 위 입력 각각 PointsError/GeoError, 두 NaN 위치 입력의 결과가 같고 NaN 미포함, 250만 점 readPly 헤더 단계 추가 할당 ≈ 0, 1바이트 청크 1M 개 머리 입력 1 s 미만.
 - 권장 모델: sonnet
-- 이력: 2026-10-03 09:40 감독 등록(축 1b·6·7 보고). 신규.
+- 이력: 2026-10-03 09:40 감독 등록(축 1b·6·7 보고). 신규. → 2026-10-03 작업자 처리(제품 feat/point-io 병합 커밋 후속, 연구 experiment/point-io 349339f): ①~⑥ 처리, 헤더 추가 할당 0 B·1바이트 청크 1M 개 190 ms. 전체 npm test 619 중 통과 607·실패 0·건너뜀 12
 
 
-### F-074 [열림] (심각도: 낮음) — PR #13 문서·테스트 공백
+### F-074 [처리됨-검증대기] (심각도: 낮음) — PR #13 문서·테스트 공백
 - 위치·고칠 것:
   ① format/ASSET_FORMAT.md:249 — "Δd 는 lod 0 밀도의 하한" 은 방향이 거꾸로다. Δd 는 의미 있는 점 **간격의 하한(밀도 상한)** 이고 깊이(광선) 방향 값이다. lod 0 은 "도착한 점 전부" 라 Δd 가 lod 0 에 쓰일 자리가 없다. 문장을 "Δd 는 의미 있는 점 간격의 하한(=밀도 상한)이며 깊이 방향 값이다" 로. (축 2)
   ② contracts/points/index.mjs:14 — 27 B 색 이름 red/green/blue 근거 없음. 근거(관례 가정)를 주석에 적는다. 실제 skylens 자산은 모두 56 B(res/static/demo/segments/seg*_step*.ply)이고 감독이 16개 파일 readPly·readPlySafe·identifySegments 로 읽어 모두 성공(점 수 1,147~116,381)했다. 이 실제 헤더(속성 줄 그대로)를 리터럴로 넣은 56 B 테스트를 추가한다. (축 2·5)
@@ -756,4 +756,4 @@
 - 확인 기준: 각 항목 테스트 추가·변형 시 fail, ① 문구에 "밀도의 하한" 없음.
 - 권장 모델: haiku(①②③⑥⑧ 문구·단순 테스트), sonnet(④⑤⑦⑨⑩⑪)
 - 처리 시점: F-071 과 같은 PR 에서 가능하면 함께. 반려 사유 아님.
-- 이력: 2026-10-03 09:40 감독 등록(축 2·3·4A·4B·5·6 보고, ① :249 문구와 ② 실제 자산 읽기는 감독 직접 확인). 신규.
+- 이력: 2026-10-03 09:40 감독 등록(축 2·3·4A·4B·5·6 보고, ① :249 문구와 ② 실제 자산 읽기는 감독 직접 확인). 신규. → 2026-10-03 작업자 처리(제품 feat/point-io 병합 커밋 후속, 연구 experiment/point-io 349339f): ①~⑪ 처리. 전체 npm test 619 중 통과 607·실패 0·건너뜀 12
