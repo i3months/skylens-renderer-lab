@@ -291,8 +291,10 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T08.F27 [x] (2026-10-03 PR #26 병합, 제품 3059380; F-141 ⑦ 미처리 → T08.F29) | PR #25 낮음: F-141 — T08.F21·F23·F25 와 함께 처리해도 됨 | 항목별 경로 | F-141 항목별 | haiku(⑤ sonnet) |
 | T08.F28 [x] (2026-10-03 PR #27 병합, 제품 9b92c6e) | (먼저) PR #26 검토 중간: F-142(① 클라이언트 구멍 시험, ② 퇴화 우선순위 단언, ③ 합법 해상도 정상 출력 단언, ④ 회전 하한 판별 사례) — T09 와 별도 PR | `server/cull/`, `client/cull/` | F-142 확인 기준 | sonnet(①② haiku, ④ opus) |
 | T08.F29 [x] (2026-10-03 PR #27 병합, 제품 9b92c6e; F-143 ③ backface·F-138 ⑧ 미처리 → T08.F31) | PR #26 낮음: F-143, F-141 ⑦(cachedNormalCones 입력 검사·시험), F-138 ⑧ — T08.F21·F23·F25 와 함께 처리해도 됨 | 항목별 경로 | F-143·F-141 ⑦·F-138 ⑧ 항목별 | haiku(F-143 ④⑦ sonnet) |
-| T08.F30 | (먼저) PR #27 검토 중간: F-144(predict 상한 식 교차항·사례 3·4 건너뜀·하한 여유), F-145(리프 0 개 계층 규칙 통일·계약 문구) — T09 와 별도 PR | `server/cull/`, `client/cull/`, `contracts/cull/` | F-144·F-145 확인 기준 | sonnet(F-144 opus) |
-| T08.F31 | PR #27 낮음: F-146, F-143 ③(backface leafStart 판별), F-138 ⑧ — T08.F21·F23·F25 와 함께 처리해도 됨 | 항목별 경로 | F-146·F-143 ③ 항목별 | haiku(F-143 ③ sonnet) |
+| T08.F30 [x] (2026-10-03 PR #28 병합, 제품 06ff3da) | (먼저) PR #27 검토 중간: F-144(predict 상한 식 교차항·사례 3·4 건너뜀·하한 여유), F-145(리프 0 개 계층 규칙 통일·계약 문구) — T09 와 별도 PR | `server/cull/`, `client/cull/`, `contracts/cull/` | F-144·F-145 확인 기준 | sonnet(F-144 opus) |
+| T08.F31 [x] (2026-10-03 PR #28 병합, 제품 06ff3da; F-146 ⑥ 일부·⑦ 미처리 → T08.F33) | PR #27 낮음: F-146, F-143 ③(backface leafStart 판별), F-138 ⑧ — T08.F21·F23·F25 와 함께 처리해도 됨 | 항목별 경로 | F-146·F-143 ③ 항목별 | haiku(F-143 ③ sonnet) |
+| T08.F32 | (먼저) PR #28 검토 중간: F-147(predict 하한을 실제 가시 리프 합집합으로, 상한 H = hh, 판별 사례 추가), F-148(접근자 예외 래핑 전 단계·clientFrustumCull 빈 상자 거부·zero_leaf_all_stages 고정 계층 교정) — T09 와 별도 PR | `server/cull/`, `client/cull/`, `contracts/cull/` | F-147·F-148 확인 기준 | sonnet(F-147 opus) |
+| T08.F33 | PR #28 낮음: F-149, F-146 ⑥ 잔여·⑦ — T08.F21·F23·F25 와 함께 처리해도 됨 | 항목별 경로 | F-149·F-146 항목별 | haiku(F-149 ②④ sonnet) |
 | T08.0 [x] (2026-10-03 PR #21 병합, 제품 df3a5c5) | 계약: 시점 상태·컬링 결과(조각 목록) 타입 | `contracts/cull/` | 타입 문서와 일치 | sonnet |
 | T08.1 [x] (2026-10-03 PR #21 병합, 제품 df3a5c5) | 절두체 컬링 | `server/cull/frustum/` | 거짓 제거 0(보수적), 고정 시점 8곳 | sonnet |
 | T08.2 [x] (2026-10-03 PR #21 병합, 제품 df3a5c5) | 법선 기반 뒷면 제거(조각 단위 법선 원뿔) | `server/cull/backface/` | 렌더 결과 SSIM 변화 ≤ 0.002 | sonnet |
