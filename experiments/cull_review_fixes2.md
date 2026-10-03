@@ -15,7 +15,7 @@
 ## 처리하지 않음·판단
 - F-138 ⑦(tau=0 에서 m 비유한): 보수 처리(남김)로 바꾸면 기존 시험 2건(predict.test.mjs 극단 유한 입력, predict_degenerate.test.mjs)이 pin 한 'tau=0 은 순수 절두체' 계약과 충돌. 계약을 유지하고 구현 주석에 알려진 한계로 명시. 감독 판단 요청.
 - F-137 ③ 시험 시간: combine_removal_005 단독 8~12 s(환경 부하, 원래 7 s 초과). 이번 PR 은 21 ms 만 추가. F-134⑧ 은 별개.
-- F-131 ⑥(구멍 난 배열 인덱스 루프)·⑧, F-138 ⑥은 ⑥ 처리됨(빈 피라미드 단언: degenerate 시 Infinity 채운 피라미드·폭 0 단언), F-134 ⑥ 주석 정정은 미처리.
+- F-138 ⑥ 은 처리됨(빈 피라미드 단언: degenerate 시 Infinity 채운 피라미드·폭 0 단언). F-131 ⑥·⑧, F-134 ⑥ 은 experiments/cull_review_fixes3.md 에서 처리.
 
 ## 검증
 npm test: 1938 중 1926 통과·0 실패·12 건너뜀. 실제 skylens 체크아웃은 [local].
