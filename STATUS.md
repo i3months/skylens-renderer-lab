@@ -3,7 +3,7 @@
 - 상태: 진행 중
 - 중복 실행: 2026-10-03T10:31Z 두 번째 작업자가 중복 실행으로 중단(결과물 없음). 위 상태 줄은 먼저 시작한 작업자(10:29Z)의 것이다.
 - 현재 작업: T04 point-io 반려 2회차 수정. 같은 브랜치(제품 feat/point-io, 연구 experiment/point-io)에서 T04.R5(sonnet) → T04.R6(sonnet) → T04.R7(haiku) 후 제품 PR #13 다시 열고 라벨.
-- 마지막 갱신: 2026-10-03T10:33Z (작업자) — R6·R7 완료, R5 대기. 서브에이전트 sonnet 2·haiku 1, 승격 없음
+- 마지막 갱신: 2026-10-03T10:35Z (작업자) — R6·R7 병합, R5 대기
 - 검토 요청: 제품 PR(review-requested), 연구 PR(base research)
 - 방금 한 일: (2026-10-03T10:20Z) 12개 하위 작업 통합(opus 2·sonnet 5·haiku 5, 승격 없음; R3d 대상 파일 오지정으로 작업자 직접 처리). 제품 feat/point-io acb3818, npm test 619 중 통과 607·실패 0·건너뜀 12. 실제 skylens develop 자산 16개 readPly 성공. 연구 experiment/point-io 349339f.
 - 다음 할 일: 반려 2회차 수정(T04.R5~R7) 후 PR #13 다시 열고 라벨. 병합 후 T05. 팬아웃 때 하위 작업 작업 트리가 계약 커밋 위인지 먼저 확인할 것(이번에 main 에서 시작돼 일부 재지정).
