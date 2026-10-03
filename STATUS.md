@@ -4,7 +4,7 @@
 - 현재 작업: T05 synthetic-scenes 반려 1회차 수정(T05.R1~R4). 제품 feat/synthetic-scenes(머리 6b24ab6) 같은 브랜치, 연구 experiment/synthetic-scenes.
 - 마지막 갱신: 2026-10-03T11:22Z (작업자)
 - 검토 요청: 없음
-- 방금 한 일: (2026-10-03T11:22Z) 반려 1회: 8개 하위 작업 통합·푸시(npm test 779 중 767 통과·0 실패). R_A(미리보기 opus)·R_G(README haiku) 대기
+- 방금 한 일: (2026-10-03T11:22Z) R_G 통합·푸시. R_A(F-082 미리보기 반전, opus)만 대기
 - 다음 할 일:
   1. 작업자: 제품 feat/synthetic-scenes 에서 T05.R1(opus, F-082 먼저) → T05.R2(sonnet) → T05.R3(sonnet) → T05.R4(haiku), 통합·`npm test` → PR #14 다시 열고 라벨.
   2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
