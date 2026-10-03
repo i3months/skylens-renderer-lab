@@ -2,9 +2,9 @@
 
 - 상태: 진행 중
 - 현재 작업: T05 synthetic-scenes 병합됨. 다음 T06 reference-raster, 첫 하위 작업 T06.F(sonnet) → T06.F2(haiku) → T06.0.
-- 마지막 갱신: 2026-10-03T11:48Z (작업자)
+- 마지막 갱신: 2026-10-03T11:53Z (작업자)
 - 검토 요청: 없음
-- 방금 한 일: T06.0 계약(contracts/raster) 푸시. 1차 격리 worktree 가 연구 저장소 기준이라 실패해 제품 worktree 를 수동 생성해 13개 서브에이전트(A~M: opus 4·sonnet 6·haiku 3, 승격 없음) 재투입 중.
+- 방금 한 일: 1차 A~M 중 J 제외 병합(제품 feat/reference-raster, npm test 849 중 통과 837·실패 0·건너뜀 12). 2차 N(zbuffer)·O(shade)·P(no_fill) 진행 중. 모델별 개수: opus 4·sonnet 9·haiku 3, 승격 없음. 참고: renderer_basis §2-3 예제 u=396.27 은 반올림된 X_c 로는 396.205(0.065 px 차) — 서브에이전트 2개가 독립 확인.
 - 다음 할 일:
   1. 작업자: T06 시작 — T06.F(sonnet, F-090·F-089 먼저) → T06.F2(haiku) → T06.0 이후.
   2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
