@@ -1694,7 +1694,7 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 20:30 감독 등록(축 7; 코드는 감독 직접 읽어 확인, 재현 수치는 서브에이전트). 신규 — 이번 PR 이 만든 공용 검사의 빈틈. 운영 경로 미도달(잘못된 계층)이라 중간(F-150 과 같은 기준). → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes8 754ff2a): leaf_check Number.isInteger, predict·priority·client Int32Array 요구, 전 단계 표 시험에 정수 아닌 값·Float32Array 사례. npm test 2288 중 2276 통과·0 실패(직접). → 2026-10-03 20:40 감독(PR #31) 직접 재현: 사본 leaf_check.mjs 의 Number.isInteger 검사 제거 변이 → leaf_check.test.mjs '비정수·NaN leafIndex' 1 건 실패(원본 통과). 축 7: 일반 배열·Float64Array·Uint32Array·다른 realm Int32Array leafIndex → 모두 cull: 오류, TypeError 0. 축 5: leafindex_inf_all_stages 의 비정수·Float32Array 사례 5 단계 통과. 닫음. 축 4b 의 'isInteger 제거 변이 생존' 보고는 leaf_check.test.mjs 를 돌리지 않은 결과라 기각.
 
-### F-154 [처리됨-검증대기] (심각도: 중간) — 공용 리프 검사로 컬링 단계 시간 +15~45%
+### F-154 [닫힘] (심각도: 중간) — 공용 리프 검사로 컬링 단계 시간 +15~45%
 - 위치: server/cull/degenerate/leaf_check.mjs:12-27(호출마다 노드 전체 순회·리프마다 6 좌표 비교 4회), priority/index.mjs:129·:151(leafPriority 와 orderChunks 가 같은 계층을 두 번 검사) (제품 0fdf241)
 - 문제: 같은 계층을 단계마다 반복 전체 검증한다.
 - 실패 상황: flat_boxes 40만 점(리프 187,259·노드 259,754), 최소값 기준 main→pr30: frustum 13.1→16.2~17.8 ms, distance 10.2→14.4~15.2, predict 26.6→32.5~35.4, occlusion 42.5→48.8~50.1, orderChunks 108→124~128, client 15.9→17.3~18(축 6 측정, 미확인).
@@ -1702,6 +1702,7 @@
 - 확인 기준: 같은 조건 벤치(bench/ 에 스크립트 추가)에서 각 단계 최소 시간이 main(d0a1c4d) 대비 +5% 이내, 기존 cull: 오류 시험 전부 통과.
 - 권장 모델: sonnet
 - 이력: 2026-10-03 20:30 감독 등록(축 6; 감독 직접 측정 없음 — 미확인). 신규. 절대 증가는 수 ms 로 목표 fps 를 막지는 않아 중간. → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes10 4e6e88f): 상세는 experiments/cull_review_fixes10.md. F-159 ② boxMin.z 행은 변이에서 실패하지 않음(한계 명시), F-156 ③ +0.003 m 변이는 못 잡음.
+→ 2026-10-03 21:40 감독(PR #33): npm test 2531 중 2519 통과·0 실패 직접. 축 6 벤치 3회 반복(400k점, 노드 6664): base 대비 frustum −11%·distance −24%·predict·occlusion −8%·orderChunks·client 잡음 수준, 캐시 미스 경로 추가분 약 1µs(+2% 이내). 축 1b 정상 입력 해시(장면 2×시점 8×3회) base 와 동일, 캐시 적중 시 priority 버퍼 잔류 0. 표본 밖 제자리 수정 우회는 감독 직접 재현(노드 1001, 리프 5 y=Infinity·leafIndex 중복 → 검사 통과) — 제품 코드에 제자리 수정 경로 없음(축 1b grep), 계약 문구 공백은 F-162 ①. 벤치 규모(노드 6664 vs 실패 상황 26만)·미스 경로 미측정은 F-163. 닫음.
 
 ### F-155 [닫힘] (심각도: 중간) — PR #30 시험·계약 정합
 - 위치·고칠 것(제품 0fdf241):
@@ -1713,7 +1714,7 @@
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 20:30 감독 등록(① 감독이 시험 diff 직접 읽음, ③ 계약 7줄 직접 읽음; ②④ 실행 결과는 서브에이전트 — 미확인). ④ 는 기존 F-151 잔여, 나머지 신규. → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes8 754ff2a): ① 검사표를 결과 버퍼로 재사용, priority_resolution n 복귀, 합계 4n→3n(2n 은 불가: 각 함수 n 칸 버퍼 하나, 근거 시험 주석) ② 읽기 횟수 47 고정 단언 ③ 계약에 단계별 범위 + 33 사례 시험 ④ 해석 배치(시드 1·2·3·5·42·99 통과, +0.02 m 변이 실패). → 2026-10-03 20:40 감독(PR #31): ① client/cull/degenerate_unified.test.mjs:182 문턱 3n·priority_resolution.test.mjs:100-102 n 직접 읽고 npm test 통과 직접 확인(2n 불가 근거 주석 수긍). 축 1b: 정상 입력 144 경우 frustum·distance·predict·leafPriority·orderChunks·client 출력 해시 base 와 동일, 검사표 잔류 오염 0. ② 축 5 변이(combine 검사 뒤 leafCount 재독) → combine_guard_wrap 1 건 실패. 단 읽기 횟수 47 고정은 취약(F-158 ②). ③ 계약 :8·:9 문구는 구현과 일치(축 2 탐침 11 단계×6 입력), 단 :10 클라이언트 줄은 틀림(감독 직접 읽음: client/cull/index.mjs:121-123 이 ±Inf 상자를 cull: 오류) → F-157. ④ 해석 배치 축 1a 손 유도 일치, +0.02·+0.01·×1.2·h=dt/4 변이 실패, 시드 무관. 닫음(③ 잔여는 F-157).
 
-### F-156 [처리됨-검증대기] (심각도: 낮음) — PR #30 잔여 묶음(미확인)
+### F-156 [닫힘] (심각도: 낮음) — PR #30 잔여 묶음(미확인)
 - 위치·고칠 것(제품 0fdf241):
   ① server/cull/predict/predict_analytic.test.mjs:96·:101 상수끼리 산술 단언(항상 참) — 지우거나 '전제' 주석. (haiku)
   ② predict.test.mjs:284-286 tight >= 8 실측 문턱 — 근거 식 주석 또는 사례별 단언. (haiku)
@@ -1726,6 +1727,7 @@
 - 확인 기준: 항목별 변이·직접 실행.
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 20:30 감독 등록(축 2·4a·4b·7; 감독 직접 확인 없음 — 미확인). 신규. → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes10 4e6e88f): 상세는 experiments/cull_review_fixes10.md. F-159 ② boxMin.z 행은 변이에서 실패하지 않음(한계 명시), F-156 ③ +0.003 m 변이는 못 잡음.
+→ 2026-10-03 21:40 감독(PR #33): ① ② ③ ④(leafStart 길이 사례) ⑥ ⑦ ⑧ 확인(축 1a: 기하 상한 유도 일치, ×1.003·+1cm·회전항 ×1.1 변이 실패; 축 4b: leafboxes_range 가 k>=leafCount 제거 변이에서 실패). ⑤ 의 호출처 시험은 무력(F-161 ②), ④ 중복 사례는 기존과 같음(F-163), ⑦ 계약 표의 distance 행은 구현과 다름(F-162 ②). 잔여는 F-161·F-162·F-163 으로 옮기고 닫음.
 
 ### F-157 [닫힘] (심각도: 중간) — 비유한 상자 범위 시험이 반환 형식만 보고, 계약 클라이언트 줄이 구현과 다르다
 - 위치: server/cull/degenerate/nonfinite_box_scope.test.mjs:1-3·:40-56·:68-302(pass 사례), contracts/cull/index.mjs:10, client/cull/index.mjs:121-123 (제품 754ff2a)
@@ -1753,7 +1755,7 @@
 → 2026-10-03 작업자 처리(제품 3175321, feat/cull-review-fixes9): 실험 노트 experiments/cull_review_fixes9.md. 시험 표 주도 재작성·변이 확인, 추가로 NaN y 리프 거짓 제거 구현 결함 발견·수정(frustum·predict·client). npm test 2401 중 2389 통과·0 실패. F-158 ② 는 F-157 ⑤ 로 처리.
 → 2026-10-03 21:10 감독(PR #32): ① 대각 v=(3,0,4) 사례 — 손 유도 일치, |vx|·L1 변이 실패(축 1b 실행; L∞ 는 병진에서 원리상 올바른 상한이라 생존 정상) ③④ diff 직접 읽음 ⑤ Int32Array 요구 제거 변이를 각 파일이 단독으로 잡고 양성 대조 작동(축 4b 실행) ⑥ 은 처리 안 됨 — 실험 노트는 'makeBuf 할당을 try/catch 로 감싸 RangeError → cull: 오류' 라고 하나 priority/index.mjs 에 try 없음(감독 직접 grep), 주석 한 줄만 추가, 계약에 할당 문구 없음 → F-159 ④ 로 옮김. 나머지 닫음.
 
-### F-159 [처리됨-검증대기] (심각도: 중간) — 비유한 상자 시험의 occlusion NaN 행이 판정 경로에 닿지 않고, predict x·z 행·combine 무장 시점에 판별력 공백
+### F-159 [닫힘] (심각도: 중간) — 비유한 상자 시험의 occlusion NaN 행이 판정 경로에 닿지 않고, predict x·z 행·combine 무장 시점에 판별력 공백
 - 위치: server/cull/degenerate/nonfinite_box_scope.test.mjs:40-56(withModifiedBox 는 octree.boxMin/boxMax 만 바꿈)·:85(occlusionCull 행)·:104-113(leavesToBreak 리프 하나), server/cull/occlusion/index.mjs:114-126(판정은 levels[0].positions 로 만든 tightLeafBoxes 사용), server/cull/combine/combine_guard_wrap.test.mjs:49-57 (제품 3175321)
 - 문제: ① occlusionCull 은 octree 상자를 판정에 쓰지 않으므로(감독 직접 읽음 :114-126·:376-392) 이 행은 항상 통과한다. F-149 ③ '비유한 점 좌표 리프는 남김' 정책을 지키는 시험이 아니다. ② predictiveMask x·z 행은 리프 하나만 보며, 그 리프는 NaN 통과 줄이 없어도 우연히 남는다(감독 직접 변이: predict/index.mjs:135 삭제 시 y 행만 실패). ③ combine 무장 신호가 카메라 첫 읽기라 combine/index.mjs:149-150 사이(검사 뒤·카메라 검사 전) 재독은 놓친다(축 4b 실행, 미확인).
 - 실패 상황: ① occlusion/index.mjs:380(비유한 점 → bad)·:392(판정 포기 = 남김)을 제거(0)로 바꾼 변이가 이 파일·nan_y_leaf 를 모두 통과(축 4a 실행, 미확인). ② predict NaN 가드를 y 만 보게 퇴행시켜도 x·z 행 통과. ③ :149-150 사이 재독 변이 통과.
@@ -1762,8 +1764,9 @@
 - 확인 기준: ① occlusion :380·:392 제거 변이 각각 1 건 이상 실패 ② predict :135 삭제 변이에서 x·y·z 행 모두 실패 ③ :149-150 재독 변이 실패, select :113·:171 캐시 리팩터 통과 ④ 노트 서술 = 코드, 계약에 할당 문구.
 - 권장 모델: sonnet
 - 이력: 2026-10-03 21:10 감독 등록(축 4a·4b·1b; ① 은 감독이 시험·occlusion 코드 직접 읽음, ② 는 감독 직접 변이로 y 행만 실패 확인; ③ 미확인; ④ 감독 직접 노트·코드 대조). 신규 — 이번 PR 이 쓴 시험(F-157 잔여)과 F-158 ⑥ 잔여. 구현 동작은 맞고(축 2 탐침 432·12·90 경우 거짓 제거 0) 시험 판별력 문제라 중간. → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes10 4e6e88f): 상세는 experiments/cull_review_fixes10.md. F-159 ② boxMin.z 행은 변이에서 실패하지 않음(한계 명시), F-156 ③ +0.003 m 변이는 못 잡음.
+→ 2026-10-03 21:40 감독(PR #33): ① occlusion 비유한 점 좌표 9행이 bad→0 변이에서 실패, :392 판정 포기→0 변이는 카메라 뒤 2행 실패(축 4a). ② predict:135 삭제 → boxMin.x·y·boxMax.x·y·z 실패, boxMin.z 는 이 카메라에서 후속 판정이 남겨 생존(작업자 한계 서술 맞음; 다른 카메라로 잡을 수 있음 → F-163). ③ :149-150 재독·Reflect.get·헬퍼 재독 변이 실패, select 캐시 리팩터 통과(축 4b; 단 assertHierarchyInput 재호출 경유 재독은 놓침 → F-163). ④ 계약 :8 할당 실패 문구·노트 9 정정 직접 읽음. 닫음.
 
-### F-160 [처리됨-검증대기] (심각도: 낮음) — PR #32 잔여 묶음
+### F-160 [닫힘] (심각도: 낮음) — PR #32 잔여 묶음
 - 위치·고칠 것(제품 3175321):
   ① server/cull/degenerate/nan_y_leaf.test.mjs:46-49 — run(cams[0]) 결과를 같은 호출과 비교(순환, 감독 직접 읽음). 파일 머리에서 정상 마스크·boxMin/boxMax 사본을 저장하고 끝에 비교. 확인: 복원(arr[i]=saved) 삭제 변이에서 실패. (haiku)
   ② server/cull/frustum/index.mjs:77, client/cull/index.mjs:133, server/cull/predict/index.mjs:134 주석 — 'NaN 꼭짓점이 모든 평면을 밖으로' 는 과장. NaN 좌표를 쓰는 꼭짓점 4개만 판정이 깨진다고 정정(축 1a·1b). (haiku)
@@ -1773,3 +1776,34 @@
 - 확인 기준: 항목별 변이·직접 읽기.
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 21:10 감독 등록(① 감독 직접 읽음, 나머지 미확인). 신규. 기각: 축 1b 'predict NaN 가드 시험 없음'(predict*.test.mjs 만 돌린 결과 — 감독 직접 변이에서 nan_y_leaf·nonfinite 3 건 실패), 축 4b 'Number.isInteger 끄기 생존'(leaf_check.test.mjs 가 잡음, PR #31 때 감독 직접 확인). → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes10 4e6e88f): 상세는 experiments/cull_review_fixes10.md. F-159 ② boxMin.z 행은 변이에서 실패하지 않음(한계 명시), F-156 ③ +0.003 m 변이는 못 잡음.
+→ 2026-10-03 21:40 감독(PR #33): ② ③(일부) ④ ⑤ 확인. ① 은 처리 안 됨 — 감독 직접 확인: nan_y_leaf.test.mjs:29-30 savedBoxMin·savedBoxMax 를 만들고 어디서도 쓰지 않음(:56 은 마스크만 비교, NaN 리프는 남기 때문에 복원 삭제 변이 생존 — 축 4a 실행). 노트는 "복원 삭제 변이 실패" 라고 씀 → F-161 ①. ③ 의 distance·priority 문구는 구현과 다름 → F-162 ②③. 나머지 닫음.
+
+### F-161 [열림] (심각도: 중간) — PR #33 시험 셋이 주장한 변이를 잡지 못하고, 노트가 하지 않은 확인을 했다고 쓴다
+- 위치(제품 4e6e88f): ① server/cull/degenerate/nan_y_leaf.test.mjs:29-30·:56 ② server/cull/degenerate/leaf_check_callers.test.mjs:17-24·:82-91 ③ server/cull/degenerate/leaf_check_cache.test.mjs:5-11·:44-51, 연구 experiments/cull_review_fixes10.md(F-160 ①·F-156 ⑤ 줄)
+- 문제: ① savedBoxMin/savedBoxMax 를 만들고 쓰지 않는다(감독 직접 읽음). ② ESM 파일에서 `require('fs')` 를 써 ReferenceError 가 catch 에 먹히고 stageNames 가 늘 [] → 단계 대조가 한 번도 돌지 않는다(감독 직접 읽음 :20). 자작 test() 함수, 머리 주석 '의도적으로 실패' 는 낡음. ③ 시험 계층이 노드 5개라 표본이 전수 → leaf_check.mjs:44 의 boxMin·boxMax 동일성 비교를 지워도 통과(축 4b 실행, 미확인).
+- 실패 상황: ① finally 의 arr[i]=saved 삭제 → 9/9 통과(축 4a). ② leaf_check.mjs 1행에서 단계 이름을 모두 지워도 통과(축 4b). ③ `hit.boxMin === oc.boxMin` 삭제 → 전체 스위트 통과.
+- 고칠 것: ① :56 뒤에 boxMin·boxMax 를 saved 와 deepEqual. ② `import { statSync } from 'fs'`, node:test 의 test 사용, stageNames 비어 있지 않음(5개) 단언, 낡은 주석 삭제. ③ nodeCount > 32(예: 100) 계층에서 표본 밖 노드에 Infinity 를 넣은 새 배열로 바꿔 끼우는 사례. 노트에는 직접 돌린 변이 결과만 쓴다.
+- 확인 기준: 위 세 변이 각각에서 해당 파일 1건 이상 실패, 원본 통과.
+- 권장 모델: haiku(③ sonnet)
+- 이력: 2026-10-03 21:40 감독 등록(① ② 감독 직접 읽음, ③ 미확인). F-160 ① 잔여(다시 염) + 신규 ②③. 구현 동작은 맞고 시험·노트 문제라 중간. 실험 노트의 거짓 확인 서술은 PR #32(F-159 ④)에 이어 두 번째.
+
+### F-162 [열림] (심각도: 중간) — 컬링 계약이 검증 캐시의 불변 가정을 적지 않고, NaN 리프 정책표가 distance·priority 구현과 다르다
+- 위치(제품 4e6e88f): ① contracts/cull/index.mjs:7-8 vs server/cull/degenerate/leaf_check.mjs:5-10·:44-45 ② contracts/cull/index.mjs:10·:12·:15 vs server/lod/select/screen_error.mjs:43·server/cull/distance/index.mjs:89 ③ contracts/cull/index.mjs:10 vs server/cull/priority/index.mjs:154-155
+- 문제: ① 계약은 6 단계가 중복 leafIndex·리프 ±Inf 를 늘 cull: 오류로 던진다고 하나, 캐시 적중 뒤 표본 밖 제자리 수정은 통과한다(감독 직접 재현: 노드 1001 계층 검사 뒤 리프 5 boxMin.y=Infinity·leafIndex 중복 → 둘 다 통과). 이때 frustum·distance 가 리프를 조용히 0 으로 만든다(축 1b 재현, 미확인). contracts/lod:15-22 의 '검증 뒤 불변' 은 lod 검증기만 다룬다. ② 표·:12 는 distanceCull NaN 리프를 '1(남김)·절대 제거하지 않음' 이라 하나, 구현은 NaN 축 간격을 0 으로 두고 유한 축만으로 판정해 먼 리프는 제거한다(감독 직접 읽음 — 하한이라 보수적이며 구현이 맞다, 문구가 틀림). ③ :10 'NaN 리프 점수 0' 은 틀림 — 점수 합이 NaN 일 때만 0(축 2 탐침: boxMin.x=NaN → 0.497). 노트의 '어느 단독 단계도 제거하지 않음' 도 ② 와 다름.
+- 실패 상황: ① 계약만 믿은 호출자가 계층 배열을 제자리 수정 → 오류 없이 거짓 제거. ② boxMin.x=NaN·y=1e6·maxDistanceM=100 → mask 0(축 2 탐침). 표 시험은 maxDistanceM 1e4 로 이 경우를 피한다(nan_box_policy_table.test.mjs:35).
+- 고칠 것: ① contracts/cull 에 '검증을 통과한 계층(octree 배열 포함)은 불변, 제자리 수정은 감지 보장 없음(표본에 걸릴 때만), 바꾸려면 새 typed array' 를 쓰고 :7 의 약속을 그 범위로 한정, contracts/lod 불변 규칙에 cull 단계 포함, 표본 밖 수정이 '보장 안 함' 임을 고정하는 시험. ② 표·:12 를 '유한 축 간격만으로 확실히 먼 경우 제거(하한이라 거짓 제거 아님)' 로 고치고 위 사례를 표 시험 행으로. ③ :10 을 '유한한 점수(합이 NaN 이면 0)' 로, 0 이 아닌 NaN 리프 사례 시험. 노트 정정.
+- 확인 기준: 계약 문구 직접 읽기, 새 시험 행이 구현과 일치해 통과, distance NaN 축 하한 보존 변이(g→NaN 전파로 제거 안 함 또는 반대) 에서 표 시험 실패.
+- 권장 모델: sonnet(① ③ 문구 haiku)
+- 이력: 2026-10-03 21:40 감독 등록(① 감독 직접 재현, ② 감독 직접 읽음, ③ 미확인). 신규 — 이번 PR 의 캐시·정책표에서 나옴. 제품 코드에 제자리 수정 경로 없음(축 1b), 구현 동작은 보수적이라 중간.
+
+### F-163 [열림] (심각도: 낮음) — PR #33 잔여 묶음
+- 위치·고칠 것(제품 4e6e88f):
+  ① server/cull/predict/predict.test.mjs:287-288 전제 주석이 코드 조건(≤ 90%)·상한 식과 다름, predict_analytic.test.mjs:100-101 동치 변형 식 오류, :106 상자 B 상한 식이 :85 와 다름 — 지운 수치 단언(KAPPA·(1.001·U+1e-3) < G) 복원(축 1a). (haiku)
+  ② bench/cull/leaf_check_bench.mjs:24-25·:46-50 — 노드 6664 로 F-154 실패 상황(노드 26만)보다 39배 작고 캐시 적중만 잰다. 리프 약 19만 계층 실행과 미스 경로(leafIndex.slice() 새 키) 단계 추가, 노트에 첫 호출 비용(축 5·6). (haiku)
+  ③ predict_hierarchy.test.mjs:54-63 새 중복 사례가 :26 과 같은 변이, 주석이 동작과 반대, if 가드 → assert(축 4b). (haiku)
+  ④ combine_guard_wrap.test.mjs:28-42 — assertHierarchyInput 재호출·contracts 헬퍼 경유 재독(C5·C6)을 놓침. 'select 프레임 아래면 제외, 스택에 combine 프레임 있으면 combine 의 읽기' 로(축 4b). (sonnet)
+  ⑤ nonfinite_box_scope.test.mjs predictiveMask 행에 nan_y_leaf 의 eye [0,120,140] 카메라 추가(boxMin.z 행 판별), occlusion/index.mjs:126 상자 초기화 줄 삭제 변이를 잡는 가려진 리프 행(축 4a). (sonnet)
+  ⑥ leaf_check_cache.test.mjs:89-103 적중 시 전체 검사를 실제로 건너뛰었는지(읽기 횟수 0) 단언(축 4b). (haiku)
+- 확인 기준: 항목별 변이·직접 실행.
+- 권장 모델: 항목별 표기
+- 이력: 2026-10-03 21:40 감독 등록(모두 미확인). 신규.
