@@ -75,3 +75,14 @@ develop 얕은 체크아웃의 `res/static/demo/segments/*.ply` 16개를 `readPl
 - 서브에이전트 격리 작업 트리가 제품 main 에서 시작되어 feat/point-io 코드가 없었다. 계약 커밋 위에서 시작한다는 전제가 지켜지지 않아 일부는 직접 만든 작업 트리(/home/user/wt/*)로 재지정했다. 다음 작업자는 팬아웃 전에 작업 트리가 계약 커밋 위인지 확인하고, 지시문에 "먼저 `git checkout -B feat/<이름>--<번호> feat/<이름>`" 을 넣는다.
 - R3d(haiku)가 F-074⑧ 의 대상 파일을 잘못 짚어 작업자가 직접 처리했다. 모델 승격은 없었다.
 - 서브에이전트 개수: opus 2·sonnet 5·haiku 5(12개).
+
+## 반려 2회차 수정 (PR #13, F-075~F-078)
+
+제품 feat/point-io 에서 같은 브랜치로 처리했다. 하위 작업 sonnet 2(R5·R6)·haiku 1(R7), 승격 없음. 작업 트리는 계약 커밋(feat/point-io) 위에서 시작했다.
+
+- F-075: ply_read 헤더 할당 테스트가 GC 를 강제하지 않아 앞 반복 버퍼 수거 때 음수 delta 로 실패했다. GC 강제(`--expose-gc` + `vm.runInNewContext('gc')`), 반복 사이 참조 해제, 단측 단언(< 64 KiB)으로 바꾸고 `Buffer.from/concat/alloc` 복사 바이트를 직접 세는 보조 도구(server/points/test_util)를 추가했다. 바뀐 테스트 파일 전부를 `node --test` 로 20회(서브에이전트) + 10회(작업자) 돌려 실패 0. 전체 복사 변형(`parsePlyHeader(Buffer.from(bytes))`)은 여전히 실패한다.
+- F-077: segments 음성 4건 복원, ply_stream 상한 경계(1 MiB±1, 무한 생성기, 한 청크에 1 MiB 초과 junk+end_header), contracts/ply 경계 ±1·작은 maxHeaderBytes. 변형(NAME_RE 6자리, 상한 4096·−64, 상한 검사 삭제) 모두 실패.
+- F-078: ①ply_stream 이 헤더 구간만 합치고 본문은 subarray 로 넘김(스캔은 남은 한도까지), 상한 검사를 복사 전에. ②`opts ?? {}`. ③클라이언트 테스트를 6개 앵커(남·서반구·고위도·alt≠30)로. ④⑤⑥ 주석 정리. ⑦ 벽시계·GC 없는 최솟값 대신 복사 바이트 수. ⑧ PR 본문에 건너뜀 12건 사유를 적음.
+- F-076: enuToGps 결과 |lat|>90, 극 앵커(|cos φ0|<1e-12)에서 e≠0 → GeoError('range'), 경도는 (−180,180] 로 감싼다(범위 안 값은 비트 그대로). gpsToEnu 결과 유한 검사, checkEnu 는 Array.isArray(배열 유사 객체 TypeError). **geo.ts 와 다른 점(이탈 기록):** 날짜변경선 왕복이 되도록 gpsToEnu·gpsToEnuClient 가 |Δλ|>180 일 때 ±360 으로 짧은 쪽을 택한다. |Δλ|≤180 값은 geo.ts 와 동일(1만 점 차 0 m 유지). 변형 시험 9종 모두 실패 확인.
+- F-068: ASSET_FORMAT.md §10.1 문구에서 시점 거리와 d² 를 잇는 절 삭제, "renderer_basis §11 Q" 로 명시.
+- 검증: `npm test` 633 중 통과 621·실패 0·건너뜀 12. 실제 skylens develop(얕은 체크아웃) `res/static/demo/segments/*.ply` 16/16 `readPly` 성공.
