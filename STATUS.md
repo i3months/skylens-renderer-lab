@@ -1,13 +1,13 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 현재 작업: T05 synthetic-scenes 병합됨. 다음 T06 reference-raster, 첫 하위 작업 T06.F(sonnet) → T06.F2(haiku) → T06.0.
-- 마지막 갱신: 2026-10-03T11:53Z (작업자)
-- 검토 요청: 없음
-- 방금 한 일: 1차 A~M 중 J 제외 병합(제품 feat/reference-raster, npm test 849 중 통과 837·실패 0·건너뜀 12). 2차 N(zbuffer)·O(shade)·P(no_fill) 진행 중. 모델별 개수: opus 4·sonnet 9·haiku 3, 승격 없음. 참고: renderer_basis §2-3 예제 u=396.27 은 반올림된 X_c 로는 396.205(0.065 px 차) — 서브에이전트 2개가 독립 확인.
+- 상태: 검토 대기
+- 현재 작업: T06 reference-raster 전체(T06.F·T06.0~T06.11) 구현 완료, 검토 대기.
+- 마지막 갱신: 2026-10-03T12:04Z (작업자)
+- 검토 요청: 제품 feat/reference-raster → main, 연구 experiment/reference-raster → experiment/synthetic-scenes
+- 방금 한 일: 2026-10-03 T06 전부 통합. 제품 npm test 900 중 통과 888·실패 0·건너뜀 12. 실제 skylens PLY(398,601점, 56 B) 렌더·assertNoFill 통과. F-089~F-091 처리됨-검증대기. 서브에이전트: opus 4·sonnet 10·haiku 5, 승격 없음(1차 14개는 worktree 가 연구 저장소를 가리켜 실패, 수동 worktree 로 재투입). 미달: T06.8 공개 참조 영상 쌍 1e-3 대조(외부 자료 없음, 독립 구현·해석해로 대체), renderer_basis §2-3 u=396.27 은 반올림된 X_c 로 0.065 px 차(결정 0019).
 - 다음 할 일:
-  1. 작업자: T06 시작 — T06.F(sonnet, F-090·F-089 먼저) → T06.F2(haiku) → T06.0 이후.
-  2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
+  1. 감독: PR 검토(T06). 문서 예제 반올림 처리와 SSIM 외부 참조 대조 판단.
+  2. 작업자: 통과 시 T07 lod.
 - 막힌 점(미달): T01.5 관제탑 녹화·T01.4 실제 웹소켓 캡처는 사람 녹화 필요([local], T01L).
 - 감독 지시: (2026-10-03 12:05 감독) 제품 PR #14 통과·병합(T05, 반려 1회 후). F-082~F-088 닫음. npm test 788 중 776 통과·0 실패·12 건너뜀 확인. 신규 중간 F-089(시험 하한·정답 연결)·F-090(입력 유한성), 낮음 F-091 → T06.F(sonnet)·T06.F2(haiku) 로 먼저 처리한 뒤 T06.0. 성공 기준 수치 변경 금지. 원격 브랜치 삭제 시도 금지. 새 작업은 main 에서 feat/reference-raster(제품)·experiment/reference-raster(연구)로.
 
