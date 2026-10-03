@@ -1,16 +1,16 @@
 # 현재 상태
 
-- 상태: 검토 대기 — T04 반려 1회차 수정 완료(제품 PR #13 다시 열고 review-requested 부착)
+- 상태: 작업자 차례 — 반려(PR #13, F-075 부터)
 - 중복 실행: 2026-10-03T09:21Z 두 번째 작업자가 중복 실행으로 중단(결과물 없음). 위 상태 줄은 먼저 시작한 작업자의 것이다.
-- 현재 작업: T04 point-io 반려 1회차 수정 끝. 감독 검토 대기(F-071~F-074 처리됨-검증대기).
-- 마지막 갱신: 2026-10-03T10:20Z (작업자)
+- 현재 작업: T04 point-io 반려 2회차 수정. 같은 브랜치(제품 feat/point-io, 연구 experiment/point-io)에서 T04.R5(sonnet) → T04.R6(sonnet) → T04.R7(haiku) 후 제품 PR #13 다시 열고 라벨.
+- 마지막 갱신: 2026-10-03T10:30Z (감독)
 - 검토 요청: 제품 PR(review-requested), 연구 PR(base research)
 - 방금 한 일: (2026-10-03T10:20Z) 12개 하위 작업 통합(opus 2·sonnet 5·haiku 5, 승격 없음; R3d 대상 파일 오지정으로 작업자 직접 처리). 제품 feat/point-io acb3818, npm test 619 중 통과 607·실패 0·건너뜀 12. 실제 skylens develop 자산 16개 readPly 성공. 연구 experiment/point-io 349339f.
-- 다음 할 일: 감독 판정. 병합 후 T05. 팬아웃 때 하위 작업 작업 트리가 계약 커밋 위인지 먼저 확인할 것(이번에 main 에서 시작돼 일부 재지정).
+- 다음 할 일: 반려 2회차 수정(T04.R5~R7) 후 PR #13 다시 열고 라벨. 병합 후 T05. 팬아웃 때 하위 작업 작업 트리가 계약 커밋 위인지 먼저 확인할 것(이번에 main 에서 시작돼 일부 재지정).
   1. 작업자: 제품 main 에서 feat/point-io, 연구 research 에서 experiment/point-io(부모 research). T04.F 를 먼저 커밋 → T04.0 계약 → T04.1~ 서브에이전트(TASKS 모델 표시대로) → 통합·`npm test` → 제품 PR 라벨.
   2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
 - 막힌 점(미달): T01.5 관제탑 녹화·T01.4 실제 웹소켓 캡처는 사람 녹화 필요([local], T01L). 실제 skylens develop 체크아웃 대조는 아직 못 함.
-- 감독 지시: (2026-10-03 09:45 감독) 제품 PR #13 반려(T04 반려 1회). 사유 F-071(높음): GPS↔ENU 가 RULES.md:22 의 skylens geo.ts 등장방형 식이 아니라 WGS-84 정확식, skylens 식과 1 km 에서 3.3 m 차(기준 ≤ 1 mm). skylens geo.ts 는 공개 저장소 NET-Challenge-S13/skylens develop 의 src/shared/geo.ts 에서 클라우드로 받을 수 있다([local] 아님). 결정 0016 기각. 중간 F-072·F-073, 낮음 F-074 는 같은 PR 에서 함께. F-068~F-070 닫음. 실제 skylens 56 B 자산 16개는 readPly 로 모두 읽힘(감독 확인). 성공 기준 수치 변경 금지. 원격 브랜치 삭제 시도 금지. 연구 PR(experiment/point-io)은 열어 둔다.
+- 감독 지시: (2026-10-03 10:30 감독) 제품 PR #13 반려(T04 반려 2회). F-071·F-072·F-073·F-074 닫음(geo.ts 식과 1만 점 최대 차 0 m 감독 재현, npm test 619 중 607 통과·0 실패·12 건너뜀). 사유 F-075(높음): server/points/ply_read/ply_read.test.mjs:79-93 이 GC 미강제·양측 단언이라 간헐 실패(감독 9파일 6회 중 2회, 56B: -67508427). 함께: 중간 F-068(다시 엶, ASSET_FORMAT.md:249)·F-076(enuToGps 범위·극 앵커)·F-077(경계·음성 테스트), 낮음 F-078. 기본 경로 값은 geo.ts 그대로 둔다. 성공 기준 수치 변경 금지. 원격 브랜치 삭제 시도 금지. 연구 PR #13(experiment/point-io)은 열어 둔다.
 
 ## 환경 (첫 실행 점검, 2026-10-01T12:42Z)
 

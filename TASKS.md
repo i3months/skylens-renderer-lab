@@ -48,7 +48,7 @@ tools/       명령줄 도구
 - [x] **T01P `baseline-fixes-9`** [cloud] — T01N 검토 잔여: F-058(중간 1·낮음 6). T01.39·T01.40. T02 가 사람 결정 대기라 그 사이에 처리한다(감독 지정). 제품 feat/baseline-fixes-9, 연구 experiment/baseline-fixes-9(부모 experiment/baseline-fixes-8). 제품 코드·테스트 이름에 FEEDBACK 번호를 넣지 않는다. (2026-10-02 병합, 제품 11f6bf1 merge commit, 연구 experiment/baseline-fixes-8 acfdd28, 반려 0회. F-058 닫음, F-059 → T02 승인 뒤 첫 작업)
 - [x] **T02 `stack`** — 스택 선정. 서버 래스터라이저(2단계)·자산 처리 서버·클라이언트 경량 래스터라이저를 무엇으로 쓸지 조사. (2026-10-02 감독 승인, 결정 0009 승인·0012~0014 반영, 연구 PR #3 → research merge commit ddd3219, 제품 변경 없음, 반려 0회)
 - [x] **T03 `asset-format`** — 경량 자산 포맷 계약과 핵심 타입. 27 B 점·56 B 가우시안 두 입력 형식을 담는다(0012). 첫 하위 작업으로 F-059(T03.F, haiku)를 함께 처리한다. (2026-10-03 병합, 제품 5b41a3b merge commit, 연구 research f8d847f, 반려 1회. F-059~F-067 닫음, 잔여 F-068~F-070 → T04.F, 결정 0015 승인)
-- [ ] **T04 `point-io`** — 27 B 점·56 B 가우시안 PLY 입출력과 ENU 좌표. (2026-10-03 PR #13 반려 1회: F-071 높음. T04.R1~R4 처리 후 같은 브랜치로 재검토)
+- [ ] **T04 `point-io`** — 27 B 점·56 B 가우시안 PLY 입출력과 ENU 좌표. (2026-10-03 PR #13 반려 2회: 1회 F-071 높음, 2회 F-075 높음. T04.R5~R7 처리 후 같은 브랜치로 재검토)
 - [ ] **T05 `synthetic-scenes`** — 합성 장면·고정 시점 8곳·골든 파일.
 - [ ] **T06 `reference-raster`** — CPU 참조 래스터라이저와 화질 지표.
 - [ ] **T07 `lod`** — 거리 제곱 근거의 LOD 계층.
@@ -192,6 +192,9 @@ tools/       명령줄 도구
 | T04.R2 | F-073 점 입력 이상·큰 입력 처리 | `server/points/`, `tools/points_stat/`, `contracts/ply/` | F-073 확인 기준 | sonnet |
 | T04.R3 | F-074 ①②③⑥⑧ 문구·단순 테스트(실제 skylens 56 B 헤더 리터럴 테스트 포함) | `format/`, `contracts/points/`, `server/points/`, `server/asset/determinism/` | F-074 해당 항목 | haiku |
 | T04.R4 | F-074 ④⑤⑦⑨⑩⑪ 테스트 강화·segments 잡파일·writer 색 대입 | `server/points/`, `tools/points_stat/`, `client/geo/` | F-074 해당 항목 | sonnet |
+| T04.R5 | (반려 2회차, 먼저) F-075 불안정 테스트(GC 강제·단측 단언), F-077 경계·음성 테스트, F-078 ①⑦ | `server/points/`, `contracts/ply/` | F-075·F-077 확인 기준, 같은 9파일 20회 실패 0 | sonnet |
+| T04.R6 | F-076 enuToGps 결과 범위·극 앵커·서버 결과 유한 검사·checkEnu, F-078 ③ 클라이언트 다중 앵커 테스트 | `server/geo/`, `client/geo/` | F-076 확인 기준, geo.ts 1만 점 차 여전히 0 m | sonnet |
+| T04.R7 | F-068 :249 문구, F-078 ②④⑤⑥⑧ 주석·문구·PR 본문 | `format/`, `contracts/`, `server/points/` | F-068 확인 기준, 해당 grep | haiku |
 
 ### T05 `synthetic-scenes` — [cloud]
 
