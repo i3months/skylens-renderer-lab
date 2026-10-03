@@ -6,7 +6,7 @@
 - F-157 ④·F-158 ④: 계약 :10 클라이언트 줄을 'leafBoxesOf 통과, clientFrustumCull ±Inf 는 cull: 오류·NaN 통과' 로 정정, leafIndex 는 Int32Array·정수 명시.
 - F-157 ⑤(sonnet): combine_guard_wrap 의 읽기 횟수 47 고정을 없앰. 카메라 첫 읽기를 검사 완료 시점으로 삼아 그 뒤 combine 이 직접 읽는 leafCount 접근자가 다른 값을 내게 함(호출 스택으로 호출자 구분 — combine 경로명에 기댐, 한계). ones 는 인자 길이 사용. combine :162·:164 재독 변이 실패, select :113 캐시 리팩터 통과. selectLevels 의 자체 재검증 읽기는 select 모듈 몫으로 주석.
 - F-158 ①(opus): 대각 속도 v=(3,0,4) 해석 사례(속력 5, 손 계산 부풀림 1.25 m 상한). |v|→|vx|·L1 변이 모두 실패. 참고: `node --test server/cull/predict/` 디렉터리 인자는 Node 22 에서 실패하므로 글롭 사용.
-- F-158 ③(haiku): leaf_check 주석 정정(scratch 는 0 으로 채운 수 배열, priority 사용처 추가). ⑥: priority makeBuf 할당을 try/catch 로 감싸 RangeError → cull: 오류. ⑤(haiku): priority·predict leafIndex 형 시험에 양성 대조와 '정수 Float32Array' 사례 추가, Int32Array 요구 제거 변이에서 각 파일 실패.
+- F-158 ③(haiku): leaf_check 주석 정정(scratch 는 0 으로 채운 수 배열, priority 사용처 추가). ⑥: (정정, F-159 ④) priority makeBuf 를 try/catch 로 감싸지 않았다. 코드에는 주석 한 줄뿐이고 할당 실패(RangeError)는 그대로 던져진다(priority_hierarchy_check.test.mjs 가 그대로를 요구). 계약에 '할당 실패는 범위 밖, cull: 아님' 으로 적었다. ⑤(haiku): priority·predict leafIndex 형 시험에 양성 대조와 '정수 Float32Array' 사례 추가, Int32Array 요구 제거 변이에서 각 파일 실패.
 - 서브에이전트 7개: opus 1·sonnet 3·haiku 3 (+ 격리 경로 오류로 재개 1건, 같은 sonnet). 승격 없음.
 
 ## 검증
