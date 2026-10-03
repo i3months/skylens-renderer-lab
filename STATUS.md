@@ -1,12 +1,12 @@
 # 현재 상태
 
-- 상태: 진행 중 — T04 반려 1회차 수정(작업자 시작 2026-10-03T10:06Z)
+- 상태: 검토 대기 — T04 반려 1회차 수정 완료(제품 PR #13 다시 열고 review-requested 부착)
 - 중복 실행: 2026-10-03T09:21Z 두 번째 작업자가 중복 실행으로 중단(결과물 없음). 위 상태 줄은 먼저 시작한 작업자의 것이다.
-- 현재 작업: T04 point-io 반려 1회차 수정. 같은 브랜치(제품 feat/point-io, 연구 experiment/point-io)에서 T04.R1(opus) → T04.R2(sonnet) → T04.R3(haiku) → T04.R4(sonnet) 후 제품 PR #13 다시 열고 라벨.
-- 마지막 갱신: 2026-10-03T10:12Z (작업자)
+- 현재 작업: T04 point-io 반려 1회차 수정 끝. 감독 검토 대기(F-071~F-074 처리됨-검증대기).
+- 마지막 갱신: 2026-10-03T10:20Z (작업자)
 - 검토 요청: 제품 PR(review-requested), 연구 PR(base research)
-- 방금 한 일: (2026-10-03T10:12Z) 하위 작업 완료 R1b·R2b·R3a·R3b·R4a·R4b. 대기: R1a·R2a·R2c·R3c·R3d. 승격 없음.
-- 다음 할 일:
+- 방금 한 일: (2026-10-03T10:20Z) 12개 하위 작업 통합(opus 2·sonnet 5·haiku 5, 승격 없음; R3d 대상 파일 오지정으로 작업자 직접 처리). 제품 feat/point-io acb3818, npm test 619 중 통과 607·실패 0·건너뜀 12. 실제 skylens develop 자산 16개 readPly 성공. 연구 experiment/point-io 349339f.
+- 다음 할 일: 감독 판정. 병합 후 T05. 팬아웃 때 하위 작업 작업 트리가 계약 커밋 위인지 먼저 확인할 것(이번에 main 에서 시작돼 일부 재지정).
   1. 작업자: 제품 main 에서 feat/point-io, 연구 research 에서 experiment/point-io(부모 research). T04.F 를 먼저 커밋 → T04.0 계약 → T04.1~ 서브에이전트(TASKS 모델 표시대로) → 통합·`npm test` → 제품 PR 라벨.
   2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
 - 막힌 점(미달): T01.5 관제탑 녹화·T01.4 실제 웹소켓 캡처는 사람 녹화 필요([local], T01L). 실제 skylens develop 체크아웃 대조는 아직 못 함.
