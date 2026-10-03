@@ -1,15 +1,15 @@
 # 현재 상태
 
-- 상태: 검토 대기 — T03 asset-format 반려 1회차 수정(PR #12 다시 열고 라벨)
-- 현재 작업: T03 `asset-format`. 첫 하위 작업 T03.F(F-059, haiku) → T03.0 계약(opus) → T03.1~T03.11.
-- 마지막 갱신: 2026-10-03T08:53Z (작업자)
-- 검토 요청: 제품 PR #12(review-requested), 연구 PR #12(base research)
+- 상태: 작업자 차례 — 병합(PR #12)
+- 현재 작업: T03 병합 완료. 다음 T04 `point-io`, 첫 하위 작업 T04.F(F-068·F-069·F-070, sonnet) → T04.0 계약(sonnet) → T04.1~.
+- 마지막 갱신: 2026-10-03T09:08Z (감독)
+- 검토 요청: 없음
 - 방금 한 일: (작업자) F-060~F-067 수정(제품 282d7d8), 전체 npm test 510 중 통과 498·실패 0·건너뜀 12, 변형 3종(F-061) 직접 확인, 100만 점 가우시안 unpack 394 ms. 퍼저 예산 CPU 시간화. 서브에이전트 10개(opus 1·sonnet 7·haiku 2), 승격 0. 미달: 실제 skylens 체크아웃 대조 못 함(T04), 저장 구간 위쪽 끝 f32 1 ulp 한계(노트 기재).
 - 다음 할 일:
-  1. 작업자: 제품 feat/asset-format, 연구 experiment/asset-format(base research). T03.F(F-059 잔여, haiku)를 먼저 커밋 → T03.0 계약을 직접 커밋(opus 서브에이전트 또는 본인; 단일 포맷 대 분리 포맷 비교를 decisions/ 에 `상태: 제안` 으로) → T03.1~T03.11 서브에이전트(TASKS 모델 표시대로) → 통합·`npm test` → 제품 PR 라벨.
+  1. 작업자: 제품 main 에서 feat/point-io, 연구 research 에서 experiment/point-io(부모 research). T04.F 를 먼저 커밋 → T04.0 계약 → T04.1~ 서브에이전트(TASKS 모델 표시대로) → 통합·`npm test` → 제품 PR 라벨.
   2. [local] T01L(관제탑 녹화·실제 웹소켓 캡처·F-027 앱 로더 대조)은 사람 세션.
 - 막힌 점(미달): T01.5 관제탑 녹화·T01.4 실제 웹소켓 캡처는 사람 녹화 필요([local], T01L). 실제 skylens develop 체크아웃 대조는 아직 못 함.
-- 감독 지시: (2026-10-03 08:30 감독) T03 반려 1회차. 제품 feat/asset-format 같은 브랜치에서 TASKS T03.R1(F-060, sonnet) → T03.R2(F-061, opus) → T03.R3(F-062·F-063, haiku) → T03.R4(F-064·F-065·F-066, sonnet) 순서로 고친 뒤 PR #12 를 다시 열고 라벨. 반려 사유는 F-060·F-061(높음)뿐이고 R3·R4 는 중간이라 시간이 모자라면 R1·R2 만으로 다시 올려도 된다. F-067(낮음)은 함께 고치거나 T04 첫 하위 작업으로. 결정 0015 는 설계 승인 방향이나 F-062 수치 정정 뒤 다음 검토에서 승인으로 바꾼다. 연구 PR #12(experiment/asset-format)는 열어 둔 채 같은 브랜치에 정정 커밋. 성공 기준 상한(contracts/asset/index.mjs:60-69) 변경 금지. 원격 브랜치 삭제 시도 금지.
+- 감독 지시: (2026-10-03 09:05 감독) T03 반려 1회차 수정 통과, 제품 PR #12 merge commit 으로 병합, 연구 PR #12 research 로 병합, 결정 0015 승인. 다음은 T04 `point-io`. 첫 하위 작업 T04.F 로 F-068(명세 메모 문구·Δd 근거, 중간)·F-069(비유한 bbox·checkDeterminism 이상 반환, 중간)·F-070(테스트 공백, 낮음)을 처리한다. 연구 SPEC.md:72 Δd 문구는 감독이 맞춘다. 성공 기준 상한(contracts/asset/index.mjs:60-69) 변경 금지. 원격 브랜치 삭제 시도 금지.
 
 ## 환경 (첫 실행 점검, 2026-10-01T12:42Z)
 

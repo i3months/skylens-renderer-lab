@@ -176,6 +176,7 @@ tools/       명령줄 도구
 
 | 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
 |---|---|---|---|---|
+| T04.F | (먼저) T03 검토 잔여: F-068 명세 문구(haiku 몫), F-069 비유한·이상 입력 처리, F-070 테스트 공백 | `format/`, `server/asset/`, `client/asset/`, `tools/asset_validate/` | F-068·F-069·F-070 확인 기준 | sonnet |
 | T04.0 | 계약: 점 타입(27 B)과 가우시안 타입(56 B, `x y z f_dc_0..2 opacity scale_0..2 rot_0..3`), PLY 머리 규칙(두 형식 판별), `Gps`·`GeoAnchor`·`Enu` 타입 | `contracts/points/`, `contracts/geo/` | 타입 크기 27 B·56 B 단언 | sonnet |
 | T04.1 | 이진 PLY 읽기(27 B·56 B 두 형식) | `server/points/ply_read/` | `ply_read_golden` 형식별 골든 파일 점 수·첫/끝 점 일치 | sonnet |
 | T04.2 | 이진 PLY 쓰기 | `server/points/ply_write/` | 쓰기→읽기 왕복 바이트 동일 | sonnet |
