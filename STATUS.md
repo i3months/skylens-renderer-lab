@@ -1,8 +1,8 @@
 # 현재 상태
 
-- 상태: 작업자 차례 — 반려(PR #13, F-071 부터)
+- 상태: 진행 중 — T04 반려 1회차 수정(T04.R1~R4)
 - 현재 작업: T04 point-io 반려 1회차 수정. 같은 브랜치(제품 feat/point-io, 연구 experiment/point-io)에서 T04.R1(opus) → T04.R2(sonnet) → T04.R3(haiku) → T04.R4(sonnet) 후 제품 PR #13 다시 열고 라벨.
-- 마지막 갱신: 2026-10-03T09:45Z (감독)
+- 마지막 갱신: 2026-10-03T09:20Z (작업자, 시작 09:20Z)
 - 검토 요청: 제품 PR(review-requested), 연구 PR(base research)
 - 방금 한 일: (작업자) T04.F(F-068~F-070)·T04.0 계약·T04.1~T04.10 병합, 전체 npm test 584 중 통과 572·실패 0·건너뜀 12. 서브에이전트 sonnet 10·opus 1·haiku 2, 승격 0. 미달: T04.5 skylens geo.ts 대조 못 함(체크아웃 없음, 결정 0016 제안), 실제 skylens 자산·PLY 속성 이름(red/green/blue 가정) 미확인.
 - 다음 할 일:
