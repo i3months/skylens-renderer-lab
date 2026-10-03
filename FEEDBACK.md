@@ -1962,7 +1962,7 @@
 - 위치(제품 feat/codec-review-fixes ebad883): ① contracts/codec/index.mjs:62·:66-69 ② client/codec/cross_error.test.mjs:179-189(looseClass/DIV)·:237-248(시험 이름) ③ server/codec/entropy/entropy.test.mjs:178-179·:212-213, server/codec/chunk/chunk_validation.test.mjs:132-139 ④ bench/codec_client/codec_client_bench.test.mjs:130-143 ⑤ 연구 experiments/codec_review_fixes.md(F-175 ④ 줄)
 - 문제·실패 상황:
   ① 계약 '검증 순서' ① 은 rawLen > max 만 적고, 조각 경로가 먼저 보는 rawLen < min(streamRawBounds) 'limit' 을 빠뜨렸다. 표 :62 'limit' 줄에도 없다. mode 1·rawLen=0 입력에 계약만 읽으면 'stream' 을 예상하나 실제는 양쪽 'limit'. 목록에 payloadLen < 5·첫 바이트 0·mode 0 길이 검사가 빠져 순서 목록으로 정확하지 않다(축 2, 감독 직접 읽음 :62·:66).
-  ② 헤더 경로 약 12건은 서버 CodecError / 클라이언트 AssetFormatError 차이를 허용하며 code 를 비교하지 않는다 — 한쪽이 다른 code 로 거부해도 통과(감독 직접 읽음 :179-189). 시험 이름 '[순서 정렬 대기] … 실패할 수 있다' 는 정렬이 끝났는데 남아 있다.
+  ② (F-177 ① 로 옮김, 중간으로 상향) 헤더 경로 약 12건은 서버 CodecError / 클라이언트 AssetFormatError 차이를 허용하며 code 를 비교하지 않는다 — 한쪽이 다른 code 로 거부해도 통과(감독 직접 읽음 :179-189). 시험 이름 '[순서 정렬 대기] … 실패할 수 있다' 는 정렬이 끝났는데 남아 있다.
   ③ 1 MB 부호화·복호 시간 상한 800→3000 ms(근거 '부하 시 흔들림' 한 줄), F-169 확인 기준 '50 ms 안에 limit' 의 시간 단언 삭제 — 코드 단언은 남아 판별력은 있으나 할당·CPU 퇴행은 못 잡는다(축 5, 미확인). 또 entropy.test.mjs '손상 퍼징 5000 회' 시간 상한(이번 PR 무변경)이 동시 실행 부하에서 1회 실패(최대 114 ms, 축 1a), 동시 npm test 2회 중 1회 1 실패(축 5, 시험 이름 미확인) — 감독 단독 실행은 0 실패.
   ④ 벤치 손실 행은 colorMode 만 단언하고 복호 색을 원본과 비교하지 않는다 — QUANT2 에서만 색을 1 비트 뒤집는 변이가 bench 0 실패(client/codec/codec_client.test.mjs 는 잡음)(축 4b, 미확인).
   ⑤ 노트 'DELTA 정확 단언(512색 입력)' — 실제 시험은 n=500(축 5).
@@ -1970,4 +1970,17 @@
 - 확인 기준: ① 계약 문구 = chunk/index.mjs:73·client/codec/index.mjs:128-129 조건. ② 클라이언트 헤더 검사 하나의 code 를 바꾸는 변이에서 cross_error 실패 ≥ 1. ④ 위 QUANT2 색 변이에서 bench 실패 ≥ 1.
 - 권장 모델: ①③⑤ haiku, ②④ sonnet
 - 이력: 2026-10-03 23:50 감독 등록(①② 직접 읽음, ③④ 미확인). 신규 — 이번 PR 이 쓴 문구·시험에서 나옴, 범위 밖 끌어오기 아님.
+
+### F-177 [열림] (심각도: 중간) — cross_error 교차 시험이 기대 code 를 고정하지 않아 공통 변이·느슨한 분기 변이를 놓친다
+- 위치(제품 main 5c7e092 = PR #37 ebad883): client/codec/cross_error.test.mjs:182-190(looseClass 분기)·:193-206(DIV 케이스), :95-98·:103-113(경계·조기 거부), :152·:166-167(이름은 통과, expect 없음), :101-102·:115-120·:130-145 등 expect 없는 same(), :248 낡은 주석; server/codec/chunk/chunk_validation.test.mjs:148-149(`if (rawLen > 7)` 로 클라이언트 비교 건너뜀)
+- 문제·실패 상황:
+  ① looseClass 분기는 양쪽이 CodecError|AssetFormatError 이기만 하면 통과 — code·클래스 대응을 보지 않는다. 서버 chunk/index.mjs:162 'length'→'stream' 변이에서 cross_error 54/54 통과(감독 직접 재현). :160 'limit'→'stream' 도 '점 개수 0' 케이스가 놓침(축 4a). headerSize=64 는 클래스가 같은데 code 가 다르다(header_size/short)(축 4a, 미확인).
+  ② 경계 시험이 기대 code 를 고정하지 않아 공유 상수(contracts/codec streamRawBounds) 오프바이원과 조기 거부 경계를 판별 못 함 — entropy/index.mjs:185 `+64`→`+63` 변이에서 cross_error 54/54 통과(축 4a, 미확인; :185 줄은 감독 확인).
+  ③ '통과/정상' 이름의 케이스가 expect 없이 same() 만 불러 양쪽이 함께 거부해도 통과(축 4a).
+  ④ 엄격 same() 다수가 expect 없음 — 계약 공유 code 변이를 못 잡음(축 4a).
+  ⑤ :248 '통합 전에는 실패할 수 있다' 주석, chunk_validation.test.mjs:148-149 의 클라이언트 'stream' 전제와 `if (rawLen > 7)` 건너뜀은 순서 정렬 뒤 낡음(축 4a).
+- 고칠 것: ① 느슨한 케이스마다 서버·클라이언트 (클래스, code) 쌍을 명시 단언(예: {server:['CodecError','length'], client:['AssetFormatError','body']}), headerSize=64 는 알려진 불일치로 따로 표시. ② :96·:97 에 'limit' 아님 단언, 7n 유효 스트림은 통과(null), 조기 거부는 메시지로 경로 구분하고 64L+64 에서 조기 거부 메시지가 없음을 단언. ③ expect 에 null. ④ 실측 code 를 expect 로 고정. ⑤ 주석 정리, 건너뜀 조건 제거.
+- 확인 기준: 서버 :162 'length'→'stream', :160 'limit'→'stream', entropy :185 `+64`→`+63`, streamRawBounds 상·하한 ±1 변이 각각에서 cross_error 실패 ≥ 1. 클라이언트 검사 순서 원복 변이에서 chunk_validation 실패 ≥ 1.
+- 권장 모델: sonnet(⑤ haiku)
+- 이력: 2026-10-04 00:10 감독 등록(① :162 변이 직접 재현 54/54 통과, 나머지 축 4a 보고·미확인). 신규 — PR #37 병합 뒤 도착한 축 4a 보고. 이번 PR 이 쓴 시험이라 범위 밖 끌어오기 아님. 병합 판정에는 영향 없음(중간, 시험 판별력 — 구현 결함 아님).
 
