@@ -297,7 +297,8 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T08.F33 [x] (2026-10-03 PR #29 병합, 제품 d0a1c4d; F-146 ⑦ → F-138 ⑧ 로 일원화) | PR #28 낮음: F-149, F-146 ⑥ 잔여·⑦ — T08.F21·F23·F25 와 함께 처리해도 됨 | 항목별 경로 | F-149·F-146 항목별 | haiku(F-149 ②④ sonnet) |
 | T08.F34 [x] (2026-10-03 PR #30 병합, 제품 3ecab24; F-151 잔여 → F-155 ④) | (먼저) PR #29 검토 중간: F-150(predict leafBoxes leafIndex 중복·범위 검사, 비유한 상자 cull: 오류로 통일), F-151(predict 시험 상한 상대 여유, 시드 비의존 판별 사례, BASE 스냅샷 삭제) — T09 와 별도 PR | `server/cull/`, `client/cull/`, `contracts/cull/` | F-150·F-151 확인 기준 | sonnet(F-151 opus) |
 | T08.F35 [x] (2026-10-03 PR #30 병합, 제품 3ecab24) | PR #29 낮음: F-152 — T08.F21·F23·F25 와 함께 처리해도 됨 | 항목별 경로 | F-152 항목별 | haiku(①④⑦⑧ sonnet) |
-| T08.F36 | (먼저) PR #30 검토 중간: F-153(leafIndex 정수·Int32Array 강제), F-155(할당 문턱 복귀·combine 시험·계약 7줄·직선 이동 시험 해석화) — T09 와 별도 PR | `server/cull/`, `client/cull/`, `contracts/cull/` | F-153·F-155 확인 기준 | sonnet(F-155 ④ opus, ②③ haiku) |
+| T08.F36 [x] (2026-10-03 PR #31 병합; F-155 ③ 잔여 → F-157) | (먼저) PR #30 검토 중간: F-153(leafIndex 정수·Int32Array 강제), F-155(할당 문턱 복귀·combine 시험·계약 7줄·직선 이동 시험 해석화) — T09 와 별도 PR | `server/cull/`, `client/cull/`, `contracts/cull/` | F-153·F-155 확인 기준 | sonnet(F-155 ④ opus, ②③ haiku) |
+| T08.F38 | (먼저) PR #31 검토 중간: F-157(nonfinite_box_scope 시험이 정책 값을 단언·리프 ±Inf 행·계약 :10 클라이언트 줄 정정), F-158 낮음 묶음 — T09 와 별도 PR | `server/cull/`, `client/cull/`, `contracts/cull/` | F-157 확인 기준·F-158 항목별 | sonnet(F-158 ① opus, ③④⑤⑥ haiku) |
 | T08.F37 | PR #30 중간·낮음: F-154(검사 캐시·벤치), F-156 — T08.F21·F23·F25 와 함께 처리해도 됨 | 항목별 경로, `bench/` | F-154 확인 기준·F-156 항목별 | sonnet(F-156 ①②④⑤⑥⑧ haiku) |
 | T08.0 [x] (2026-10-03 PR #21 병합, 제품 df3a5c5) | 계약: 시점 상태·컬링 결과(조각 목록) 타입 | `contracts/cull/` | 타입 문서와 일치 | sonnet |
 | T08.1 [x] (2026-10-03 PR #21 병합, 제품 df3a5c5) | 절두체 컬링 | `server/cull/frustum/` | 거짓 제거 0(보수적), 고정 시점 8곳 | sonnet |

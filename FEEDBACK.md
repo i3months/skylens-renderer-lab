@@ -1685,14 +1685,14 @@
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 19:58 감독 등록(축 2·4a·4b·5·7; 감독 직접 확인 없음 — 미확인). 신규. → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes7 0fdf241): ① frustum 이 결과 마스크를 검사표로 재사용(단독 할당 ≤ n 단언). 단 ⑧ 이 priority 에 검사표를 더해 세 함수 합계 문턱은 2n 으로 못 돌리고 4n(이유는 시험 주석) — 감독 판단 요청. ②③⑤⑥⑦⑧⑨ 처리, ④ 는 계약 문구(검사 뒤 상태형 접근자는 범위 밖)로 처리, combine 중복 가드 제거. → 2026-10-03 20:30 감독(PR #30): ①~⑨ 처리 확인(축 4b 변이: 검사 제거·단계별 호출 제거·fill(0) 제거 모두 실패). ① 의 합계 4n 은 실제 필요량(leafPriority 2n + orderChunks n + frustum n, 축 4b 계수)이나 priority 쪽 재사용으로 줄일 여지 → F-155 ①. 닫음.
 
-### F-153 [처리됨-검증대기] (심각도: 중간) — 공용 리프 검사가 leafIndex 정수·타입을 보지 않아 predict·priority 에서 거짓 제거·점수 0
+### F-153 [닫힘] (심각도: 중간) — 공용 리프 검사가 leafIndex 정수·타입을 보지 않아 predict·priority 에서 거짓 제거·점수 0
 - 위치: server/cull/degenerate/leaf_check.mjs:14-19; 호출 server/cull/predict/index.mjs:63-73 readLeaves(leafIndex 타입 검사 없음), server/cull/priority/index.mjs:34 부근 (제품 0fdf241)
 - 문제: 검사는 `k >= 0 && k < leafCount` 와 `seen[k]` 만 본다. k=1.5 이면 범위 안이고 Uint8Array 의 seen[1.5] 쓰기는 무시되어 중복으로도 안 걸리며 leaves 는 1 늘어 개수 검사도 통과한다(감독 직접 읽음). predict·priority 는 leafIndex 를 Int32Array 로 강제하지 않는다(frustum·distance·occlusion 은 강제).
 - 실패 상황: leafIndex 를 Float32Array 로 주고 한 칸을 1.5 로 → 리프 1 상자가 (0,0,0) 으로 남아 predictiveMask 가 리프 1 을 1→0 거짓 제거, leafPriority 0.497→0, 오류 없음(축 7 실행, 미확인).
 - 고칠 것: checkLeafIndexOneToOne 에서 `Number.isInteger(k)` 요구, predict·priority 에서 leafIndex instanceof Int32Array 요구(다른 단계와 같게).
 - 확인 기준: leafindex_inf_all_stages 에 '정수 아닌 leafIndex'·'Float32Array leafIndex' 사례 추가 → 5 단계 모두 /^Error: cull:/. Number.isInteger 검사 제거 변이에서 실패.
 - 권장 모델: sonnet
-- 이력: 2026-10-03 20:30 감독 등록(축 7; 코드는 감독 직접 읽어 확인, 재현 수치는 서브에이전트). 신규 — 이번 PR 이 만든 공용 검사의 빈틈. 운영 경로 미도달(잘못된 계층)이라 중간(F-150 과 같은 기준). → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes8 754ff2a): leaf_check Number.isInteger, predict·priority·client Int32Array 요구, 전 단계 표 시험에 정수 아닌 값·Float32Array 사례. npm test 2288 중 2276 통과·0 실패(직접).
+- 이력: 2026-10-03 20:30 감독 등록(축 7; 코드는 감독 직접 읽어 확인, 재현 수치는 서브에이전트). 신규 — 이번 PR 이 만든 공용 검사의 빈틈. 운영 경로 미도달(잘못된 계층)이라 중간(F-150 과 같은 기준). → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes8 754ff2a): leaf_check Number.isInteger, predict·priority·client Int32Array 요구, 전 단계 표 시험에 정수 아닌 값·Float32Array 사례. npm test 2288 중 2276 통과·0 실패(직접). → 2026-10-03 20:40 감독(PR #31) 직접 재현: 사본 leaf_check.mjs 의 Number.isInteger 검사 제거 변이 → leaf_check.test.mjs '비정수·NaN leafIndex' 1 건 실패(원본 통과). 축 7: 일반 배열·Float64Array·Uint32Array·다른 realm Int32Array leafIndex → 모두 cull: 오류, TypeError 0. 축 5: leafindex_inf_all_stages 의 비정수·Float32Array 사례 5 단계 통과. 닫음. 축 4b 의 'isInteger 제거 변이 생존' 보고는 leaf_check.test.mjs 를 돌리지 않은 결과라 기각.
 
 ### F-154 [열림] (심각도: 중간) — 공용 리프 검사로 컬링 단계 시간 +15~45%
 - 위치: server/cull/degenerate/leaf_check.mjs:12-27(호출마다 노드 전체 순회·리프마다 6 좌표 비교 4회), priority/index.mjs:129·:151(leafPriority 와 orderChunks 가 같은 계층을 두 번 검사) (제품 0fdf241)
@@ -1703,7 +1703,7 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 20:30 감독 등록(축 6; 감독 직접 측정 없음 — 미확인). 신규. 절대 증가는 수 ms 로 목표 fps 를 막지는 않아 중간.
 
-### F-155 [처리됨-검증대기] (심각도: 중간) — PR #30 시험·계약 정합
+### F-155 [닫힘] (심각도: 중간) — PR #30 시험·계약 정합
 - 위치·고칠 것(제품 0fdf241):
   ① client/cull/degenerate_unified.test.mjs:182 합계 4n, server/cull/priority/priority_resolution.test.mjs:100-101 n→2n — priority 검사표(Uint8Array n)가 원인. 4n 은 실제 필요량과 정확히 같아 여유 0(축 4b 계수). leafPriority 는 결과 Float64Array 를 먼저 만들고 그 버퍼의 Uint8Array 뷰(앞 n 바이트)를 검사표로 쓴 뒤 fill(0), orderChunks 는 입력 마스크 복사 대신 결과 쪽 버퍼 재사용 등으로 검사표 할당을 없애 문턱을 3n(가능하면 2n)·priority_resolution n 으로 되돌린다. 불가하면 근거를 시험 주석에 식으로. (sonnet)
   ② server/cull/combine/combine_guard_wrap.test.mjs:37-47 — 접근자가 늘 같은 값을 주고 단언이 reads >= 1 뿐이라, 검사 뒤 leafCount 를 다시 읽는 변이가 통과(축 4b mut_cbre). 첫 읽기 뒤 다른 값/예외를 주거나 reads === 기대 횟수로. (haiku)
@@ -1711,7 +1711,7 @@
   ④ F-151 잔여: predict.test.mjs '잘게/성기게 나눈 직선 이동' 시험(:321-322·:361 부근)의 시점이 시드 3 탐색값이라 시드 1·5·42 에서 전제 실패(축 4a·5). predict_analytic 처럼 해석 배치로 옮긴다. (opus)
 - 확인 기준: ① 문턱 복귀 후 통과 ② mut_cbre 변이에서 실패 ③ 내부 노드 ±Inf·리프 NaN 표 시험 결과가 계약 문구와 일치 ④ 시드 1·2·3·5·42 에서 전제 통과·+0.02 m 변이 실패.
 - 권장 모델: 항목별 표기
-- 이력: 2026-10-03 20:30 감독 등록(① 감독이 시험 diff 직접 읽음, ③ 계약 7줄 직접 읽음; ②④ 실행 결과는 서브에이전트 — 미확인). ④ 는 기존 F-151 잔여, 나머지 신규. → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes8 754ff2a): ① 검사표를 결과 버퍼로 재사용, priority_resolution n 복귀, 합계 4n→3n(2n 은 불가: 각 함수 n 칸 버퍼 하나, 근거 시험 주석) ② 읽기 횟수 47 고정 단언 ③ 계약에 단계별 범위 + 33 사례 시험 ④ 해석 배치(시드 1·2·3·5·42·99 통과, +0.02 m 변이 실패).
+- 이력: 2026-10-03 20:30 감독 등록(① 감독이 시험 diff 직접 읽음, ③ 계약 7줄 직접 읽음; ②④ 실행 결과는 서브에이전트 — 미확인). ④ 는 기존 F-151 잔여, 나머지 신규. → 2026-10-03 작업자 처리(제품 feat/cull-review-fixes8 754ff2a): ① 검사표를 결과 버퍼로 재사용, priority_resolution n 복귀, 합계 4n→3n(2n 은 불가: 각 함수 n 칸 버퍼 하나, 근거 시험 주석) ② 읽기 횟수 47 고정 단언 ③ 계약에 단계별 범위 + 33 사례 시험 ④ 해석 배치(시드 1·2·3·5·42·99 통과, +0.02 m 변이 실패). → 2026-10-03 20:40 감독(PR #31): ① client/cull/degenerate_unified.test.mjs:182 문턱 3n·priority_resolution.test.mjs:100-102 n 직접 읽고 npm test 통과 직접 확인(2n 불가 근거 주석 수긍). 축 1b: 정상 입력 144 경우 frustum·distance·predict·leafPriority·orderChunks·client 출력 해시 base 와 동일, 검사표 잔류 오염 0. ② 축 5 변이(combine 검사 뒤 leafCount 재독) → combine_guard_wrap 1 건 실패. 단 읽기 횟수 47 고정은 취약(F-158 ②). ③ 계약 :8·:9 문구는 구현과 일치(축 2 탐침 11 단계×6 입력), 단 :10 클라이언트 줄은 틀림(감독 직접 읽음: client/cull/index.mjs:121-123 이 ±Inf 상자를 cull: 오류) → F-157. ④ 해석 배치 축 1a 손 유도 일치, +0.02·+0.01·×1.2·h=dt/4 변이 실패, 시드 무관. 닫음(③ 잔여는 F-157).
 
 ### F-156 [열림] (심각도: 낮음) — PR #30 잔여 묶음(미확인)
 - 위치·고칠 것(제품 0fdf241):
@@ -1726,3 +1726,25 @@
 - 확인 기준: 항목별 변이·직접 실행.
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 20:30 감독 등록(축 2·4a·4b·7; 감독 직접 확인 없음 — 미확인). 신규.
+
+### F-157 [열림] (심각도: 중간) — 비유한 상자 범위 시험이 반환 형식만 보고, 계약 클라이언트 줄이 구현과 다르다
+- 위치: server/cull/degenerate/nonfinite_box_scope.test.mjs:1-3·:40-56·:68-302(pass 사례), contracts/cull/index.mjs:10, client/cull/index.mjs:121-123 (제품 754ff2a)
+- 문제: ① 'pass' 사례 21 개는 `result instanceof Uint8Array/Float64Array` 만 단언한다(감독 직접 읽음 :68-80·:166-170). 'NaN 리프 = 남김' 이라는 이름과 달리 남는지 보지 않는다. 머리 주석(:1-3)대로 관찰 결과를 받아 적은 스냅숏이다. ② 내부 노드 사례가 `if (node < 0) return;` 으로 조용히 건너뛸 수 있다(:70 등). ③ 계약에서 유일하게 '거부' 인 리프 ±Inf 행이 없고, withModifiedBox 의 boxMax(−Inf) 분기·y·z 좌표를 부르는 사례가 없다. ④ 계약 :10 '클라이언트(leafBoxesOf·clientFrustumCull): 모든 노드의 NaN·±Infinity 통과' 는 틀림 — clientFrustumCull 은 ±Inf 상자를 cull: 오류로 던진다(감독 직접 읽음, client_inf_box.test.mjs 도 그렇게 시험). ③ 의 공백 때문에 이 시험이 ④ 를 못 잡았다.
+- 실패 상황: frustum/index.mjs:71 부근에서 NaN 리프를 조용히 제거(mask=0)하는 변이, occlusion/index.mjs:392 의 NaN 판정 포기를 제거로 바꾼 변이가 모두 통과(축 4b 실행, 미확인). 계약만 읽고 클라이언트에 ±Inf 상자를 넘기면 통과를 기대하나 오류.
+- 고칠 것: ① pass 사례는 정상 계층 마스크와 비교해 망가뜨린 리프의 값이 정책(남김=1)대로인지 단언(보수성: 거짓 제거 0). ② `return` → `assert.ok(node >= 0)`. ③ 단계 11 개 × 리프 +Inf(boxMin)·−Inf(boxMax)·y/z 좌표 행 추가. ④ 계약 :10 을 'leafBoxesOf 는 통과, clientFrustumCull 은 ±Inf 상자 cull: 오류·NaN 통과' 로 정정. 머리 주석의 '관찰 결과에 따라 재기록' 은 '계약 문구를 시험' 으로. ⑤ server/cull/combine/combine_guard_wrap.test.mjs:45-61 — guardReadCount = 47 은 실측 상수이고 그 안에 검사 뒤 읽기 2 회(시험 단계 구현 ones :16 의 h.octree.leafCount, server/lod/select/index.mjs:171 의 octree.leafCount — 감독 직접 읽음)가 들어 있어 :61 '검사 뒤 재독 없음' 은 거짓이다. 재독 변이는 46 번째 읽기라 real 이 돌아가 길이 단언(:57-58)은 통과하고 횟수 단언만 잡는다. 동작이 같은 리팩터(select :113 leafCount 지역 변수 캐시)에도 47≠15 로 깨진다(축 4a 실행, 미확인). 횟수 고정 대신 검사 완료 시점(예: 카메라 접근자 첫 읽기)부터 leafCount 접근자가 던지거나 다른 값을 내게 하고, ones 는 인자 길이를 쓰게, selectLevels 재독은 따로 판정.
+- 확인 기준: 위 두 NaN 제거 변이와 client/cull/index.mjs:121-123 검사 제거 변이에서 이 파일이 실패. 원본 통과. ⑤ combine/index.mjs:162·164 leafCount 재독 변이는 실패, select :113 캐시 리팩터는 통과.
+- 권장 모델: sonnet
+- 이력: 2026-10-03 20:40 감독 등록(축 2·4a·4b·5; ①②④ 와 ⑤ 의 검사 뒤 읽기 위치 감독 직접 읽음, 변이 실행은 서브에이전트 — 미확인). 신규 — 이번 PR 이 쓴 시험·계약 문구(F-155 ③ 잔여). 시험 판별력·문서 문제이고 구현 동작은 맞아 중간(F-142·F-148 과 같은 기준).
+
+### F-158 [열림] (심각도: 낮음) — PR #31 잔여 묶음
+- 위치·고칠 것(제품 754ff2a):
+  ① server/cull/predict/predict.test.mjs:329·:353 — 해석 배치의 속도가 늘 [vx,0,0] 이라 속력 노름 오류(index.mjs:121 의 |v| 를 |vx|·L1 으로 바꾼 변이)가 predict 시험 61 개를 모두 통과(축 1a 실행, 미확인; main 도 같은 공백). 대각 속도 v=(3,0,4) 해석 사례 추가. (opus)
+  ② (F-157 ⑤ 로 올림)
+  ③ server/cull/degenerate/leaf_check.mjs:3·:7 주석은 scratch 를 Uint8Array 라 하나 priority 는 Float64Array 를 넘긴다(축 1b). '0 으로 채운 수 배열' 로 정정. (haiku)
+  ④ contracts/cull/index.mjs:7 에 'leafIndex 는 Int32Array(같은 realm)·정수' 명시 없음(축 2·7). (haiku)
+  ⑤ priority_leafindex_type.test.mjs:13-20·predict_leafindex_type.test.mjs:21-27 양성 대조·'모두 정수인 Float32Array' 사례 없음 — 1.5 사례는 isInteger 가 먼저 잡아 Int32Array 요구 제거 변이를 각 파일 혼자서는 못 잡음(축 4a·4b, 미확인). (haiku)
+  ⑥ server/cull/priority/index.mjs:46 makeBuf 의 Float64Array 할당이 가드 밖 — 매우 큰 leafCount 에서 cull: 아닌 RangeError 가능(축 7 코드 읽기, 미확인). 계약에 할당 실패는 범위 밖이라 적거나 감쌀 것. (haiku)
+- 확인 기준: 항목별 변이·직접 실행.
+- 권장 모델: 항목별 표기
+- 이력: 2026-10-03 20:40 감독 등록(축 1a·1b·2·4a·4b·7; 모두 미확인, ② 는 F-157 ⑤ 로). ① 은 기존 공백, 나머지 신규.
+
