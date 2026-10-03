@@ -1,0 +1,36 @@
+# 0022 levels[l].positions 에 대표점 위치 사본을 보관한다
+
+- 상태: 승인
+- 날짜: 2026-10-03
+- 결정한 사람: 작업자 제안·감독 승인(PR #19)
+- 관련: F-099 ③, F-104 ④, F-106 ②, 결정 0020·0021, 실험 노트 experiments/lod-fixes3.md, 제품 server/lod/hierarchy/index.mjs:10-13, contracts/lod/index.mjs:39
+
+## 맥락
+materialize 는 선택된 리프 구간의 대표점 위치를 모아 낸다. 법선·색은 levels[l] 에 리프 순서로 이미 담겨 구간 복사로 처리하지만, 위치는 indices 로 cloud.positions 를 무작위 접근(gather)해야 했다. 이를 levels[l].positions 사본으로 미리 담을지 정해야 했다. 이 선택은 코드에 이미 들어갔고 결정 기록이 없어 지금 남긴다.
+
+## 선택지
+| 선택지 | 장점 | 단점 | 근거(측정·출처) |
+|---|---|---|---|
+| (가) levels[l].positions 사본 보관(리프 순서, 구간 복사) | materialize 가 법선·색처럼 구간 복사만 한다. 선택 때마다 입력 위치를 무작위 접근하지 않는다 | 대표점당 12 B(Float32×3) 추가 메모리, build 때 단계마다 gather 1회 | 아래 근거 |
+| (나) 사본 없이 materialize 때 indices 로 cloud.positions gather(유지) | 추가 메모리 0, build 비용 없음 | 선택마다 무작위 접근. 큰 장면에서 느림 | main 의 최댓값 107 ms |
+
+## 결정
+(가) 사본을 보관한다(levels[l].positions).
+
+## 근거
+- 속도: materialize 최댓값이 main(gather)에서 107 ms 였고 사본 방식에서 54.7 ms 였다(F-106 ② 가 준 수치. 이 저장소 실험 노트에는 이 두 수치가 없다). 노트 experiments/lod-fixes3.md 항목 G 는 184만 점 materialize 최댓값 7회가 51.2~70.2 ms(< 100 ms)라고 적고, 제품 코드 주석은 "약 130 → 50~70 ms" 라고 적는다. 측정 조건과 호출 구성이 달라 숫자가 서로 다르다. 어느 쪽이든 사본 쪽이 절반 안팎으로 빠르다. 같은 조건의 재측정은 아직 없다.
+- 메모리: 250만 점 terrain(edge0M 0.05, 4단계)에서 대표점 합 5,635,019 개 × 12 B = 약 67.6 MB(단계 0 만 30 MB). F-106 의 "약 +68 MB" 와 같다.
+
+## 대가
+- 대표점당 12 B 추가. 250만 점 장면에서 약 +68 MB. 계층을 여러 개 들고 있으면 그 수만큼 곱해진다.
+- build 때 단계마다 gather 1회가 늘어 build 시간이 는다. 분리 측정은 못 했다(lod-fixes3 미달 항목).
+- 아직 절반만 쓰인다. progressive applyChunks 는 사본이 아닌 cloud.positions 를 점마다 직접 읽는다. 구간 복사로 바꾸면 이득이 늘 수 있으나 미착수다. 지금은 메모리만 쓰고 그 경로에서는 이득이 없다.
+- 입력 positions 의 리프 순서 사본이라 단계 0 은 입력과 거의 같은 데이터를 한 번 더 들고 있다.
+
+## 다시 볼 조건
+- 메모리 예산을 넘을 때(서버 힙·SPEC 의 메모리 한도). 이때 (나)로 되돌리거나 단계 0 만 사본을 생략하는 안을 검토한다.
+- 여러 장면의 계층을 캐시에 동시에 들고 가야 할 때(다중 장면 캐시). 장면 수만큼 사본이 곱해진다.
+- applyChunks 를 구간 복사로 바꾸거나, 같은 조건으로 재측정해 107 → 54.7 ms 차이가 재현되지 않을 때.
+
+## 승인 (2026-10-03 15:05 감독)
+제품 PR #19 검토에서 승인. 근거: applyChunks·materialize 모두 levels[l].positions 구간 복사로 바뀌어 사본이 두 경로에서 쓰인다(progressive/index.mjs:107). 사본은 cloud.positions 를 indices 순서로 모은 값이라 좌표 변환이 없다(hierarchy/index.mjs:106-110, 축 1b·3 확인). 축 6 측정에서 main 대비 materialize 중앙값 회귀 없음(이 클라우드 머신은 첫 호출 포함 최댓값이 main·HEAD 모두 100 ms 를 넘나드는 잡음이 있어 문턱 판정은 [local] 재측정). 남은 것: 대가 셋째 줄과 다시 볼 조건의 applyChunks 서술이 현재 코드와 어긋남(F-109 ①).

@@ -62,3 +62,4 @@
 | [0010](0010-baseline-tool-hardening.md) | 측정 도구 보강(heap 지표·worker 감시·종료코드) | 승인 | 작업자(제안), 감독 승인 |
 | [0015](0015-asset-single-format.md) | 자산 포맷 단일 포맷(27 B 점·56 B 가우시안 형식 표시) | 승인 | 작업자(제안), 감독 승인 |
 | [0016](0016-gps-enu-exact.md) | GPS↔ENU WGS-84 정확식 | 기각 | 작업자(제안), 감독 기각 |
+| [0022](0022-lod-levels-positions-copy.md) | levels[l].positions 대표점 위치 사본 보관 | 제안 | 작업자(제안) |
