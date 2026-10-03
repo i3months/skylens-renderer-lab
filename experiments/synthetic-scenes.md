@@ -38,3 +38,14 @@
 - F-081 ①②③④⑤⑥: 문구·README(한·영)·`element vertex 0x10`/`1e3` → header 오류·클라이언트 점 수 10002. ⑦ 은 PR #13 본문 오타라 기록만.
 - 서브에이전트가 연구 저장소 FEEDBACK 을 다른 브랜치에서 읽어 절을 못 찾은 일이 있었다(F1·F2·F3). 다음부터 지시문에 main 체크아웃 경로를 준다.
 
+
+## 반려 1회차 수정(PR #14, F-082~F-088)
+- 서브에이전트 10개(opus 1·sonnet 7·haiku 2), 승격 없음. 계약 헬퍼 `checkCount`·`normalizeSeed`·`checkFormat` 을 먼저 커밋(09a83ab). 통합 후 `npm test` 788 중 통과 776·실패 0·건너뜀 12(large 250만 점 시험은 이제 기본 실행). 바뀐 테스트 10회 반복 실패 0.
+- F-082: 미리보기가 ref_images `cameraExtrinsics` 로 기저를 잡는다(오른손계). 픽셀은 floor. eye(0,0,10)·64×48 에서 (3,0,0) → u=47(해석 47.44), top_down (30,0,0) → u 755.8±1, 8시점 1323개 격자점이 ref_images `projectCamera` 와 1 px 이내. u 부호·round 변형 fail.
+- F-083: 56 B 오프셋별 시험, positions 일치, fdc 역변환, scales=ln 0.05. 위치 0·opacity↔fdc 교체·scales log 빠짐 변형 fail. 장면별 format 2 시험 추가.
+- F-084: terrain·levels 법선을 시험 안 유한차분으로 검증. 이 과정에서 levels `normalAt` 의 hz 항 오류(각도 오차 0.16 rad)를 찾아 고침. 법선 부호 반전·kx↔kz 변형 fail.
+- F-085: large 250만 점 시험 기본 실행. 격자 간격이 점 수에 안 맞아 +x 띠가 비던 것을 층화 격자로 고침. flat_boxes·holes·PNG(CRC·IDAT)·드론 이동·계약 검사 시험 보강. depth_noise ① 변형(`d < best.d` → `>`)은 기본 평면 5장이 겹치지 않아 잔차 시험에서는 생존하나, 겹치는 평면 2장 보조 시험이 잡는다.
+- F-086: 7개 장면 count·seed·format, 경로, 미리보기, ply 속성 이름(`Object.hasOwn`) 입력 검증. dem 기본 시드가 0→1 로 바뀌었다. levels 는 count≥8(levels=4) 요구로 count 0 을 거부한다.
+- F-087: depth_noise 기본 기선 b=8.26 m(renderer_basis 표 1위 이웃), σ=1 px 시차(부화소 아님) 가정을 주석·truth 에 기록.
+- F-088: levels step 매핑·count 하한, 법선 단위 검사, 경로 pitch ±30° 클램프(Catmull-Rom 오버슈트 최대 36.6° 제거), measure.mjs 피크 RSS(format 1: 117 MB·165 ms, format 2: 223 MB·277 ms, Node v22.22.0), README T05 절 한·영, 결정 0018 수치 정정, enuToGps 상한 4×2πR 초과 거부(GeoError range), 여러 바퀴 감싸기 시험, 복사 측정 할당량 단언.
+- 이탈: `point27ToGauss56` 이 positions 버퍼를 입력과 공유한다(복사 제거, 장면은 만든 뒤 고치지 않음, 호출자는 복사해서 넘긴다).
