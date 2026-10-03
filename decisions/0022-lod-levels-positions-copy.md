@@ -3,7 +3,7 @@
 - 상태: 승인
 - 날짜: 2026-10-03
 - 결정한 사람: 작업자 제안·감독 승인(PR #19)
-- 관련: F-099 ③, F-104 ④, F-106 ②, 결정 0020·0021, 실험 노트 experiments/lod-fixes3.md, 제품 server/lod/hierarchy/index.mjs:10-13, contracts/lod/index.mjs:39
+- 관련: F-099 ③, F-104 ④, F-106 ②, 결정 0020·0021, 실험 노트 experiments/lod-fixes3.md, 제품 server/lod/hierarchy/index.mjs:10-13, contracts/lod/index.mjs 의 LodLevel.positions
 
 ## 맥락
 materialize 는 선택된 리프 구간의 대표점 위치를 모아 낸다. 법선·색은 levels[l] 에 리프 순서로 이미 담겨 구간 복사로 처리하지만, 위치는 indices 로 cloud.positions 를 무작위 접근(gather)해야 했다. 이를 levels[l].positions 사본으로 미리 담을지 정해야 했다. 이 선택은 코드에 이미 들어갔고 결정 기록이 없어 지금 남긴다.
@@ -33,4 +33,4 @@ materialize 는 선택된 리프 구간의 대표점 위치를 모아 낸다. �
 - 같은 조건으로 재측정해 107 → 54.7 ms 차이가 재현되지 않을 때.
 
 ## 승인 (2026-10-03 15:05 감독)
-제품 PR #19 검토에서 승인. 근거: applyChunks·materialize 모두 levels[l].positions 구간 복사로 바뀌어 사본이 두 경로에서 쓰인다(progressive/index.mjs:107). 사본은 cloud.positions 를 indices 순서로 모은 값이라 좌표 변환이 없다(hierarchy/index.mjs:106-110, 축 1b·3 확인). 축 6 측정에서 main 대비 materialize 중앙값 회귀 없음(이 클라우드 머신은 첫 호출 포함 최댓값이 main·HEAD 모두 100 ms 를 넘나드는 잡음이 있어 문턱 판정은 [local] 재측정). 남은 것: 대가 셋째 줄과 다시 볼 조건의 applyChunks 서술이 현재 코드와 어긋남(F-109 ①).
+제품 PR #19 검토에서 승인. 근거: applyChunks·materialize 모두 levels[l].positions 구간 복사로 바뀌어 사본이 두 경로에서 쓰인다(progressive/index.mjs:107). 사본은 cloud.positions 를 indices 순서로 모은 값이라 좌표 변환이 없다(hierarchy/index.mjs:106-110, 축 1b·3 확인). 축 6 측정에서 main 대비 materialize 중앙값 회귀 없음(이 클라우드 머신은 첫 호출 포함 최댓값이 main·HEAD 모두 100 ms 를 넘나드는 잡음이 있어 문턱 판정은 [local] 재측정). 남은 것: 없음(applyChunks 서술은 lod-fixes5 에서 반영됨).

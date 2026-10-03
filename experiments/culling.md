@@ -1,0 +1,37 @@
+# culling — T08.0~T08.10, F-112~F-114
+
+제품 브랜치 feat/culling, 부모 연구 브랜치 experiment/lod-fixes5. 결정 0023.
+
+## 실행 기록
+- 서브에이전트 15개: opus 3(T08.3·T08.8·F-113 ⑤), sonnet 9(T08.1·2·5·6·7·10, F-112, F-113 ①② ③④), haiku 3(T08.4·T08.9·F-114). 승격 0. 격리 작업 트리는 제품 저장소에서 서브에이전트가 직접 만들었다(저장소 오인 없음).
+- 계약 dc853b4(contracts/cull) 를 먼저 푸시했다. 실제 skylens 체크아웃은 없음([local]).
+
+## 하위 작업별 결과 (서브에이전트 보고, 통합 후 작업자가 전체 테스트로 재확인)
+| 작업 | 결과 |
+|---|---|
+| T08.1 frustum | 11건 통과. 거짓 제거 0(terrain·buildings·flat_boxes × 8시점). 제거율(%) terrain 5.8/7.8/10.3/10.3/0/70.4/27.6/75.3. 변이 3건 잡힘 |
+| T08.2 backface | 34 통과·2 todo. 앞면 점이 그려진 리프 제거 0(엄격 기하). **영상 기준 SSIM 하락 ≤ 0.002 는 flat_boxes low_close_box 1.55e-2, tower_mid 3.70e-3 에서 미달(todo 로 표시, 기준 유지)**. 원인: 참조 래스터가 법선을 쓰지 않아 앞면 표본 틈으로 뒷면 점이 비침. 제거율 flat 1~3%, terrain 낮은 시점 최대 43/265 |
+| T08.3 occlusion | 12건 통과. 24조합 거짓 제거 0. 실제 제거는 flat_boxes 시점 4·5 에서 29·66 리프뿐(원본 렌더의 빈 픽셀 32~56% 때문에 확실히 덮인 칸이 적음). 변이 4건 잡힘 |
+| T08.4 distance | 11건 통과 |
+| T08.5 predict | 9건 통과. 경로 재생 빠진 조각 0. 표본 사이 놓침 방지로 상자 부풀림(순수 OR 보다 크다) |
+| T08.6 priority | 33건 통과. 스피어만 24시점 모두 ≥ 0.7(최저 0.730) |
+| T08.7 client | 7건 통과. 서버와 불일치 0(624 조합, 큰 좌표 포함) |
+| T08.8 combine | 단위 12·품질 31 통과. 임시 절두체 단계로 SSIM 최소 flat 1.0000·terrain 0.9828·holes 0.9877. 실제 단계 모듈 통합 시험 통과(작업자 실행) |
+| T08.9 bench | 8건 통과. 중앙값 50k점 0.33 ms ~ 500k점 3.87 ms(frustum 스텁 기준, 공유 환경) |
+| T08.10 degenerate | 8건 통과. 30+21 퇴화 사례 모두 true, 던지지 않음 |
+| F-112 | ① 리프 번호 일대일 검사 ② octree 상자를 ±Float32 최댓값으로 자름 ③ O(노드) 훑기를 WeakMap 캐시. 지시의 '빈 결과' 전제와 달리 main 도 같은 입력에서 'lod:' 를 던짐을 확인. 측정 selectLevels 노드 약 37~39k: main 평균 133 ms, 작업 약 136 ms(+2%, 편차 ±30%) — 44k 노드는 못 미침 |
+| F-113 | ① 상한 주장 삭제(동치 변이) ② 규칙 max(이전 한계, 새 측정 절반)와 DISCRIM 대조 시험 ③ 실측 수치(설정 1~4: 0.292/0.268/0.298/0.256 px) ④ 이름 정정(순서 증명은 소유 경로 밖 변경 필요) ⑤ BigInt R⁻¹ 참값, cAbs 변이 3건 → 각 3건 실패 |
+| F-114 | 제품 ①④⑤⑥ 및 연구 ②③⑦ |
+
+## 발견·넘기는 것
+- 제품 결함 후보: cameraCenter·visiblePartBound 가 R 직교를 가정한다(−Rᵀt). 허용 1e-6 비직교 R 에서 ‖(R⁻¹−Rᵀ)t‖ 가 t≈1e9 에서 수십 m. 입력 검증으로 거부하거나 R⁻¹ 사용 필요(F-113 ⑤ 보고).
+- F-113 ④: F-107 ② 순서 회귀를 실제로 잡으려면 budget 이 screenErrorRule 을 주입받아야 함(소유 경로 밖).
+- 계약 보완 필요: occlusionCull 의 pointSizeM, backfaceCull 의 opts, combine 의 chunks 가 NOT_DRAWN 리프를 포함할 수 있음, 퇴화 판정(1e-6 직교 허용, 화각 1e-6 rad)이 모듈마다 자체 구현이라 통합 시 degenerate 모듈로 일원화 필요.
+- 성공 기준 수치는 바꾸지 않았다. T08.2 영상 기준 미달 2건은 감독 판단 대상.
+
+## 반려 1회 수정 (F-115·F-116·F-117, 제품 aadef5a)
+- F-115 sonnet: distance 가 leafIndex 로 노드 상자를 읽도록 수정, 계층 검사('cull:')·퇴화 시점 빈 마스크, 실제 buildHierarchy 시험과 변이 시험 추가.
+- F-116 opus: 절두체 4면에 원판 반경 여유(m = fx·pointSizeM/2, 식으로 유도), 서버·클라이언트·predict·combine 에 pointSizeM 전달. 상세 culling_F116.md. LOD 선택(selectLevels·budget·progressive)은 여전히 중심점 규칙 — 잔여로 결정 0023 에 적을 것.
+- F-117 opus: 뒷면 제거를 가림 덮임 판정과 결합해 24시점 SSIM 하락 0, todo 없음. 단 뒷면 단계가 가림 단계의 부분집합이라 독립 기여 0 — 기준 재정의는 감독 판단. 상세 culling_F117.md.
+- combine/predict 채택 sonnet 1개. 이번 실행 서브에이전트: sonnet 2, opus 2, haiku 0. 승격 없음.
+- npm test 1448 중 1436 통과·0 실패·12 건너뜀·0 todo. 실제 skylens 체크아웃 입력은 [local].
