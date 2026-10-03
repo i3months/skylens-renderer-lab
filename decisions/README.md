@@ -60,3 +60,4 @@
 | [0008](0008-merge-commit.md) | 제품 PR 은 merge commit 으로 병합 | 승인 | 사람 |
 | [0009](0009-stack.md) | T02 스택 선정 | 제안 | 작업자(제안) |
 | [0010](0010-baseline-tool-hardening.md) | 측정 도구 보강(heap 지표·worker 감시·종료코드) | 승인 | 작업자(제안), 감독 승인 |
+| [0015](0015-asset-single-format.md) | 자산 포맷 단일 포맷(27 B 점·56 B 가우시안 형식 표시) | 승인 | 작업자(제안), 감독 승인 |
