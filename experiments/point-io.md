@@ -48,3 +48,30 @@ skylens `geo.ts` 가 근사식이면 1 km 에서 m 단위 차이가 난다. 식 
 npm test
 node --test server/geo/enu/enu.test.mjs client/geo/geo.test.mjs
 ```
+
+## 반려 1회차 수정 (2026-10-03, 제품 feat/point-io acb3818 이후)
+
+반려 사유 F-071(높음)과 F-072·F-073·F-074 를 같은 브랜치에서 처리했다.
+
+### F-071·F-072 — GPS↔ENU 를 skylens `geo.ts` 식으로 교체
+- 기준: NET-Challenge-S13/skylens develop `src/shared/geo.ts`(커밋 59edcf9). `e = Δλ·R·cos(φ0)`, `n = Δφ·R`, `u = alt − alt0`, R = 6378137 m. 서버 `server/geo/enu` 와 클라이언트 `client/geo` 모두 이 식. 정확식은 `gpsToEnuExact`/`enuToGpsExact` 로만 남겼고 기본 경로에서 쓰지 않는다. 결정 0016 은 감독이 기각했으므로 새 결정 기록 없음.
+- 테스트: geo.ts 를 옮긴 기준 함수 대비 앵커 5곳(서울 37.5665, 126.978, 30 포함), 반경 0.1·1·10·50 km, 각 1만 점. 최대 차 0 m(같은 연산 순서), 왕복 ≤ 1.4e-9 m. 기준 ≤ 1 mm 충족. 변형 시험: R 을 6371000 으로, cos(φ0) 를 cos(점 위도)·cos(φ0·1.0001) 로, u 부호 반전 등 모두 테스트 실패.
+- F-072: 배열 [e,n,u] 표현 유지, 배열이 아닌 입력은 GeoError('range'), −0 은 +0 으로 정규화(n=0 에서 두 경로 deepStrictEqual 같음), skylens 함수 이름 6개(gpsToEnu·enuToGps·enuToScene·sceneToEnu·gpsToScene·sceneToGps) 제공, 객체↔배열 어댑터 추가.
+- 이전 서버·클라이언트 대조 테스트가 같은 식끼리라 못 잡던 문제는 기준 함수 대조로 해결.
+
+### F-073
+① ply_stream chunkPoints 상한 2^20·vertexCount 상한 2^30 → PointsError('range'). ⑤ 입력 형 검사, 헤더 누적 O(n)(1바이트 청크 1M 개 약 190 ms). ②③ points_stat: 비유한 좌표 거부(PointsError('range')), 길이 불일치 PointsError('size'), 변형 12종 생존 0. ④ parsePlyHeader 는 복사 없이 앞 1 MiB 만 본다(250만 점 27 B 에서 추가 arrayBuffers 0 B). 이 한도를 쓰는 bench ref_images 의 긴 헤더 경로는 `maxHeaderBytes` 인자로 유지. ⑥ enuToGps 결과 비유한이면 GeoError('range').
+
+### F-074
+①②③ 문구·주석(색 이름은 관례 가정임을 명시), 실제 56 B 헤더 리터럴 테스트. ④ 메모리 테스트: 청크마다 GC 후 보유량으로 이름 변경, 27 B·56 B 모두, 측정 증가량 27 B 0.3~1.8 MB·56 B 2.7~4.0 MB(한도 32 MB 유지). ⑤ 변형 생존 0. ⑥ 헤더 구조 검사로 교체. ⑦ 클라이언트 테스트를 기준 함수 대조로 재작성. ⑧ times=2 로 변경(검사 제거 시 실패 확인). ⑨ 벽시계 단언 → arrayBuffers 증가량·최솟값 비교, 20회 연속 통과. ⑩ segments 는 규칙 밖 이름을 `rejected` 로 분리(빠진 수준은 채우지 않음). ⑪ writer 색 직접 대입(250만 점 쓰기 212 ms → 107 ms).
+
+### 실제 skylens 체크아웃 검증
+develop 얕은 체크아웃의 `res/static/demo/segments/*.ply` 16개를 `readPly` 로 읽어 모두 성공(점 합계 749,400).
+
+### 전체 테스트
+`npm test`: 619 중 통과 607·실패 0·건너뜀 12.
+
+### 이 실행에서 겪은 일
+- 서브에이전트 격리 작업 트리가 제품 main 에서 시작되어 feat/point-io 코드가 없었다. 계약 커밋 위에서 시작한다는 전제가 지켜지지 않아 일부는 직접 만든 작업 트리(/home/user/wt/*)로 재지정했다. 다음 작업자는 팬아웃 전에 작업 트리가 계약 커밋 위인지 확인하고, 지시문에 "먼저 `git checkout -B feat/<이름>--<번호> feat/<이름>`" 을 넣는다.
+- R3d(haiku)가 F-074⑧ 의 대상 파일을 잘못 짚어 작업자가 직접 처리했다. 모델 승격은 없었다.
+- 서브에이전트 개수: opus 2·sonnet 5·haiku 5(12개).
