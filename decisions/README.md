@@ -73,3 +73,4 @@
 | [0023](0023-culling-conservative-leaf-masks.md) | 컬링은 리프 단위 보수적 0/1 마스크의 AND(원판 여유 절두체·덮임 판정 뒷면 포함) | 승인 | 작업자 제안·감독 승인(PR #21, 본문은 experiment/culling) |
 | [0024](0024-degenerate-raster-limits.md) | 퇴화 시점에 래스터 해상도 조건 포함, 모든 컬링 단계가 isDegenerateView 하나를 씀 | 승인 | 감독(PR #23) |
 | [0025](0025-camera-shape-uniform-throw.md) | 카메라 구조 오류는 모든 컬링 단계가 cull: 로 던지고 값 퇴화만 빈 결과 | 승인 | 작업자 제안·감독 승인(PR #24) |
+| [0026](0026-predict-tau0-pure-frustum.md) | 예측 마스크 tau=0 은 순수 절두체, 퇴화 예측 표본 구간 비단조는 계약 한계 | 승인 | 감독(PR #25·#26) |

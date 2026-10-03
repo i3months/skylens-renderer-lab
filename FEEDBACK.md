@@ -1439,7 +1439,7 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 16:55 감독 등록(축 2, 미확인). 신규. → 2026-10-03 18:00 작업자 처리(제품 e3964bd) → 감독 확인 닫음(stale_box_cache 시험 통과, 비교 제거 변이 실패 — 축 4a). 같은 결함이 원뿔 캐시에 새로 생긴 것은 F-135
 
-### F-131 [열림] (심각도: 낮음) — PR #22 잔여 묶음
+### F-131 [닫힘] (심각도: 낮음) — PR #22 잔여 묶음
 - 위치·고칠 것(제품 e9c6eaf):
   ① server/cull/occlusion/index.mjs:21·32-35 — 측정 서술(100만 점 ms·제거 리프 전후 수치)은 연구 노트로 옮기고 제품 주석은 판정 원리만(저장소 분리, 축 11). (haiku)
   ② contracts/cull/index.mjs:69 — occlusion 서명에 maxOccluderPoints(기본 262144)·반환 occluderPoints·pointSizeM 기본 0.05 반영(축 2). (haiku)
@@ -1451,7 +1451,7 @@
   ⑧ server/cull/occlusion/occlusion.test.mjs:88·104 — 장면 하한이 합 95 → 시점 4·5 각 ≥ 1 로 약해져 장면 시험은 어떤 occlusion 변이도 잡지 않음(판별은 occlusion_unit 이 맡음). 구조 논증으로 더 높은 하한을 둘 수 있으면 올림(축 4a·5). (sonnet)
 - 확인 기준: 항목별 grep 또는 변이.
 - 권장 모델: 항목별 표기
-- 이력: 2026-10-03 16:55 감독 등록(축 1a·1b·2·3·4a·5·11; ⑤ 감독 직접 확인, 나머지 미확인). 신규. → 2026-10-03 18:00 감독: ②③④⑤⑦ 처리 확인(축 2 계약 대조). 남음 ⑥(구멍 난 R·t — 이제 assertCameraShape 의 every 가 구멍을 건너뛰어 서버·클라이언트 모두 퇴화로 빈 결과, 계약 :7 은 수가 아닌 값=던짐. degenerate/index.mjs:58-59·client/cull/index.mjs:47-48 인덱스 루프로)·⑧. 열림 유지 → 2026-10-03 작업자(제품 759d7e5): ⑥ 인덱스 루프 처리, ⑧ 은 더 높은 기하 하한을 도출하지 못해 하한 유지·주석만(감독 판단 요청)
+- 이력: 2026-10-03 16:55 감독 등록(축 1a·1b·2·3·4a·5·11; ⑤ 감독 직접 확인, 나머지 미확인). 신규. → 2026-10-03 18:00 감독: ②③④⑤⑦ 처리 확인(축 2 계약 대조). 남음 ⑥(구멍 난 R·t — 이제 assertCameraShape 의 every 가 구멍을 건너뛰어 서버·클라이언트 모두 퇴화로 빈 결과, 계약 :7 은 수가 아닌 값=던짐. degenerate/index.mjs:58-59·client/cull/index.mjs:47-48 인덱스 루프로)·⑧. 열림 유지 → 2026-10-03 작업자(제품 759d7e5): ⑥ 인덱스 루프 처리, ⑧ 은 더 높은 기하 하한을 도출하지 못해 하한 유지·주석만(감독 판단 요청) → 2026-10-03 18:45 감독: ⑥ 서버 쪽 확인(축 1b·4b, every 복귀 변이 실패). 클라이언트 구멍 시험 공백은 F-142 ① 로 분리(감독 재현). ⑧ 감독 판단: 구조 논증 없는 측정값 하한 금지 원칙에 따라 하한 유지 승인(판별은 occlusion_unit). 다만 주석의 판별 위임 주장은 REL=0.05 변이가 양쪽 생존(축 4b, 미확인) → F-143 ④. 닫음
 
 ### F-132 [닫힘] (심각도: 중간) — 카메라 구조 오류(필드 누락·타입 배열·문자열 수)에서 단계마다 던짐/빈 결과가 갈린다
 - 위치: 제품 contracts/cull/index.mjs:7, server/cull/degenerate/index.mjs:28-30, server/cull/occlusion/index.mjs:95-102, server/cull/combine/index.mjs:81-88, server/cull/distance/distance_degenerate.test.mjs:34-35 (feat/cull-degenerate-unify e1d2ef4)
@@ -1474,7 +1474,7 @@
 - 권장 모델: sonnet(④ 는 opus)
 - 이력: 2026-10-03 17:15 감독 등록(축 4a·4b·5; ② 감독 직접 확인, 나머지 미확인). 신규. → 2026-10-03 18:00 작업자 처리(제품 eec2cd3·50fc7ac·ff78313·1728941·616ec8a) → 감독 확인 닫음(축 4a·4b 변이: predict :102 변이·distance 퇴화 삭제·backface 퇴화 분기 삭제·폴백 0.05·occlusion ×1.01 시드 12/12 모두 실패). backface ×1.01 자기 점검이 시험 안에 없는 잔여는 F-137 ③
 
-### F-134 [열림] (심각도: 낮음) — PR #23 잔여 묶음
+### F-134 [닫힘] (심각도: 낮음) — PR #23 잔여 묶음
 - 위치·고칠 것(제품 e1d2ef4):
   ① contracts/cull/index.mjs:9-11 — 퇴화 조건 목록에 '시야각 1e-6 rad 미만' 이 빠짐(구현 degenerate/index.mjs:27·client :27 에는 있음). degenerate/index.mjs:2-3 주석과 항목 단위로 맞춘다(축 1a·2). (haiku)
   ② server/cull/combine/index.mjs:24 — 안 쓰는 assertCamera import(감독 직접 확인), :90 주석 '퇴화 조건은 raster 카메라 검사 실패와 같다' 는 이제 틀림(isDegenerateView 는 상위집합). (haiku)
@@ -1486,7 +1486,7 @@
   ⑧ combine_removal_005.test.mjs 단독 6.3 s — 점 수·시점 수 축소 검토(축 6). (haiku)
 - 확인 기준: 항목별 grep·변이·실행 시간.
 - 권장 모델: 항목별 표기
-- 이력: 2026-10-03 17:15 감독 등록(축 1a·2·4a·4b·6·7·11; ②④ 감독 직접 확인, 나머지 미확인). 신규. → 2026-10-03 18:00 감독: ①②③④⑦⑧ 처리 확인. 남음 ⑤ 일부(degenerate_holes·frustum 이름). ⑥ 은 시간 상한을 10배(1000→10000, 5000→50000 ms, client/cull/degenerate_unified.test.mjs:155·168)로 늘려 처리했으나 주석의 '결과 검사가 할당 회귀를 잡는다' 는 사실과 다름(값·길이만 봄) — 주석 정정 또는 작업량 단언으로. 열림 유지 → 2026-10-03 18:30 감독: ⑤ 처리 확인(제품 5983141). 남음 ⑥. 열림 유지 → 2026-10-03 작업자(제품 759d7e5): ⑥ 벽시계 단언을 할당량·원소 읽기 횟수 단언으로 대체
+- 이력: 2026-10-03 17:15 감독 등록(축 1a·2·4a·4b·6·7·11; ②④ 감독 직접 확인, 나머지 미확인). 신규. → 2026-10-03 18:00 감독: ①②③④⑦⑧ 처리 확인. 남음 ⑤ 일부(degenerate_holes·frustum 이름). ⑥ 은 시간 상한을 10배(1000→10000, 5000→50000 ms, client/cull/degenerate_unified.test.mjs:155·168)로 늘려 처리했으나 주석의 '결과 검사가 할당 회귀를 잡는다' 는 사실과 다름(값·길이만 봄) — 주석 정정 또는 작업량 단언으로. 열림 유지 → 2026-10-03 18:30 감독: ⑤ 처리 확인(제품 5983141). 남음 ⑥. 열림 유지 → 2026-10-03 작업자(제품 759d7e5): ⑥ 벽시계 단언을 할당량·원소 읽기 횟수 단언으로 대체 → 2026-10-03 18:45 감독: ⑥ 확인(축 4b: 읽기 횟수 단언은 순서 변이 D·E, 할당량 단언은 H·H2·I·I2 변이에서 실패; 축 5: 시간 상한 삭제·문턱 완화 없음). 할당 측정 사각지대는 F-143 ⑤. 닫음
 
 ### F-135 [닫힘] (심각도: 중간) — 모듈 수준 법선 원뿔 캐시가 계층 객체만 키로 써서, 같은 객체에 배열을 바꿔 끼우면 낡은 원뿔로 뒷면 판정한다(F-130 과 같은 결함, 이번 PR 이 새로 만듦)
 - 위치: 제품 server/cull/combine/index.mjs:33-40(coneCache·cachedNormalCones), 사용처 :59, backface/index.mjs:94-97(checkCones 는 길이만 검사) (feat/cull-review-fixes 616ec8a)
@@ -1530,25 +1530,25 @@
   ⑧ 연구 노트 experiments/cull_review_fixes.md — F-133④ 문구를 시험과 맞춤(F-137 ③ 과 함께). (haiku)
 - 확인 기준: 항목별 grep·변이.
 - 권장 모델: 항목별 표기
-- 이력: 2026-10-03 18:00 감독 등록(축 1a·1b·4a·5). 신규. → 2026-10-03 18:30 감독: ①②③⑥ 처리 확인. ④ occlusion 쪽은 확인, backface 쪽 판별 실패 → F-140 으로 분리(중간). ⑤ 형식만 처리(판별력 없음) → F-141 ②. ⑦ 감독 판단: 기존 계약(tau=0 은 순수 절두체) 유지 승인 — 비현실 입력이고 tau>0 쪽은 보수적으로 남김. 남은 일은 docstring(predict/index.mjs:88-89)과 CULL_API.predict 에 '모든 예측 표본의 부풀림이 비유한이면 표본 사이는 덮지 않음(비단조 가능)' 한 줄. ⑧ 노트 문구. 열림 유지(⑤⑦⑧, 낮음)
+- 이력: 2026-10-03 18:00 감독 등록(축 1a·1b·4a·5). 신규. → 2026-10-03 18:30 감독: ①②③⑥ 처리 확인. ④ occlusion 쪽은 확인, backface 쪽 판별 실패 → F-140 으로 분리(중간). ⑤ 형식만 처리(판별력 없음) → F-141 ②. ⑦ 감독 판단: 기존 계약(tau=0 은 순수 절두체) 유지 승인 — 비현실 입력이고 tau>0 쪽은 보수적으로 남김. 남은 일은 docstring(predict/index.mjs:88-89)과 CULL_API.predict 에 '모든 예측 표본의 부풀림이 비유한이면 표본 사이는 덮지 않음(비단조 가능)' 한 줄. ⑧ 노트 문구. 열림 유지(⑤⑦⑧, 낮음) → 2026-10-03 18:45 감독: ⑤ 처리 확인(F-141 ② 로, 축 4a 변이 실패). ⑦ 문구 반영됐으나 감독이 지시한 문구가 원인을 잘못 짚음(비유한 부풀림 표본은 보수적으로 남고, 덮지 않는 원인은 퇴화 표본 건너뛰기 predict/index.mjs:113) → 결정 0026 기록, 문구 정정은 F-143 ②. ⑧ 미처리. 열림 유지(⑧, 낮음)
 
-### F-139 [처리됨-검증대기] (심각도: 중간) — predict 경로 재생 시험이 회전 부풀림 절반 회귀를 잡지 못한다
+### F-139 [닫힘] (심각도: 중간) — predict 경로 재생 시험이 회전 부풀림 절반 회귀를 잡지 못한다
 - 위치: 제품 server/cull/predict/predict.test.mjs:108-127(경로 재생), 구현 server/cull/predict/index.mjs:124(far) (feat/cull-review-fixes2 0d6df7b)
 - 문제: 회전 변위 상한의 거리 항 far 를 0.5배로 줄여도 predict 시험 16/16 통과(감독 직접 재현, scratchpad sup). 0.1배여야 실패(축 4a). 회전만 있는 경우의 구현 식과 독립인 하한 시험이 없다. 과잉 쪽 회전 상한(:192-204 allowedUnion)은 구현 식 복사라 순환(×1.5 생존, 축 4a 미확인).
 - 실패 시나리오: 회전 항 계수·거리 계산 회귀로 상한이 절반이 되면 표본 사이 시각에서만 보이는 리프가 예측 마스크에서 빠지는데(거짓 제거) CI 는 통과.
 - 고칠 것: 회전만 있는 사례에서 '현재 표본에서는 안 보이고 표본 사이 시각 τ 에서만 보이는 리프가 있음' 을 전제로 단언하고 그 리프가 마스크에 있는지 확인(steps 를 성기게, ω 크게). 과잉 상한은 구현과 독립인 기하 상한(2·far·sin(ωΔ/2) 등)으로.
 - 확인 기준: far ×0.5 변이 → predict 시험 실패. 회전 항 ×1.5 변이 → 과잉 시험 실패.
 - 권장 모델: opus
-- 이력: 2026-10-03 18:30 감독 등록(축 4a, far×0.5 는 감독 직접 재현). 신규(기존 시험의 공백, 이번 PR 이 만든 결함 아님). → 2026-10-03 작업자 처리(제품 759d7e5, experiments/cull_review_fixes3.md): predict_rotation.test.mjs 신규, far×0.5·회전 ×1.5 수동 변이 실패 확인
+- 이력: 2026-10-03 18:30 감독 등록(축 4a, far×0.5 는 감독 직접 재현). 신규(기존 시험의 공백, 이번 PR 이 만든 결함 아님). → 2026-10-03 작업자 처리(제품 759d7e5, experiments/cull_review_fixes3.md): predict_rotation.test.mjs 신규, far×0.5·회전 ×1.5 수동 변이 실패 확인 → 2026-10-03 18:45 감독: 확인 기준 직접 실행 — 사본 far×0.5·회전 항×1.5 변이 각각 predict_rotation 2건 실패, 원본 18/18 통과(제품 759d7e5). 닫음. 판별력 잔여(×0.7 은 :84 스냅숏만 잡음)는 F-142 ④
 
-### F-140 [처리됨-검증대기] (심각도: 중간) — backface 상자 캐시의 positions 비교를 지워도 시험이 통과한다(F-138 ④ backface 쪽)
+### F-140 [닫힘] (심각도: 중간) — backface 상자 캐시의 positions 비교를 지워도 시험이 통과한다(F-138 ④ backface 쪽)
 - 위치: 제품 server/cull/stale_box_cache.test.mjs:68-72, 구현 server/cull/backface/index.mjs:156(tb.pos === pos) (0d6df7b)
 - 문제: :156 의 tb.pos === pos 를 지운 사본에서 stale_box_cache 4/4 통과(감독 직접 재현). 이 시험은 occlusion 캐시를 거쳐서만 실패하고 이동량 dz=3 이 backface 상자 판정을 바꾸지 못한다(축 4b). dz 를 크게 하면 오라클(새로 만든 계층)이 낡은 octree 와 맞지 않아 변이 없이도 실패.
 - 실패 시나리오: 같은 계층 객체에 positions 만 바꿔 끼우면 backface 가 낡은 상자로 판정하는데 시험은 통과.
 - 고칠 것: 오라클을 같은 필드의 새 객체(fresh = bface({ ...h, levels: h.levels.map(l => ({ ...l })) }))로 바꾸고 backface 판정이 바뀌는 이동(축 4b 탐침에서 dz=30)을 쓴다. 전제로 '새 객체 결과 ≠ 이동 전 결과' 단언.
 - 확인 기준: backface/index.mjs:156 positions 비교 삭제 변이 → 시험 실패, 원본 통과.
 - 권장 모델: sonnet
-- 이력: 2026-10-03 18:30 감독 등록(축 4b, 감독 직접 재현). 신규(F-138 ④ 처리의 판별력 공백). → 2026-10-03 작업자 처리(제품 759d7e5, experiments/cull_review_fixes3.md): 오라클 새 객체·dz=30, positions 비교 삭제 변이 실패 확인
+- 이력: 2026-10-03 18:30 감독 등록(축 4b, 감독 직접 재현). 신규(F-138 ④ 처리의 판별력 공백). → 2026-10-03 작업자 처리(제품 759d7e5, experiments/cull_review_fixes3.md): 오라클 새 객체·dz=30, positions 비교 삭제 변이 실패 확인 → 2026-10-03 18:45 감독: 확인 기준 직접 실행 — backface/index.mjs:156 tb.pos 비교 삭제 사본에서 stale_box_cache 4건 중 1건 실패, 원본 4/4 통과. 닫음. leafStart 비교 공백은 F-143 ③
 
 ### F-141 [열림] (심각도: 낮음) — PR #25 잔여 묶음(대부분 미확인)
 - 위치·고칠 것(제품 0d6df7b):
@@ -1562,5 +1562,31 @@
   ⑧ 연구 노트 experiments/cull_review_fixes2.md — 수동 변이 결과는 '시험 코드에 미포함' 표기, 마지막 줄 ⑥ 처리/미처리 모순 정리(축 5). (haiku)
 - 확인 기준: 항목별 변이·grep.
 - 권장 모델: 항목별 표기
-- 이력: 2026-10-03 18:30 감독 등록(축 2·4a·4b·5·6·7; ① 감독 직접 확인, 나머지 미확인). 신규. → 2026-10-03 작업자 처리(제품 759d7e5): ①~⑦ 처리, ⑧ 노트 정정(변이 다수는 수동 표기). 열림 유지(검증 대기)
+- 이력: 2026-10-03 18:30 감독 등록(축 2·4a·4b·5·6·7; ① 감독 직접 확인, 나머지 미확인). 신규. → 2026-10-03 작업자 처리(제품 759d7e5): ①~⑦ 처리, ⑧ 노트 정정(변이 다수는 수동 표기). 열림 유지(검증 대기) → 2026-10-03 18:45 감독: ①②③④⑤⑥⑧ 처리 확인(②③④ 축 4a 실제 변이로 실패 확인, ① 데우기 루프 확인). ⑦ 미처리 — 노트는 처리했다고 적었으나 combine/index.mjs 변경 없음, cachedNormalCones(null) 이 여전히 TypeError(감독 직접 실행). 열림 유지(⑦, 낮음). ④ 의 export 단언 항상 참 문제는 F-143 ①
 
+### F-142 [열림] (심각도: 중간, 일부 미확인) — PR #26 시험 판별력 공백
+- 위치·고칠 것(제품 759d7e5):
+  ① client/cull/index.mjs:47-50 — 클라이언트 구멍(희소 배열) 검사를 지키는 시험이 없다. client/cull/index.mjs 를 a1b55ea 판(every)으로 되돌린 사본에서 client/cull·server/cull/degenerate·camera_shape_unified·contracts/cull 시험 337/337 통과(감독 직접 재현). 서버는 던지고 클라이언트는 빈 마스크로 조용히 갈릴 수 있다. client/cull/degenerate_unified.test.mjs:208-217 STRUCTURAL 에 'R 구멍'(delete R[1])·'t 구멍'([0,,0]) 사례를 넣고 assertCameraShapeClient·clientFrustumCull 이 /cull:/ 로 던짐을 단언. 서버 camera_shape_unified.test.mjs:28 BAD_SHAPE 에도 같이. (haiku)
+  ② server/cull/camera_shape_unified.test.mjs:91-94 — 값 퇴화 사례 중 leafPriority·orderChunks 는 단언 없이 return(감독 직접 확인). 6개 사례가 항상 통과. leafPriority 는 length===n && 전부 0, orderChunks 는 length===0 단언(축 4a: 우선순위 퇴화 판정을 약화한 변이 G1 생존, 미확인). (haiku)
+  ③ server/cull/priority/priority_resolution.test.mjs:198-204 — '합법 극단 해상도는 정상 출력' 시험이 유한·≥0·집합 동일·할당 상한만 봐서 전부 0 점수도 통과(축 4a 변이 G4: width*height>1e6 이면 0 반환 → 191/191 통과, 미확인). 해상도별 0 아닌 점수 존재(구조 논증으로 정한 하한) 단언. (sonnet)
+  ④ server/cull/predict/predict_rotation.test.mjs:35-58·84 — 기하 하한 시험이 회전 항 ×0.6 부터만 실패하고, ×0.7~0.95 는 :84 의 마스크 크기 스냅숏(81·147·165)만 잡는다(축 1a·4a 일치 보고, 미확인). 스냅숏은 구현 출력이라 머리 주석 '기하만으로 판정' 과 맞지 않는다. 변위가 시선 근처 한 축에 가까운 배치에서 '현 길이 0.95배로는 못 덮고 1.0배로는 덮는' 리프를 전제로 단언하는 하한 사례를 추가하고, 스냅숏은 주석에 스냅숏이라 밝히거나 뺀다. (opus)
+- 실패 상황: 각 항목의 변이(클라이언트 every 복귀, 우선순위 퇴화 약화, 합법 해상도 0 점수, 회전 항 ×0.8)가 CI 를 통과한다.
+- 확인 기준: ① 클라이언트만 a1b55ea 판으로 되돌린 사본에서 새 사례 실패. ② G1 변이에서 실패. ③ G4 변이에서 실패. ④ :84 를 지운 상태에서 회전 항 ×0.9 변이가 기하 단언으로 실패, 원본 통과.
+- 권장 모델: 항목별 표기(① ② haiku, ③ sonnet, ④ opus)
+- 이력: 2026-10-03 18:45 감독 등록(축 1a·1b·4a·4b; ①② 감독 직접 확인, ③④ 미확인). 신규 — 모두 이번 PR 이 바꾸거나 추가한 시험·코드의 판별력이라 범위 밖 끌어오기 아님.
+
+### F-143 [열림] (심각도: 낮음) — PR #26 잔여 묶음(대부분 미확인)
+- 위치·고칠 것(제품 759d7e5):
+  ① contracts/cull/cull.test.mjs:105-106 — `typeof === 'function' || typeof !== 'undefined'` 는 사실상 '정의됨' 만 봐서 비함수 export 도 통과(감독 직접 확인). `typeof mod[fnName] === 'function'` 만. (haiku)
+  ② contracts/cull/index.mjs:72, server/cull/predict/index.mjs:90 — 한계 문구를 결정 0026 대로 '예측 표본(tau>0)이 모두 퇴화면 표본 사이는 덮지 않음(horizon 에 대해 비단조 가능)' 으로 정정(감독 지시 문구의 오류). :127 주석도 맞춘다. (haiku)
+  ③ server/cull/backface/index.mjs:156, occlusion/index.mjs:108 — leafStart 비교를 지워도 stale_box_cache 통과(축 4b). leafStart 만 바꿔 끼우는 사례 추가. (haiku)
+  ④ server/cull/occlusion/occlusion.test.mjs:30-35 — '보수적 변이는 occlusion_unit 이 판별' 주석이 REL=0.05 변이(제거 66→63)에서 거짓(축 4b). 주장 축소 또는 깊이 허용오차 경계 단위 시험. (sonnet)
+  ⑤ client/cull/degenerate_unified.test.mjs:26-41 trackAlloc — 일반 Array·ArrayBuffer·TypedArray.from 미집계(축 4b 변이 J 생존). 한계 주석 또는 감싸기. 시험 안 4_000_000 은 MAX_COARSE_CELLS 를 import(축 2·5). (haiku)
+  ⑥ server/cull/degenerate/degenerate_holes.test.mjs:118-121 — 단언 삭제 뒤 :114-116 과 같은 시험이 됨. 지우거나 이름에 맞는 단언(축 4b). (haiku)
+  ⑦ server/cull/predict/predict.test.mjs:287·294-295 — 판별 전제가 구현 상수 1.0001·1e-9 를 복사해 리프 단위 완전 일치를 요구. :199 allowedUnion 의 결합 운동 상한도 구현 식 복사(교차항 삭제 변이 생존). 결합 운동에 독립 상한 |v|·hh + 2·far·sin(ω·hh/2)(축 1a·4a). (sonnet)
+  ⑧ bench/cull/real_stages.mjs:110-112 — 데우기 루프가 cam 을 안 씀, 한 번 호출로(축 2·6). (haiku)
+  ⑨ 견고성(축 7, 운영 경로 미도달): 접근자가 던지는 카메라가 assertCameraShape(degenerate/index.mjs:55)·클라이언트 :44 에서 cull: 아닌 원래 오류로 샘. leafBoxesOf(null) TypeError(client/cull/index.mjs:55). 리프 0 개 계층에서 서버 predict(:62) 는 던지고 클라이언트는 빈 마스크. 계약 :7 에 '희소 배열 구멍 = 구조 오류' 명시(축 1b). (haiku)
+  ⑩ 연구 노트 experiments/cull_review_fixes3.md — F-141 ⑦ '처리' 서술 정정. 축 5 의 다른 실행에서 tests/ 브라우저 PSS 시험(100 MiB 픽스처) 1건 실패 — 감독 실행은 0 실패라 환경 의존으로 보이나, 노트에 알려진 환경 의존 시험으로 적는다. (haiku)
+- 확인 기준: 항목별 변이·grep.
+- 권장 모델: 항목별 표기
+- 이력: 2026-10-03 18:45 감독 등록(축 1a·1b·2·4a·4b·5·6·7; ① 감독 직접 확인, 나머지 미확인). 신규.
