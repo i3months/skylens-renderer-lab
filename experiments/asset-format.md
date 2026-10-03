@@ -19,10 +19,10 @@
 | T03.8 | `client/asset/` | `client_header_parity` 두 형식 | 통과(`node:`·Buffer 미사용 소스 검사 포함) |
 | T03.9 | `server/asset/determinism/` | 같은 입력 두 번 → 바이트 동일 | 통과(실제 packChunk 통합 시험 포함) |
 | T03.10 | `server/asset/compat/` | `compat_matrix` | 통과(골든 2종 × 21행) |
-| T03.11 | `server/asset/fuzz/` | 10만 회 패닉·무한 루프 0 | 통과, 대상 9개 전부 fail 0, 최대 11.3 ms |
+| T03.11 | `server/asset/fuzz/` | 10만 회 패닉·무한 루프 0 | 통과, 대상 9개 전부 fail 0, 유휴 부하에서 호출당 최대 7.88 ms(부하 아래에서는 감독이 45 ms 까지 관측) |
 | T03.12 | `server/asset/pack/` | 골든과 바이트 동일 | 통과(점 27·가우시안 56 둘 다) |
 
-전체 `npm test`: 458개 중 통과 446, 실패 0, 건너뜀 12(기존 환경 의존 시험).
+전체 `npm test`: 반려 수정 전 458개 중 통과 446·실패 0·건너뜀 12, 수정 뒤 510개 중 통과 498·실패 0·건너뜀 12(기존 환경 의존 시험).
 
 ## 역변환 최대 관측 오차 (T03.7, 명세 §8 상한은 낮추지 않음)
 
@@ -55,3 +55,21 @@
 npm test
 node tools/asset_validate/cli.mjs fixtures/asset_golden/point27.skla   # 위반 0, 종료코드 0
 ```
+
+## 반려 1회차 수정 (PR #12 감독 검토 → F-060~F-067)
+서브에이전트 10개: opus 1(F-061), sonnet 7, haiku 2. 승격 0건. 상한(`contracts/asset/index.mjs` ERROR_BOUNDS) 변경 없음.
+
+| 항목 | 처리 | 직접 확인한 결과 |
+|---|---|---|
+| F-060 | `checkDeterminism` 기본 packFn = 정적 import 한 packChunk, times 정수 검사, 결과를 쌓지 않고 비교, 실제 pack 테스트의 skip 제거 | pack 에 문법 오류를 넣으면 determinism 테스트 fail(서브에이전트 확인), 두 형식 packFn 생략 호출 identical true |
+| F-061 | 상한 시험이 제품 `packChunk` 사용, 색 코드 0..255·불투명도 q 0..255 끝점 f32 사례, quantExp 등호 경계(65535/1024·512·256), 접힘 법선·회전 m=3 사이드카 | 변형 3종 각각 작업자가 직접 실패 확인: (a) unpack f_dc `f32Toward`→`Math.fround` unpack 테스트 fail 1, (b) 불투명도 같은 변형 fail 1, (c) pack 등호 `<=`→`<` pack 테스트 fail 1 |
+| F-062 | 명세·0015 의 형식 1 점당 13 B → 11 B(40.7%), S6 추정 27.5 MB·약 27만 점 | `grep '13 B\|13n' format/ASSET_FORMAT.md` 0건 |
+| F-063 | `packChunk` lod 정수·0..7 검사('field') | `pack_lod.test.mjs` 통과 |
+| F-064 | 클라이언트 codec·quantExp·pointCount·tileSizeM·길이 검사, 음성 테스트 | 서브에이전트가 검사별 변형 8종 전부 fail 확인 |
+| F-065 | `f32Toward`·회전 복원의 점당 할당 제거(출력 비트 동일: f32Toward 100만 값 불일치 0, 30만 점 조각 바이트 차이 0) | 100만 점 unpackChunk 3회 중 최소, 유휴 부하: 가우시안 56 394 ms(목표 ≤ 500 ms, 수정 전 약 3.0~3.4 s), 점 27 135 ms. 측정: 스크래치의 bench 스크립트(pack 으로 조각을 만들고 unpackChunk 3회) |
+| F-066 | 검증기 손상 6종 추가, unpack 음성 29건(새 파일), 퍼저는 파일이 있을 때의 import 실패를 fail 로, OFFSETS 단언, 'validator failure' 단언 | 검사별 변형 각각 fail ≥ 1(서브에이전트 확인) |
+| F-067 | ①~⑤ 명세 문구(⑤ 중복 키·앵커 책임), ⑥ verifyChecksum 입력 방어, ⑦ unpack JSDoc 검사 범위, ⑧ 테스트 정리, ⑨ generate.mjs 부호화 함수 export | 전체 테스트 통과. ① 의 SPEC 문구(연구 SPEC.md:72)는 감독이 맞추기로 한 것이라 건드리지 않음 |
+
+추가 수정(작업자): 퍼저 전체 예산 60 s 를 벽시계에서 CPU 시간(`process.cpuUsage`)으로 바꿨다. 병렬 부하 30~50 에서 벽시계 예산 초과로 `fuzz_no_panic` 이 간헐 실패했고(CPU 는 약 14 s), 이것이 발견 3 의 원인 미확인 실패의 정체로 보인다(이름이 확인된 실패 전부 `fuzz_no_panic`). 벽시계 응답 없음 가드는 CPU 예산의 10배(600 s)로 둔다. 호출당 50 ms 상한은 그대로다.
+
+남는 한계: f_dc·불투명도의 저장 구간 위쪽 끝 동점에서 f32 출력이 상한을 최대 1 f32 ulp 넘을 수 있다(R2 서브에이전트 측정: f_dc 79개 코드, 불투명도 119개 코드). 명세 §8 문장에 반영된 f32 반올림 항 안이며 테스트는 위쪽 끝에서만 이 항을 허용한다. 엄격한 상한이 필요하면 코드마다 f32 값을 고르는 방식이 필요하지만 구간 폭이 약 1 ulp 라 존재하지 않을 수 있다(미결).
