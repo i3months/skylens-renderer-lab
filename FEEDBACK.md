@@ -801,7 +801,7 @@
 - 이력: 2026-10-03 10:25 감독 등록(축 1b·2·3·4A·4B·5·6·7 보고). 신규. 반려 사유 아님. → 2026-10-03 작업자 처리(제품 feat/point-io 병합 후속, 연구 experiment/point-io): 반려 2회차 수정. 전체 npm test 633 중 통과 621·실패 0·건너뜀 12, 바뀐 테스트 파일 반복 실행 실패 0 → 2026-10-03 10:55 감독 확인 닫음: ①②⑦ 축 1b·6·7 확인(본문 복사 없음, opts null 정상, 1 s 단언 제거), ③ 다중 앵커 반영(날짜변경선 한 방향 잔여는 F-079), ④⑤⑥ 문구 반영(⑤ 근거 문구 잔여는 F-081), ⑧ PR 본문 건너뜀 사유 확인.
 
 
-### F-079 [열림] (심각도: 중간) — GPS↔ENU 경계 왕복 실패와 날짜변경선·경계 테스트 공백
+### F-079 [처리됨-검증대기] (심각도: 중간) — GPS↔ENU 경계 왕복 실패와 날짜변경선·경계 테스트 공백
 - 위치: 제품 main(PR #13 병합분) server/geo/enu/index.mjs:138·158-161(극 앵커), :162·168(위도 검사), :169-172(−180), client/geo/geo.test.mjs:131-136, server/geo/enu/enu.test.mjs:306-326
 - 문제: ① 극 앵커에서 gpsToEnu 가 cos(90°)=6.1e-17 을 곱해 e≈1e-11 을 내는데 enuToGps 는 e≠0 이면 거부해 자기 출력을 못 받는다. ② gps.lat 가 정확히 ±90 이면 반올림으로 90.00000000000001 이 나와 위도 검사에 걸린다. ③ 결과 lon 이 정확히 −180 이면 감싸지 않아 문서의 (−180,180] 과 어긋난다. ④ 클라이언트 날짜변경선 시험이 +360 방향뿐이라 client/geo/index.mjs:29 의 −360 분기를 지운 변형이 생존(서버·클라이언트가 조용히 갈라짐). ⑤ 여러 바퀴 넘는 경도(|lon|>540), Δλ 정확히 ±180, 클라이언트 경계 양성(lat 90·lon 180 허용) 시험 없음.
 - 실패 상황: 감독 직접 실행 — `enuToGps(gpsToEnu({lat:89.9,lon:10,alt:0},{lat:90,lon:0,alt:0}),같은 앵커)` → GeoError range. 앵커 {lat:-81.98758417203892,lon:0}, gps {lat:90,lon:0} 왕복 → "위도 범위 밖: 90.00000000000001"(축 1: 무작위 10만 회 중 약 8%). `enuToGps([0,0,0],{lat:0,lon:-180,alt:0})` → lon −180. ④⑤ 는 축 4A 변형 생존 보고(미확인).
@@ -811,7 +811,7 @@
 - 이력: 2026-10-03 10:55 감독 등록(축 1·4A·7 보고, ①②③ 감독 직접 재현). 신규(이번 수정분 경계). 반려 사유 아님 → T05.F 로 처리.
 
 
-### F-080 [열림] (심각도: 중간) — 복사·할당 측정 테스트가 일부 복사를 보지 못한다
+### F-080 [처리됨-검증대기] (심각도: 중간) — 복사·할당 측정 테스트가 일부 복사를 보지 못한다
 - 위치: 제품 main server/points/ply_read/ply_read.test.mjs:87-94·108-117, server/points/test_util/copies.mjs:5-13
 - 문제: ① measure 가 호출 뒤에도 GC 를 강제해 남은 메모리만 잰다. 쓰고 버리는 전체 복사가 delta 0 으로 통과. ② countCopies 가 Buffer.from/concat/alloc/allocUnsafe 만 가로채 `TypedArray.prototype.slice`·`ArrayBuffer.prototype.slice`·`Buffer.copyBytesFrom`·`new Uint8Array(view)` 복사를 세지 않는데, ply_stream.test.mjs:196-202·contracts/ply/ply.test.mjs:105-114 가 이를 "복사 없음" 근거로 쓴다. ③ 56B readPly 증가량이 +72.5 MB(열 배열 140 MB)로 앞 반복 잔여 회수가 섞여 상한에 약 67 MB 여유.
 - 실패 상황(축 4B 사본 변형, 미확인): parsePlyHeader 를 `Uint8Array.prototype.slice.call(buf)` 전체 복사로 → 50/50 통과. ply_stream/index.mjs:115 본문을 slice 복사로 → 19/19 통과.
@@ -821,7 +821,7 @@
 - 이력: 2026-10-03 10:55 감독 등록(축 4B 보고, 미확인). 신규. 반려 사유 아님 → T05.F.
 
 
-### F-081 [열림] (심각도: 낮음) — PR #13 병합 후 잔여 묶음
+### F-081 [처리됨-검증대기] (심각도: 낮음) — PR #13 병합 후 잔여 묶음
 - 위치·고칠 것:
   ① server/points/normals/index.mjs:20 — 주석이 연구 저장소 줄 번호(SPEC.md:69)를 가리키고 법선 길이와 신뢰도를 인과로 잇는다. "방향만 쓰므로 단위화, 3장 평균이라 길이 1 미보장(renderer_basis §7-2), 27 B 에 신뢰도 필드 없음(§7-4)" 으로. (haiku)
   ② format/ASSET_FORMAT.md:249 — "(renderer_basis §11 Q)" 가 화면 픽셀 크기 규칙에 붙어 있다. §11 Q 는 Δd 쪽으로 옮기고 픽셀 크기 규칙에는 "SPEC §2 표, 렌더러 결정". (haiku)
@@ -833,3 +833,4 @@
 - 확인 기준: 각 grep 또는 `element vertex 0x10` → 'header' 오류.
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 10:55 감독 등록(축 2·5·7·11 보고, ①②③ 감독 직접 확인). 신규. 반려 사유 아님 → T05.F.
+ → 2026-10-03 작업자 처리(제품 feat/synthetic-scenes 6b24ab6, 연구 experiment/synthetic-scenes): 전체 npm test 730 중 통과 717·실패 0·건너뜀 13, 바뀐 테스트 20회 반복 실패 0. 세부는 experiments/synthetic-scenes.md → 2026-10-03 작업자 처리(제품 feat/synthetic-scenes 6b24ab6, 연구 experiment/synthetic-scenes): 전체 npm test 730 중 통과 717·실패 0·건너뜀 13, 바뀐 테스트 20회 반복 실패 0. 세부는 experiments/synthetic-scenes.md → 2026-10-03 작업자 처리(제품 feat/synthetic-scenes 6b24ab6, 연구 experiment/synthetic-scenes): 전체 npm test 730 중 통과 717·실패 0·건너뜀 13, 바뀐 테스트 20회 반복 실패 0. 세부는 experiments/synthetic-scenes.md
