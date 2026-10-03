@@ -1859,7 +1859,7 @@
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 22:38 감독 등록(모두 미확인). 신규. T09 PR 과 함께 처리해도 됨. → 2026-10-03 23:10 감독 확인 닫음(① --help usage·exit 0, --run 5 → unknown flag exit 1 직접 실행; ④ 주석·템플릿 제거 함수와 변이 시험, ⑤ SENTINEL_SAMPLES import, ⑥ :102·:108 참조 직접 읽음; ②③ 은 축 4b 확인).
 
-### F-168 [열림] (심각도: 높음) — encodeChunk 가 codec 0 입력을 검사하지 않아 잘린·손상된 입력에서 법선·위치를 0 으로 지어내고 새 체크섬을 붙여 "정상" 파일로 내보낸다
+### F-168 [닫힘] (심각도: 높음) — encodeChunk 가 codec 0 입력을 검사하지 않아 잘린·손상된 입력에서 법선·위치를 0 으로 지어내고 새 체크섬을 붙여 "정상" 파일로 내보낸다
 - 위치(제품 feat/codec 1b071e0): server/codec/chunk/index.mjs:24-33(readPlanesRaw `file.slice(rel, rel + p.bytes)` 길이 미확인), :41-51(encodeChunk 가 parseHeader 만 호출 — 파일 길이·body_bytes·체크섬·checkHeaderSemantics 검사 없음, `g16`/`g8` 의 `a[i]` 가 범위 밖이면 undefined → 0)
 - 문제: decodeChunk(:101-115)는 길이·체크섬·헤더 의미를 모두 검사하지만 부호화 쪽은 아무것도 검사하지 않는다. 짧은 평면은 잘린 채 읽히고, 모자란 값은 0 으로 채워진 뒤 새 CRC 가 붙는다. ASSET_FORMAT §5.3(빈 법선을 임의 방향으로 채우지 않음)과 '도착한 것만' 원칙 위반이고, 손상이 감지 없이 하류로 전파된다.
 - 실패 상황(감독 직접 재현):
@@ -1870,24 +1870,24 @@
 - 고칠 것: encodeChunk 첫머리에서 codec 0 엄격 검사 — `rawFileBytes.length === h.headerSize + h.bodyBytes`, `h.bodyBytes >= bodyLayout(...).requiredBytes`, 체크섬(§7) 일치, `checkHeaderSemantics(h)`(또는 codec 0 용 readHeaderStrict). 실패 시 CodecError('length'|'checksum') 또는 AssetFormatError. readPlanesRaw 에서도 `rel + p.bytes <= file.length` 확인.
 - 확인 기준: chunk.test.mjs 에 (a) 끝 1·3·4 B 자른 입력, (b) 체크섬 틀린 입력, (c) body_bytes 를 줄인 입력, (d) pointCount 를 늘린 입력, (e) lod=9·quantExp 범위 밖·tileSizeM 변경 입력이 모두 throw 하는 시험. 감독이 위 ①②③ 을 다시 돌려 모두 throw. 위 검사 한 줄을 지우는 변이에서 해당 시험 실패.
 - 권장 모델: sonnet
-- 이력: 2026-10-03 23:10 감독 등록(①②③ 감독 직접 재현, 코드 직접 읽음). 신규(축 2·축 7 보고).
+- 이력: 2026-10-03 23:10 감독 등록(①②③ 감독 직접 재현, 코드 직접 읽음). 신규(축 2·축 7 보고). → 작업자 처리(feat/codec a66ebae·83960c8) → 2026-10-03 23:35 감독 확인 닫음(①②③ 직접 재실행: length·checksum·AssetFormatError field, chunk_validation 시험 존재. 길이·체크섬·헤더 의미 검사 변이는 각각 시험 실패 — 축 4a. body_bytes·readPlanesRaw 검사의 상호 가림은 F-174 ③ 으로)
 
-### F-169 [열림] (심각도: 중간) — 서버 decodeChunk 의 스트림별 rawLen 상한이 클라이언트보다 느슨하다(작은 파일로 64 MB 할당·수 초 CPU)
+### F-169 [닫힘] (심각도: 중간) — 서버 decodeChunk 의 스트림별 rawLen 상한이 클라이언트보다 느슨하다(작은 파일로 64 MB 할당·수 초 CPU)
 - 위치(제품 1b071e0): server/codec/chunk/index.mjs:120-122(`entropyDecode(...)` 를 기본 상한 STREAM_RAW_BYTES_MAX 로 호출) ↔ client/codec/index.mjs:287-289(pos [n,7n], nrm [2n,6n], col [min(n+5,3n+1), 3n+770]). server/codec/color/index.mjs:66 이 :68 길이 확인보다 먼저 3n B 할당(낮음).
 - 문제: 같은 파일을 서버는 끝까지 풀어 보고 실패하고, 클라이언트는 즉시 'limit' 으로 거부한다. 수용/거부 결과는 같지만 서버 비용이 64 배 정도 증폭된다.
 - 실패 상황: n=1, CRC 정상, pos 스트림 `[01][LEB(2^26)][00×1 MiB]` → 서버 약 3.3 s·RSS +49 MB 후 'stream', 클라이언트 7 ms 'limit'(축 7 실행, 감독은 코드만 직접 읽음 — 미재현).
 - 고칠 것: 서버도 클라이언트와 같은 (최소, 최대) 를 entropyDecode 에 넘기고 범위 밖이면 'limit'. 상한 표를 contracts/codec 에 상수로 한 번만 두고 양쪽이 쓴다. color 는 길이 확인 뒤 할당.
 - 확인 기준: 위 파일이 서버에서 'limit' 으로 50 ms 안에 거부되는 시험, 서버·클라이언트 오류 코드 일치.
 - 권장 모델: sonnet
-- 이력: 2026-10-03 23:10 감독 등록(코드 직접 읽음, 수치는 서브에이전트). 신규.
+- 이력: 2026-10-03 23:10 감독 등록(코드 직접 읽음, 수치는 서브에이전트). 신규. → 작업자 처리(57ebd9f·a66ebae) → 2026-10-03 23:35 감독 확인 닫음(npm test 직접 통과, 축 6 실측: n=1·rawLen 2^26 파일 서버 0.23 ms·클라이언트 0.11 ms 모두 limit. 서버·클라이언트 검사 순서 차이는 F-174 ②)
 
-### F-170 [열림] (심각도: 중간) — T09.10 holes top_down_150 미달의 판정: 기준 렌더를 codec 과 같은 점 순서로 그려 비교한다(감독 결정 0028)
+### F-170 [닫힘] (심각도: 중간) — T09.10 holes top_down_150 미달의 판정: 기준 렌더를 codec 과 같은 점 순서로 그려 비교한다(감독 결정 0028)
 - 위치(제품 1b071e0): server/codec/quality/quality.test.mjs:53-58(todo 2건), :62-81(원인 분리 시험), server/codec/quality/index.mjs(codecRoundTrip·codecQualityEight)
 - 문제: ① 참조 래스터러(server/raster_ref/zbuffer, 엄격 `<`)는 깊이 동률에서 번호 작은 점이 이긴다. holes 는 y=0 한 평면이라 모턴 재배치만으로 top_down_150 SSIM 이 0.967 로 떨어진다(축 4b 실측: 실제 순열만 0.9678, 실제 양자화만 0.9988). T09.10 의 질문은 '양자화 후 화질' 이므로 순서 차이는 비교에서 빼야 한다. ② 원인 분리 시험은 실제 경로가 아니다 — :73 은 2^-9 격자를 가정하나 실제 quantExp 는 8, :76-78 은 배열 반전(실제 순열 아님). ③ :65 는 미달 시점 이름만 고정해 top_down_150 SSIM 이 0.5 로 떨어져도 통과하고 todo 가 가린다.
 - 고칠 것: codecRoundTrip 이 실제 순열(타일 묶음 순서 + mortonOrder)을 돌려주게 하고, 기준 렌더를 그 순열로 재배열한 원본으로 그린다. 8시점 × 장면 3개(flat_boxes·terrain·holes) × lossyColor 2 모두 SSIM ≥ 0.98 을 todo 없이 단언. 순열만 다른 경우의 값(0.9678)은 진단으로 남겨도 되나 단언 근거로 쓰지 않는다. 문턱 0.98 은 그대로. 래스터러 동률 규칙은 바꾸지 않는다(T05·T06 골든 영향).
 - 확인 기준: `node --test server/codec/quality/quality.test.mjs` todo 0·실패 0, holes 8시점 최소값 진단 출력 ≥ 0.98. 감독이 순열 재배열을 빼는 변이로 holes 단언 실패를 확인.
 - 권장 모델: sonnet
-- 이력: 2026-10-03 23:10 감독 등록(quality.test.mjs:53-81 직접 읽음, 수치는 축 4b 실측). 작업자가 PR 본문에 감독 판정 요청 → 결정 0028.
+- 이력: 2026-10-03 23:10 감독 등록(quality.test.mjs:53-81 직접 읽음, 수치는 축 4b 실측). 작업자가 PR 본문에 감독 판정 요청 → 결정 0028. → 작업자 처리(943a627) → 2026-10-03 23:35 감독 확인 닫음(quality.test todo 0·실패 0, holes 최솟값 0.99826/0.99802, 재배열 제거 변이에서 holes 2건 실패(0.96712/0.96685)·모턴 순열 제거 변이 3건 실패 — 축 4b·5 실행, npm test todo 0 감독 직접)
 
 ### F-171 [열림] (심각도: 중간) — 벤치·시험이 주장하는 측정을 하지 않는다
 - 위치(제품 1b071e0): ① bench/codec_client/index.mjs:59·:128-137 ② bench/codec_client/codec_client_bench.test.mjs:8·:105-140 ③ bench/codec/codec_bench.test.mjs:119-123 ④ server/codec/chunk/chunk.test.mjs:241-258 ⑤ server/codec/entropy/entropy.test.mjs:440-441
@@ -1900,9 +1900,9 @@
 - 고칠 것: ① lossy 쪽은 encodeChunk(raw, {lossyColor:true}) 로 만들고 색 모드 1 을 단언. ② 원본 평면과 복호 평면의 pointMultiset deepEqual. ③ `assert.ok(match)` 후 출력 형식에 맞는 정규식. ④ 손상 뒤 CRC 재계산·오류 코드 지정(길이 합 'length', 색 모드 'mode', 헤더 의미 AssetFormatError). ⑤ 경계값(64L+64 통과, 64L+65 즉시 거부) 또는 메시지 단언.
 - 확인 기준: 항목별로 해당 변이에서 시험 실패. ① 은 lossy 행 복호 결과 colorMode === 1.
 - 권장 모델: ①②③ haiku, ④⑤ sonnet
-- 이력: 2026-10-03 23:10 감독 등록(①② 직접 확인, ③④⑤ 미확인). 신규.
+- 이력: 2026-10-03 23:10 감독 등록(①② 직접 확인, ③④⑤ 미확인). 신규. → 작업자 처리(bd6d8be·24b9bfd·83960c8) → 2026-10-03 23:35 감독 부분 확인: ③④⑤ 처리 확인(축 4a·4b 변이). ② 재개 — bench/codec_client/index.mjs:56 의 비교 기준 extractOriginalPlanes 가 검증 대상 decodeChunkClient(encodeChunk(raw)) 로 만들어져 자기 비교(감독 직접 읽음), client/codec/index.mjs:215 `+`→`^` 변이에 bench 10/10 통과(축 4b). ① 재개 — benchmark() lossy 행 조각의 colorMode 를 단언하지 않아 index.mjs:185 `lossy: true`→`false` 변이에 bench 통과(축 4b, 미확인). 고칠 것: ② 기준을 packChunk 입력(u8 색·u16 위치·oct 평면, 서버 readPlanes 등)에서 만들고 모턴 순과 무관한 pointMultiset 비교, ① lossy 행 조각마다 colorMode === 1 단언. 확인 기준: 두 변이 각각에서 bench 시험 실패. 권장 모델: haiku
 
-### F-172 [열림] (심각도: 낮음) — PR #36 잔여 묶음(대부분 서브에이전트 보고, 미확인)
+### F-172 [닫힘] (심각도: 낮음) — PR #36 잔여 묶음(대부분 서브에이전트 보고, 미확인)
 - 위치·고칠 것(제품 1b071e0):
   ① 서버·클라이언트 오류 코드 불일치 — 범위 복호 실패·LEB128 과길이: 서버 'stream'(server/codec/entropy/index.mjs, position/index.mjs:87, normal), 클라이언트 'range'(client/codec/index.mjs:46·57·59·60·86·93·94). 클라이언트를 'stream' 으로 맞추고 robust 퍼저에 `e.code` 일치 단언(축 1a·1b·7). (haiku)
   ② 위치 LEB128 비최소 표현 수용 — 서버 position/index.mjs:85-93, 클라이언트 :148 `readLeb(..., 'pos')` canonical=false. 법선·rawLen 처럼 거부(축 1a). (haiku)
@@ -1921,7 +1921,7 @@
   ⑮ 소유 경로 밖 변경(format/ASSET_FORMAT.md, README.md)은 계약 :1 이 같은 커밋 갱신을 요구하므로 감독이 승인한다 — 기록만(축 2).
 - 확인 기준: 항목별 변이·직접 실행.
 - 권장 모델: 항목별 표기
-- 이력: 2026-10-03 23:10 감독 등록(⑤ 계산 직접, ⑨ screen_error.mjs:42-46 직접 읽음, 나머지 미확인). 신규.
+- 이력: 2026-10-03 23:10 감독 등록(⑤ 계산 직접, ⑨ screen_error.mjs:42-46 직접 읽음, 나머지 미확인). 신규. → 작업자 처리(1262f37·449b895·f2b47fd·fd20d7d·b2cd0c6·24b9bfd) → 2026-10-03 23:35 감독 닫음(⑪ 은 회귀 감시 표시로 수용. 잔여 문서·계약 어긋남은 F-174, 시험 문구는 F-175 로 옮김)
 
 ### F-173 [열림] (심각도: 중간) — 클라이언트 복호 처리량(약 1 M 점/s, 단일 스레드)이 구간 스트리밍 예산을 메인 스레드에서 감당하지 못한다 — T12 에서 워커 복호로 처리
 - 위치(제품 1b071e0): client/codec/index.mjs:68-92(rangeDecode, 복호 시간의 약 80%), :252(decodeChunkClient 동기)
@@ -1930,3 +1930,29 @@
 - 확인 기준: T12.5 시험에서 60만 점 구간 도착 중 메인 스레드 long task 0(> 50 ms).
 - 권장 모델: sonnet(T12.5 와 함께)
 - 이력: 2026-10-03 23:10 감독 등록(코드 직접 읽음, 수치는 서브에이전트·축 5 의 1M 실행). 신규. 결정 0027 '다시 볼 조건'(복호 속도가 S1·S2 를 해칠 때) 해당.
+
+### F-174 [열림] (심각도: 중간) — PR #36 재검토: 계약·명세 문구가 구현과 어긋나고, 서로 가리는 검사와 교차 오류 코드 시험이 빠졌다
+- 위치(제품 feat/codec c44dda9): ① contracts/codec/index.mjs:134, format/ASSET_FORMAT.md:230·:97 ② client/codec/index.mjs:126-130 ↔ server/codec/chunk/index.mjs:59-70, contracts/codec/index.mjs:60·:62 ③ server/codec/chunk/index.mjs:29·:50, chunk_validation.test.mjs:58-75 ④ client/codec/alignment.test.mjs:1·:83
+- 문제·실패 상황:
+  ① 계약은 decodeChunkInfo 가 `{header, colorMode}` 를 돌려주고 'codec 검증 없음' 이라 적었으나 구현(chunk/index.mjs:148-181)은 전체 검증 후 `{file, colorMode}` 를 돌려준다(감독 직접 읽음) — 계약대로 `.header` 를 읽으면 undefined. ASSET_FORMAT:230 은 'decodeChunk(codec 1) 결과의 color_mode 필드' 라 적었으나 decodeChunk 는 Uint8Array 를 돌려주고 필드는 decodeChunkInfo 의 colorMode(감독 직접 읽음). :97 은 readHeaderStrict 위치를 tools/asset_validate 로 적었으나 실제는 server/asset/header(감독 직접 읽음).
+  ② 서버는 decodeBounded 에서 rawLen 범위('limit')를 먼저, 클라이언트는 mode 1 정규성('stream')을 먼저 본다 — mode 1·rawLen=0 법선 스트림(CRC 재계산)에서 서버 limit·클라이언트 stream(축 1b·축 2 각각 재현, 감독 미확인). 계약 오류 코드 표는 'LEB128 상한 초과' 를 :60 stream 과 :62 limit 양쪽에 적었다(감독 직접 읽음).
+  ③ body_bytes 검사(:50)와 readPlanesRaw 범위 검사(:29)가 서로를 가려 하나씩 지우는 변이가 둘 다 살아남는다(축 4a 실행: 각 0 실패, 함께 지우면 3 실패).
+  ④ alignment.test 는 머리 주석과 달리 서버를 import 하지 않아 서버 :68 'limit'→'stream' 변이에 client 시험 43/43 통과(축 4b).
+- 고칠 것: ① 계약 서명·설명과 명세 두 줄을 구현에 맞춘다. ② 클라이언트 검사 순서를 서버와 같게(범위 먼저) 하고 그 순서를 계약 주석에 적는다. 표의 중복 줄 정리. ③ 시험이 오류 메시지까지 단언하거나 겹치는 검사 하나를 정리(남기면 각각 판별하는 입력). ④ 같은 손상 입력을 서버 decodeChunk·클라이언트 decodeChunkClient 양쪽에 넣고 e.code 일치를 단언.
+- 확인 기준: ② 의 두 변조 파일에서 양쪽 code 같음, ③ 두 변이 각각 실패 ≥ 1, ④ 서버 :68 변이에서 교차 시험 실패, 계약·명세 문구 = 구현.
+- 권장 모델: ①② 문구 haiku, ②③④ 코드·시험 sonnet
+- 이력: 2026-10-03 23:35 감독 등록(① 직접 읽음, ② 코드 순서는 두 축 독립 재현·감독 미확인, ③④ 축 실행). 신규 — 이번 반려 보정이 새로 쓴 문구·검사에서 나옴.
+
+### F-175 [열림] (심각도: 낮음) — PR #36 재검토 잔여(서브에이전트 보고, 미확인)
+- 위치·고칠 것(제품 c44dda9):
+  ① 패딩 안의 pointCount 증가 수락 — n=5 파일을 6 으로 바꾸고 CRC 재계산하면 encodeChunk 가 받아 패딩 0 점이 생긴다(server/codec/chunk/index.mjs:46-52, 축 7). 명세가 허용하는지 §3.2 에 명시하거나 패딩 0 검사. (haiku)
+  ② entropy/index.mjs:183(mode 1 rawLen 0 거부)는 :184 와 등가라 consistency.test.mjs:7 이 실제로는 :184 를 시험(축 4a). 메시지 단언 또는 정리. (haiku)
+  ③ canonical.test.mjs:22·:24 `qe+qn+qu > 0` → 정확한 기대값(키 128 → [0,4,0], 127 → [7,3,3])(축 4a). (haiku)
+  ④ chunk_validation.test.mjs:164 부정형 `!== QUANT2` → `equal(..., COLOR_MODE.DELTA)`(축 4a). (haiku)
+  ⑤ 시간 기반 단언(chunk_validation.test.mjs:141 50 ms, entropy.test.mjs:165) 부하 시 흔들림 — 할당·횟수 단언 또는 여유(축 4a). (haiku)
+  ⑥ 큰 pointCount + 반복 스트림으로 370 KB 입력이 2 s·370 MB 를 쓴다(형식상 합법, 축 6) — 호출 계층(T11 서버·T12.5 워커)의 요청 크기·시간 제한으로 처리. 코덱 수정 불필요.
+  ⑦ chunk/index.mjs:68 상한 조건은 entropyDecode(max) 와 중복(축 4a) — 주석 또는 정리. (haiku)
+- 확인 기준: 항목별 변이·직접 실행.
+- 권장 모델: 항목별 표기
+- 이력: 2026-10-03 23:35 감독 등록(전부 미확인). 신규.
+
