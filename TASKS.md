@@ -332,7 +332,7 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T09.10 | 양자화 후 화질 | `server/codec/quality/` | 8시점 SSIM ≥ 0.98(양자화 전 대비, 기준 렌더는 codec 점 순서 — 결정 0028) | sonnet |
 | T09.11 | 조각 부호화·복호화 묶음(encodeChunk·decodeChunk), 서버→클라이언트 통합 왕복 | `server/codec/chunk/` | 왕복 점 집합 일치, 손상 입력 거부 | sonnet |
 | T09.F [x] (2026-10-03 PR #36 병합, 제품 3d3a26f; 잔여 → T09.F2) | (먼저, PR #36 반려 1회) 같은 브랜치 feat/codec 에서: F-168(높음, encodeChunk 입력 엄격 검사) → F-170(T09.10 순서 맞춘 기준, todo 0) → F-169(서버 rawLen 상한) → F-171(벤치·시험 판별력) → F-172 낮음 묶음(가능한 만큼). 고친 뒤 PR #36 을 다시 열고 라벨 | `server/codec/`, `client/codec/`, `contracts/codec/`, `bench/codec*/`, `format/ASSET_FORMAT.md`, `contracts/cull/`(F-172 ⑨) | F-168·F-169·F-170·F-171 확인 기준 | sonnet(F-171 ①②③·F-172 대부분 haiku, F-172 ③ sonnet) |
-| T09.F2 [x] (2026-10-03 PR #37 병합, 제품 해시 병합 직후 기록; 잔여 낮음 → F-176) | (먼저, T10 과 같은 PR 이나 별도 PR) PR #36 재검토 중간·낮음: F-171 ①②(벤치 lossy 행 colorMode 단언, 비교 기준을 복호기 밖에서), F-174(계약·명세 문구 = 구현, 서버·클라이언트 검사 순서·교차 오류 코드 시험, 서로 가리는 검사), F-175 낮음 묶음(가능한 만큼) | `bench/codec_client/`, `server/codec/`, `client/codec/`, `contracts/codec/`, `format/ASSET_FORMAT.md` | F-171·F-174 확인 기준 | sonnet(F-171·F-174 ① 문구·F-175 haiku) |
+| T09.F2 [x] (2026-10-03 PR #37 병합, 제품 5c7e092; 잔여 낮음 → F-176) | (먼저, T10 과 같은 PR 이나 별도 PR) PR #36 재검토 중간·낮음: F-171 ①②(벤치 lossy 행 colorMode 단언, 비교 기준을 복호기 밖에서), F-174(계약·명세 문구 = 구현, 서버·클라이언트 검사 순서·교차 오류 코드 시험, 서로 가리는 검사), F-175 낮음 묶음(가능한 만큼) | `bench/codec_client/`, `server/codec/`, `client/codec/`, `contracts/codec/`, `format/ASSET_FORMAT.md` | F-171·F-174 확인 기준 | sonnet(F-171·F-174 ① 문구·F-175 haiku) |
 
 ### T10 `levels` — [cloud]
 
