@@ -37,3 +37,10 @@ T08 은 뷰 의존 컬링(절두체·법선·가림·거리·예측)을 만든�
 - 뒷면 제거(F-117): 각도 여유 대신 2단계 '확실히 덮임' 판정(occlusion 피라미드 재사용)을 승인한다. 근거는 experiments/culling_F117.md(각도 여유는 약 30° 의 사후 상수가 필요). 픽셀 동일 보장의 조건은 '덮임 판정 점 지름 = 렌더 점 지름' 이다.
 - 대가(추가): ① LOD 선택(selectLevels·budget·progressive)은 아직 원판 중심 규칙이라 결합 경로에서 가장자리 리프가 NOT_DRAWN 으로 빠질 수 있다(F-126). ② 결합 경로의 backface 단계가 pointSizeM 을 받지 못해 덮임 판정이 기본 0.05 m 로 돈다(F-123). ③ 덮임 판정 피라미드가 시점마다 단계 0 점 전부를 칠한다(F-121 ⑥, 미확인 측정 100만 점 30~59 ms).
 - 다시 볼 조건(추가): LOD 선택이 pointSizeM 을 받게 될 때, 결합 경로에서 렌더 점 지름이 단계마다 다를 때, 시점당 컬링 예산이 정해질 때.
+
+## 후속 보완 (2026-10-03, 작업자, 제품 feat/culling-fixes)
+- backfaceCull 단독 호출에서 pointSizeM 이 없으면 덮임 판정 지름을 알 수 없으므로 2단계 후보를 전부 남긴다(제거 0). 이전의 기본 0.05 m 폴백은 폐기한다(F-123). null·비숫자는 'cull:' 오류.
+- 결합 경로(combine)는 opts.pointSizeM 을 backface·occlusion·selectLevels 에 모두 전달한다. selectLevels·selectWithBudget·progressiveChunks 는 선택 인자 pointSizeM 이 있으면 boxMayBeVisibleSplat 을 쓰고, 없으면 기존 중심 규칙 그대로다(F-126).
+- 덮임 판정 피라미드는 후보 사각형과 겹치고 후보보다 앞에 있는 비후보 리프만으로 만든다. 마스크는 전체 가림막과 같음을 24 시점에서 시험한다(F-121 ⑥).
+- 퇴화 시점 판정은 degenerate 모듈 하나로 일원화하고 해상도 상한(변당 1e6 px)을 추가했다(F-120).
+- 결합 경로의 조각 목록은 NOT_DRAWN 리프를 포함하지 않는다.
