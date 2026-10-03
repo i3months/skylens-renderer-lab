@@ -1889,7 +1889,7 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 23:10 감독 등록(quality.test.mjs:53-81 직접 읽음, 수치는 축 4b 실측). 작업자가 PR 본문에 감독 판정 요청 → 결정 0028. → 작업자 처리(943a627) → 2026-10-03 23:35 감독 확인 닫음(quality.test todo 0·실패 0, holes 최솟값 0.99826/0.99802, 재배열 제거 변이에서 holes 2건 실패(0.96712/0.96685)·모턴 순열 제거 변이 3건 실패 — 축 4b·5 실행, npm test todo 0 감독 직접)
 
-### F-171 [열림] (심각도: 중간) — 벤치·시험이 주장하는 측정을 하지 않는다
+### F-171 [처리됨-검증대기] (심각도: 중간) — 벤치·시험이 주장하는 측정을 하지 않는다
 - 위치(제품 1b071e0): ① bench/codec_client/index.mjs:59·:128-137 ② bench/codec_client/codec_client_bench.test.mjs:8·:105-140 ③ bench/codec/codec_bench.test.mjs:119-123 ④ server/codec/chunk/chunk.test.mjs:241-258 ⑤ server/codec/entropy/entropy.test.mjs:440-441
 - 문제·실패 상황:
   ① createChunk 가 encodeChunk(rawFile) 를 lossyColor 없이 부르므로 '손실' 행은 시드만 다른 무손실 조각이다(감독 직접 읽음). QUANT2 복호 속도는 측정된 적 없음.
@@ -1900,7 +1900,8 @@
 - 고칠 것: ① lossy 쪽은 encodeChunk(raw, {lossyColor:true}) 로 만들고 색 모드 1 을 단언. ② 원본 평면과 복호 평면의 pointMultiset deepEqual. ③ `assert.ok(match)` 후 출력 형식에 맞는 정규식. ④ 손상 뒤 CRC 재계산·오류 코드 지정(길이 합 'length', 색 모드 'mode', 헤더 의미 AssetFormatError). ⑤ 경계값(64L+64 통과, 64L+65 즉시 거부) 또는 메시지 단언.
 - 확인 기준: 항목별로 해당 변이에서 시험 실패. ① 은 lossy 행 복호 결과 colorMode === 1.
 - 권장 모델: ①②③ haiku, ④⑤ sonnet
-- 이력: 2026-10-03 23:10 감독 등록(①② 직접 확인, ③④⑤ 미확인). 신규. → 작업자 처리(bd6d8be·24b9bfd·83960c8) → 2026-10-03 23:35 감독 부분 확인: ③④⑤ 처리 확인(축 4a·4b 변이). ② 재개 — bench/codec_client/index.mjs:56 의 비교 기준 extractOriginalPlanes 가 검증 대상 decodeChunkClient(encodeChunk(raw)) 로 만들어져 자기 비교(감독 직접 읽음), client/codec/index.mjs:215 `+`→`^` 변이에 bench 10/10 통과(축 4b). ① 재개 — benchmark() lossy 행 조각의 colorMode 를 단언하지 않아 index.mjs:185 `lossy: true`→`false` 변이에 bench 통과(축 4b, 미확인). 고칠 것: ② 기준을 packChunk 입력(u8 색·u16 위치·oct 평면, 서버 readPlanes 등)에서 만들고 모턴 순과 무관한 pointMultiset 비교, ① lossy 행 조각마다 colorMode === 1 단언. 확인 기준: 두 변이 각각에서 bench 시험 실패. 권장 모델: haiku
+- 이력: 2026-10-03 23:10 감독 등록(①② 직접 확인, ③④⑤ 미확인). 신규. → 작업자 처리(bd6d8be·24b9bfd·83960c8) → 2026-10-03 23:35 감독 부분 확인: ③④⑤ 처리 확인(축 4a·4b 변이). ② 재개 — bench/codec_client/index.mjs:56 의 비교 기준 extractOriginalPlanes 가 검증 대상 decodeChunkClient(encodeChunk(raw)) 로 만들어져 자기 비교(감독 직접 읽음), client/codec/index.mjs:215 `+`→`^` 변이에 bench 10/10 통과(축 4b). ① 재개 — benchmark() lossy 행 조각의 colorMode 를 단언하지 않아 index.mjs:185 `lossy: true`→`false` 변이에 bench 통과(축 4b, 미확인). 고칠 것: ② 기준을 packChunk 입력(u8 색·u16 위치·oct 평면, 서버 readPlanes 등)에서 만들고 모턴 순과 무관한 pointMultiset 비교, ① lossy 행 조각마다 colorMode === 1 단언. 확인 기준: 두 변이 각각에서 bench 시험 실패. 권장 모델: haiku → 2026-10-04 작업자 ①② 재처리(feat/codec-review-fixes ebad883): 기준을 원본 raw 파일에서 readPlanesClient 로, pointMultiset 비교; lossy 행 colorMode===QUANT2 단언. 변이 직접 실행: :217 `+`→`^` bench 1 실패, :214 lossy true→false bench 3 실패. 노트 experiments/codec_review_fixes.md
+
 
 ### F-172 [닫힘] (심각도: 낮음) — PR #36 잔여 묶음(대부분 서브에이전트 보고, 미확인)
 - 위치·고칠 것(제품 1b071e0):
@@ -1931,7 +1932,7 @@
 - 권장 모델: sonnet(T12.5 와 함께)
 - 이력: 2026-10-03 23:10 감독 등록(코드 직접 읽음, 수치는 서브에이전트·축 5 의 1M 실행). 신규. 결정 0027 '다시 볼 조건'(복호 속도가 S1·S2 를 해칠 때) 해당.
 
-### F-174 [열림] (심각도: 중간) — PR #36 재검토: 계약·명세 문구가 구현과 어긋나고, 서로 가리는 검사와 교차 오류 코드 시험이 빠졌다
+### F-174 [처리됨-검증대기] (심각도: 중간) — PR #36 재검토: 계약·명세 문구가 구현과 어긋나고, 서로 가리는 검사와 교차 오류 코드 시험이 빠졌다
 - 위치(제품 feat/codec c44dda9): ① contracts/codec/index.mjs:134, format/ASSET_FORMAT.md:230·:97 ② client/codec/index.mjs:126-130 ↔ server/codec/chunk/index.mjs:59-70, contracts/codec/index.mjs:60·:62 ③ server/codec/chunk/index.mjs:29·:50, chunk_validation.test.mjs:58-75 ④ client/codec/alignment.test.mjs:1·:83
 - 문제·실패 상황:
   ① 계약은 decodeChunkInfo 가 `{header, colorMode}` 를 돌려주고 'codec 검증 없음' 이라 적었으나 구현(chunk/index.mjs:148-181)은 전체 검증 후 `{file, colorMode}` 를 돌려준다(감독 직접 읽음) — 계약대로 `.header` 를 읽으면 undefined. ASSET_FORMAT:230 은 'decodeChunk(codec 1) 결과의 color_mode 필드' 라 적었으나 decodeChunk 는 Uint8Array 를 돌려주고 필드는 decodeChunkInfo 의 colorMode(감독 직접 읽음). :97 은 readHeaderStrict 위치를 tools/asset_validate 로 적었으나 실제는 server/asset/header(감독 직접 읽음).
@@ -1941,9 +1942,10 @@
 - 고칠 것: ① 계약 서명·설명과 명세 두 줄을 구현에 맞춘다. ② 클라이언트 검사 순서를 서버와 같게(범위 먼저) 하고 그 순서를 계약 주석에 적는다. 표의 중복 줄 정리. ③ 시험이 오류 메시지까지 단언하거나 겹치는 검사 하나를 정리(남기면 각각 판별하는 입력). ④ 같은 손상 입력을 서버 decodeChunk·클라이언트 decodeChunkClient 양쪽에 넣고 e.code 일치를 단언.
 - 확인 기준: ② 의 두 변조 파일에서 양쪽 code 같음, ③ 두 변이 각각 실패 ≥ 1, ④ 서버 :68 변이에서 교차 시험 실패, 계약·명세 문구 = 구현.
 - 권장 모델: ①② 문구 haiku, ②③④ 코드·시험 sonnet
-- 이력: 2026-10-03 23:35 감독 등록(① 직접 읽음, ② 코드 순서는 두 축 독립 재현·감독 미확인, ③④ 축 실행). 신규 — 이번 반려 보정이 새로 쓴 문구·검사에서 나옴.
+- 이력: 2026-10-03 23:35 감독 등록(① 직접 읽음, ② 코드 순서는 두 축 독립 재현·감독 미확인, ③④ 축 실행). 신규 — 이번 반려 보정이 새로 쓴 문구·검사에서 나옴. → 2026-10-04 작업자 처리(ebad883): ① 계약·명세 문구 = 구현 ② 클라이언트 범위 검사 먼저(양쪽 mode 1·rawLen=0 → 'limit') ③ :29 검사는 도달 불가라 삭제·:50 단독 변이 masking.test 2 실패 ④ cross_error.test 50여 입력, 서버 :73 변이 7 실패. 헤더 경로 분류 차이(서버 CodecError vs 클라이언트 AssetFormatError)는 남음 — 시험은 허용 클래스 단언. 전체 npm test 2779 통과·0 실패.
 
-### F-175 [열림] (심각도: 낮음) — PR #36 재검토 잔여(서브에이전트 보고, 미확인)
+
+### F-175 [처리됨-검증대기] (심각도: 낮음) — PR #36 재검토 잔여(서브에이전트 보고, 미확인)
 - 위치·고칠 것(제품 c44dda9):
   ① 패딩 안의 pointCount 증가 수락 — n=5 파일을 6 으로 바꾸고 CRC 재계산하면 encodeChunk 가 받아 패딩 0 점이 생긴다(server/codec/chunk/index.mjs:46-52, 축 7). 명세가 허용하는지 §3.2 에 명시하거나 패딩 0 검사. (haiku)
   ② entropy/index.mjs:183(mode 1 rawLen 0 거부)는 :184 와 등가라 consistency.test.mjs:7 이 실제로는 :184 를 시험(축 4a). 메시지 단언 또는 정리. (haiku)
@@ -1954,5 +1956,5 @@
   ⑦ chunk/index.mjs:68 상한 조건은 entropyDecode(max) 와 중복(축 4a) — 주석 또는 정리. (haiku)
 - 확인 기준: 항목별 변이·직접 실행.
 - 권장 모델: 항목별 표기
-- 이력: 2026-10-03 23:35 감독 등록(전부 미확인). 신규.
+- 이력: 2026-10-03 23:35 감독 등록(전부 미확인). 신규. → 2026-10-04 작업자 ①~⑤·⑦ 처리(ebad883) (①은 형식이 허용해 주석·시험만, ⑥은 T11·T12.5 로 이관). 항목별 변이는 ③만 서브에이전트 확인, 직접 재실행 안 함.
 
