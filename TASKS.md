@@ -256,22 +256,26 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T07.9 | 점진 순서(거친 단계 먼저) | `server/lod/progressive/` | 앞부분 k% 만으로 SSIM 단조 증가 | sonnet |
 | T07.10 | 구간당 크기 집계 | `bench/lod/` | 250만 점 구간 → 자산 크기 기록(목표 ≤ 3 MB 대비) | haiku |
 | T07.11 | 빈자리 보존 검사 | `server/lod/no_fill/` | holes 장면 빈 픽셀 비율 원본과 같음 | sonnet |
+| T07L.1 | [local] T07.8 잔여: 실제 skylens COLMAP 데이터(points3D 관측 목록)로 renderer_basis §3-6 기준 camF_0030 이웃 순위표 재현 | `server/lod/view_score/` | §3-6 표 1~12위 순서 재현 | sonnet |
 
 ### T08 `culling` — [cloud]
 
-| 하위 | 내용 | 소유 경로 | 완료 기준 |
-|---|---|---|---|
-| T08.0 | 계약: 시점 상태·컬링 결과(조각 목록) 타입 | `contracts/cull/` | 타입 문서와 일치 |
-| T08.1 | 절두체 컬링 | `server/cull/frustum/` | 거짓 제거 0(보수적), 고정 시점 8곳 |
-| T08.2 | 법선 기반 뒷면 제거(조각 단위 법선 원뿔) | `server/cull/backface/` | 렌더 결과 SSIM 변화 ≤ 0.002 |
-| T08.3 | 거친 가림(깊이 피라미드, CPU) | `server/cull/occlusion/` | 거짓 제거 0, 제거율 기록 |
-| T08.4 | 거리 컷 | `server/cull/distance/` | 경계 시험 통과 |
-| T08.5 | 시점 예측(이동 방향 앞당겨 보내기) | `server/cull/predict/` | 경로 재생 시 빠진 조각 0 |
-| T08.6 | 조각 우선순위 정렬 | `server/cull/priority/` | 화면 기여 순 정렬 검사 |
-| T08.7 | 클라이언트 측 절두체 컬링 | `client/cull/` | 서버 결과와 조각 목록 일치 |
-| T08.8 | 컬링 + LOD 결합 선택 | `server/cull/combine/` | 8시점 SSIM ≥ 0.95, 조각 수 기록 |
-| T08.9 | 컬링 비용 측정 | `bench/cull/` | 시점당 CPU 시간 기록 |
-| T08.10 | 퇴화 시점(지면 아래·NaN·0 화각) 처리 | `server/cull/degenerate/` | 패닉 0, 빈 결과 |
+| 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
+|---|---|---|---|---|
+| T08.F | (먼저) T07 검토 잔여: F-096(T07.4·T07.5·T07.11 판별력 있는 시험, 실제 LOD 경로로 빈자리 검사), F-098(결정 0020 보완·T07.8 §3-6 표 행 순위 시험), F-099(progressive 카메라 검사, psnr 사례 4 복원) | `server/lod/`, `server/metrics/psnr/`, `bench/lod/`, 연구 `decisions/0020-*`·`experiments/lod.md` | F-096·F-098·F-099 확인 기준 | sonnet |
+| T08.F2 | F-097 기하 보강(축 밖 화면 오차 cos² 보정, 칸이 리프 경계를 걸치지 않게, max(fx,fy)) | `server/lod/select/`, `server/lod/budget/`, `server/lod/progressive/`, `server/lod/hierarchy/` | F-097 확인 기준 | opus |
+| T08.F3 | F-100 낮음 묶음(시험 정리·주석·계약 문구) | 항목별 경로 | F-100 해당 항목 | haiku |
+| T08.0 | 계약: 시점 상태·컬링 결과(조각 목록) 타입 | `contracts/cull/` | 타입 문서와 일치 | sonnet |
+| T08.1 | 절두체 컬링 | `server/cull/frustum/` | 거짓 제거 0(보수적), 고정 시점 8곳 | sonnet |
+| T08.2 | 법선 기반 뒷면 제거(조각 단위 법선 원뿔) | `server/cull/backface/` | 렌더 결과 SSIM 변화 ≤ 0.002 | sonnet |
+| T08.3 | 거친 가림(깊이 피라미드, CPU) | `server/cull/occlusion/` | 거짓 제거 0, 제거율 기록 | opus |
+| T08.4 | 거리 컷 | `server/cull/distance/` | 경계 시험 통과 | haiku |
+| T08.5 | 시점 예측(이동 방향 앞당겨 보내기) | `server/cull/predict/` | 경로 재생 시 빠진 조각 0 | sonnet |
+| T08.6 | 조각 우선순위 정렬 | `server/cull/priority/` | 화면 기여 순 정렬 검사 | sonnet |
+| T08.7 | 클라이언트 측 절두체 컬링 | `client/cull/` | 서버 결과와 조각 목록 일치 | sonnet |
+| T08.8 | 컬링 + LOD 결합 선택 | `server/cull/combine/` | 8시점 SSIM ≥ 0.95, 조각 수 기록 | opus |
+| T08.9 | 컬링 비용 측정 | `bench/cull/` | 시점당 CPU 시간 기록 | haiku |
+| T08.10 | 퇴화 시점(지면 아래·NaN·0 화각) 처리 | `server/cull/degenerate/` | 패닉 0, 빈 결과 | sonnet |
 
 ### T09 `codec` — [cloud]
 
