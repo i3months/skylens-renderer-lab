@@ -1,6 +1,8 @@
-// 사용: cd /home/user/wt/p9 && node /home/user/wt/lab/experiments/t13b-quality-measure.mjs [점수=200000] [시드=1]
+// 사용(제품 작업 트리에서 실행, 제품 코드는 현재 디렉터리에서 import):
+//   node <연구 저장소>/experiments/t13b-quality-measure.mjs [점수=200000] [시드=1] [sizec|adopted]
+//   adopted: 채택 방식(모턴 등간격, 수준 비례, createSpatialThinner)을 S6_SEND_CONFIG 구간 예산이 정한 비율로 잰다.
 // 기준 = 솎기 전 원본 점군 렌더, 비교 = (솎기 -> 컬링+LOD -> 조각 왕복) 렌더. 방법은 bench/status_quality 와 동일.
-const P = '/home/user/wt/p9/';
+const P = process.cwd() + '/';
 const imp = (p) => import(P + p);
 const { generate } = await imp('fixtures/scenes/flat_boxes/index.mjs');
 const { viewpointToCamera } = await imp('tools/render_views/index.mjs');
@@ -10,6 +12,7 @@ const { buildHierarchy, materialize } = await imp('server/lod/select/index.mjs')
 const { cullAndSelectDefault } = await imp('server/cull/combine/index.mjs');
 const sq = await imp('bench/status_quality/index.mjs');
 const { W, H, TAU, POINT_SIZE_M, LEVEL_COUNT, MAX_LEAF, EDGE0_M, VIEWPOINTS, chunkedRoundTrip } = sq;
+const ADOPTED = process.argv[4] === 'adopted';
 const SIZEC = process.argv[4] === 'sizec'; // 4번째 인자 sizec: 솎은 비율 f 에 맞춰 비교 렌더 점 크기를 1/sqrt(f) 배
 const COUNT = +process.argv[2] || 200000, SEED = +process.argv[3] || 1;
 
@@ -54,7 +57,27 @@ async function run(thinned, ps) {
     const rt = chunkedRoundTrip(sel);
     s.push(ssim(refs[i], renderPoints(cams[i], rt.cloud, { pointSizeM: ps }).color, W, H, 3));
   }
-  return { min: Math.min(...s), mean: s.reduce((a, b) => a + b) / s.length, sent: sent / cams.length };
+  return { each: s, min: Math.min(...s), mean: s.reduce((a, b) => a + b) / s.length, sent: sent / cams.length };
+}
+const { createSpatialThinner } = await imp('server/scheduler/segment_budget/index.mjs');
+function mortonThin(c, f) { // 채택 방식: 모턴 순 등간격, 정확히 round(f*N)개
+  return subset(c, Array.from(createSpatialThinner(c.positions).select(Math.round(c.count * f))));
+}
+if (ADOPTED) {
+  // 구간 예산이 정한 점 비율(S6_SEND_CONFIG, 3 구간 중 최소 점 비율)과 대조 비율을 같은 방식으로 잰다.
+  const { measureStatusBandwidth, S6_SEND_CONFIG } = await imp('bench/status_bw/index.mjs');
+  const bw = measureStatusBandwidth({ segments: 1, pointsPerSegment: 2500000, ...S6_SEND_CONFIG });
+  const row = bw.rows[0], frac = row.points / row.sourcePoints;
+  console.log(`구간 예산 맞춤: 송출 ${row.points}/${row.sourcePoints} 점 비율 ${(100 * frac).toFixed(2)}% 구간 ${row.frameBytes} B`);
+  console.log(`장면 flat_boxes seed=${SEED} 점=${cloud.count} 해상도=${W}x${H} 시점=${cams.length}`);
+  console.log('방식\t목표%\t실제점%\t선택점(시점평균)\tSSIM최소\tSSIM평균\t>=0.95\t시점별');
+  for (const f of [1, frac, 0.5, 0.2, 0.1]) {
+    const t0 = Date.now();
+    const t = f === 1 ? cloud : mortonThin(cloud, f);
+    const r = await run(t, POINT_SIZE_M);
+    console.log(`${f === 1 ? '기준' : f === frac ? '채택 방식' : '모턴 등간격'}\t${(f * 100).toFixed(2)}\t${(100 * t.count / cloud.count).toFixed(2)}\t${r.sent.toFixed(0)}\t${r.min.toFixed(4)}\t${r.mean.toFixed(4)}\t${r.min >= 0.95 ? 'O' : 'X'}\t${r.each.map((v) => v.toFixed(4)).join(' ')}\t(${((Date.now() - t0) / 1000).toFixed(0)} s)`);
+  }
+  process.exit(0);
 }
 console.log(`장면 flat_boxes seed=${SEED} 점=${cloud.count} 해상도=${W}x${H} 시점=${cams.length}`);
 console.log('방식\t목표%\t실제점%\t선택점(시점평균)\tSSIM최소\tSSIM평균\t>=0.95');

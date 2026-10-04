@@ -94,4 +94,4 @@
 | [0040](0040-t12u-ws-session-wiring.md) | ws 세션 배선: LEVEL_ARRIVED 는 send 전에 기록, 이어받기 때 resendPlan 재전송 | 승인 | 작업자 제안, 감독 승인(PR #54 검토 #3) |
 | [0041](0041-t13-statusview-adapter.md) | 현황판 어댑터: 모듈 주입 조립, 조각 요청 입력·pieceSeq 장부, 대응표 추정 상태 | 승인 | 작업자 제안, 감독 승인(PR #56 검토 #3) |
 | [0042](0042-t13-wire-and-bandwidth-records.md) | ws 진입점 wire 층(store.close 직접 호출)·F-287 ⑦ 구조 시험·S6 미달 기록 방식 | 승인 | 작업자 제안, 감독 승인(PR #56 검토 #3) |
-| [0043](0043-t13b-s6-codec1-spatial-budget.md) | S6 구간당 문턱: 무손실 색 코덱 1 + 구간 점 예산 솎기(B+C), 증분 송출(A) 기각 | 제안 | 작업자 제안(T13.B), 화질 영향 있음 |
+| [0043](0043-t13b-s6-codec1-spatial-budget.md) | S6 구간당 문턱: 무손실 색 코덱 1 + 구간 점 예산 솎기(B+C), 증분 송출(A) 기각 | 승인(조건부 — S6·S9 충돌은 사람 판단, F-302) | 작업자 제안(T13.B), 화질 영향 있음 |

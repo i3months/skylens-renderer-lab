@@ -1,7 +1,7 @@
 # T13b 압축 한도 — 실험 노트 (S6: 구간당 ≤ 3,000,000 B)
 
-- 제품 저장소는 읽기·측정만 했다: 워크트리 /home/user/wt/p8, 브랜치 feat/t13b--8, HEAD 14ba5f4e. 제품 파일 변경 없음.
-- 측정 스크립트: experiments/t13b-codec-measure.mjs (제품 코드는 /home/user/wt/p8 에서 import). node v22.22.0, 4코어 컨테이너.
+- 제품 저장소는 읽기·측정만 했다: 작업 트리(브랜치 feat/t13b--8), HEAD 14ba5f4e. 제품 파일 변경 없음.
+- 측정 스크립트: experiments/t13b-codec-measure.mjs (제품 코드는 제품 작업 트리 루트 기준 상대 경로로 import). node v22.22.0, 4코어 컨테이너.
 - 단위: 1 MB = 10^6 B. "B/점" 은 본문+헤더 포함 바이트 ÷ 점 수.
 
 ## 질문
@@ -18,7 +18,7 @@
 
 ## 재현 명령
 ```
-cd /home/user/wt/lab/experiments
+cd experiments   # 연구 저장소 루트 기준
 node t13b-codec-measure.mjs bytes  2500000                   # 현재 codec 1 필드별 (약 13 s)
 node --max-old-space-size=8000 t13b-codec-measure.mjs alt 2500000   # 대안 부호기 (약 87 s)
 node --max-old-space-size=6000 t13b-codec-measure.mjs hard 2500000  # 어려운 변형 (약 46 s)
