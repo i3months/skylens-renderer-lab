@@ -3235,7 +3235,7 @@
 - → 2026-10-04 작업자: ①②③④⑤⑦⑧ 처리(⑥ 기록만). 제품 PR #55·연구 PR #55.
 - → 2026-10-04 17:25 감독(PR #55 검토 #2): 닫음. ① 축 4a M1 변이 connection.test 실패, ② NaN 검사 삭제 변이 실패(축 7: BigInt·'3'·Infinity 도 TypeError), ③ 축 4b M13 변이 reads 72040 > 3N=12000 실패(원본 0), ④ contract.mjs:49-50, ⑤ t12v.md:11, ⑦ t12v.md:8 감독 수치, ⑧ emit_sentkeys.test.mjs:66-75. 남은 세부는 F-287.
 
-### F-287 [처리됨-검증대기] (심각도: 낮음) — PR #55 검토 #2 잔여 세부
+### F-287 [닫힘] (심각도: 낮음) — PR #55 검토 #2 잔여 세부
 - 위치: 제품 server/ws/session/contract.mjs:37·:50-51, emit.mjs:122·:163-165, connection.mjs:99-105·:154-157, emit_sentkeys.test.mjs:37·:49·:77-85, client/raster/room_cand_promote.test.mjs:165·:169, 연구 experiments/t12v.md:9·:11·:15 (feat/t12v 612119a, experiment/t12v 4dc420c)
 - 문제·실패 상황:
   ① (중간, 축 3) contract.mjs:50-51 클라이언트 규약 "이전 세션의 도착·상주 상태는 클라이언트가 버리거나 … 따로 처리해야 한다" 가 두 갈래라, 이전 세션 수준 2 를 둔 채 새 세션의 같은 구간 수준 1 을 옆에 그리는 구현을 허용한다(SPEC 같은 구간 수준 교체·누적 금지 위반 소지). 규약을 하나로: "새 세션 도착분이 (구간, 수준) 키로 교체하고, 새 세션이 도착시키지 않은 칸은 비운다. 이전 세션 데이터로 채우거나 보간하지 않는다."
@@ -3254,6 +3254,7 @@
 - 이력: 2026-10-04 17:25 감독 등록(PR #55 검토 #2, 축 3·4a·4b·5·7). 신규 — 모두 이번 PR 의 새 코드·문서 범위(범위 밖 끌어오기 아님). ① 은 감독이 contract.mjs:48-51 을 직접 읽어 확인, ④⑤⑥ 은 축 7 재현(감독 미재실행).
 - → 2026-10-04 작업자: ①②③④⑤⑥⑧⑩ 제품, ⑨ 연구 처리, ⑦ 미해결(구조 시험 live=N·length ≤ 2·live+1024 로 대체, 감독 판단 요청). 제품·연구 PR #56.
 - → 2026-10-04 17:48 감독(PR #56 검토 #1): 일부 통과. 감독 grep·직접 읽음(feat/t13 a8d0654): ① contract.mjs '버리거나' 0건·교체 규약 문장(:50-51), ② '새 세션으로 받게' 0건, ④ emit_sentkeys.test.mjs:80·:93(LA('3',2)·(1,Infinity)·2**60 TypeError, _tracked 불변), ⑤ connection_edge.test.mjs:18(NaN·'3'·1.5·Infinity·{}), ⑥ :52-57(closeCb 2회 → onClose 1회), ⑧ room_cand_promote.test.mjs:166·:170, ⑩ emit.mjs:7·:11, ⑨ t12v.md 갱신 — 통과. ③ 변이 재실행은 축 4b 결과 미도착으로 이번 판정에서 보류(처리됨-검증대기). ⑦ 감독 판단: 오름차순 순번 어댑터에서 만들 수 없는 흐름이라 구조 시험 대체를 받아들인다 — 단 그 판단과 대가(앞쪽 끼어들기 O(N), N=60000 에서 86 µs/LA)는 결정 기록에 남긴다(F-290 에 포함). 남은 것: ③ 변이 확인, ⑦ 결정 기록. 권장 모델: haiku.
+- → 2026-10-04 17:52 감독(판정 뒤 도착한 축 4b): 닫음. ③ 전부 비움 분기 삭제 변이에서 emit_sentkeys.test.mjs:36 실패, ④⑤⑥ 변이도 각각 실패. ⑦ 의 결정 기록은 F-290 확인 기준으로 옮겨 그쪽에서 확인한다.
 
 ### F-288 [열림] (심각도: 높음) — 새 세션(WELCOME resumed=false) 뒤 이전 세션의 구간·수준 상태가 남아 그려지고, 새 세션 도착분이 추월로 버려진다
 - 위치: 제품 client/status/e2e/index.mjs:11-12(머리 주석 ⓪ "이미 도착한 수준 상태는 그대로 둔다"), :104-107(onWelcome 이 bySeq·maxSeq 만 비움), e2e.test.mjs:122(이 동작을 정답으로 고정), client/status/arrival/index.mjs:35(seen 세션 단위 초기화 없음), 연구 decisions/0041:18('도착 안 한 칸을 비우는 일은 호출자 몫(미결)') (feat/t13 a8d0654)
@@ -3270,6 +3271,7 @@
 - 실패 상황: 구간 바이트 3,000,001~3,145,728 B 는 SPEC·bench/proto 로는 미달인데 현황판 시험은 통과. 미달 배율도 16.4배가 아니라 51.6/3.0 = 17.2배.
 - 고칠 것: STATUS_BANDWIDTH_LIMITS 를 bench/proto 상수 재사용(15_000_000 / 3_000_000)으로. 시험·README 한·영·t13.md 수치를 MB 기준으로.
 - 확인 기준: contracts/statusview 에서 grep '1024 \* 1024' 0건, 시험이 15_000_000·3_000_000 단언, 3,000,001 B 가 초과로 판정되는 시험 1건, README 한·영 "MiB" 0건.
+- 재발: F-186 에서 이미 15_000_000·3_000_000 으로 고친 문제가 새 계약에서 다시 생겼다(축 4b). 같은 실수가 세 번째로 나오면 opus.
 - 권장 모델: sonnet
 - 이력: 2026-10-04 17:46 감독 등록(PR #56 검토 #1, 축 2·축 5 — 감독이 contracts/statusview/index.mjs:118 과 bench/proto/index.mjs:2-5 직접 읽어 확인). 신규.
 
@@ -3317,6 +3319,7 @@
 - ⑦ (낮음, 축 1) overlay ROTATION_TOL 1e-6 이면 |X_w| 1e4 m 에서 왕복 1.4 cm — 허용 오차를 1e-9 로 내리거나 역투영에 실제 역행렬, 계약에 |X_w| 상한.
 - ⑧ (낮음, 축 5) status_quality 는 320×180·20만 점·무손실 색·CPU 래스터 조건 — 시험 diagnostic·README·t13.md 에 'S9 확정 아님([local] T13.10L)'과 조건 병기.
 - ⑨ (낮음, 축 2) wire.test.mjs 의 실제 createWsServer 경로 시험이 stats 0 만 본다 — 실제 소켓 정지 시나리오에서 stoppedCalls 1.
+- ⑩ (낮음, 축 4b 변이 M3b) connection.mjs:102 닫힌 뒤 정지 분기의 Number.isInteger(stoppedAt) 를 지워도 server/ws 전체 통과 — 'replay 대기 중 closeCb 뒤 stoppedAt NaN 이면 onStopped 0회, 정수면 1회' 시험 추가.
 - 확인 기준: ① 계약 문자열과 e2e.test 단언 일치, ② 실제 조립에서 교체 N번+frame() 뒤 levels.released().length 0, ③ 교체 뒤 해제 수준 pieceSeq 색인 없음, ④⑤ 해당 변이 실패, ⑥ 재현 입력 시험, ⑦ 1e4 m 왕복 ≤ 1 cm, ⑧⑨ grep·시험.
 - 권장 모델: sonnet(①②③④⑥⑨), haiku(⑤⑧), opus(⑦)
 - 이력: 2026-10-04 17:46 감독 등록(PR #56 검토 #1, 축 1·1b·2·4a·5·6·7 — 감독 미재실행, 근거 줄은 보고 기준). 신규 — 모두 이번 PR 의 새 코드.
