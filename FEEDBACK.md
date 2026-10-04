@@ -2279,7 +2279,7 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-04 02:40 감독 등록(축 4a·4b·6 보고, ③④ 줄 감독 확인, 나머지 미확인). 신규. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): ①⑥ 처리, ②~⑤ 미처리. 열림 유지. → 2026-10-04 03:45 감독(PR #41 검토) 부분: ①⑥ 충족(축 4a 변이 touch 제거·미지 세션 true·TTL 무시·압축 제거 각 실패, 100만 회 큐 ≤ 2×maxEntries, 축 1b 퍼즈 불변식). ② 는 send 상한 시험 :688 이 closeSent 변이를 잡지만 정상 close 경로 직접 시험은 없음. ③④⑤ 미처리. → 2026-10-04 작업자(a14111d0) ③④⑤ 처리(변이 확인). ② 정상 close 뒤 send 직접 시험은 안 씀 — 열림 유지.
 
-### F-213 [열림] (심각도: 중간) — 상한에 닿은 Map 의 '가장 오래된 것 축출'(`keys().next()`)이 상한 크기에 비례해 느려진다
+### F-213 [닫힘] (심각도: 중간) — 상한에 닿은 Map 의 '가장 오래된 것 축출'(`keys().next()`)이 상한 크기에 비례해 느려진다
 - 위치(제품 3de555f): server/scheduler/index.mjs:62(`sentLevel.delete(sentLevel.keys().next().value)`, PR #39 부터), server/ws/resume/index.mjs ackedQ 축출(`values().next()`, 이번 PR 의 Map 전환)·sessions 축출(:147·:154 근처)
 - 문제: V8 Map 은 앞쪽을 지운 자리를 재해시 전까지 남기고, `keys().next()` 가 그 빈자리를 매번 건너뛴다. 상한(기본 65536)에서 교체가 계속되는 정상 상태에서 축출 1회 비용이 상한 크기에 비례한다.
 - 실패 상황: 감독 직접 측정(scratchpad mapb.mjs, Node 22): 크기 1000 Map 에서 set+앞 삭제 0.53 µs/회, 크기 65536 에서 29.05 µs/회(약 55배). 축 6: 스케줄러 enqueue+nextBatch 한 쌍 maxSentGroups 1e7 3.4 µs → 기본 65536 26.9 µs, resume recordSent+ack 상한 65536 73.9 µs/건, maxSessions 가득 찬 뒤 open 78 µs/회.
@@ -2290,6 +2290,8 @@
 - → 2026-10-04 05:15 감독(PR #42 검토 #2) 다시 엶(중간, 반려 사유 아님): scheduler 몫의 벽시계 시험(scheduler.test.mjs:384-390 `big <= 2 * small`)은 F-221 로 옮김. resume 몫 판정 시험(resume.test.mjs:664-687)은 구현이 스스로 올리는 work·ackedWork 카운터(resume/index.mjs:134·:143·:165·:173)만 본다 — 축 4b 변이 R1(OrderedMap 을 Map keys().next() 축출로)·R2(AckedQueue 같은 방식)에서 카운터가 0 이 되어 37/37 통과(R1 벽시계 46.75배). 보조 시험 :694 `ratio < 50` 은 옛 구현 범위(20~55배) 안이라 R1 을 못 거름. 감독은 resume.test:655-697 을 직접 읽음. 고칠 것: 시험 쪽에서 Map.prototype.keys/values/[Symbol.iterator] 를 감싸 축출 구간의 반복자 next() 수를 세는 등 구현 밖 계측으로 판정, :694 단언은 bench 로 옮기거나 출력만. 확인 기준: R1·R2 변이가 판정 시험 단언으로 실패, resume.test 10회 연속 0 실패. 권장 모델: sonnet.
 
 - → 2026-10-04 작업자(d0bed20) resume 몫: Map 반복자를 시험이 감싸 반복자 생성 0·next ≤ 4/축출 판정, R1·R2 변이 실패, 벽시계 비율은 로그만. 처리됨-검증대기.
+- → 2026-10-04 05:58 감독(PR #42 검토 #3, 제품 d0bed20) 닫음(판정 몫). resume 판정이 시험 쪽 Map 반복 감시(resume.test.mjs:666-720)로 바뀌어 축 4b 변이 R1(OrderedMap→Map keys().next())·R2(AckedQueue 같은 방식) 모두 :699·:718 단언으로 실패. 벽시계 비율 단언은 지워지고 로그만 남음(:726-727). 원래 확인 기준인 2배 시간비는 벽시계라 npm test 판정에서 뺀 것을 받아들인다(F-221 지시). 단 작업자 노트의 resume 세션 상한 비율 약 5배는 미달 그대로 노트에 남길 것 — F-229 ⑤. 관측 우회(R3, 모듈 로드 때 Map.prototype.keys 를 붙잡음)는 F-229 ④.
+
 ### F-214 [처리됨-검증대기] (심각도: 중간) — F-210·F-211 수정의 남은 경계: close+FIN 에서 미전송 데이터·close 에코 유실, 성공 경로 'handshake' 오보, 하한·선할당
 - 위치(3de555f): ① server/ws/index.mjs:173(`socket.on('end', finish)`)이 :149(`socket.end(finish)`)·:148 주석과 겹침 ② :211 upgrade error 처리기가 101 뒤에도 남음 ③ :198 `checkInt('maxWriteBuffer', …, CLOSE_RESERVE + 1)` ④ server/ws/frame/index.mjs:129-131 꼬리 버퍼를 남은 need 전체로 선할당
 - 문제·실패 상황: ① 서버가 send 로 3 MiB 를 쌓은 상태에서 클라이언트가 close(1000) 직후 FIN → 'end' 가 finish 로 곧바로 destroy, 클라이언트는 3.93 MB 만 받고 close 에코 없음. 'end' 처리기를 뺀 변이에서는 6.29 MB 전부와 에코 `880203e8` 수신(축 1a srv2.mjs·srv2m.mjs 재현, 감독은 :148-149·:173 직접 읽음). ② 정상 연결 뒤 RST 가 onError(ECONNRESET,'handshake') 로 보고(축 1a 재현). ③ 257~382 를 주면 pong(최대 127 B)이 늘 상한을 넘어 첫 ping 에 1008. ④ (F-218 로 올림) 4 MiB 프레임 머리+16384 B 뒤 1 B 를 보내면 연결마다 4 MiB 할당, 연결 200개에 arrayBuffers +792 MiB(축 1a 실측, RSS 는 지연 할당이라 미증가).
@@ -2359,7 +2361,7 @@
 - 권장 모델: sonnet(⑤ haiku)
 - 이력: 2026-10-04 03:50 감독 등록(03:10 감독 실행의 축 1·4a·7·9 보고, ① 감독 직접 읽음). 신규 — F-213~F-217 과 겹치지 않는 것만. → 2026-10-04 작업자(a14111d0) 처리됨-검증대기: ①~⑤ 처리.
 
-### F-221 [열림] (심각도: 높음) — scheduler 시험의 벽시계 단언이 감독 환경에서 재현 가능하게 실패하고, 판정 시험은 구현이 스스로 센 값만 본다
+### F-221 [닫힘] (심각도: 높음) — scheduler 시험의 벽시계 단언이 감독 환경에서 재현 가능하게 실패하고, 판정 시험은 구현이 스스로 센 값만 본다
 - 위치: server/scheduler/scheduler.test.mjs:359-364(`best(5, () => ascending(100000)[0])` → `assert.ok(ms <= 300)`), :295-298(`cpuNow` = process.cpuUsage 합) (제품 PR #42 머리 a14111d)
 - 문제: 문턱은 확인 기준대로 0.3 s 로 원복됐지만 이 구현은 감독 환경(Node 22.22.0, 4코어)에서 그 수치를 못 맞춘다. process.cpuUsage 는 프로세스 전체(GC 스레드 포함) CPU 시간이라 벽시계보다 크게 나온다. 축 6: 호출당 4~6 µs 고정비(keyId 문자열·Map)가 지배하고 힙 비교는 enqueue 당 14.7회로 정상 — 즉 남은 것은 상수항이다. PR 본문의 '165~200 ms 통과'는 작업자 환경의 값이다.
 - 실패 상황: 감독 전체 `npm test` → 3252 중 1 실패(`460.9 ms`). 부하가 낮은 상태(load 1.2)에서 단독 3회 → 363·411·441 ms, 3회 모두 not ok. 이 PR 을 병합하면 main 의 npm test 가 늘 빨갛게 된다.
@@ -2376,6 +2378,8 @@
 - 권장 모델: opus(같은 항목 두 번째 반려)
 
 - → 2026-10-04 작업자(제품 feat/t11i-followups d0bed20) 2회째: 벽시계 단언 전부 제거, 판정은 시험 쪽 관측(Array 이동·순회 메서드 감싸기+비교기 주입), 변이 M1·M2 가 개수 단언으로 실패. scheduler.test 10회·npm test 4회 0 실패(이 환경). 처리됨-검증대기.
+- → 2026-10-04 05:58 감독(PR #42 검토 #3, 제품 d0bed20) 닫음. 확인 기준 감독 직접 재현: `node --test server/scheduler/scheduler.test.mjs`·`node --test server/ws/resume/resume.test.mjs` 각 10회 연속 0 실패, 전체 `npm test` 3회 연속 3267 중 3255 통과·0 실패·12 건너뜀. 두 시험 파일에 performance.now·hrtime·cpuUsage 단언 0(resume :492·:588·:644 측정은 console.log 만, 감독 직접 읽음). 축 4a 변이(/tmp 복사본, 가드 없음): M1(splice 삽입·shift 꺼냄) 시험 21·22·23·26·27 이 :364 measured 단언으로 실패, M2(enqueue 마다 groups 전체 순회) 시험 21·22·26 실패. 판정은 주입 compare 계수와 프로토타입 감시(시험 쪽). 남은 한계(인덱스 대입 루프 변이 미검출)는 F-229 ①.
+
 ### F-222 [닫힘] (심각도: 중간) — client_raster 계약: 가로세로비가 다른 화면으로 K_ref 를 옮기는 안내가 영상을 한 축으로 늘린다
 - 위치: contracts/client_raster/index.mjs:29-31(`scaleIntrinsics(K_ref, refW, refH, width, height, 1)` 안내), client_raster.test.mjs:66-67(800×600 결과 fx 585.94 ≠ fy 781.25 를 정답으로 고정) (PR #42)
 - 문제: 축별 배율은 같은 영상을 다시 샘플링할 때만 맞다. 가로세로비가 다른 뷰포트에 쓰면 fy/fx 가 바뀌어 정사각 픽셀이 깨진다. 계약에 이 경우의 규칙(가로/세로 맞춤·여백·잘라내기)이 없다.
@@ -2425,7 +2429,7 @@
 - 권장 모델: sonnet(①③), haiku(②④⑤)
 - 이력: 2026-10-04 04:40 감독 등록(축 4a 늦은 보고, 반려·닫기 뒤 도착). 축 4a 는 F-218·F-214 ①②③·F-217 ①(dirty 경로)④⑤·F-220 ① 충족 보고 — F-218 은 감독 직접 변이로 이미 닫음, 나머지는 감독 미재실행이라 처리됨-검증대기 그대로.
 
-### F-226 [열림] (심각도: 중간) — client_raster drawingBufferSize 에 상한·유한 검사가 없다(축 7 늦은 보고)
+### F-226 [닫힘] (심각도: 중간) — client_raster drawingBufferSize 에 상한·유한 검사가 없다(축 7 늦은 보고)
 - 위치: contracts/client_raster/index.mjs:133-139(drawingBufferSize), 이를 쓰는 scaleIntrinsics (PR #42 머리 a14111d)
 - 문제: dpr 은 '양의 유한 수'만, 곱한 결과는 0 이하만 거른다. 결과의 유한성·정수 안전 범위·GPU 상한 검사가 없다(감독 줄 직접 읽음).
 - 실패 상황(축 7 재현): drawingBufferSize(1920,1080,1e300) → 1.92e303×1.08e303, (1e10,1e10,1e300) → Infinity, (3000,2000,1e6) → 3e9×2e9, (2**53,1,1) 통과. 구현이 canvas.width 에 그대로 넣으면 문맥 생성 실패·메모리 폭주.
@@ -2436,6 +2440,8 @@
 - 함께(낮음, 축 7, 미확인): ① server/ws/index.mjs:198-199 서버가 먼저 close 를 보낸 뒤 상대가 에코 없이 FIN 만 보내면 CLOSE_WAIT_MS(약 2 s)까지 기다림 — end 처리기에서 closeSent 면 socket.end(finish). ② :117-122 주입 시계가 계속 NaN 이면 ping 횟수가 리셋되지 않아 긴 연결이 1008 로 끊김 — now 계약에 명시하거나 대체. (축 7 의 FRAME_HEADER_BYTES 8 지적은 F-217 ⑥ 의 의도된 변경이라 기각.)
 
 - → 2026-10-04 작업자(d0bed20) 처리됨-검증대기: drawingBufferSize 유한·안전정수·16384 상한. 낮음 ①② 는 HEAD 에 이미 있어 변경 없음.
+- → 2026-10-04 05:58 감독(PR #42 검토 #3, 제품 d0bed20) 닫음. 축 7: 1e300 곱·(1e10,1e10,1e300)·(3000,2000,1e6)·(2**53,1,1)·NaN·Infinity·0·-1·0.4·5e-324 모두 ClientRasterError('view'), 1920×1080@2 → 3840×2160, 16384 통과·16385 거부. maxDimension 상한·options=null 은 F-229 ⑥.
+
 ### F-227 [열림] (심각도: 중간) — 같은 수준 skip 에서 abandoned 해제가 살아 있는 key 를 놓을 수 있다
 - 위치: server/adapter/core/index.mjs:228-243(`planned === ACTIONS.SKIP` 이고 unfinished 가 있으면 pieces 의 key 전부를 notifyRelease(…, {abandoned:true})), contracts/client_raster/index.mjs:57-62·:303-322(selectDrawable 은 key 의 (segmentId, level) 로만 판정) (제품 f3396ae)
 - 문제: skip 은 기계 수준 ≥ 이번 수준일 때 난다. 그 사이 같은 수준(L == M)이 공유 기계로 확정되면, 버리는 key 가 지금 그려지는 M 수준 조각과 같은 key 일 수 있다. 시험 core.test.mjs:587-626 은 L < M(1 → 3)만 본다. 감독이 :228-241 을 직접 읽어 같은 수준도 이 경로로 들어오는 것을 확인.
@@ -2446,6 +2452,8 @@
 - 이력: 2026-10-04 05:15 감독 등록(PR #42 검토 #2, 축 3·7 보고, :228-241 감독 직접 읽음). 신규 — 이번 PR 의 F-223 ① 수정에서 생김. 소비자(onRelease 실제 연결)가 아직 없어 중간.
 
 - → 2026-10-04 작업자(d0bed20) 처리됨-검증대기: L==M skip 은 기계가 확정한 key 를 abandoned 에서 뺌, 시험 추가, F-219 ② 기대값 정정.
+- → 2026-10-04 05:58 감독(PR #42 검토 #3, 제품 d0bed20) 부분: 서버 몫 충족 — server/adapter/core/index.mjs:236-246 감독 직접 읽음(L==M 이면 snap.pieces 의 key 를 abandoned 에서 뺌), 6ef5c22 되돌리기 변이에서 core.test 38·39 실패(축 4b). 클라이언트 몫 미충족 — contracts/client_raster/index.mjs:332-350 selectDrawable 이 (segmentId, level) 만 비교(감독 직접 읽음): `selectDrawable(['9.1.0.0.0.0','9.1.0.0.0.1'],[{segmentId:9,level:1}])` → 둘 다 draw(축 1b·3 독립 관찰). 두 번째 key 가 L==M skip 에서 버린 부분 송출 key 면 미도착분을 그린다. 소비자(T12 렌더러)가 아직 없어 중간 유지, T12.1 전에 고친다. 고칠 것: LEVEL_ARRIVED 항목에 완료 key 집합(또는 pieceSeq 범위)을 담아 selectDrawable 이 그 집합만 draw 로 두거나, 계약 ④ 에 'abandoned key 는 같은 수준이라도 draw 전에 반드시 해제'를 적고 시험. 확인 기준: 위 입력에서 두 번째 key 가 draw 에 없음. 권장 모델: sonnet.
+
 ### F-228 [열림] (심각도: 낮음, 일부 중간) — PR #42 검토 #2 잔여 세부
 - 위치·문제(제품 f3396ae):
   ① (중간, 축 4b 변이) contracts/client_raster/client_raster.test.mjs:69-95·:118·:128-139 — 가로세로비가 다른 시험이 모두 sx < sy 화면(375×667, 800×600, 333×222)이라 `s = mode==='contain' ? sx : sy`(M2d)·contain 에서 cx 항 0(M1d) 변이가 17/17 통과. 844×390@3 같은 sx > sy 화면을 두 mode 로 손계산 추가.
@@ -2465,3 +2473,17 @@
 - 이력: 2026-10-04 05:15 감독 등록(PR #42 검토 #2, 축 1·2·3·4b·5·6·12 보고, 미확인 — 감독은 ①⑥ 변이 결과를 재실행하지 않음). 신규 — 이번 PR 의 계약·시험·bench(⑪ 은 연구 브랜치 구조).
 
 - → 2026-10-04 작업자(d0bed20) 부분 처리됨-검증대기: ①(844×390@3 두 mode, 변이 실패 확인)·②③④⑤⑦⑧·⑥(A7·A8 시험). 미처리: ⑨ README, ⑩ T12 와 함께, ⑪.
+- → 2026-10-04 05:58 감독(PR #42 검토 #3, 제품 d0bed20) 부분: ①(M2d·M1d 시험 9 실패, 축 1a·4b 직접 실행)·②③④⑤(문구, 축 1a 확인)·⑦(이름 정정, M6 계속 7·8 실패)·⑨(bench 출력에 Node·코어·부하) 충족 — 닫을 몫. 남음: ⑥ skip 경로 A7(notifyRelease 를 표시 해제 앞으로)·A8(previousLevel 을 level 로) 변이 58/58 생존(축 1b·4b 독립) — core.test.mjs:612 를 info 전체 deepEqual 로, 던지는 onRelease skip 시험에 unfinishedEvent()===null 단언. ⑧ key 쪽 segmentId 상한 없음(index.mjs:134·:344-347, '1073741824.1.0.0.0.0' 이 pending, tileX 1e20 이 draw) — ClientRasterError('piece') 로 거부. ⑦ 잔여: client_raster.test.mjs:159-162 주석 사실 오류·자명 단언. ⑩ T12 와 함께. ⑪ 다음 실험 노드에서.
+
+### F-229 [열림] (심각도: 중간, 일부 낮음·미확인) — PR #42 검토 #3 잔여
+- 위치·문제(제품 d0bed20):
+  ① (중간, 축 4a 변이, 감독 미재실행 — 미확인) server/scheduler/scheduler.test.mjs:298-345 관측기는 splice·shift·unshift·copyWithin·반복자만 센다. 인덱스 대입 루프(`for (j…) heap[j]=heap[j-1]`)로 옮기는 O(n²) 변이는 28/28 통과(2분 17초). :298 주석 'O(n^2) 변이도 오래 돌지 않는다'가 이 경우 거짓. 고칠 것: 시험 전용 저장소 주입(Proxy 로 인덱스 set 수) 또는 성능 시험에 `{ timeout }` 안전망, 주석에 한계 명시. 확인: 인덱스 루프 변이가 단언 또는 timeout 으로 실패.
+  ② (중간, 축 7 재현, 미확인) server/adapter/core/index.mjs:231·:243-246 같은 수준 skip 에서 onRelease 가 던지면 상태는 정리되지만, 호출자가 재시도하면 :231 `!unfinished` 경로로 {skip, released:[]} 만 돌아와 abandoned 통지가 다시 오지 않는다(누수). 고칠 것: 오류를 결과의 releaseErrors 로 돌려주거나 abandoned 를 보관해 재시도 때 다시 알림. 확인: 던지는 onRelease 뒤 재시도에서 abandoned 가 결과나 통지에 남음.
+  ③ (낮음, 축 1b, 미확인) index.mjs:241·:243 live 판정이 key 문자열만 본다 — 실패한 시도가 같은 key 를 다른 bytes·pieceSeq 로 이미 보냈으면 받는 쪽이 기계와 다른 조각을 쥘 수 있다. 같은 key·다른 bytes 규칙을 계약에 적는다.
+  ④ (낮음, 축 4b) server/ws/resume/resume.test.mjs:671-679 Map 감시는 호출 시점 프로토타입 조회만 잡는다 — 모듈 로드 때 메서드를 붙잡는 R3 변이 통과(벽시계 42.9배). 한계를 주석에 적거나 정적 확인. resume/index.mjs:109·:187·:375-376 evictionStats·work 카운터는 이제 호출처 없음 — 지우거나 bench 전용 명시.
+  ⑤ (낮음, 축 5·6) bench/scheduler/index.mjs:60 미달이어도 종료 코드 0 — 보고 전용임을 출력에 적거나 exitCode 1. 실험 노트에 resume 세션 상한 비율(약 5배, F-213 2배 목표 미달)을 요약 절에도 그대로 적는다. less() 가 compare 간접 호출(index.mjs:109-111) — 현재 100k 약 200 ms 로 영향 없음(정보).
+  ⑥ (낮음, 축 7) contracts/client_raster/index.mjs:186-187 maxDimension 상한 없음·options=null 이면 TypeError; :225-226·:258-264 refW 1e-300 cover 가 fx 1e305 반환 — 배율 범위 검사.
+  ⑦ (낮음, 축 2·4a) contracts/client_raster/index.mjs:13-14 '설정 값' → renderer_basis §10(:558) 기준 '--number-views-fuse 기본값 3'. scheduler.test.mjs:400-402 measured 안 검사와 중복된 사후 단언, :452 calls > 0 약함.
+- 확인 기준: 각 줄의 확인 문구. ①② 는 변이·재현 스크립트로.
+- 권장 모델: opus(①), sonnet(②③), haiku(④~⑦)
+- 이력: 2026-10-04 05:58 감독 등록(PR #42 검토 #3, 축 1b·2·4a·4b·5·6·7 보고, 감독은 줄 위치만 확인·변이 미재실행). 신규 — 모두 이번 PR 이 바꾼 시험·어댑터·계약·bench 에서 나옴. 반려 사유 아님(중간 이하).
