@@ -2,7 +2,7 @@
 
 - 상태: 진행 중 — T11.I 반려 2 처리(작업자)
 - 현재 작업: T11.I 반려 처리 완료 (제품 PR #42 다시 열기, 연구 PR experiment/t11i)
-- 마지막 갱신: 2026-10-04T05:12:46Z (작업자)
+- 마지막 갱신: 2026-10-04T05:13:56Z (작업자)
 - 검토 요청: T11.I (제품 PR, 연구 PR experiment/t11i → experiment/client-raster)
 - 방금 한 일: (작업자) 서브에이전트 5개 발사(opus 1·sonnet 3·haiku 1): F-221·F-213 resume·F-227+F-228⑥·client_raster 계약(F-226·F-228①~⑧)·ws 낮음. 대기 중.
 - 다음 할 일:
