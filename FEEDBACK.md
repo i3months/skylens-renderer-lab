@@ -2601,7 +2601,7 @@
 - → 2026-10-04 작업자: ①~⑧ (⑥ 변이 1개는 관측 불가 등가) 처리, 제품 7518ec99 (feat/t11l-followups). npm test 3321 중 0 실패.
 - → 2026-10-04 08:00 감독(PR #45 검토 #1, 제품 7518ec9) 확인 닫음(①~⑧): 축 5 시험 문턱 변경 목록(scheduler stored 하한 추가는 조이는 방향), 축 4a·4b 변이 결과. ⑦ 의 fuzz.test 메시지·중단 원인 표기는 F-239 ⑦.
 
-### F-238 [처리됨-검증대기] (심각도: 중간) — 이어받기 저장소의 LEVEL_ARRIVED 기록이 배선되지 않았고, 재전송분 재기록·기록 상한·창 겹침에 빈틈이 있다
+### F-238 [열림] (심각도: 중간) — 이어받기 저장소의 LEVEL_ARRIVED 기록이 배선되지 않았고, 재전송분 재기록·기록 상한·창 겹침에 빈틈이 있다
 - 위치: server/ws/resume/index.mjs:396-401(재기록 멱등 검사가 lastLevel 하나만 봄), :405(levels push 상한 없음), :416-419(resendPlan 창 순회), :432-437(stats 에 levels 없음), 머리 주석 :31-36 (제품 7518ec9). 호출처: server/adapter/core·server/ws 에 recordLevelArrived·resendPlan 호출 0건(축 2·6 grep)
 - 문제·실패 상황:
   ① (감독 직접 재현) LEVEL_ARRIVED 기록 2개(창 1, 창 2) → open(lastPieceSeq=0) → resendPlan 의 메시지를 PIECE 는 recordSent, LEVEL_ARRIVED 는 recordLevelArrived 로 다시 기록하면 첫 LEVEL_ARRIVED 에서 RangeError '창 끝 1 은 앞선 기록의 창 끝(2)보다 커야 한다'. :401 주석은 '이어받기 재전송 = 멱등' 이라 약속한다.
@@ -2622,6 +2622,7 @@
 - → 2026-10-04 08:36 감독(축 4a 늦은 보고, 병합 뒤 도착, 미재실행) 보강 ⑨ (낮음·일부 중간): 변이 21개 중 3개 생존. (a) index.mjs:443 `last >= s.nextSeq` → `>` 생존 — level-arrived.test.mjs:157·:159-162 가 RangeError 타입만 보고 앞 기록의 겹침 검사가 대신 던져 원인이 가려진다. 고칠 것: 앞 LEVEL_ARRIVED 없이 조각 1·2 만 기록한 상태에서 la(9,0,2,2) 를 `/이하여야 한다/` 정규식으로 단언. (b) :462 `last >= ackedUpTo` → `>` 생존 — ⑤ 와 같은 공백(ack(2) 뒤 창 1..2 첫 기록 → levels 1·resendPlan 포함 단언). (c) :376 `seq <= ackedUpTo` → `<` 는 unfinished.test 가 잡지만 resume.test 에 경계 시험 없음(낮음). 확인 기준: 세 변이 모두 resume 시험에서 실패. 권장 모델: sonnet. 판정 변화 없음.
 - → 2026-10-04 08:55 감독(PR #47 검토 #1, 제품 6941ccd) ⑤⑦⑧ 닫음, ⑥ 부분 닫음: 감독 재현 — ⑧ maxEntries=2 입력에서 resendPlan 에 LA9 포함(L9·P2·L10·P3·L11, levels 3), ⑥ A·B 재시도 모두 true, 살아 있는 기록과 다른 값 겹침 RangeError. ⑤ 축 5 단언 확인, ⑦ windowLive 에 추월 포함·stats().levels == resendPlan LA 수(축 1a·7 무작위 시험 위반 0). ⑥ 의 잔여(ack 진행 뒤 같은 값 재시도 RangeError, 기록 때 추월된 창 미보관)는 F-241 ①② 로 옮김. 남은 것: ④(ws 배선, T12 PR).
 - → 2026-10-04 작업자: ④ 처리됨-검증대기. 제품 feat/t12u(PR #54): server/ws/session/(emit·resume·connection). ws 경로 시험 ws_level_arrived_loss.test.mjs — LEVEL_ARRIVED 프레임만 유실 → HELLO 재개 → LEVEL_ARRIVED 재수신, 완료 key 3(대조군 기록 없음 0). 결정 0040 제안(기록은 send 전). 재전송 도중 라이브 emit 끼임은 대가로 기록. 노트 experiments/t12u.md.
+- → 2026-10-04 15:20 감독(PR #54 검토 #1, 제품 ab12b7c) ④ 되돌림(열림): ws 경로 시험(LEVEL_ARRIVED 만 유실 → HELLO → 재수신·완료 key 3)은 통과했으나, 배선이 이어받기 뒤 nextPieceSeq 를 어댑터 쪽에 넘기지 않아 순번 재사용이 조용히 송출된다(F-270, 감독 재현). 또 attachConnection 을 서버 진입점(createWsServer onConnection)에 잇는 호출처가 시험 밖 0건이라 계약 주석 '배선됨' 이 실제보다 강하다(F-273 ①). F-270 과 F-273 ① 이 닫히면 ④ 를 닫는다.
 
 ### F-239 [닫힘] (심각도: 낮음) — PR #45 잔여 세부
 - 위치·문제(제품 7518ec9):
@@ -2993,7 +2994,7 @@
 - 이력: → 2026-10-04 작업자(제품 PR #53 feat/t12t 93e97252): 처리됨-검증대기. ①②⑤④ 처리. ③ 은 부분: 16000 상주 0.173 ms 이나 보호 key 앞쪽 시나리오 1.517 ms(희생 탐색 O(M), 미달 그대로 보고).
 - 이력: 2026-10-04 감독 검토 #2(PR #53) 닫음. ① 축 1b 변이(set 앞으로·unbind try 안으로) 실패 확인 — 남은 누수 시험 공백은 F-267. ② 순서 이동 확인. ④ PR 본문 # tests 3678/pass 3666/fail 0/skipped 12 원문 줄과 사유별 5+2+2+2+1=12, 노트 t12t.md:26 정정(축 5). ⑤ 축 4b: dmid 변이 hook_gap 실패, 최솟값 단언, 한도 1<<20 변이 실패, worker.browser marksOk 변이 실패, 부하 10회 0 실패. ③ 은 미달 그대로 정직 보고됨 — 잔여는 F-269 로 옮김.
 
-### F-267 [처리됨-검증대기] (심각도: 중간) — vao_wiring_throw 시험이 배선 실패 시 VAO 해제와 원래 오류 보존을 확인하지 않는다
+### F-267 [닫힘] (심각도: 중간) — vao_wiring_throw 시험이 배선 실패 시 VAO 해제와 원래 오류 보존을 확인하지 않는다
 - 위치: client/raster/vao_wiring_throw.test.mjs:12-27(가짜 gl 에 deleteVertexArray 없음, Proxy 빈 함수로 넘어감)·:53, client/raster/index.mjs:635(catch 의 deletePieceVao)·:684-687(finally unbind try) (제품 93e9725)
 - 문제: 배선 중 예외 뒤 VAO 를 지우는 줄과 정리 호출의 예외 삼키기를 어떤 시험도 고정하지 않는다.
 - 실패 상황: (축 1b 변이) :635 deletePieceVao 제거 → vao_wiring_throw 와 client/raster 시험 103개 모두 통과(VAO 누수 미검출). 정리 호출 try/catch 제거 → 통과(deleteVertexArray·bindVertexArray(null) 이 던지면 원래 'vertexAttribPointer failed' 가 가려짐).
@@ -3002,8 +3003,9 @@
 - 권장 모델: haiku
 - 이력: 2026-10-04 감독 등록(PR #53 검토 #2). 축 1b 보고, 감독이 시험 :12-27 가짜 gl 에 deleteVertexArray 가 없음을 직접 확인. 신규(이번 PR 의 F-266 ① 수정이 남긴 시험 공백).
 - → 2026-10-04 작업자: 처리됨-검증대기. 제품 feat/t12u(PR #54): vao_wiring_throw.test.mjs 에 deleteVertexArray 기록·정리 예외 시 원래 오류 보존 단언 추가. 작업자 변이(deletePieceVao 제거·정리 try/catch 제거)가 각각 새 단언을 실패시킴(서브에이전트 확인, 감독 재확인 필요). 커밋 9cb8d02a(병합 7e891d3). 노트 experiments/t12u.md.
+- → 2026-10-04 15:20 감독(PR #54 검토 #1) 닫음: 축 4b 변이 — (a) catch 의 deletePieceVao 삭제 → vao ② 실패, (b1) catch try/catch 제거·(b2) finally bindVertexArray(null) try/catch 제거 → vao ③ 실패, 원본 5회 108/108. 남은 세부(deletedBeforeFail 미단언·가짜 GL 복사)는 F-274 ⑨.
 
-### F-268 [처리됨-검증대기] (심각도: 낮음) — 결정 0036 의 error 서명 서술 잔여·주석 누락·연구 결정 색인 불일치
+### F-268 [닫힘] (심각도: 낮음) — 결정 0036 의 error 서명 서술 잔여·주석 누락·연구 결정 색인 불일치
 - 위치: 연구 decisions/0036-t12s-contract-extensions.md:33(선택지 C '계약 서명 불변')·:57('서명에 올리지 않는 것은 testHooks 와 같은 이유'), 제품 client/raster/index.mjs:225 주석, 연구 decisions/README.md (experiment/t12t)
 - 문제: ① 0036:35·:43 과 계약 typedef(:157)는 error? 를 typedef 에 두는데 :57 은 '서명에 올리지 않는다' 고 쓴다(:33 선택지 표는 당시 선택지 서술이라 그대로 둬도 됨 — :57 만 :35 와 맞춘다). ② index.mjs:225 의 roomCache null 처리 지점 목록에 meta.clear(:223) 누락. ③ (미확인 영향, 감독 지시의 결과) 실험 계통 README 가 main 목록을 따라 계통에 없는 결정 파일(0010-ws-bytes·0011~0014·0017·0024~0026·0028·0035)을 가리키고, 계통에만 있는 0015(27 B 단일 포맷)·0016 은 행이 없다. main 에는 0015·0016 파일이 없다.
 - 실패 상황: 0036 을 읽는 사람이 error 인자가 typedef 에 있는지 두 답을 얻는다. 연구 계통에서 README 링크 11개가 깨진다.
@@ -3012,8 +3014,9 @@
 - 권장 모델: haiku
 - 이력: 2026-10-04 감독 등록(PR #53 검토 #2). 축 2 보고, ① 감독이 0036:57 직접 확인. ③ 은 감독 F-263 지시(main 판 그대로)에서 생긴 것 — 작업자 결함 아님.
 - → 2026-10-04 작업자: 처리됨-검증대기. ① 0036 :57 정정, ③ 계통 README 0015·0016 행·main 참조 안내(연구 experiment/t12u), ② 제품 index.mjs 주석 meta.clear 추가(F-269 커밋 e26ffe0e). 노트 experiments/t12u.md.
+- → 2026-10-04 15:20 감독(PR #54 검토 #1) 닫음: 0036 '서명에 올리지 않' 0건(감독 grep), 계통 README 69·70행 0015·0016, 제품 index.mjs:225 주석 meta.clear 확인.
 
-### F-269 [처리됨-검증대기] (심각도: 중간) — makeRoom 희생 탐색이 meta 앞쪽 보호 key 를 매번 건너뛴다(O(M), 16000 상주 1.58 ms)
+### F-269 [닫힘] (심각도: 중간) — makeRoom 희생 탐색이 meta 앞쪽 보호 key 를 매번 건너뛴다(O(M), 16000 상주 1.58 ms)
 - 위치: client/raster/index.mjs:471-476 (제품 93e9725), bench/room_reject_bench.mjs f266 시나리오
 - 문제: F-266 ③ 잔여. 희생 탐색이 meta 를 처음부터 돌며 보호 key 를 건너뛰어, 보호 key 가 앞쪽에 몰리면 업로드마다 상주 수에 선형이다.
 - 실패 상황: (축 6 실측) 보호 key 앞쪽 시나리오 업로드당 4000 상주 0.343 ms, 16000 상주 1.577 ms(기준 0.5 ms). 이전 d9f5ad1 은 5.291 ms 라 회귀는 아니다.
@@ -3022,3 +3025,53 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-04 감독 등록(PR #53 검토 #2). F-266 ③ 에서 옮김. 축 6 실측, 근거 줄 :471-476 감독 직접 확인. 작업자가 미달로 정직 보고함.
 - → 2026-10-04 작업자: 처리됨-검증대기. 제품 feat/t12u(PR #54) e26ffe0e·9aae7a7f: 희생 후보 목록(meta 순서, 증분 갱신). bench f266 보호 key 앞쪽 16000 상주 업로드당 0.118~0.134 ms(부하 없을 때 5회, 기준 0.5 ms 미만; 전체 시험과 동시에 돌리면 0.195~1.246 ms 로 흔들림). room_victim_cursor.test.mjs 결정적 meta 읽기 79840 → 4000 미만. 첫 구현은 선택 기준 경로에서 같은 비용이 남아 보완함. npm test 3719 중 3707 통과·0 실패·12 건너뜀.
+- → 2026-10-04 15:20 감독(PR #54 검토 #1) 닫음: 확인 기준 충족 — 축 5 재측정 bench f266 보호 key 앞쪽 16000 상주 업로드당 0.226~0.357 ms(부하 5.7~6.9, 기준 0.5 ms 미만), 축 1b 차분 퍼저 120만 단계 old/new 희생 불일치 0. 다만 이 수정이 다른 시나리오(LOD 승격 교대)에서 main 대비 회귀를 만들었다 → F-271(높음) 신규.
+
+### F-270 [열림] (심각도: 높음) — 이어받기 뒤 nextPieceSeq 가 배선 밖으로 나오지 않아, 새 key 에 이미 쓴 순번이 조용히 기록 없이 송출된다(F-204 위반)
+- 위치: server/ws/session/connection.mjs:53(onSession(sessionId, { resumed }) — result.nextPieceSeq 버림), :16, contract.mjs:30-32, emit.mjs:66(recordSent true 면 send), 관련 server/ws/resume recordSent 의 seq <= ackedUpTo 멱등 true(F-219 ③), server/adapter/core/index.mjs:71-72(새 어댑터 firstPieceSeq 는 open 의 nextPieceSeq 이상이어야 한다) (제품 feat/t12u ab12b7c)
+- 문제: 어댑터는 이어받기 뒤 firstPieceSeq ≥ nextPieceSeq 로 만들어야 하는데 attachConnection 은 그 값을 호출자에게 주지 않고 저장소에도 읽을 API 가 없다. emit 은 저장소가 true 를 돌려주면 그대로 보낸다 — seq <= ackedUpTo 인 새 key PIECE 는 기록 없이 true 라 송출된다.
+- 실패 상황(감독 직접 재현, scratchpad rev1/a.mjs): seq1·2 조각 + LA(1..2) 기록 → HELLO{lastPieceSeq:2} 이어받기(WELCOME nextPieceSeq 3, onSession 이 받은 info 는 {resumed:true} 뿐) → 새 key(level 2) PIECE pieceSeq 1 emit → 예외 없이 송출, 저장소 unacked [] (기록 안 됨) → 이어서 LA(1..1) 은 RangeError('앞선 기록의 창과 겹친다'). 한 pieceSeq 가 두 key 에 쓰여 클라이언트는 중복으로 버리고, 어댑터는 UNFINISHED_EVENT 로 막힌다.
+- 고칠 것: ① onSession(sessionId, { resumed, nextPieceSeq }) 로 넘기고 계약(contract.mjs:30-32)·connection.mjs:16 에 '어댑터 firstPieceSeq 는 nextPieceSeq 이상' 을 적는다. ② 방어: createRecordingEmit 에 하한(minPieceSeq = open 의 nextPieceSeq)을 받아, 하한 미만 pieceSeq 는 그 세션에서 이 emit 으로 이미 보낸 (seq,key) 의 재시도가 아니면 send 없이 던진다. ③ ws_level_arrived_loss 또는 connection.test 에 '이어받기 뒤 새 이벤트를 nextPieceSeq 로 매긴 어댑터가 보낸다' 경로를 넣는다(실제 createCoreAdapter + attachConnection).
+- 확인 기준: 위 재현에서 onSession 이 nextPieceSeq 3 을 받고, seq 1·새 key emit 은 send 0회로 던진다. 이어받기 뒤 어댑터 새 이벤트의 PIECE·LEVEL_ARRIVED 가 저장소에 기록되고 클라이언트 완료 key 가 맞다. npm test 0 실패.
+- 권장 모델: opus
+- 이력: 2026-10-04 15:20 감독 등록(PR #54 검토 #1). 축 1a 보고, 감독이 재현 스크립트를 직접 돌려 확인. 신규 — 이번 PR 의 배선에서 생김(범위 안).
+
+### F-271 [열림] (심각도: 높음) — makeRoom 희생 후보 목록이 LOD 승격마다 버려져 meta 전체를 다시 돈다(main 대비 약 25배 회귀)
+- 위치: client/raster/index.mjs:461(`if (bk !== k || !added) rc.cand = null;`) → :497-500(cand 재구성, meta 전체 순회) (제품 ab12b7c)
+- 문제: 타일의 chosen LOD 가 바뀌어 보호에서 빠진 key 가 생기면 rc.cand 를 버리고, 다음 makeRoom 이 O(상주 수)로 다시 만든다. main 은 앞쪽 희생 후보를 바로 찾아 O(1) 에 끝나던 경우다. F-269 는 '보호 key 앞쪽' 시나리오만 고치고 '상주는 많고 보호는 적은데 LOD 승격이 잦은' 시나리오를 악화시켰다.
+- 실패 상황(감독 직접 재현, scratchpad ax6/cli2.mjs, 상주 free 20000·보호 타일 300·LOD 승격 업로드와 비승격 도착 key 업로드 교대 200회): main 24.1 µs/upload, PR 604.8 µs/upload. 축 6: 5000 → 526 µs, 40000 → 1777 µs(상주 수에 선형). :461 을 무력화한 사본은 24.9 µs.
+- 고칠 것: 보호에서 빠진 key 때문에 cand 를 버리지 않는다. 예: meta 항목에 단조 삽입 순번을 두고, 보호 해제된 key 를 '복귀' 소집합에 넣어 순회 때 cand 와 순번 병합, 또는 cand 를 meta 전체 상위집합으로 두고 순회 중 base.has 를 건너뛰되 건너뜀 비율이 높을 때만 압축. room_victim_cursor 동치 시험·room_cache 무작위 대조는 그대로 통과해야 한다.
+- 확인 기준: cli2 시나리오(상주 5000·20000·40000)에서 업로드당 시간이 상주 수와 무관하게 main 의 2배 이내. LOD 승격·비승격 교대에서 meta 읽기 합을 결정적으로 세는 시험 추가(:461 원본에서 실패, 수정 뒤 통과). bench f266 보호 key 앞쪽 16000 0.5 ms 미만 유지. npm test 0 실패.
+- 권장 모델: opus
+- 이력: 2026-10-04 15:20 감독 등록(PR #54 검토 #1). 축 6 보고(축 1b 도 같은 줄을 성능 확인 대상으로 지목), 감독이 main worktree 와 PR 로 직접 측정. 신규 — 이번 PR 의 F-269 수정이 만든 회귀(범위 안).
+
+### F-272 [열림] (심각도: 중간) — 재전송 중 조각 바이트를 못 얻으면 뒤 순번을 계속 보내 누적 ACK 가 빠진 조각과 그 창을 영구히 지운다·missing 탐색 O(N·L)
+- 위치: server/ws/session/resume.mjs:130(빠진 순번을 건너뛰고 계속), :135(missing.some 선형 탐색), contract.mjs:13, 결정 0040 '결정' 둘째 항목 (제품 ab12b7c)
+- 문제·실패 상황: ① (축 1a·2 보고, 감독이 :130·:135 직접 읽음, 미재실행) 구간1 seq1·2·LA(1..2), 구간2 seq3·LA(3..3), lastPieceSeq 0 이어받기, loadPiece(seq2) null → WELCOME·P1·P3·LA(seg2) 송출 → 클라이언트 ACK(3) → seq2·LA(seg1) 기록이 확인 처리되어 사라지고 구간1 level1 은 영구 미완료, MISSING·ERROR 없음. ② (축 6·7 측정) LEVEL_ARRIVED N 개·missing N 개면 O(N²): N=60000 replay 756~850 ms 동안 이벤트 루프 점유.
+- 고칠 것: ① 첫 빠짐에서 재전송을 멈추고 닫거나(lastPieceSeq 가 빠진 순번 앞에 머묾), 빠진 구간에 MISSING 을 보내는 정책을 골라 계약·0040 에 근거·대가로 쓴다(저장소가 이미 보관한 bytes 로 재전송하는 길도 선택지로 검토). ② missing 은 오름차순이므로 포인터로 판정.
+- 확인 기준: 위 입력에서 seq2 뒤 PIECE 미송출 또는 MISSING{segmentId:1} 송출, ACK 뒤 재이어받기에서 seq2 가 다시 후보(정책에 맞게) 시험. N=60000 missing 전부 시나리오 replay 시간이 전부 송출 시나리오와 같은 차수.
+- 권장 모델: sonnet
+- 이력: 2026-10-04 15:20 감독 등록(PR #54 검토 #1). 신규(이번 PR 범위 안).
+
+### F-273 [열림] (심각도: 중간) — '배선됨' 표기·계약 문장 모순·결정 0040 누락·ws 시험의 벽시계 '없음' 판정
+- 위치: ① contracts/proto/index.mjs:19·:24, README.md:108·:222(시험 밖 attachConnection 호출처 0건 — 감독 grep: connection.mjs·index.mjs·contract.mjs·시험 2개뿐) ② server/ws/session/contract.mjs:8('send 가 던지거나 false 를 돌려주면 던진다') vs :11·emit.mjs:13·:82(반환값 안 봄) ③ contract.mjs:32·connection.mjs:16(onSession 'WELCOME 직후' — 실제는 재전송 뒤), contract.mjs:30 서명에 onMessage·onClose·replay·makeEmit 없음 ④ 결정 0040: false 반환에 '닫힘·상한 초과로 미송출'(server/ws/index.mjs:209·:212)이 섞여 MISSING 은 이어받기로 복구되지 않는다는 대가, close 코드 1002·1011, 둘째 HELLO 무시, UNKNOWN_SESSION 에 ERROR 없음, loadPiece 주입(저장소 bytes 미사용) 결정이 없다. '다시 볼 조건' 이 측정 불가 문구 ⑤ server/ws/session/ws_level_arrived_loss.test.mjs:34·:113-120(QUIET_MS 150 ms 조용하면 끝 — '더 오는 프레임 없음' 을 벽시계로 판정, 결정 기록 없음). 축 4a 실측: replay 가 400 ms 뒤 가짜 LEVEL_ARRIVED 2건을 더 보내도 두 시험 통과(감독 :34·:116 직접 확인).
+- 고칠 것: ① 진입점(createWsServer onConnection 에서 attachConnection + createCoreAdapter)을 추가하거나 표기를 '배선 모듈 제공, 서버 진입점 연결은 미배선' 으로. ② :8 의 '거나 false 를 돌려주면' 삭제. ③ 문구·서명 정정. ④ 0040 에 위 항목을 선택지·대가로 추가, 다시 볼 조건을 구체 사건으로. ⑤ 끝 표지(서버 쪽 동기 send 기록, 또는 재전송 뒤 왕복 메시지)로 '더 없음' 을 단언하고 벽시계 대기를 없앤다 — 남기려면 결정 기록.
+- 확인 기준: ① 시험 밖 호출처 1건 이상 또는 문구 변경. ② contract.mjs 'false 를 돌려주면' 0건. ⑤ 400 ms 지연 가짜 LEVEL_ARRIVED 변이에서 ws 시험 실패.
+- 권장 모델: sonnet(①②③④), opus(⑤)
+- 이력: 2026-10-04 15:20 감독 등록(PR #54 검토 #1). ① 감독 grep 확인, ② :8 감독 직접 확인, ⑤ 감독 :34·:116 직접 확인(지연 변이 실측은 축 4a). 신규(이번 PR 범위 안).
+
+### F-274 [열림] (심각도: 낮음) — PR #54 잔여 세부
+- 위치·고칠 것(제품 ab12b7c):
+  ① connection.mjs:52-55 — onSession 이 던지면 close(1011) 하지만 emitFn 이 남아 api.emit 이 계속 송출(축 1a). catch 에서 emitFn = null 또는 emit 이 closing 이면 던진다.
+  ② resume.mjs:127-141 — 재전송 전량을 동기 루프로 보내 배압·닫힘을 보지 않는다(세션 상한 64 MiB > 송신 상한 32 MiB 면 1008 재접속 반복 가능, 축 6·7 추정·미재현). N개마다 양보하고 bufferedAmount 를 본다, 또는 상한 정합.
+  ③ connection.test.mjs — 부정 시험 공백(축 4a 생존 변이 M21·M24·M25·M27·M29·M31): onMessage 예외 → 1011, 닫힘 뒤 ACK 무시, onClose 호출, ACK·둘째 HELLO 가 onMessage 로 안 감, HELLO 직후 ACK 동시 도착(chain), 가짜 replay·makeEmit 인자 단언(M23·M28).
+  ④ resume.test.mjs — loadPiece undefined(M15), 모르는 plan 종류 TypeError(M17). emit.test.mjs — 저장소가 truthy 비-true 반환(M8).
+  ⑤ ws_level_arrived_loss.test.mjs:79 data 핸들러 안 assert 는 reject 로, loopbackHost IPv4 전용.
+  ⑥ client/raster — clear() 의 drawingCache.cand = null(index.mjs:223) 삭제 변이와 경로 1(:494-506) 비활성 변이를 잡는 시험 없음(축 1b).
+  ⑦ connection.mjs:71 둘째 HELLO 조용히 무시 — 계약에 적거나 1002.
+  ⑨ vao_wiring_throw.test.mjs:83-87 deletedBeforeFail 을 [] 로 단언하고 중복 length>0 삭제, :96-125 fakeCanvas 복사본을 옵션 재사용으로(축 4b).
+  ⑩ room_victim_cursor.test.mjs:138-161 — 도착 key 업로드(rc 경로) 비용 시험 없음: rc 경로만 선형 스캔으로 되돌린 변이(V1a)·rc 증분 끄기(V11)가 108개 전부 통과(축 4b 실측 meta 읽기 0 → 79,240). 미래 도착 key 20회 업로드 reads < N 시험 추가(F-271 시험과 함께, 권장 sonnet).
+  ⑧ PR 본문 bench 수치에 부하 조건(무부하 5회, 부하 시 최대 1.246 ms) 병기, 검증 명령은 글롭(node --test server/ws/session/*.test.mjs — 디렉터리 인자는 Node 22 에서 실패).
+- 확인 기준: 각 항목 변이가 새 시험에서 실패, npm test 0 실패.
+- 권장 모델: haiku(③④⑤⑥⑧), sonnet(①②⑦)
+- 이력: 2026-10-04 15:20 감독 등록(PR #54 검토 #1). 미재실행(근거 줄 있음).
