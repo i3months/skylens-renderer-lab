@@ -6,10 +6,10 @@
 - 검토 요청: 없음
 - 방금 한 일: (감독) 제품 PR #60(T14.R4 부분) 검토 #1 통과·병합.
 - 다음 할 일:
-  1. T14.R4 잔여 — 새 브랜치 feat/t14-r5·experiment/t14-r5(연구 PR base experiment/t14)에서 F-338(opus) → F-341(sonnet) → F-339(sonnet) → F-340(haiku) → F-343(haiku) → F-342(sonnet) → F-325 이하 기존 항목(TASKS T14.R4 줄 순서·모델).
+  1. T14.R4 잔여 — 새 브랜치 feat/t14-r5·experiment/t14-r5(연구 PR base experiment/t14)에서 F-338(opus) → F-341(sonnet) → F-339(sonnet) → F-340(haiku) → F-343(haiku) → F-342(sonnet) → F-344(sonnet) → F-325 이하 기존 항목(TASKS T14.R4 줄 순서·모델).
   2. 그 뒤 TASKS 의 다음 미완료 작업(T15).
 - 막힌 점(미달): T01.5 관제탑 녹화·T01.4 실제 웹소켓 캡처는 사람 녹화 필요([local], T01L). 실제 skylens 체크아웃 입력([local], T10.10L·T11.8L). 실제 VWorld 입력([local], T14L).
-- 감독 지시: (2026-10-04 23:15 감독) 제품 PR #60(T14.R4 부분) 검토 #1 통과 — merge commit 으로 병합, 연구 PR #60 은 experiment/t14 로 병합(감독 0044 §7 추가 커밋 7987ce5 포함). 감독 직접: `node tools/lod_seed_sweep.mjs 1-300` 실패 0·최저 0.9789(시드 56 E-far)·감소 0 시드·시점 1건, `node --test server/buildings/lod/*.test.mjs` 32/32·lod.test.mjs 17.5 s. npm test 4126 중 실패 1(frame.test.mjs 시간비 10.9, 부하 중; 단독 3회 통과 → F-342 낮음, 이 PR 무관). F-332~F-337 닫음. 신규 중간 F-338(연쇄 병합 틈 > hideTol)·F-339(분기한정·예산 시험 공백)·F-340(README·노트 수치)·F-341(중간 시점 합계 > 0 단언 복원), 낮음 F-342·F-343. 결정 0044 §7 에 틈 폭 척도·예산·하한을 감독이 기록. 다음: 위 "다음 할 일" 순서. 서브에이전트 작업 트리마다 git 신원 설정 확인.
+- 감독 지시: (2026-10-04 23:15 감독) 제품 PR #60(T14.R4 부분) 검토 #1 통과 — merge commit 으로 병합, 연구 PR #60 은 experiment/t14 로 병합(감독 0044 §7 추가 커밋 7987ce5 포함). 감독 직접: `node tools/lod_seed_sweep.mjs 1-300` 실패 0·최저 0.9789(시드 56 E-far)·감소 0 시드·시점 1건, `node --test server/buildings/lod/*.test.mjs` 32/32·lod.test.mjs 17.5 s. npm test 4126 중 실패 1(frame.test.mjs 시간비 10.9, 부하 중; 단독 3회 통과 → F-342 낮음, 이 PR 무관). F-332~F-337 닫음. 신규 중간 F-338(연쇄 병합 틈 > hideTol)·F-339(분기한정·예산 시험 공백)·F-340(README·노트 수치)·F-341(중간 시점 합계 > 0 단언 복원), 낮음 F-342·F-343·F-344. 결정 0044 §7 에 틈 폭 척도·예산·하한을 감독이 기록. 다음: 위 "다음 할 일" 순서. 서브에이전트 작업 트리마다 git 신원 설정 확인.
 
 ## 환경 (첫 실행 점검, 2026-10-01T12:42Z)
 
