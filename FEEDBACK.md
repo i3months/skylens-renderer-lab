@@ -3122,8 +3122,9 @@
 - 이력: 2026-10-04 15:50 감독 등록(PR #54 검토 #2). ①②③ 축 7 스크립트 재현 보고(감독 미재실행), ④⑦ 축 6 측정, ⑤ 축 1a 미재현. 신규(범위 안).
 - → 2026-10-04 작업자: 처리됨-검증대기(일부). 처리: ① ② ④ ⑥ ⑧(N07·M20·M17·M28·okReplay nextPieceSeq·makeEmit minPieceSeq·strict store 동일성). 미처리: ③ onMessage 막힘 시 ACK 사슬(ACK 를 사슬 밖에서 처리하면 replay 중 순서가 깨질 수 있어 결정 필요), ⑤ 반열림 TCP 이전 연결 닫기(미재현, 결정 필요), ⑦ resendPlan 지연 생성(선택). 전체 npm test 3752 중 3740 통과·0 실패·12 건너뜀.
 - → 2026-10-04 16:10 감독(PR #54 검토 #3): ② ⑥ ⑧ 닫음(축 4a: R3·X11·X12·R5·R7·R8 잡힘, 축 5 수치 일치). ① 은 코드(connection.mjs:66)는 맞으나 stop_policy.test (3) 이 replay 를 한 번도 부르지 않아 공허 — 시험은 F-280 ① 로 옮기고 ① 은 닫음. ④ 다시 열림(중간, 축 6 측정): 오래된 창부터 끝나는 흐름에서 Map 앞쪽 삭제 구멍 때문에 미결 1000·10000·60000 에서 이벤트당 4.35·22.1·47.05 µs(새 창만이면 3.4~4.1 평탄) — emit.mjs:131-137 을 하한 커서 lo 로 바꾸고 축 6 d.mjs 기준(60000 에서 새 창의 2배 이내). 현 배선은 정수 하한이라 sentKeys=null(미사용 경로). ③ ⑤ ⑦ 미처리 그대로(결정 필요). 남음: ③(sonnet, 결정)·④(sonnet)·⑤(opus, 결정)·⑦(haiku, 선택).
+- → 2026-10-04 17:12 감독(PR #55 검토 #1): ④ 닫음. 감독 직접 `node bench/emit_sentkeys_bench.mjs`(부하 3.96): 미결 60000 old-first 1.06·new-only 1.15 µs/LA, 비 0.92(기준 2배 이내 통과); 축 5·축 6 각 3회 비 0.87~0.91. origin/main 의 Map 구현은 같은 벤치에서 비 3.1~3.7(축 5) — emit_sentkeys 평탄성 시험이 옛 구현을 가려냄. PR 본문 수치(94.7→17~26 µs, 비 1.75~4.65)는 재현 안 됨(측정 방식 차이로 보임). 남음: ③⑤(결정)·⑦(선택).
 
-### F-278 [처리됨-검증대기] (심각도: 중간) — raster 희생 후보 시험이 머리 주석이 주장하는 변이를 잡지 못하고 복귀 집합(back) 순서 논리를 거의 묶지 않는다
+### F-278 [닫힘] (심각도: 중간) — raster 희생 후보 시험이 머리 주석이 주장하는 변이를 잡지 못하고 복귀 집합(back) 순서 논리를 거의 묶지 않는다
 - 위치: client/raster/room_clear_cand.test.mjs:3-4(변이 (a)(b) 를 잡는다고 적음)·:58-104(시험 (1) — 경계 업로드라 clear 전에 dc.cand 가 만들어지지 않고 :93 setArrived 가 캐시를 새로 만든다)·:155-170(시험 (2) — free(6000+i) 는 도착 key 가 아니라 경로 2 를 탄다, :159 'reads 약 100' 주석 사실과 다름), room_cand_promote.test.mjs ①(free 가 모두 lod1 앞이라 back 이 cand 사이에 끼지 않음)·②(보호 key 가 meta 끝), client/raster/index.mjs:456-467(>1024 병합 분기 시험 0) (제품 693a39f)
 - 문제·실패 상황(축 4b 변이 21종 실측, 감독 미재실행 — :159·:164 는 감독이 직접 읽어 경로 2 임을 확인): clear() 의 cand 초기화 삭제(M12)·경로 1 비활성화(M13)·backAdd push/unshift(M6·M7)·병합 끼워넣기 제거(M9)·재보호 때 backRemove 제거(M11 — 보호 key 희생 가능)·break cands 제거(M16 — 필요보다 많이 희생)·>1024 병합 끝에 덧붙임(M5) 이 기존 시험을 모두 통과. 코드 자체는 축 1b 차분 퍼저 126.5만 단계 불일치 0 이라 현재 결함은 아니고 회귀 방어 공백이다.
 - 고칠 것: 시험 (1) 은 clear 전에 희생 업로드로 dc.cand 를 만들고 clear 뒤 도착 집합을 바꾸지 않은 채 다른 key 를 다시 올려 넘치게 한다. 시험 (2)·promote ② 는 보호 도착 key 를 meta 앞쪽에 두고 새 타일 도착 key 를 올린다(reads < 3N). promote ① 은 [L1_i, F_i, F'_i] 끼워 배치·순서 뒤섞인 승격·releasePiece 재보호 뒤 selectDrawable 기준 순서 대조. >1024 병합 분기 시험(준비 업로드로 cand 를 먼저 만든 뒤). 머리 주석·:159 주석 정정. 참고 시험: 감독 scratchpad m4b/repo/client/raster/zz_killers.test.mjs(K1~K4, 세션 종료 시 사라짐 — 위 설명대로 다시 작성).
@@ -3132,8 +3133,9 @@
 - 이력: 2026-10-04 15:58 감독 등록(PR #54 검토 #2 뒤 도착한 축 4b 보고). F-274 ⑥ 을 흡수한다(⑥ 은 이 항목과 함께 닫는다). 신규(범위 안 — 이번 PR 의 시험).
 - → 2026-10-04 16:10 감독(PR #54 검토 #3): 이번 수정에 client/raster 변경 0, 축 4b 재측정 M5·M6·M7·M9·M11·M12·M13·M16 모두 생존(시험 공백, 코드 결함 근거 없음; M12 는 소실 뒤 도착 밖 key 재업로드에서 TypeError 로 드러나는 도달 가능 경로). 열림 유지, 다음 작업 T12.V 에서. 노트·PR 에 처리/미처리 표기가 없었다(축 5).
 - → 2026-10-04 작업자: M5~M16 변이 시험 추가. 제품 PR #55.
+- → 2026-10-04 17:12 감독(PR #55 검토 #1): 닫음. 축 4b 가 변이 8종 모두 새 시험에서 실패 보고, 감독이 M5·M11·M12 직접 재실행(각각 room_cand_merge·room_cand_promote ①·room_clear_cand (1) 에서 실패), HEAD 통과, npm test 0 실패. promote ② 가 M13 을 못 잡는 점은 F-286 ③ 으로(낮음, room_clear_cand (2) 가 잡음).
 
-### F-279 [처리됨-검증대기] (심각도: 중간) — 재전송 정지를 호출자가 알 수 없어 '호출자가 세션을 닫는다' 대가를 이행할 수 없고, 같은 sessionId 재접속이 TTL 을 갱신해 정지·재접속이 끝없이 반복된다
+### F-279 [닫힘] (심각도: 중간) — 재전송 정지를 호출자가 알 수 없어 '호출자가 세션을 닫는다' 대가를 이행할 수 없고, 같은 sessionId 재접속이 TTL 을 갱신해 정지·재접속이 끝없이 반복된다
 - 위치: server/ws/session/connection.mjs:3-10·:68-75(정지 분기에 호출자 알림 없음), :124-127(sessionId() 가 emitFn 없으면 던짐 — 정지 뒤에도), :111-114(onClose 는 {code,reason} 만), contract.mjs:36-37, server/ws/resume/index.mjs open 의 touch (제품 514d1a1)
 - 문제: 정지 1011 은 replay·onSession 예외의 1011 과 구별되지 않고, 호출자는 sessionId·stoppedAt 을 받을 수 없다. ERROR(UNAVAILABLE) 는 클라이언트에게만 간다.
 - 실패 상황(감독 직접 실행, scratchpad a1/stop_signal.mjs): ttl 1000, seq2 바이트 소실, 900 ms 간격 HELLO{sid,lastPieceSeq:0} 5회 → 5회 모두 WELCOME·PIECE·ERROR, close 1011, onClose {code:1011,reason:""}, sessionId() 던짐, store.size 1, t=4500 에도 세션 생존.
@@ -3142,8 +3144,9 @@
 - 권장 모델: opus
 - 이력: 2026-10-04 16:10 감독 등록(PR #54 검토 #3, 축 1·축 3 보고, 감독 재현). 신규 — F-275 정책 (a) 의 대가에서 나온 후속(범위 안이나 미배선이라 중간).
 - → 2026-10-04 작업자: onStopped 알림 + 1011 사유 구별 + 계약·클라이언트 규약. 제품 PR #55. 전체 npm test 는 부하로 완주 못 함, 감독 확인 필요.
+- → 2026-10-04 17:12 감독(PR #55 검토 #1): 닫음. 축 1a 재현(가짜 conn 15종·실제 createWsServer): ERROR(UNAVAILABLE) → close(1011,'replay-stopped') 1회 → onStopped(sid,{stoppedAt}) 1회, 정지 뒤 sessionId() 값, 그 밖 1011 은 'internal-error'. stop_notify.test (B) 가 onStopped 에서 store.close 뒤 같은 sid HELLO → resumed:false·UNKNOWN_SESSION 단언(감독이 시험 읽음, npm test 통과). 남은 가장자리는 F-285.
 
-### F-280 [처리됨-검증대기] (심각도: 중간) — server/ws/session 새 시험이 노린 변이를 못 잡는다(공허한 시험 1건 포함)
+### F-280 [닫힘] (심각도: 중간) — server/ws/session 새 시험이 노린 변이를 못 잡는다(공허한 시험 1건 포함)
 - 위치: server/ws/session/stop_policy.test.mjs:143-162(시험 (3)), :30-37(fakeConn), :95·:161(assert.throws 매처 없음), seq_floor.test.mjs:116-141(LA 창 pieceCount 1), resume_missing.test.mjs:48-100(프록시 색인 계수), connection.test.mjs (a2) (제품 514d1a1)
 - 문제·실패 상황(축 4a 변이 41종: 잡힘 31·생존 9·시간 초과 1):
   ① R2(connection.mjs:66 `if (closing) return` 삭제) 생존 — 시험 (3) 은 msgCb 가 chain.then 으로 handle 을 미루는 사이 closeCb 가 먼저 돌아 replay 호출 0회(계측). F-277 ① 경로를 타지 않고 통과.
@@ -3156,8 +3159,9 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-04 16:10 감독 등록(PR #54 검토 #3, 축 4a 보고 — 감독 미재실행, 시험 공백이라 중간). 신규(이번 PR 의 시험).
 - → 2026-10-04 작업자: ①~⑤ 시험 보강, 변이는 하위 작업이 확인(번호 대응 추정). 제품 PR #55.
+- → 2026-10-04 17:12 감독(PR #55 검토 #1): 닫음. 축 4a 변이 36종 중 33 잡힘 — R2·X1·R4d·R6b·R6c·R7·X16 모두 새 시험에서 실패, HEAD 통과, 시간 단언 2개는 4코어 바쁜 루프 6개 부하에서 5/5 통과. 생존 X15·E5 는 동치. E4·M1 은 F-284·F-286 으로. (감독은 npm test 0 실패만 직접 확인)
 
-### F-281 [처리됨-검증대기] (심각도: 낮음) — 결정 0040·계약 주석 잔여 정합
+### F-281 [열림] (심각도: 낮음) — 결정 0040·계약 주석 잔여 정합
 - 위치: 연구 decisions/0040-t12u-ws-session-wiring.md:12-26·:38·:58-60·:77-78(SeqFloorError·둘째 HELLO 1002·정지 정책 (a)/(b)/(c) 의 선택지 표·대가 없음), :76(다시 볼 조건 ④ 의 N 미정), :36-37(닫힘 코드 절에 HELLO 뒤 복호 실패·null 1002 와 정지 UNAVAILABLE+1011 없음), :67·experiments/t12u.md:28(한 연결 안 끼어들기는 이미 막힘 — 남은 위험은 다른 연결 F-277 ⑤), 제품 contract.mjs:38·connection.mjs:23-24(onSession 미호출 조건에 replay 예외·replay 중 닫힘 빠짐), 연구 TASKS T12.U 소유 경로에 server/ws/session/ 없음(감독이 검토해 온 경로라 실질 이탈 아님 — 이번 병합에서 감독이 소유 경로를 보정함)
 - 실패 상황: 다음 작업자가 정수 하한→함수 하한, 둘째 HELLO 무시로 되돌릴 때 잃는 것을 0040 에서 알 수 없다. 통합자가 HELLO 뒤 깨진 메시지를 1011 로 오해한다.
 - 고칠 것: 0040 선택지에 표 세 개(정지 a/b/c, 순번 하한, 둘째 HELLO)와 채택 행·단점 칸, ④ 에 정수 문턱(예: 같은 sid·같은 stoppedAt 3회)과 셀 곳, 닫힘 코드 절 보강, :67 정정, 두 주석에 세 조건.
@@ -3165,8 +3169,9 @@
 - 권장 모델: haiku
 - 이력: 2026-10-04 16:10 감독 등록(PR #54 검토 #3, 축 2 보고 — 0040 줄은 축 2 근거, 감독 미재열람). F-276 잔여.
 - → 2026-10-04 작업자: 0040 표·닫힘 코드·조건 ④ 처리(제품 주석 두 건은 미처리). 연구 PR #55.
+- → 2026-10-04 17:12 감독(PR #55 검토 #1): 되돌림(열림). 축 2 대조: 기준 ② ③ 통과(0040:99 정수 문턱, :58·:61 닫힘 코드). 미통과 — ① 정지 (b)(c) 의 장점·단점과 둘째 HELLO A 단점·B 장점이 '미정'(0040:33-34·:47-48) — 되돌릴 때 잃는 것이 여전히 없다; ④ 0040:90·experiments/t12u.md:28 이 '한 연결 안 순서 보장이 깨질 수 있다'와 '이미 막힘'을 한 문장에 같이 적어 자기모순; ⑤ 제품 connection.mjs:41·contract.mjs:50 의 onSession 미호출 조건에 replay 예외(:109)·replay 중 닫힘(:89) 여전히 없음(노트도 미처리 인정). 추가: 0040:40 순번 하한 A행 단점 '정수 하한이면 같은 (seq,key) 재시도 허용 불가'는 구현과 반대(emit.mjs:127 — 이 emit 이 기록한 순번은 모두 하한 이상이라 재시도 통과), :41·:83·:100 의 'Map' 은 이제 배열+lo 커서. 확인 기준 추가: 0040 'Map' 0건, A행이 emit.mjs:127 과 일치, (b)(c)·둘째 HELLO 칸에 '미정' 0건. 권장 모델: haiku(문서) — 단 제품 주석 두 곳 포함.
 
-### F-282 [처리됨-검증대기] (심각도: 중간) — async onSession·onClose 가 거부하면 unhandled rejection, onSession 거부 때는 1011 닫기도 우회
+### F-282 [닫힘] (심각도: 중간) — async onSession·onClose 가 거부하면 unhandled rejection, onSession 거부 때는 1011 닫기도 우회
 - 위치: server/ws/session/connection.mjs:78(onSession 동기 try 만), :113(onClose 동기 try 만) (제품 514d1a1)
 - 실패 상황(축 7 재현 scratchpad a7/r2.mjs 마지막 두 블록, 감독 미재실행): onSession = async () => { throw } → process unhandledRejection, closes [], emitFn 살아 있어 생방송 계속. onClose 도 unhandledRejection. Node 22 기본 설정이면 프로세스 종료.
 - 고칠 것: onSession 반환이 thenable 이면 await 해 기존 catch(1011)로, onClose 반환은 Promise.resolve(r).catch(() => {}). 또는 계약에 동기 함수만 명시하고 thenable 이면 1011.
@@ -3174,3 +3179,46 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-04 16:10 감독 등록(PR #54 검토 #3, 축 7). 신규(이번 PR 범위의 견고성).
 - → 2026-10-04 작업자: async onSession·onClose 거부 처리 + 시험. 제품 PR #55.
+- → 2026-10-04 17:12 감독(PR #55 검토 #1): 닫음. 축 1a·축 7 재현: async onSession 거부(undefined 사유, then getter throw, 직접 만든 thenable 포함) → close(1011,'internal-error') 1회·뒤 emit 던짐, onClose·onStopped 동기 throw·비동기 reject 삼킴, unhandledRejection 0. async_reject.test 통과(npm test).
+
+### F-283 [열림] (심각도: 높음) — F-279·F-282·F-277 ④ 의 설계 결정이 decisions/ 에 없다(0040 에 onStopped·replay-stopped·F-282 0건)
+- 위치: 연구 decisions/0040-t12u-ws-session-wiring.md (experiment/t12v) 전체 — grep 'onStopped'·'replay-stopped'·'F-279'(:105 옛 감독 문단 제외)·'F-282' 0건, :6 관련 항목에 F-279·F-282 없음, :105 '남은 일: F-279' 그대로. experiments/t12v.md:10 은 '결정 0040 보강으로 갈음, 새 결정 기록 없음'. 근거는 제품 contract.mjs:41-47 주석에만 있음.
+- 문제: SUPERVISOR §3.1 — 기술적 결정(API·알고리즘)이 들어왔는데 decisions/ 에 선택지·근거·대가·다시 볼 조건이 없다. 이번 PR 의 결정 세 가지: (1) 정지 시 store.close 를 직접 부르지 않고 onStopped 로 알림(대안: onClose info 확장, attachConnection 이 직접 store.close), (2) 1011 을 사유 문자열 'replay-stopped'/'internal-error' 로 구별(대안: 4000번대 사설 닫힘 코드), (3) 비동기 onSession 을 기다리지 않음(대가: 거부 전까지 emit 이 나갈 수 있음) — 그리고 F-277 ④ 의 자료구조(평행 배열 + 하한 커서, 압축 문턱 lo≥1024 && 2lo≥길이).
+- 실패 상황: ws 서버 진입점을 배선하는 다음 작업자가 '왜 store.close 를 직접 부르지 않나'·'사유 문자열이 서버 onClose 에서 보이지 않는다(F-285 ①)'를 0040 에서 알 수 없어 직접 store.close 로 바꾸거나 onClose reason 으로 정지를 판별해 TTL 재접속 반복(F-279 원 결함)이 되살아난다.
+- 고칠 것: 0040 에 '재전송 정지 알림(F-279)'·'비동기 콜백(F-282)' 절을 표(선택지·장점·단점·채택)로 넣고, 대가(호출자가 onStopped 에서 store.close 를 빠뜨리면 TTL 재접속 반복; 서버 쪽 onClose reason 은 피어 에코라 정지 판별에 못 씀)와 다시 볼 조건(예: ws 진입점 배선 때 onStopped 호출 수 = store.close 호출 수 계측, 같은 sid 정지 3회)을 적는다. :6·:105·조건 ④(셀 곳을 onStopped 로) 갱신. F-277 ④ 자료구조 한 문단. 새 결정 파일로 써도 된다(목록 표 갱신).
+- 확인 기준: 0040(또는 새 결정)에서 grep 'onStopped'·'replay-stopped'·'F-282'·'하한 커서' 각 1건 이상, 해당 절에 선택지 표 2개·대가·다시 볼 조건, '미정' 0건.
+- 권장 모델: sonnet
+- 이력: 2026-10-04 17:12 감독(PR #55 검토 #1) 감독 등록(축 2 보고, 감독이 origin/experiment/t12v 의 0040 grep 으로 직접 확인). 신규(이번 PR 범위 — 이번 PR 이 만든 결정).
+
+### F-284 [열림] (심각도: 중간) — emit 커서 배열의 압축·초기화 분기를 지워도 모든 시험이 통과(누수 무방비)
+- 위치: 제품 server/ws/session/emit.mjs:162(압축·전부 비움 분기), emit_sentkeys.test.mjs:38-48 (feat/t12v ffc1c04)
+- 문제: 압축 경로 시험이 의미(재시도 판별)만 보고 배열 길이를 단언하지 않는다.
+- 실패 상황(축 4a 변이 E4, 감독 미재실행): :162 를 지우면 함수 하한 emit 의 seqs·ids 가 세션 동안 보낸 PIECE 수만큼 끝없이 자라는데 바뀐 시험 7개·이웃 시험 4개 모두 통과.
+- 고칠 것: 시험용 관찰 수단(예: createRecordingEmit 반환 함수의 비열거 속성 _tracked() → {live, length})을 두고, 압축 시험 끝에 length ≤ 2·live+1024, 전부 비움 뒤 length 0 을 단언. emit_sentkeys.test.mjs:26 시험 이름 '재시도 set 은 자리를 유지한다'는 E5(끼워 넣기) 변이에서 length 차이로 검증되게 하거나 이름을 바로잡는다.
+- 확인 기준: E4 변이(:162 삭제)와 E5 변이(:140 덮어쓰기 대신 splice 삽입)에서 새 단언 실패, HEAD 통과.
+- 권장 모델: sonnet
+- 이력: 2026-10-04 17:12 감독(PR #55 검토 #1) 감독 등록(축 4a). 신규(이번 PR 의 새 코드).
+
+### F-285 [열림] (심각도: 낮음) — onStopped 계약의 가장자리 세 가지
+- 위치: 제품 server/ws/session/connection.mjs:10·:47·:89·:97-99, contract.mjs:38-40 (ffc1c04), 원인 참고 server/ws/index.mjs:168
+- 문제·실패 상황(축 1a·축 7 재현, 감독 미재실행):
+  ① 실제 서버에서 서버 쪽 onClose 는 정지·내부 오류 모두 {code:1011, reason:""} 를 받는다(피어 close 에코가 덮어씀). 가짜 conn 은 'replay-stopped' 를 넘겨 실제와 다르다. 클라이언트 쪽 구별은 정상.
+  ② onStopped·onClose 순서가 conn 구현에 따라 바뀐다(가짜 conn 동기 closeCb: onClose→onStopped, 실제 서버: onStopped→onClose).
+  ③ 주입한 async replay 가 stoppedAt 을 돌려주기 전에 피어가 닫으면 :89 에서 먼저 return 해 onStopped 0회·sessionId() 던짐·세션 생존(기본 replayAfterHello 는 동기라 현 배선에선 도달 안 함).
+- 고칠 것: 계약·머리 주석에 '서버 쪽 정지 판별은 onStopped 로만, onClose reason 은 믿지 않는다', 'onStopped·onClose 순서 보장 없음'(또는 onStopped 를 closeWith 앞으로 고정하고 순서 시험), ③ 은 :89 에서 stoppedAt 이 있으면 sessionId 기록·onStopped 호출 뒤 return 하거나 'replay 는 동기 전제' 명시.
+- 확인 기준: 문구 grep, 또는 축 1a scratchpad race.mjs 입력에서 onStopped 1회 시험.
+- 권장 모델: sonnet
+- 이력: 2026-10-04 17:12 감독(PR #55 검토 #1) 감독 등록(축 1a 3건·축 7 1건 같은 ③). 신규(이번 PR 범위).
+
+### F-286 [열림] (심각도: 낮음) — PR #55 잔여 세부
+- ① connection.test.mjs:8 fakeConn 이 close 사유를 기록하지 않아 onMessage 예외 경로 connection.mjs:132 를 closeWith(1011,'replay-stopped') 로 바꿔도 통과(축 4a 변이 M1). (a) 와 동기 onSession 예외에 {code:1011, reason: CLOSE_REASON_INTERNAL} 단언.
+- ② emit.mjs:127 NaN pieceSeq 가 하한 검사를 통과하고 :136-142 정렬 배열을 깨뜨림(축 7, 실제 저장소는 NaN 거부라 도달 어려움). PIECE 입구에서 Number.isInteger(pieceSeq) 아니면 TypeError(기록·송출 없음). 확인: P(NaN)·P(1.5)·P(undefined) 가 던지고 send 0.
+- ③ room_cand_promote.test.mjs:104-107·:165-179 ② 가 M13(경로 1 비활성화)을 못 잡음(앞쪽 보호 key 100개뿐, M13 reads 2040 < 3N). 보호 key 를 N 대부분으로 늘리거나 제목을 '업로드마다 cand 재생성 방지'로 정정(축 4b).
+- ④ contract.mjs:44-47 클라이언트 규약 '새 세션으로 처음부터 받는다'는 서버가 이전 세션 조각을 다시 보내는 것으로 읽힌다 — resumed=false 면 재전송 0(resume.mjs:50). '이후 새로 도착하는 것만 받는다(미도착분은 메우지 않는다)'와 이전 세션의 도착·상주 상태 처리 한 줄(축 3).
+- ⑤ 문턱 변경 기록: room_cand_promote ② meta 읽기 < N → < 3N, room_clear_cand VI(2) < 500 → < 3N — F-278 지시 구성이지만 노트·PR 에 사유 한 줄 없음(축 5). experiments/t12v.md 에 적는다.
+- ⑥ bench/emit_sentkeys_bench.mjs 는 T12.V 소유 경로 밖(감독이 TASKS 소유 경로에 bench/ 추가함 — 처리 불필요, 기록만).
+- ⑦ PR 본문·노트의 F-277 ④ 수치(94.7→17~26 µs, 비 1.75~4.65)는 감독·축 5·축 6 재측정(1 µs 안팎, 비 0.85~0.92)과 다름. 노트 수치를 감독 측정으로 갱신.
+- ⑧ emit.mjs:136-142·:158-162 의미 변화(축 1b 퍼저, 계약 준수 입력 150 시드 관찰 차이 0, 무작위 230 시드 중 2 시드 차이): 이미 정리된 seq 를 재기록한 뒤 더 큰 창 LA 가 오면 새 판은 그 seq 도 지워 하한 미만 재시도를 SeqFloorError 로 거부(옛 Map 은 남겨 통과 — 누수). 새 판이 머리 주석 의미에 맞음. 시험으로 고정: PIECE 1..6 → LA(1,2) → 하한 0 에서 PIECE 2 재시도 → LA(3,2) → 하한 5 → PIECE 2 재시도 ⇒ SeqFloorError. 벤치 :27 'new' 흐름은 첫 LA 에서 큐를 전부 비워 '미결 N' 이 아님 — 이름·주석 정정.
+- 확인 기준: ① M1 변이 실패, ② 세 입력 시험, ③ M13 변이 실패 또는 제목 grep, ④⑤⑦ 문구 grep.
+- 권장 모델: haiku(④⑤⑦), sonnet(①②③)
+- 이력: 2026-10-04 17:12 감독(PR #55 검토 #1) 감독 등록(축 4a·7·4b·3·5). 신규(이번 PR 범위).
