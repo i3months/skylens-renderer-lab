@@ -15,7 +15,9 @@ T13 에서 ws 서버 진입점에 배선 모듈 `server/ws/wire`(createWire)를 
 | A. 호출자 onStopped 안에서 store.close(0040 원안) 하고 wire 는 store 프록시로 실제 close 호출을 센다 | 0040 과 같다. 호출자가 정책을 쥔다 | 호출자가 close 를 빠뜨리면 TTL 재접속 반복. 계측은 프록시가 필요 |
 | B. wire 가 정지 알림마다 store.close 를 직접 부른다(채택) | 진입점에서는 빠뜨릴 수 없다. 호출자 구멍이 닫힌다 | 0040 이 기각한 C 와 같다. 호출자가 정지 때 다른 처리를 하려는 경우 close 가 먼저/나중인지 고정된다. 비동기 onStopped 는 기다리지 않아 점검 중에 세션이 지워질 수 있다(0040 C 의 대가 그대로) |
 
-채택 B. 계측은 두 카운터가 한 함수에서 늘어 항상 같던 것을 버리고 {stoppedCalls, storeCloseOk, storeCloseFailed, onStoppedErrors, sameSidStops, maxSameSidStops, sameSidThresholdHit} 로 바꿨다. close 가 던지거나 거부하면 storeCloseOk < stoppedCalls 가 된다(시험). 같은 sid 정지가 다시 오면 close 가 실패했거나 성공이라 답하고 세션을 지우지 못한 것이라 이상 신호다(sameSidStopThreshold 는 1 이상 안전 정수, 기본 3).
+명칭 대응: 이 표의 A(호출자 onStopped 안에서 store.close)는 0040 '재전송 정지 알림 ① 정지를 누가 알리고 누가 세션을 닫는가' 의 선택지 A(채택)와 같고, 이 표의 B(wire 가 직접 store.close, 채택)는 그 절의 선택지 C(attachConnection 이 직접 store.close, 0040 에서 기각)와 같은 방식이다. 0040 의 B(onClose info 확장)는 여기에 대응이 없다. 같은 방식을 이번엔 진입점 wire 층에서 채택했으므로 0040 의 기각은 접속 계층(attachConnection) 한정이다.
+
+채택 B(0040 의 선택지 C 에 해당). 계측은 두 카운터가 한 함수에서 늘어 항상 같던 것을 버리고 {stoppedCalls, storeCloseOk, storeCloseFailed, onStoppedErrors, sameSidStops, maxSameSidStops, sameSidThresholdHit} 로 바꿨다. close 가 던지거나 거부하면 storeCloseOk < stoppedCalls 가 된다(시험). 같은 sid 정지가 다시 오면 close 가 실패했거나 성공이라 답하고 세션을 지우지 못한 것이라 이상 신호다(sameSidStopThreshold 는 1 이상 안전 정수, 기본 3).
 대가: 호출자가 onStopped 에서 하려던 정리가 close 와 순서가 꼬일 수 있다.
 다시 볼 조건: 진입점 main 조립 때 호출자가 정지 때 close 전에 해야 할 일이 생기면 A 로 돌린다. 운영에서 sameSidThresholdHit 가 참이면 저장소 close 구현을 본다.
 
