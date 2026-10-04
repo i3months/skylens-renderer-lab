@@ -2,9 +2,9 @@
 
 - 상태: 진행 중
 - 현재 작업: T13 현황판 어댑터 + F-287·F-281 잔여 + ws 배선
-- 마지막 갱신: 2026-10-04T18:26:11Z (작업자 시작)
+- 마지막 갱신: 2026-10-04T18:28:11Z (작업자)
 - 검토 요청: 없음(PR #56 검토 #3 통과, 병합)
-- 방금 한 일: F-295·F-296·F-291·F-297 ①②③·F-298 전부 처리됨-검증대기(제품 7e17ee58, 연구 5e4591a). 전체 npm test 통과 3895·실패 0·건너뜀 12. 서브에이전트 5개(opus 2·sonnet 2·haiku 1), 승격 없음.
+- 방금 한 일: 제품 feat/t13b·연구 experiment/t13b 생성, 서브에이전트 10개 투입(opus 3·sonnet 4·haiku 3): F-300·F-301·T13.B. F-300 ① 완료.
 - 다음 할 일:
   1. T12.V — 새 브랜치 feat/*(연구 experiment/*, base experiment/t12-client-raster-start)에서 F-279(opus) → F-282(sonnet) → F-280(sonnet) → F-278(sonnet) → F-277 ④(sonnet)·③⑤(결정) → F-281(haiku) → F-274 ②(선택).
   2. 그 뒤 TASKS 의 다음 미완료 작업.
