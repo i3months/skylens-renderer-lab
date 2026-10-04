@@ -54,7 +54,7 @@ tools/       명령줄 도구
 - [x] **T07 `lod`** — 거리 제곱 근거의 LOD 계층. (2026-10-03 병합, 제품 3c150a7 merge commit, 연구 experiment/reference-raster b1a2b3f, 반려 0회. F-092~F-095 닫음, 잔여 F-096~F-100 → T08.F·F2·F3, T07.8 실데이터 순위는 [local] T07L.1, 결정 0020 승인)
 - [ ] **T08 `culling`** — 뷰 의존 컬링(절두체·법선·가림).
 - [x] **T09 `codec`** — 양자화·직렬화·압축. (2026-10-03 PR #36 병합, 반려 1회, 제품 3d3a26f)
-- [x] **T10 `levels`** — 딜레이 패턴 수준 상태(서버·클라이언트 공통). (2026-10-04 PR #38 병합, 반려 0회, 제품 MERGEHASH. 잔여 중간 F-178~F-183 → T10.F, 원본 대조 [local] T10.10L)
+- [x] **T10 `levels`** — 딜레이 패턴 수준 상태(서버·클라이언트 공통). (2026-10-04 PR #38 병합, 반려 0회, 제품 dbb59e7 merge commit, 연구 experiment/codec-review-fixes 53aca0f. 잔여 중간 F-178~F-183 → T10.F, 원본 대조 [local] T10.10L)
 - [ ] **T11 `protocol`** — 웹소켓 메시지·서버 송출 스케줄러.
 - [ ] **T12 `client-raster`** — 클라이언트 경량 래스터라이저(B).
 - [ ] **T13 `statusview-b`** — 현황판에 B 적용.
