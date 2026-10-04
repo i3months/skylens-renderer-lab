@@ -83,7 +83,7 @@
 | [0033](0033-level-arrived-record-rules.md) | LEVEL_ARRIVED 기록 상한 maxEntries+1, 지운 기록의 같은 값 재시도는 멱등 true, 살아 있는 기록과 겹치면 RangeError | 승인 | 작업자 제안·감독 승인(PR #47), PR #48 묘비로 갱신(대가: 잊힌 범위만 다른 값 true) |
 | [0034](0034-t12p-contract-extensions-and-lod-rule.md) | client_raster 계약 확장 반영, 타일당 LOD 하나(세밀한 미완 LOD 는 pending), 묘비 지평 판정을 기억한 기록 겹침으로 | 승인 | 작업자 제안·감독 승인(PR #49), 규칙 2 보완 승인(PR #50) |
 | [0035](0035-t12r-deferred-arrival-gpu-trust-queue-timeout.md) | setArrived 지연 경로(마지막 입력으로 합침), Worker gpu 평면 O(1) 검사·신뢰 경계, 복호 시한은 처리 시작 기준, testHooks 시험 전용 | 승인 | 감독 기록·승인(PR #51, 작업자 기록 누락 F-249 ①) |
-| [0036](0036-t12s-contract-extensions.md) | T12.S 계약 확장 입력 검사, 시험 전용 옵션 | 제안 | 작업자(제안) |
-| [0037](0037-t12s-initial-design.md) | T12.S 초기 설계: 지연 경로, Worker 타임아웃, 호출자 예외 | 제안 | 작업자(제안) |
+| [0036](0036-t12s-contract-extensions.md) | T12.S 계약 확장 입력 검사, 시험 전용 옵션 | 승인 | 작업자 제안·감독 승인 |
+| [0037](0037-t12s-initial-design.md) | T12.S 초기 설계: 지연 경로, Worker 타임아웃, 호출자 예외 | 승인 | 작업자 제안·감독 승인 |
 | [0038](0038-t12s-long-task-gl-stage-split.md) | T12.5 long task 판정에서 GL 단계 분리 보고 | 승인 | 작업자 제안·감독 승인 |
-| [0039](0039-t12t-gap-limit-wallclock.md) | hook 간격 시험의 벽시계 상한(GAP_LIMIT_MS 60, 최솟값 기준) | 제안 | 작업자(제안) |
+| [0039](0039-t12t-gap-limit-wallclock.md) | hook 간격 시험의 벽시계 상한(GAP_LIMIT_MS 60, 최솟값 기준) | 승인 | 작업자 제안·감독 승인 |
