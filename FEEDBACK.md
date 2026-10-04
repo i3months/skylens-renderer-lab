@@ -2676,6 +2676,8 @@
 
 - → 2026-10-04 09:30 감독(PR #48 검토 #1, 제품 4c798af) ①②③④⑤⑥ 닫음: 감독 직접 재현(scratchpad sv/f.mjs) — ① R1 ack(1) 앞뒤 재시도 모두 true·다른 값은 RangeError, ② R2 두 순서 resendPlan LA 모두 [9:1, 9:3], ③ 입력 RangeError. ④ levelOverlapping 제거·판정은 byLast Map 조회 하나(levelStats().work 호출당 1, 감독 diff 확인). ⑤ level-arrived.retry.test.mjs:73-80 정규식 단언. ⑥ 상한 시험 등호 단언(축 5 확인). 열림 유지: ⑦(scheduler reads 즉시 상한 — server/scheduler 가 diff 에 없음, 감독 확인, 중간, sonnet), ⑧(낮음, haiku). 상태는 [열림] 그대로(⑦⑧).
 
+- → 2026-10-04 09:36 감독(축 4b 보고, 감독 재현 scratchpad a4b/repo2/p1.mjs) 보강 ⑨ (중간, 새로 찾음): server/ws/resume/index.mjs:504-508·:313-316 — 묘비를 묘비가 된 순서(FIFO)로 잊어, 창 끝이 더 작은 기록이 아직 보관 중인데 지평이 그 위로 오른다. 그러면 보관 중인 기록과 겹치는 다른 값이 (b) 로 대조 없이 true(blind++). main 의 levelOverlapping 은 RangeError 였으므로 회귀. 머리 주석 :48·:52-53('다른 값이 true 로 바뀌는 것은 그 범위가 잊혔을 때뿐')과 어긋나고, level-arrived.retry.test.mjs:202-203 무작위 시험이 'last ≤ horizon 이면 true' 를 기대값으로 굳힌다. 실패 상황(감독 실행): maxEntries 2, A=LA(1,0,1,1)@1 보관 → seq 2..7 같은 key 대체하며 LA(2,0,s,1) → LA(99,3,1,1) = true, resendPlan 에 A 그대로. 고칠 것: (b) 앞에서 byLast 에 걸렸는데 값이 다르면 RangeError, levelContaining(first..last) 로 보관 중인 기록과 겹치면 RangeError — 또는 지평을 '기억한 모든 기록의 창 끝 최솟값 미만' 으로 유지. 확인 기준: p1 입력 RangeError·blind 0, :202 분기를 '기억에 없음' 으로 좁혀도 무작위 시험 통과, 주석 일치. 권장 opus(F-238 ⑥ 계열 세 번째). 저장소 상태·resendPlan 은 바뀌지 않고 배선 전(F-238 ④)이라 중간 — ④ 배선 전 필수.
+
 ### F-242 [닫힘] (심각도: 낮음) — PR #47 잔여 세부
 - 위치·문제(제품 6941ccd):
   ① (축 1b 실행) contracts/client_raster/arrival.mjs:12 머리 ⓪ 이 'sessionId 는 u32 정수' — 검사(:181)·JSDoc(:158)은 1 이상. '1 이상(서버는 0 을 발급하지 않음)' 으로.
@@ -2688,3 +2690,39 @@
 - 권장 모델: haiku(①②③⑤), sonnet(④⑥)
 - 이력: 2026-10-04 08:55 감독 등록(PR #47 검토 #1). 모두 이번 PR 변경 범위에서 나온 신규, 미재실행(①② 는 축 1b 실행 결과).
 - → 2026-10-04 09:30 감독(PR #48 검토 #1, 제품 4c798af) 닫음: ①②③ 주석 diff 감독 확인(arrival.mjs:12, proto:12, core:65-68), ④ assertSegmentId(resume index.mjs:126-130, SEGMENT_ID_LIMIT) 감독 diff 확인, ⑤ 등호 단언(축 5), ⑥ levelStats {stored, tombstones, horizon, unstored, blind, capDropped, work} 감독 diff 확인.
+
+### F-243 [열림] (심각도: 중간) — client/raster 렌더러 정확성·견고성(PR #48)
+- 위치·문제(제품 4c798af, feat/t11o-t12):
+  ① (감독 직접 재현, 축 7 스크립트 scratchpad a7/r2.mjs) client/raster/index.mjs:249-276·:290-295 — 같은 key 를 동시에 두 번 올리면 먼저 시작한 업로드가 늦게 끝나 새 업로드를 덮는다. :274-275 주석('더 새 업로드가 시작된 key 는 올리지 않는다')과 달리 superseded 는 releasePiece(:301)만 갱신한다. 실패 상황: 복호 30 ms 5점 → 복호 5 ms 3점 순서로 같은 key 업로드 → memoryBytes 75(옛 5점) 상주. Worker 복호에서 순서가 뒤바뀌기 쉽다. 고칠 것: uploadPiece 시작 때 같은 key 의 이전 토큰 무효화(superseded.set(key, token − 1)) 또는 :276 에서 `inflight.get(key) !== token` 이면 버림. 확인 기준: 위 순서에서 마지막에 시작한 업로드의 점 수만 상주하는 시험. 권장 sonnet.
+  ② (축 1a 변이, 미재실행) index.mjs:219-221 makeView 의 장치 픽셀 K 를 CSS K(`input.K`)로 바꾼 변이에서 client/raster 시험 91개 모두 통과 — index.test.mjs:92 VIEW 가 devicePixelRatio 1 하나뿐. dpr 3 이면 장면이 1/3 크기로 왼쪽 위에 그려진다. 고칠 것: createRenderer 에 dpr ≠ 1 시험(가짜 gl 의 u_fx·u_cx·u_bw 기록 또는 GL 하네스 픽셀 위치). 확인 기준: 그 변이가 실패. 권장 opus.
+  ③ (축 1a 재현 스크립트 a1a/f32.mjs, 미재실행) index.mjs:66-71·shader/index.mjs:73 — 위치를 앵커 기준 절대 ENU f32 로 올리고 셰이더에서 R·X + t 를 f32 로 더해, 앵커에서 2 km 이상 떨어진 장면은 1920×1080@1.5 에서 0.55 px, 5 km 에서 1.14 px 오차. camera.test.mjs:188-197 f32 시험은 입력만 fround 하고 장면이 원점 10 m 안. 고칠 것: 조각 원점 기준 상대 좌표(RTE: 조각마다 원점 빼고, t' = R·o + t 를 f64 로 계산해 uniform) 또는 장면 범위 상한을 계약에 명시. 확인 기준: 오프셋 5 km·깊이 1–5 m 단계별 fround 에뮬레이션에서 ≤ 0.5 CSS px. 권장 opus.
+  ④ (축 2 실행, 미재실행) contracts/client_raster/index.mjs:437-451 selectDrawable 이 lod 를 보지 않아 같은 (구간, 수준, 타일)의 lod 0·lod 2 를 함께 draw — ASSET_FORMAT §10.1 'LOD 하나만 그린다' 와 어긋남, 옛 LOD 는 discard 로 나오지 않음. 고칠 것: 계약 ④ 에 LOD 교체 규칙(또는 서버가 한 타일에 LOD 하나만 보낸다는 근거 주석). 확인 기준: 두 LOD 입력에서 draw 1개·나머지 discard 시험. 권장 opus.
+  ⑤ (축 7 재현) client/raster/loop/index.mjs:41·:49-50 draw/onFrame 예외 한 번에 루프가 멈추고 running=true 로 남아 start() 도 무시(:55). :108-110 postMessage 실패 시 pending 누수, :105-113 terminate 뒤 decode 가 영원히 미결(uploadPiece 가 await 에서 멈춤). 고칠 것: try/finally 로 다음 프레임 예약 또는 running=false·오류 알림, postMessage 실패 시 pending.delete, terminated 면 즉시 reject. 확인 기준: 각 경우 시험(다음 프레임 예약, pending 0, 즉시 reject). 권장 sonnet.
+  ⑥ (축 3·6·7 독립) index.mjs:290·:301 superseded Map 이 releasePiece 마다 영구히 쌓인다(없는 key 포함, dispose·소실에도 안 지움). 고칠 것: inflight 에 있을 때만 기록하고 업로드가 끝나면 지움. 확인 기준: 서로 다른 key 로 releasePiece 10만 회 뒤 크기 ≤ 진행 중 업로드 수. 권장 sonnet.
+  ⑦ (축 7 재현) index.mjs:244-246 onEvict 콜백이 던지면 희생 조각은 이미 해제됐는데 새 조각은 올라가지 않는다. 고칠 것: onEvict 를 pool.upload 뒤에 부르거나 감싼다. 권장 sonnet.
+  ⑧ (축 6, 설계) index.mjs:362-371 프레임당 조각마다 bindBuffer·vertexAttribPointer·drawArrays — 조각 수에 비례하는 GL 호출. fps 판정은 T17 [local] 이라 지금은 중간. 고칠 것: 조각별 VAO, u_shade 는 바뀔 때만. 확인 기준: 조각 N 에 대한 프레임당 GL 호출 수 계측(걸음 수, 벽시계 아님). 권장 sonnet.
+- 권장 모델: 위 번호별
+- 이력: 2026-10-04 09:30 감독 등록(PR #48 검토 #1). ① 감독 재현, 나머지는 근거 줄 있는 서브에이전트 보고(미재실행). 모두 이번 PR 이 새로 만든 client/raster 에서 나옴(④ 는 기존 계약이 이번에 처음 호출됨). 운영 배선 전(ws·Worker 미연결)이라 중간.
+
+### F-244 [열림] (심각도: 중간) — T12 완료 기준 미달·미검증과 시험 품질(PR #48)
+- 위치·문제(제품 4c798af):
+  ① (감독 확인) T12.6 'holes 장면 빈 픽셀 = 참조' 를 클라이언트로 확인하지 않음 — client/raster/missing/missing.test.mjs:1-106 은 server/raster_ref renderPoints 만 그리고, 셰이더·emulate 의 빈 칸 검사는 flat_boxes 의 `filledEmpty ≤ 0.002`(ssim8.test.mjs:15, 640×360 에서 약 460 픽셀 허용, 실측 ≤ 1e-5). missing/index.mjs 도우미 변이 6/6 생존(축 4a: 루프 i=1 시작, 깊이·색 검사 제거, filled 마지막만, nonEmptyValuesInEmpty 항상 [], 모양 검사 제거). 고칠 것: holes 장면(부분집합 도착 포함)을 emulatePointRender 와 실제 GL 로 그려 compareWithReference(...).filled == [] 단언, 도우미 음성 시험. 확인 기준: 셰이더 점 크기 2배 변이·위 도우미 변이 6개가 실패. 권장 sonnet.
+  ② (감독 확인) T12.5 '60만 점 구간 복호 중 메인 스레드 long task 0' 미달 — 실제 Worker 스크립트 없음, 기본 decode 는 메인 스레드 동기(index.mjs:109). loop/index.test.mjs:66 '복호 Worker: 메인 스레드 long task 0' 은 가짜 시계 2 ms 주입이라 배선 시험일 뿐. 고칠 것: 실제 Worker 스크립트와 헤드리스 Chromium 60만 점 측정(이것은 [cloud] 가능), 그 전까지 시험 이름을 '계측 배선(가짜 시계)' 으로, PR 본문에 T12.5 미달 명시. 확인 기준: 헤드리스 Chromium 에서 60만 점 복호 중 long task 0. 권장 sonnet.
+  ③ (축 5·4a) T12.7 '집계값 = 실제 버퍼 합' 이 meter 와 pool 을 대조하지 않음(index.mjs:376-378 은 pool 값, memory 시험은 meter 만). memory/index.test.mjs:178-181 은 add(key, −50) → total 50 을 기대해 음수를 정상으로 굳힘. index.mjs:282 meter.remove 삭제(M4c)·:230 자기 크기 미차감(M4e) 변이 생존. 고칠 것: 올리기·해제·교체·퇴출 뒤 meter.total() == pool.residentBytes() == 가짜 gl bufferData 누계 단언, 음수·NaN 거부 시험, M4c·M4e 를 잡는 시험. 권장 sonnet.
+  ④ (축 4a 실행) 실제 WebGL2 시험 4개(index.test.mjs:315, ssim8.test.mjs:63-64, context.browser.test.mjs:11-28, harness.test.mjs:109-113)가 Chromium 없으면 조용히 skip, gl_harness.mjs:15 는 SKYLENS_CHROMIUM 이 틀린 경로여도 null. 그 상태에서 GLSL 변이(`v + 3.0`, max→abs)가 통과(emulate 는 손으로 옮긴 사본). 감독 환경에서는 91/91 통과·skip 0 이라 이번 판정에는 영향 없음. 고칠 것: SKYLENS_REQUIRE_GL=1 이면 skip 대신 실패, env 경로 틀리면 오류. 확인 기준: REQUIRE_GL=1·Chromium 없음 → exit ≠ 0. 권장 sonnet.
+  ⑤ (감독 확인) latency/index.test.mjs:115-131 실제 performance.now() 에 기댄 단언(`measured > 0`, `measured <= actual + 1` 은 구조상 늘 참) — 벽시계 단언 금지 규칙 위반. 고칠 것: globalThis.performance 대체로 기본 now 배선만 확인. 확인 기준: client/raster 시험에 performance.now() 단언 0. 권장 haiku.
+  ⑥ (축 4a·5) 셰이더·SSIM 판별력 증거가 저장소에 없음 — 셰이딩 끄기·빛 방향 반전·점 크기 1.5배 변이가 SSIM < 0.95 로 떨어진다는 것은 임시 스크립트로만 확인(축 1b 재현: 각각 0.47–0.67, 0.43–0.93 등). camera.test.mjs:156·:172 는 같은 구현끼리 비교해 fit/scale 바꿔치기(0.20 px)를 놓침. 고칠 것: 위 변이를 `assert.ok(s < SSIM_MIN)` 음성 시험으로, :156 은 truthCss 와 비교. 권장 sonnet.
+  ⑦ (축 4a) buffers/index.mjs:45 '교체 실패 시 기존 조각 유지' 시험 없음(M2i 생존). 권장 haiku.
+- 이력: 2026-10-04 09:30 감독 등록(PR #48 검토 #1). ①②⑤ 감독 확인, 나머지 서브에이전트 실행 보고(미재실행). T12 는 [ ] 로 남는다 — T12.1·T12.2·T12.3·T12.4(CSS 경로)·T12.9·T12.10 완료 기준은 재현됨, T12.5 미달, T12.6·T12.7 미검증.
+
+### F-245 [열림] (심각도: 낮음) — PR #48 잔여 세부
+- ① (축 2) 계약 Renderer typedef·CLIENT_RASTER_API 에 setArrived 가 없다(contracts/client_raster/index.mjs:123-184) — 그리기의 핵심 입력이 계약 밖. onContextRestored 콜백 인자(key 배열)·구독 해제 반환·residentKeys·isContextLost 도 계약에 올리거나 구현 확장이라고 명시. 계약 메서드 전부를 구현이 갖는지 보는 시험. 결정 기록(decisions/)에 계약 확장 근거. 권장 haiku.
+- ② (축 2) maxPieceBytes 의 뜻: 계약 :137 '복호 후 바이트' 대 구현 :277-279 GPU 평면 합(형식 1 17 B/점, 형식 2 15 B/점). 문구 맞춤. 권장 haiku.
+- ③ (축 2) codec 0 normal_oct −128 을 거부하지 않음(index.mjs:83-89) — ASSET_FORMAT §4.2 −127..127. toGpuPlanes 에서 'piece' 거부. 권장 haiku.
+- ④ (축 2) 기본 decode 가 메인 스레드라 계약 ①('Worker 에서 복호')과 다름 — F-244 ② 와 함께. 권장 haiku.
+- ⑤ (축 7) loop/index.mjs:15·:29-30 frameMs 0·NaN 검사 없음(droppedFrames Infinity·NaN), :96 ev.data null TypeError, :110 subarray 뷰여도 버퍼 전체 transfer, missing/index.mjs:20·:37 0×0 입력 emptyFraction NaN·음수 크기 통과, latency/index.mjs:135-136·:148·:174 marks·measurements 무한 증가, index.mjs:204-207 복구 중 프로그램 재생성 실패를 알리지 않음. 권장 haiku(복구 실패 알림은 sonnet).
+- ⑥ (축 6) index.mjs:229 makeRoom 이 업로드마다 meter.byKey() 전체 객체 생성, :164·:312-313 업로드·setArrived 마다 selectDrawable 전체 재계산, shader/index.mjs:243 프레임마다 Object.entries. 권장 sonnet.
+- ⑦ (축 1b) emulate.mjs:255 '단계마다 Math.fround' 주석과 shaderShade(f64) 불일치. ssim8 top_down 시점은 r ≈ 0.39 px 라 점 크기 공식이 검증되지 않음 — 시점별 r ≥ 1 비율 진단. 권장 haiku.
+- ⑧ (축 12) README T12 절에 '헤드리스 Chromium(SwiftShader, CPU)' 명시 — 실제 GPU 수치가 아님. 한·영 둘 다. 권장 haiku.
+- ⑨ (축 4a) missing.test.mjs:46-50(1703/75097)·harness.test.mjs:100·127-136(PINNED 해시)은 서버 참조 출력 고정 — 이름·주석에 '서버 참조 회귀 고정' 명시. 권장 haiku.
+- 이력: 2026-10-04 09:30 감독 등록(PR #48 검토 #1). 모두 서브에이전트 보고(미재실행), 이번 PR 범위에서 나옴.

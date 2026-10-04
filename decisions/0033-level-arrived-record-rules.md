@@ -23,3 +23,9 @@ A. 구현은 제품 feat/t11n-followups(server/ws/resume/index.mjs 머리 주석
 
 ## 승인 (2026-10-04 감독, PR #47 검토 #1)
 상한 maxEntries+1 과 '지운 기록의 같은 값 재시도 = true, 살아 있는 기록과 겹치면 RangeError' 방향을 승인한다. 감독 재현: F-238 ⑧ 입력에서 LA9 재전송 포함, ⑥ A·B 재시도 true. 단 구현의 (c)/(d) 판정이 지금의 windowLive 에 기대어 ack 진행 뒤 같은 재시도가 RangeError 로 바뀌고(F-241 ①), 기록 순서에 따라 추월된 창의 보관 여부가 갈린다(F-241 ②). 선택지 A 의 대가('죽은 창에 다른 값도 true')는 묘비(지운 기록의 네 값, 최대 maxEntries+1 개)로 없앨 수 있으므로 F-241 에서 함께 다시 본다. ws 배선(F-238 ④) 전 필수.
+
+## 갱신 (2026-10-04 감독, PR #48 검토 #1 — F-241 묘비)
+구현이 묘비 기억으로 바뀌었다(제품 4c798af, server/ws/resume/index.mjs 머리 주석 (a)~(c)). 받은 기록은 보관 중이든 지웠든 네 값을 창 끝으로 기억하고(묘비 최대 maxEntries+1 개), 재시도는 (a) 네 값 일치면 true, (b) 창 끝 ≤ 지평(잊은 묘비의 창 끝 최댓값)이면 대조 없이 true(levelStats().blind), (c) 그 밖은 RangeError. 판정은 ackedUpTo·추월을 보지 않는다. 보관 판정은 '죽음·기록 없음' 만 본다.
+- 선택지 A 의 대가 '죽은 창에 다른 값도 true' 는 사라졌다. 새 대가: 묘비가 maxEntries+1 개를 넘어 잊힌 범위(창 끝 ≤ 지평)에서만 다른 값도 true(저장하지 않음). 메모리는 세션당 보관 ≤ maxEntries+1 + 묘비 ≤ maxEntries+1.
+- 감독 재현: F-241 ① R1 ack(1) 앞뒤 재시도 true·다른 값 RangeError, ② R2 두 순서 resendPlan 동일, ③ 순서 위반 RangeError.
+- 다시 볼 조건: ws 배선(F-238 ④)에서 blind 가 0 이 아닌 사례가 나오면 묘비 상한을 다시 본다.
