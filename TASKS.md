@@ -368,22 +368,24 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T11.9 | 모의 클라이언트(시험용) | `tools/mock_client/` | 경로 재생 스크립트 동작 | haiku |
 | T11.10 | 프로토콜 퍼저 | `server/proto/fuzz/` | 10만 회 패닉 0 | sonnet |
 | T11.11 | 바이트 집계 | `bench/proto/` | 구간당 바이트 기록(≤ 3 MB 대비) | haiku |
+| T11.F | (PR #39 반려 1회, 같은 브랜치) 높음 F-184(pieceSeq 0)·F-185(추월 묶음 기준 계약화)·F-186(MB 단위 되돌리기)·F-187(T11.5·T11.9·T11.11 완료 기준 재현)·F-188(ws 콜백 예외)·F-189(어댑터 송출 원자성) 먼저. 중간 F-190~F-193·F-195·F-196 은 같은 PR 또는 다음 PR, 낮음 F-194 | F-184~F-196 위치 경로 | 각 항목 확인 기준, npm test 0 실패 | sonnet(F-185·F-189 opus, F-186 haiku) |
+| T11.8L [local] | skylens 원본 코어 이벤트 모양·실제 녹화로 어댑터 재생 대조(클라우드 시험은 합성 녹화 — experiments/protocol.md '원본 미열람, 가정') | `server/adapter/core/` | 실제 녹화 재생 시 상태 일치 | opus |
 
 ### T12 `client-raster` — [cloud] (fps 확정 측정은 T17 [local])
 
-| 하위 | 내용 | 소유 경로 | 완료 기준 |
-|---|---|---|---|
-| T12.0 | 계약: 클라이언트 렌더러 인터페이스(조각 올리기·내리기·시점·그리기) | `contracts/client_raster/` | 서명 문서와 일치 |
-| T12.1 | 렌더 문맥 초기화·소실 복구 | `client/raster/context/` | 헤드리스 소프트웨어 렌더에서 초기화 성공 |
-| T12.2 | 점 셰이더(크기·색·법선 셰이딩) | `client/raster/shader/` | 참조 래스터라이저와 8시점 SSIM ≥ 0.95(헤드리스) |
-| T12.3 | 조각 버퍼 관리(올리기·해제·상한) | `client/raster/buffers/` | 해제 후 누수 0, 상한 준수 |
-| T12.4 | 카메라·K 환산(장치 픽셀 비) | `client/raster/camera/` | 해상도 바꿔도 투영 일치 ≤ 0.5 px |
-| T12.5 | 프레임 루프(조각 도착과 그리기 분리). codec 복호는 Web Worker 에서(F-173) | `client/raster/loop/` | 도착 폭주 중 프레임 누락 기록, 60만 점 구간 복호 중 메인 스레드 long task(> 50 ms) 0 |
-| T12.6 | 빈자리 표시(메우기 금지) | `client/raster/missing/` | holes 장면 빈 픽셀 = 참조 |
-| T12.7 | 메모리 집계 | `client/raster/memory/` | 집계값과 실제 버퍼 합 일치 |
-| T12.8 | 번들 크기 검사(CI 문턱 300 KB) | `bench/client_bundle/` | gzip ≤ 300 KB |
-| T12.9 | 헤드리스 화면 캡처 시험 틀 | `client/raster/test_harness/` | 8시점 캡처 재현 |
-| T12.10 | 입력 → 화면 지연 계측 지점 | `client/raster/latency/` | 계측 이벤트 기록 |
+| 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
+|---|---|---|---|---|
+| T12.0 | 계약: 클라이언트 렌더러 인터페이스(조각 올리기·내리기·시점·그리기) | `contracts/client_raster/` | 서명 문서와 일치 | haiku |
+| T12.1 | 렌더 문맥 초기화·소실 복구 | `client/raster/context/` | 헤드리스 소프트웨어 렌더에서 초기화 성공 | sonnet |
+| T12.2 | 점 셰이더(크기·색·법선 셰이딩) | `client/raster/shader/` | 참조 래스터라이저와 8시점 SSIM ≥ 0.95(헤드리스) | opus |
+| T12.3 | 조각 버퍼 관리(올리기·해제·상한) | `client/raster/buffers/` | 해제 후 누수 0, 상한 준수 | sonnet |
+| T12.4 | 카메라·K 환산(장치 픽셀 비) | `client/raster/camera/` | 해상도 바꿔도 투영 일치 ≤ 0.5 px | opus |
+| T12.5 | 프레임 루프(조각 도착과 그리기 분리). codec 복호는 Web Worker 에서(F-173) | `client/raster/loop/` | 도착 폭주 중 프레임 누락 기록, 60만 점 구간 복호 중 메인 스레드 long task(> 50 ms) 0 | sonnet |
+| T12.6 | 빈자리 표시(메우기 금지) | `client/raster/missing/` | holes 장면 빈 픽셀 = 참조 | sonnet |
+| T12.7 | 메모리 집계 | `client/raster/memory/` | 집계값과 실제 버퍼 합 일치 | haiku |
+| T12.8 | 번들 크기 검사(CI 문턱 300 KB) | `bench/client_bundle/` | gzip ≤ 300 KB | haiku |
+| T12.9 | 헤드리스 화면 캡처 시험 틀 | `client/raster/test_harness/` | 8시점 캡처 재현 | sonnet |
+| T12.10 | 입력 → 화면 지연 계측 지점 | `client/raster/latency/` | 계측 이벤트 기록 | haiku |
 
 ### T13 `statusview-b` — [cloud]
 
