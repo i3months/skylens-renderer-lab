@@ -2840,10 +2840,10 @@
 - ② (축 1a·2·6·7, 근거 줄 :412 감독 확인, 수치는 서브에이전트 측정 미재실행) 지연 setArrived 검사가 selectDrawable([], list) 전체(파싱 + tile 표)를 돌린다 — 10만 key 에 약 150~210 ms, 다음 draw 에서 한 번 더. 이벤트 폭주 때 이벤트 수 × 전체가 되어 F-248 ④ 목적이 대부분 사라진다. set_arrived_batch 의 단계 계수는 testHooks 를 거치지 않아 보이지 않는다. 고칠 것: parsePieceKey·범위·(segmentId, level) 일치만 하는 가벼운 검사기(tile 표 없음)로 바꾸거나 파싱 결과를 다음 draw 가 재사용. 확인 기준: 10만 key 지연 호출 1회 비용이 즉시 경로의 절반 이하(bench 기록, npm test 에는 벽시계 단언 금지)·검사 단계 계수 시험. 권장 sonnet.
 - ③ (축 1b·7 재현) client/raster/loop/index.mjs:172·:190 clearTimeoutFn 이 던지면 settle 전에 빠져 영구 미결·order/pending 불일치. 또 :122-128 failAll 이 st.errors 를 세지 않아 requests ≠ responses + errors + pending. 시한 뒤 Worker 를 terminate 하지 않아 새 요청이 처리 중 Worker 뒤에서 다시 거짓 timeout(문서화됨 — 호출자 재생성 신호가 없음). 고칠 것: clearTimeoutFn 호출을 try 로 감싸고 settle 먼저, failAll 에서 errors 집계, 시한 시 terminate+terminated(또는 'blocked' 상태 노출) 중 하나를 정해 결정 기록. 확인 기준: 던지는 clearTimeoutFn 으로 응답·onerror·terminate·timeout 모두 settle, 항등식 성립. 권장 sonnet.
 - ④ (축 2·4a·5 변이, 감독 코드 확인 api.test.mjs:189-195·index.mjs:169) F-251 ④ 재열림: /options\.(\w+)/ 가 소스 전체(JSDoc @param 줄 포함)를 훑고 구조분해(:169)를 못 본다 — 구조분해로 새 옵션 읽기·contextAttributes 무시·shading 무시 변이 3종 생존. 고칠 것: Proxy 로 createRenderer·setView·uploadPiece·draw 중 읽은 옵션 키를 기록해 허용 집합의 부분집합인지, 각 옵션이 효과가 있는지 시험. 확인 기준: 세 변이 각각 실패. 권장 haiku.
-- ⑤ (감독 npm test, 서브에이전트 병렬 부하 중) worker.browser.test.mjs T12.5 가 1회 실패: 'long task 1 개 [93] ms'. 부하가 낮을 때 감독 10회 반복은 10/10 통과. 또 :144 start >= t0 필터는 t0 전에 시작해 구간으로 이어지는 long task 를 버린다(축 5). 고칠 것: t0 전 대기 뒤에도 남는 long task 의 출처를 기록(어느 단계인지 out 에 남김)하고, 필터를 start + duration > t0 로 바꿔 구간에 걸친 것은 센다. 부하 중 실패가 구간 안 작업이면 미달로 보고. 확인 기준: 부하(npm test 전체와 병렬) 아래 10회 반복 0 실패 또는 미달 보고. 권장 sonnet.
+- ⑤ F-255 로 옮김(높음).
 - ⑥ (축 2, 감독 확인) 결정 0036: 항목 3(onContextRestored error 를 계약에 넣는다)이 계약 :157·:214(구현 확장, 계약 밖)·승인된 0035 ④ 와 어긋나고 근거('탭 전환 등 소실 원인')가 코드(:288 복구 실패 failure)와 다르다. 복호 시한 failAll·onerror terminated(0035 ③ 변경)와 makeRoom 업로드 key 포함 규칙이 기록되지 않았다. 0036:19 'fresh 그대로' 는 이번 PR 이 fresh 를 지웠다. decisions/README 목록에 0036 없음. 고칠 것: 항목 3 정정 또는 계약 반영 + 0035 ④ 대체됨 표시, 누락 결정 추가, 문구·목록 정정. 확인 기준: 0036 본문과 계약 :157·:214·코드 대조 일치. 권장 haiku.
 - 권장 모델: 위 번호별
-- 이력: 2026-10-04 감독 등록(PR #52 검토 #1). ①⑤ 감독 재현, ④ 감독 코드 확인, ②③⑥ 근거 줄 있는 서브에이전트 보고. ① 은 기존 동작(F-250 ③ 잔여), 나머지는 이번 PR 이 바꾼 범위.
+- 이력: 2026-10-04 감독 등록(PR #52 검토 #1). ① 감독 재현, ④ 감독 코드 확인, ②③⑥ 근거 줄 있는 서브에이전트 보고. ① 은 기존 동작(F-250 ③ 잔여), 나머지는 이번 PR 이 바꾼 범위.
 
 ### F-254 [열림] (심각도: 낮음) — PR #52 잔여 세부
 - ① (축 7 재현) client/raster/loop/index.mjs:110 timeoutMs > 2^31−1 을 받아들이지만 타이머가 약 1 ms 로 잘려 모든 decode 가 즉시 timeout. 범위 검사 추가. 권장 haiku.
@@ -2852,4 +2852,14 @@
 - ④ (축 4a) client/raster/index.mjs:234 `arrivedKeys.has(extraKey)` 조건 삭제 변이 생존, gpu_planes_check.test.mjs:111 −Infinity 경우 없음. 권장 haiku.
 - ⑤ (축 2) contracts/client_raster/index.mjs:158 typedef 의 setArrived 형이 :215 서명표(opts?, | undefined)와 다름. 권장 haiku.
 - ⑥ (축 1b 재현) loop/index.mjs:132-140 이미 보낸 요청의 arm 실패 시 그 요청을 거부해 JSDoc :104('그 요청만')와 다르고 다음 요청 시한이 처리 시작 기준을 잃는다. 권장 haiku.
+- ⑦ (축 4b 변이) missing/index.mjs:34-35 검사 2회 변이 생존(F-251 ② 확인), latency/index.test.mjs:246-268 measure 퇴출이 가장 오래된 것인지 구별 못 함(shift→pop 생존), nonEmptyValuesInEmpty 크기·index·깊이 검사 삭제 변이 생존(validate.test 음성 시험 추가), timeout_queue :105-121 settle 뒤 release 순서 미시험, inputs.test.mjs:49-56·:77-91 중복 단언. 권장 haiku.
 - 이력: 2026-10-04 감독 등록(PR #52 검토 #1). 모두 서브에이전트 보고(근거 줄 있음, 미재실행).
+
+### F-255 [열림] (심각도: 높음) — T12.5 시험의 start >= t0 필터가 실제 메인 스레드 long task 를 버려 거짓 통과할 수 있고, 기본 npm test 에서 흔들린다
+- 위치: client/raster/loop/worker.browser.test.mjs:132(t0)·:133(uploadPiece)·:142(.filter((x) => x.start >= t0)) (제품 feat/t12s 3583504)
+- 문제: t0 는 sleep(100) 뒤 이어지는 같은 작업 안에서 잰다. uploadPiece 의 동기 부분(decode 호출 포함)은 그 작업에 속하므로 그 작업의 start 는 t0 보다 앞이고 필터에 걸려 빠진다. 성공 기준(T12.5 long task 0)을 판정하는 시험이 메인 스레드 동기 복호를 놓친다.
+- 실패 상황: (축 4b 변이) :127 decode 를 메인 동기 toGpuPlanes(decodeChunkClient(b)) 뒤 client.decode 로 바꾸면(약 800 ms) 필터가 있으면 3/3 통과·long task 0, 필터를 빼면 [800] 으로 실패. 감독이 :126-145 를 직접 읽어 t0 가 그 작업 안에서 잡히는 구조를 확인. 또 (감독 npm test 부하 중) 1회 실패 'long task 1 개 [93] ms', 축 4b 23회 중 3회 실패(52·61 ms, draw 45.9·55.9 ms — SwiftShader draw 가 같은 작업에 섞임). 감독 단독 10회는 10/10 통과.
+- 고칠 것: 필터를 지우거나 x.start + x.duration > t0(구간에 걸친 것 포함)로 바꾼다. 흔들림은 문턱을 올려 막지 말고, 실패 시 long task 가 어느 단계(복호 응답 처리·setArrived·draw)인지 out 에 남겨 판단 근거를 만든다. SwiftShader draw 가 원인이면 그 사실을 실험 노트에 [cloud] 로 적고, draw 를 별도 작업으로 나눠 업로드~첫 draw 직전과 draw 를 따로 보고하는 방식은 결정 기록 후 허용(성공 기준 수치 변경 금지).
+- 확인 기준: 위 메인 동기 복호 변이가 실패, npm test 전체와 병렬 부하 아래 10회 반복 0 실패(또는 미달을 미달로 보고).
+- 권장 모델: sonnet
+- 이력: 2026-10-04 감독 등록(PR #52 검토 #1). 신규(이번 PR 의 F-250 ④ 수정이 만든 필터). 축 4b 보고(변이 재현) + 감독 코드 확인, 흔들림은 감독 npm test 에서 직접 1회 관찰.
