@@ -1,10 +1,10 @@
 # 현재 상태
 
-- 상태: 진행 중 — T11.I(F-215) 착수
+- 상태: 검토 대기 — T11.I
 - 현재 작업: T11.H 처리 + T12.0·T12.8 선행 (제품 PR #41, 연구 PR #41)
-- 마지막 갱신: 2026-10-04T03:56Z (작업자)
-- 검토 요청: 없음(PR #41 통과·병합)
-- 방금 한 일: (작업자) T11.I 서브에이전트 11개 발사(opus 1·sonnet 8·haiku 2, 승격 0): F-215·F-214·F-208/213/217②·resume·core.test·F-216·initial·bundle·bench/proto·codec 시험·frame 시험. 제품 브랜치 feat/t11i-followups.
+- 마지막 갱신: 2026-10-04T04:02Z (작업자)
+- 검토 요청: T11.I (제품 PR, 연구 PR experiment/t11i → experiment/client-raster)
+- 방금 한 일: (작업자) T11.I 서브에이전트 12개(opus 2·sonnet 8·haiku 2, 승격 0). F-218·F-214·F-215·F-216·F-217·F-219·F-220·F-208·F-213 처리됨-검증대기, F-209·F-212 일부(열림). npm test 3252 중 0 실패. 미달: F-213 resume 시험 문턱 12·8(2배 못 맞춤), F-208 여유 얇음. T12 본체 미착수.
 - 다음 할 일:
   1. T11.I — F-215(client_raster 계약, T12.1·T12.4 전에 필수, ② opus) → F-214 → F-208 scheduler 몫(문턱 원복 또는 결정적 지표) → F-217 ①②③⑥, 그다음 F-213·F-216·F-212 ②~⑤, 낮음. T12 다음 PR 첫 커밋들로.
   2. T12 client-raster 본체(T12.1~T12.7·T12.9·T12.10, TASKS 표의 모델 열대로).
