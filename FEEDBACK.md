@@ -2177,13 +2177,13 @@
 - 확인 기준: 위 순서 뒤 재전송 후보(unacked 또는 재전송 함수)에 수준 1 이 없고, 같은 수준의 다른 chunk 는 남는다.
 - 권장 모델: sonnet
 - 이력: 2026-10-04 01:55 감독 등록(축 3 보고, 직접 읽음). 신규. → 2026-10-04 작업자 처리(제품 feat/protocol-g 598c4da): 확인 기준 시험 추가, 전체 npm test 3155 중 3143 통과·0 실패. 상세 experiments/protocol.md T11.G(연구 experiment/protocol-g). → 2026-10-04 02:35 감독(PR #40 검토) 확인 닫음: resume unacked 추월 제외(:262-272), 축 4a 변이 U1·U2 실패, 축 3 원칙 대조 위반 0.
-### F-200 [처리됨-검증대기] (심각도: 중간, 미확인) — ws 접속 계층에 쓰기 버퍼 상한·읽기 일시정지가 없다
+### F-200 [닫힘] (심각도: 중간, 미확인) — ws 접속 계층에 쓰기 버퍼 상한·읽기 일시정지가 없다
 - 위치(7f362d0): server/ws/index.mjs:83-84(data 처리), pong 송출 경로
 - 문제: socket.pause·writableLength 상한이 없어, 읽지 않는 클라이언트에게 ping 을 계속 보내면 pong 이 무제한 쌓이고, 비동기 onMessage 미결이 무제한 늘 수 있다(축 6 보고, 감독 미재현).
 - 고칠 것: writableLength 상한 초과 시 1008 close 또는 pause, ping 속도 제한. T11.6 backpressure 모듈과 연결.
 - 확인 기준: 읽지 않는 클라이언트에 ping 100만 건을 보내도 서버 writableLength 가 상한 이하·연결 종료.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 01:55 감독 등록(축 6 보고, 미확인). 신규. → 2026-10-04 작업자 처리(제품 feat/protocol-g 598c4da): 확인 기준 시험 추가, 전체 npm test 3155 중 3143 통과·0 실패. 상세 experiments/protocol.md T11.G(연구 experiment/protocol-g). 일부만: 쓰기 버퍼·핑 제한은 했고 비동기 onMessage 미결 무제한·send() 상한은 남음 — 열림 유지. → 2026-10-04 02:35 감독(PR #40 검토) 부분: 쓰기 버퍼 1 MiB·핑 50/s 1008 은 들어옴(ws/index.mjs:16-21·:79-87, 변이 W1·P1 실패). 남은 것: 비동기 onMessage 미결 상한·send() 상한(작업자 밝힘). pong 판단이 send 데이터까지 세는 문제·옵션 검사·벽시계는 새 F-206. 열림 유지(중간). → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): 비동기 onMessage 상한(pause)·send 상한 추가, npm test 3210 중 3198 통과·0 실패. 상세 experiments/client-raster.md.
+- 이력: 2026-10-04 01:55 감독 등록(축 6 보고, 미확인). 신규. → 2026-10-04 작업자 처리(제품 feat/protocol-g 598c4da): 확인 기준 시험 추가, 전체 npm test 3155 중 3143 통과·0 실패. 상세 experiments/protocol.md T11.G(연구 experiment/protocol-g). 일부만: 쓰기 버퍼·핑 제한은 했고 비동기 onMessage 미결 무제한·send() 상한은 남음 — 열림 유지. → 2026-10-04 02:35 감독(PR #40 검토) 부분: 쓰기 버퍼 1 MiB·핑 50/s 1008 은 들어옴(ws/index.mjs:16-21·:79-87, 변이 W1·P1 실패). 남은 것: 비동기 onMessage 미결 상한·send() 상한(작업자 밝힘). pong 판단이 send 데이터까지 세는 문제·옵션 검사·벽시계는 새 F-206. 열림 유지(중간). → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): 비동기 onMessage 상한(pause)·send 상한 추가, npm test 3210 중 3198 통과·0 실패. 상세 experiments/client-raster.md. → 2026-10-04 03:45 감독(PR #41 검토) 확인 닫음: 축 1a 실제 서버 재현 — 비동기 핸들러 1000건 동시 최대 64·순서 보존·처리 뒤 resume, 읽지 않는 클라이언트 send 31 MiB 에서 1008 'send buffer'(ws/index.mjs:137-138·:182 감독 직접 읽음). 축 4a 변이: pause 상한 제거·send 상한 제거 각 1 실패(5 s 안).
 
 ### F-201 [닫힘] (심각도: 중간) — T11.F 시험 공백: 시한 없는 대기, 살아남는 변이, 항상 참 단언
 - 위치(7f362d0): server/ws/ws.test.mjs:68·:280(`bad.next()` 시한 없음), server/ws/index.mjs:50·:144-150(시험 없음), server/ws/resume/resume.test.mjs:152(`PAIRS.length>=8`)·:161-164(기대값을 overtakeGroup 으로 다시 계산 — 순환), server/scheduler/scheduler.test.mjs:190(`sentIds.size<=sentTotal` 항상 참, `>100` 사후 기준)·:104(시드 하나), client/proto/index.test.mjs:161(BOM 시험이 length 만 비교), server/scheduler/initial/initial.test.mjs:6(CHUNK_BYTES 미사용, '≤ 3 MB' 를 조각 상한처럼 적음)
@@ -2211,47 +2211,47 @@
 - 권장 모델: haiku(⑥⑦⑧), sonnet(①②③④⑤)
 - 이력: 2026-10-04 01:55 감독 등록(축 1·4b·6·7 보고, ⑧ 감독 확인). 신규. → 2026-10-04 작업자 처리(제품 feat/protocol-g 598c4da): 확인 기준 시험 추가, 전체 npm test 3155 중 3143 통과·0 실패. 상세 experiments/protocol.md T11.G(연구 experiment/protocol-g). ④ 조각마다 Buffer 는 남김, ⑧ 조치 없음. → 2026-10-04 02:35 감독(PR #40 검토) 확인 닫음: ① 빈 pieces 거부 시험(core.test), ② u32 끝 세션 폐기(resume:183, 변이 E1 실패), ③ 이진 삽입, ⑤ ENU 타일(축 1·3 대조), ⑥⑦ 주석·testutil 이동. ④ 1 B 조각 Buffer 는 F-208 로 옮김, ⑧ 조치 없음(이력).
 
-### F-204 [처리됨-검증대기] (심각도: 중간) — 어댑터 송출 실패 뒤 다른 이벤트가 먼저 오면 같은 pieceSeq 를 다른 key 로 쓰거나 resume 에서 막힌다
+### F-204 [닫힘] (심각도: 중간) — 어댑터 송출 실패 뒤 다른 이벤트가 먼저 오면 같은 pieceSeq 를 다른 key 로 쓰거나 resume 에서 막힌다
 - 위치(제품 598c4da): server/adapter/core/index.mjs:21-25(재시도 가정 주석)·:169·:177(실패 시 nextSeq 미확정), server/ws/resume/index.mjs:204-208(`!old || old.seq !== seq` → RangeError), contracts/proto/index.mjs:15(재전송 규약은 같은 seq·같은 key 만), 시험 core.test.mjs:398-452(실패 직후 같은 이벤트 재시도만)
 - 문제: 실패한 시도의 순번이 확정되지 않아 다음 이벤트가 무엇이든 같은 순번부터 쓴다. 같은 이벤트를 다시 넣어 줄 주체가 정해져 있지 않다.
 - 실패 상황: 구간 1 수준 0 조각 2개(PIECE seq 1·2 송출·recordSent 완료) 뒤 LEVEL_ARRIVED 송출 실패 → 구간 2 이벤트 → RangeError '이미 기록한 최대 순번(2)…: 1', 어댑터 nextPieceSeq 1 에 머묾(축 2 scratchpad 재현, 감독은 :169·:177·resume:204-208 직접 읽어 확인). resume 없이 배선하면 seq 1 이 서로 다른 key 로 두 번 나간다. 비시험 호출자 0 이라 중간.
 - 고칠 것: (a) 일부라도 나간 뒤 실패하면 쓴 순번까지 확정해 다음 이벤트가 새 순번을 쓰게 하거나, (b) 미완 이벤트를 기억해 다른 이벤트를 정해진 오류로 거부하고 같은 이벤트 재시도로만 회복. 어느 쪽이든 contracts/proto:15 에 적고 '같은 pieceSeq 를 다른 key 로' 를 금지로 명시.
 - 확인 기준: 실패(n=1..5, before/after) 뒤 다른 구간 이벤트를 넣는 시험 — 선로 기록에 같은 pieceSeq 가 다른 key 로 두 번 나오지 않고, resume.unacked 에 빈칸·중복이 없거나(a) 정해진 오류 후 원 이벤트 재시도로 회복(b).
 - 권장 모델: opus
-- 이력: 2026-10-04 02:35 감독 등록(축 2 보고·재현, 감독 직접 읽음). 신규 — F-197 수정의 남은 경계. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): 방식 (b) UnfinishedEventError, npm test 3210 중 3198 통과·0 실패. 상세 experiments/client-raster.md.
+- 이력: 2026-10-04 02:35 감독 등록(축 2 보고·재현, 감독 직접 읽음). 신규 — F-197 수정의 남은 경계. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): 방식 (b) UnfinishedEventError, npm test 3210 중 3198 통과·0 실패. 상세 experiments/client-raster.md. → 2026-10-04 03:45 감독(PR #41 검토) 확인 닫음: 방식 (b), core:155-165·:183·:203·:227-228 축 1b 대조, 축 1b 퍼즈(이벤트 36만·실패 약 9천)에서 같은 pieceSeq 다른 key 0·resume RangeError 0·재시도 회복. 계약 contracts/proto:16-18 명시. 결정 0031 승인.
 
-### F-205 [처리됨-검증대기] (심각도: 중간) — 계약은 LEVEL_ARRIVED pieceCount ≥ 1 인데 세 코덱이 0 을 받는다
+### F-205 [닫힘] (심각도: 중간) — 계약은 LEVEL_ARRIVED pieceCount ≥ 1 인데 세 코덱이 0 을 받는다
 - 위치(598c4da): contracts/proto/index.mjs:14, server/proto/codec/index.mjs:146(`uint(m.pieceCount, U32_MAX, …)`), client/proto/index.mjs:159(`int(…, 0, …)`)·:236(복호 검사 없음), server/proto/fuzz/reference-codec.mjs:56·:114, server/proto/fuzz/index.mjs:55(생성기 u32()), server/proto/codec/index.test.mjs:73(pieceCount 0 을 정상값으로 씀)
 - 문제·실패 상황: `{type:'LEVEL_ARRIVED', segmentId:0, level:0, pieceCount:0}` 부호화·복호 성공 → 클라이언트가 조각 0개 '수준 완료' 를 받는다. 어댑터는 막지만 선로 방어가 계약과 어긋난다(F-198 과 같은 종류). 감독이 codec:146·계약:14 직접 읽음.
 - 고칠 것: 세 코덱 부호화·복호에서 pieceCount 0 → 'field', 퍼저 생성기 1 이상, codec.test:73 값 1.
 - 확인 기준: pieceCount 0 → 양쪽·양방향 'field', 1 → 왕복 성공, cross·fuzz 시험 통과.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 02:35 감독 등록(축 1·2 보고, 직접 읽음). 신규 — 이번 PR 의 계약 문구 변경에서 생김. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): 세 코덱 pieceCount 0 거부, npm test 3210 중 3198 통과·0 실패. 상세 experiments/client-raster.md.
+- 이력: 2026-10-04 02:35 감독 등록(축 1·2 보고, 직접 읽음). 신규 — 이번 PR 의 계약 문구 변경에서 생김. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): 세 코덱 pieceCount 0 거부, npm test 3210 중 3198 통과·0 실패. 상세 experiments/client-raster.md. → 2026-10-04 03:45 감독(PR #41 검토) 확인 닫음: 세 코덱 부호화·복호 pieceCount 0 → field, 1 왕복(client/proto:159·:236, codec:146, reference-codec:56·:114, 축 2), 퍼저·cross 생성기 1 이상.
 
-### F-206 [처리됨-검증대기] (심각도: 중간) — ws pong 상한이 send() 로 쌓인 조각 바이트까지 세고, 상한 옵션을 검사하지 않으며, 핑 창이 벽시계다
+### F-206 [닫힘] (심각도: 중간) — ws pong 상한이 send() 로 쌓인 조각 바이트까지 세고, 상한 옵션을 검사하지 않으며, 핑 창이 벽시계다
 - 위치(598c4da): server/ws/index.mjs:85(`socket.writableLength + frame.length > maxWriteBuffer - CLOSE_RESERVE`)·:133-136(send 는 상한 없이 같은 소켓에 씀)·:148-149(옵션 검사 없음)·:81-82(`Date.now()` 창)
 - 문제·실패 상황: ① 초기 묶음(최대 15 MB)을 느린 링크로 받는 중 클라이언트가 keepalive ping 을 보내면 writableLength > 1 MiB 라 정상 클라이언트가 1008 'write buffer' 로 끊긴다(감독이 :85·:133-136 직접 읽어 확인, 실행 재현은 축 6 추론). ② maxWriteBuffer·maxPingsPerSecond 가 NaN 이면 상한이 꺼지고(축 7 재현: ping 500 개 close 0), 256 이하·0 이면 첫 pong/ping 부터 1008. ③ 시계를 되감으면 창이 리셋되지 않아 정상 ping 이 1008(축 7 재현).
 - 고칠 것: ① pong 대기 바이트만 따로 세거나 대기 pong 수로 판단(send 데이터 제외), 또는 send 경로를 T11.6 backpressure 와 묶어 한 상한으로. ② createWsServer 에서 maxWriteBuffer > CLOSE_RESERVE 정수, maxPingsPerSecond ≥ 1 정수, 어기면 RangeError. ③ performance.now() 등 단조 시계(또는 now 주입).
 - 확인 기준: 2 MiB 를 send 해 쌓은 상태에서 ping 1 개 → 연결 유지·pong 송출, 읽지 않는 클라이언트 ping 홍수 → 기존대로 1008; NaN·0·200 옵션 → RangeError; 주입 시계를 되감아도 창 안 한도 이하 ping 은 1008 없음.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 02:35 감독 등록(축 6·7·1 보고, ① 감독 직접 읽음, ②③ 축 7 재현·미확인). 신규 — 이번 PR 의 F-200 수정 코드. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): pong 바이트 분리·옵션 검증·now 주입, npm test 3210 중 3198 통과·0 실패. 상세 experiments/client-raster.md.
+- 이력: 2026-10-04 02:35 감독 등록(축 6·7·1 보고, ① 감독 직접 읽음, ②③ 축 7 재현·미확인). 신규 — 이번 PR 의 F-200 수정 코드. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): pong 바이트 분리·옵션 검증·now 주입, npm test 3210 중 3198 통과·0 실패. 상세 experiments/client-raster.md. → 2026-10-04 03:45 감독(PR #41 검토) 확인 닫음: 축 1a 재현 — send 로 3 MiB 쌓은 뒤 ping 연결 유지·pong, 주입 시계 500 ms 되감기 1008 없음, 창 안 51번째 1008, NaN·0·200·1.5 RangeError. 축 4a 변이(pong 바이트 되돌림·되감기 분기 제거) 각 1 실패. maxWriteBuffer 하한 257~382 문제는 F-214 ③.
 
-### F-207 [열림] (심각도: 중간) — T11.G 시험 공백: closed() 시한 없음, 핑 창·기본값 미고정, groupRefs·재기록 바이트 회계 미감시
+### F-207 [닫힘] (심각도: 중간) — T11.G 시험 공백: closed() 시한 없음, 핑 창·기본값 미고정, groupRefs·재기록 바이트 회계 미감시
 - 위치(598c4da): server/ws/ws.test.mjs:93(`closed` 시한 없음, 사용처 11곳), :418·:448(상한을 직접 넘겨 기본값 경로 미통과, 창 경과 뒤 허용 음성 시험 없음), server/ws/resume/resume.test.mjs:285·:354(같은 key 대체 + 축출 겹침 없음)·:407-427(재기록 크기 같음)
 - 실패 상황(축 4a 변이, 감독은 :93 직접 읽음): onConnection catch 의 socket.destroy 제거 → 시험이 실패하지 않고 60 s 까지 멈춤; DEFAULT_MAX_WRITE_BUFFER 1 GiB(W2)·DEFAULT_MAX_PINGS_PER_SECOND 5000(P2)·창 재설정 줄 제거(P5)·창 60 s(P7) 생존, 창 1 ms(P6) 실행 방식에 따라 판정 갈림; resume:234 else 제거(G3, groups 무한 증가) 생존; resume:211 retained 갱신 제거(R6) 생존.
 - 고칠 것: closed() 에 next() 와 같은 시한; 시계 주입 후 '창 안 N+1 → 1008', '창 경과 뒤 N → 모두 pong' 결정적 시험; 옵션 없이 띄운 서버로 기본값 시험(51번째 ping 1008, 1 MiB 단언); 같은 key 새 seq 대체 뒤 축출하며 groups ≤ maxEntries 단언; 다른 크기 재기록 뒤 retainedBytes 손계산 대조·ack 후 0.
 - 확인 기준: 위 변이(socket.destroy 제거, W2, P2, P5, P6, P7, G3, R6)가 각각 1 이상 실패하고, 멈춤 없이 3~5 s 안에 not ok 로 끝난다.
 - 추가(02:50 축 4b, 미확인): client/asset/index.mjs:61-62 chunkIndex 경계 — `>65535`→`>65536`(K2)·`>65534`(K3) 변이가 전체 스위트 3143/3143 통과(F-209 ① 을 여기로 올림). proto.test 교차 시험에 readHeaderClient 추가, K1~K3 이 proto.test 단독 실행에서 실패해야 한다.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 02:35 감독 등록(축 4a 보고·변이 실행, :93 직접 읽음). 신규 — 이번 PR 시험. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): ws·resume 시험 공백 처리, 감독 추가 ⑧⑨⑩ 미처리. 열림 유지.
+- 이력: 2026-10-04 02:35 감독 등록(축 4a 보고·변이 실행, :93 직접 읽음). 신규 — 이번 PR 시험. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): ws·resume 시험 공백 처리, 감독 추가 ⑧⑨⑩ 미처리. 열림 유지. → 2026-10-04 03:45 감독(PR #41 검토) 확인 닫음: ws·resume 몫 충족 — 축 4a 변이 destroy 제거·W2·P2·P5·P6·P7·G3·R6 각 1 이상 실패, 모두 3.0 s 안 not ok(closed() 시한 ws.test:93-99). 추가 항목 client/asset K1~K3 도 축 4b 변이에서 각 2~4 실패, proto.test 단독에서도 실패. (⑧~⑩ 은 F-209 의 것으로 F-209 에 남음.) 새 시한 공백(frame.test 동기 루프)은 F-217 ①.
 
-### F-208 [처리됨-검증대기] (심각도: 중간, 미확인) — 프레임 파서 1 B 조각 메모리 증폭, 스케줄러 오름차순 삽입 O(n²)
+### F-208 [열림] (심각도: 중간, 미확인) — 프레임 파서 1 B 조각 메모리 증폭, 스케줄러 오름차순 삽입 O(n²)
 - 위치(598c4da): server/ws/frame/index.mjs:92(`this.q.push(Buffer.from(chunk))`, PR #39 부터, F-203 ④ 이어받음), server/scheduler/index.mjs:78-84(`splice`)·:181(`list.slice(taken)`)·:117-121·:134(같은 묶음 peers 전부 순회)
 - 실패 상황(축 6 실측, 감독 미재현): 마스크된 4 MiB 프레임을 1 B 씩 push → 1.3 s, RSS 약 550 MB 증가(1400 B 씩은 13 ms). maxPending 100000 에 priority 오름차순 enqueue 7977 ms(내림차순 217 ms). 한 묶음 20000 개 enqueue 2080 ms.
 - 고칠 것: 작은 조각은 꼬리 버퍼에 이어 붙이거나 need 크기 버퍼에 직접 채우기, 또는 q.length 상한 초과 시 1009; 스케줄러는 힙 또는 머리 인덱스·지연 slice, 묶음별 maxLevel·수준별 개수 유지.
 - 확인 기준: 1 B 조각 4 MiB 프레임 RSS 증가 ≤ 프레임 크기 + 수 MB; 100k 오름차순 enqueue ≤ 0.3 s; 한 묶음 20000 개 ≤ 50 ms.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 02:35 감독 등록(축 6 실측 보고, frame:92 는 git blame 으로 PR #39 코드임을 확인). 신규(일부 기존 F-203 ④). → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): frame 꼬리 버퍼·scheduler 힙(문턱 3배 완화 — 감독 판단 요청), npm test 3210 중 3198 통과·0 실패. 상세 experiments/client-raster.md.
+- 이력: 2026-10-04 02:35 감독 등록(축 6 실측 보고, frame:92 는 git blame 으로 PR #39 코드임을 확인). 신규(일부 기존 F-203 ④). → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): frame 꼬리 버퍼·scheduler 힙(문턱 3배 완화 — 감독 판단 요청), npm test 3210 중 3198 통과·0 실패. 상세 experiments/client-raster.md. → 2026-10-04 03:45 감독(PR #41 검토) 부분: frame 몫 충족 — 축 6·1a 실측 4 MiB 1 B 조각 RSS +1.3 MB, 무작위 2000건 불일치 0. scheduler 몫 미충족 — 축 5·6 실측 100k 오름차순 enqueue 459~699 ms, 20000 묶음 62~81 ms(이 환경 load 5~9). **시험 문턱 3배 완화(150 ms)와 `ms <= 300 || ms <= 3*desc` 조건은 받아들이지 않는다** — 감독 지시는 '시험 문턱은 올리기만'이고 상대 조건은 상한이 없다. 고칠 것 추가: 문턱을 확인 기준(0.3 s·50 ms)으로 되돌리거나, 벽시계 대신 결정적 지표(비교 횟수 또는 Map/배열 연산 수가 n log n 이하)로 바꾸고, 상수 비용(keyId 문자열·Map)을 줄인다. 조용한 기계 실측이 목표를 넘으면 미달로 보고. 열림(중간). 권장 모델: sonnet. 차등 비교로 순서·교체 의미는 옛 구현과 같음(축 1b, 약 530만 연산).
 
 ### F-209 [열림] (심각도: 낮음) — protocol 잔여 세부(T11.G 검토)
 - 위치·문제(598c4da):
@@ -2268,25 +2268,25 @@
 - 고칠 것: 각 줄에 적은 대로.
 - 확인 기준: ① 변이 시 1 이상 실패, ② grep 상한 일치·ids 65536 거부, ③ 오버헤드 제거 변이에 scenes.test 실패, ④ 접속→첫 프레임 실제 송출 합 ≤ 15,000,000 B 시험 또는 계약 문구, ⑤ RangeError 시험, ⑥ T12 시험, ⑦ ack 후 같은 key 재기록 100만 번에 ackedQ ≤ maxEntries.
 - 권장 모델: haiku(①②③), sonnet(④⑤⑥⑦)
-- 이력: 2026-10-04 02:35 감독 등록(축 2·5·6·7 보고, 미확인). 신규. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): ①②③④⑤⑦ 처리, ⑥(T12 수신 경로)·⑦ 외 미처리. 열림 유지.
+- 이력: 2026-10-04 02:35 감독 등록(축 2·5·6·7 보고, 미확인). 신규. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): ①②③④⑤⑦ 처리, ⑥(T12 수신 경로)·⑦ 외 미처리. 열림 유지. → 2026-10-04 03:45 감독(PR #41 검토) 부분: ③④⑤⑦ 충족(축 1b·5 — 15,000,000 불변·WELCOME·LEVEL_ARRIVED 포함·RangeError·ackedQ Map). ① 교차 시험 contracts/proto/proto.test.mjs:104 존재. ② ids 65535 는 충족했으나 ASSET_FORMAT 규칙 번호를 밀어 생긴 결함은 F-216. 남은 것: ⑥(T12 수신 경로), ⑧⑨⑩.
 
-### F-210 [처리됨-검증대기] (심각도: 높음) — ws 핸드셰이크 400 거부 경로에 소켓 'error' 처리기가 없어 원격 클라이언트가 서버 프로세스를 죽일 수 있다
+### F-210 [닫힘] (심각도: 높음) — ws 핸드셰이크 400 거부 경로에 소켓 'error' 처리기가 없어 원격 클라이언트가 서버 프로세스를 죽일 수 있다
 - 위치: server/ws/index.mjs:163-166(`if (!ok) { socket.end('HTTP/1.1 400 …'); return; }`) (제품 main 8ed7a9f, PR #39 부터 있던 코드). 성공 경로는 :128 에서 `socket.on('error')` 를 다는데 거부 경로는 달지 않는다.
 - 문제: http 서버는 'upgrade' 를 넘긴 뒤 소켓 오류 처리기를 떼므로, 400 응답 중 상대가 연결을 끊으면 ECONNRESET/EPIPE 가 처리되지 않은 'error' 이벤트가 된다.
 - 실패 상황: 버전 12 로 업그레이드 요청을 보내고 바로 RST(`resetAndDestroy()`) → uncaughtException. 처리기가 없으면 서버 전체가 죽는다(누구나 원격으로 유발). 감독이 scratchpad 스크립트로 10회 시도 → uncaught 10건 직접 재현.
 - 고칠 것: 'upgrade' 처리기 첫 줄에서 `socket.on('error', …)`(onError 로 'handshake' where 보고)를 단다.
 - 확인 기준: ws.test 에 잘못된 핸드셰이크 + 즉시 RST 20회 시험 — uncaughtException 0, 그다음 정상 연결 수락. 처리기 줄 제거 변이에서 시험 실패.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 02:40 감독 등록(중복 감독 실행 02:21 의 축 7 보고, 감독 직접 재현). 신규. 02:15 실행이 PR #40 을 이미 병합해 병합 뒤 main 결함으로 올림 — T11.H 맨 앞. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): upgrade 핸들러 error 처리기, npm test 3210 중 3198 통과·0 실패. 상세 experiments/client-raster.md.
+- 이력: 2026-10-04 02:40 감독 등록(중복 감독 실행 02:21 의 축 7 보고, 감독 직접 재현). 신규. 02:15 실행이 PR #40 을 이미 병합해 병합 뒤 main 결함으로 올림 — T11.H 맨 앞. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): upgrade 핸들러 error 처리기, npm test 3210 중 3198 통과·0 실패. 상세 experiments/client-raster.md. → 2026-10-04 03:45 감독(PR #41 검토) 확인 닫음: 감독 직접 변이 — upgrade error 처리기 줄 제거 → ws.test 1 실패('핸드셰이크 거절 직후 RST 20 회'). 축 1a·7 실제 서버 RST 20·40회 uncaught 0. 성공 경로에서도 처리기가 남아 'handshake' 로 보고하는 것은 F-214 ②.
 
-### F-211 [처리됨-검증대기] (심각도: 높음) — 상대가 close 프레임 없이 FIN 만 보내면 연결이 끝나지 않고 onClose 가 영영 불리지 않는다
+### F-211 [닫힘] (심각도: 높음) — 상대가 close 프레임 없이 FIN 만 보내면 연결이 끝나지 않고 onClose 가 영영 불리지 않는다
 - 위치: server/ws/index.mjs:126-129(`data`·`error`·`close` 만 듣고 `end` 를 듣지 않음) (main 8ed7a9f)
 - 문제: http.Server 는 allowHalfOpen 이고 업그레이드 뒤 'end' 처리기를 뗀다. 반쯤 닫힌 소켓은 스스로 끝나지 않아 'close'·finish()·onClose 가 일어나지 않는다. 소비자가 연결별로 쥔 자원(이어받기 세션·스케줄러 상태)이 풀리지 않는다.
 - 실패 상황: 핸드셰이크 완료 뒤 클라이언트가 `socket.end()` → 1.5 s 기다려도 onClose 0회. 감독 직접 재현. 망 단절·프록시 종료에서 흔한 경로라 연결이 쌓인다.
 - 고칠 것: `socket.on('end', …)` 에서 소켓을 끝내고(결과 1006) finish 로 잇는다.
 - 확인 기준: FIN 만 보내는 시험에서 onClose 정확히 1회, code 1006, 2 s 안. 'end' 처리기 제거 변이에서 시험 실패.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 02:40 감독 등록(축 7 보고, 감독 직접 재현). 신규 — F-210 과 같은 사정. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): end 처리기 1006, npm test 3210 중 3198 통과·0 실패. 상세 experiments/client-raster.md.
+- 이력: 2026-10-04 02:40 감독 등록(축 7 보고, 감독 직접 재현). 신규 — F-210 과 같은 사정. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): end 처리기 1006, npm test 3210 중 3198 통과·0 실패. 상세 experiments/client-raster.md. → 2026-10-04 03:45 감독(PR #41 검토) 확인 닫음: 감독 직접 변이 — socket.on('end', finish) 제거 → ws.test 1 실패('close 프레임 없이 FIN'). 축 1a·7 재현 onClose 1회·1006·300 ms 안. 이 처리기가 close+FIN 경로에서 미전송 데이터·close 에코를 버리는 회귀는 F-214 ①.
 
 ### F-212 [열림] (심각도: 중간, 일부 미확인) — F-207·F-209 에 없는 시험 판별력·상한 공백(02:21 중복 감독 실행의 축 4a·4b·6)
 - 위치(8ed7a9f)·실패 상황(변이는 축 4a·4b 실행, 감독 미재실행):
@@ -2299,4 +2299,52 @@
 - 고칠 것: ① 음성·TTL 갱신 시험 ② close 뒤 send false 시험 ③ 유효 조각 + 오류 문구 단언, stub 기계로 결정 불일치 시험 ④ 특정 점(z=-30 → tileY 0, 복호 y=+30)·pointCount 합·복호 위치 대조 ⑤ 모델에 enqueue 순서를 넣어 전체 순서 단언, 스냅숏은 '회귀 스냅숏' 으로 표기 ⑥ dead 가 절반 넘으면 큐 압축.
 - 확인 기준: 위 변이 각각 1 이상 실패; ⑥ ack 없이 같은 key 100만 회 재기록 뒤 내부 큐 길이 ≤ 2×maxEntries.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 02:40 감독 등록(축 4a·4b·6 보고, ③④ 줄 감독 확인, 나머지 미확인). 신규. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): ①⑥ 처리, ②~⑤ 미처리. 열림 유지.
+- 이력: 2026-10-04 02:40 감독 등록(축 4a·4b·6 보고, ③④ 줄 감독 확인, 나머지 미확인). 신규. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): ①⑥ 처리, ②~⑤ 미처리. 열림 유지. → 2026-10-04 03:45 감독(PR #41 검토) 부분: ①⑥ 충족(축 4a 변이 touch 제거·미지 세션 true·TTL 무시·압축 제거 각 실패, 100만 회 큐 ≤ 2×maxEntries, 축 1b 퍼즈 불변식). ② 는 send 상한 시험 :688 이 closeSent 변이를 잡지만 정상 close 경로 직접 시험은 없음. ③④⑤ 미처리.
+
+### F-213 [열림] (심각도: 중간) — 상한에 닿은 Map 의 '가장 오래된 것 축출'(`keys().next()`)이 상한 크기에 비례해 느려진다
+- 위치(제품 3de555f): server/scheduler/index.mjs:62(`sentLevel.delete(sentLevel.keys().next().value)`, PR #39 부터), server/ws/resume/index.mjs ackedQ 축출(`values().next()`, 이번 PR 의 Map 전환)·sessions 축출(:147·:154 근처)
+- 문제: V8 Map 은 앞쪽을 지운 자리를 재해시 전까지 남기고, `keys().next()` 가 그 빈자리를 매번 건너뛴다. 상한(기본 65536)에서 교체가 계속되는 정상 상태에서 축출 1회 비용이 상한 크기에 비례한다.
+- 실패 상황: 감독 직접 측정(scratchpad mapb.mjs, Node 22): 크기 1000 Map 에서 set+앞 삭제 0.53 µs/회, 크기 65536 에서 29.05 µs/회(약 55배). 축 6: 스케줄러 enqueue+nextBatch 한 쌍 maxSentGroups 1e7 3.4 µs → 기본 65536 26.9 µs, resume recordSent+ack 상한 65536 73.9 µs/건, maxSessions 가득 찬 뒤 open 78 µs/회.
+- 고칠 것: 오래된 순서를 배열 링 버퍼(머리 인덱스)나 연결 리스트로 따로 두거나, 삭제 수가 크기만큼 쌓이면 Map 을 새로 만든다.
+- 확인 기준: 상한 65536 에서 25만 회 이상 교체했을 때 회당 시간이 상한 1000 일 때의 2배 이내(같은 프로세스 비교).
+- 권장 모델: sonnet
+- 이력: 2026-10-04 03:45 감독 등록(축 6 보고 '높음' → 처리량 상한일 뿐 정확성·멈춤이 아니어서 중간으로 하향, 감독 직접 측정·scheduler:62 git blame 0a9bbaf3). 신규(scheduler 부분은 기존 코드, resume ackedQ 부분은 이번 PR).
+
+### F-214 [열림] (심각도: 중간) — F-210·F-211 수정의 남은 경계: close+FIN 에서 미전송 데이터·close 에코 유실, 성공 경로 'handshake' 오보, 하한·선할당
+- 위치(3de555f): ① server/ws/index.mjs:173(`socket.on('end', finish)`)이 :149(`socket.end(finish)`)·:148 주석과 겹침 ② :211 upgrade error 처리기가 101 뒤에도 남음 ③ :198 `checkInt('maxWriteBuffer', …, CLOSE_RESERVE + 1)` ④ server/ws/frame/index.mjs:129-131 꼬리 버퍼를 남은 need 전체로 선할당
+- 문제·실패 상황: ① 서버가 send 로 3 MiB 를 쌓은 상태에서 클라이언트가 close(1000) 직후 FIN → 'end' 가 finish 로 곧바로 destroy, 클라이언트는 3.93 MB 만 받고 close 에코 없음. 'end' 처리기를 뺀 변이에서는 6.29 MB 전부와 에코 `880203e8` 수신(축 1a srv2.mjs·srv2m.mjs 재현, 감독은 :148-149·:173 직접 읽음). ② 정상 연결 뒤 RST 가 onError(ECONNRESET,'handshake') 로 보고(축 1a 재현). ③ 257~382 를 주면 pong(최대 127 B)이 늘 상한을 넘어 첫 ping 에 1008. ④ 4 MiB 프레임 머리+16384 B 뒤 1 B 를 보내면 연결마다 4 MiB 할당, 연결 200개에 arrayBuffers +792 MiB(축 1a 실측, RSS 는 지연 할당이라 미증가).
+- 고칠 것: ① 'end' 에서 이미 닫는 중이면 아무것도 하지 않고, 아니면 result 1006 으로 socket.end(finish) + CLOSE_WAIT_MS 타이머로 마무리 ② 101 응답 뒤 그 처리기를 떼거나 where 를 바꾼다 ③ 하한을 CLOSE_RESERVE+127+1 로 ④ 선할당 상한(예: 1 MiB) 후 단계적으로 키운다.
+- 확인 기준: ① 위 시나리오에서 데이터 전부와 close 에코 수신, FIN 만 시험은 여전히 2 s 안 1006 ② 연결 뒤 RST 에 'handshake' 보고 0, 400 경로 RST 20회 uncaught 0 ③ 383 미만 RangeError ④ 같은 시나리오 연결당 arrayBuffers 증가 ≤ 받은 바이트 + 상한.
+- 권장 모델: sonnet
+- 이력: 2026-10-04 03:45 감독 등록(축 1a 보고·재현 스크립트, ① 줄 감독 직접 읽음, ②~④ 미확인). 신규 — 이번 PR 의 F-210·F-211·F-208 수정 코드.
+
+### F-215 [열림] (심각도: 중간) — contracts/client_raster(T12.0)가 SPEC·renderer_basis 와 어긋나거나 비어 있다
+- 위치(3de555f): contracts/client_raster/index.mjs:1(27 B 점군만)·:6(`K = K_ref · (resolution / resolution_ref)`)·:19(`key: string` 형식 미정)·:21(setView 의 devicePixelRatio 단위 미정)·:38-39(`POINT27_PADDED_BYTES = 28`)·:63(createRenderer 가 일반 Error), contracts/client_raster/client_raster.test.mjs:57-65(`includes('t')`·`includes('R')` — 'setView'·'renderer' 낱말 때문에 늘 참)
+- 문제: ① SPEC:140-141(결정 0012)은 B 렌더러에 27 B 점 경로와 56 B 가우시안 경로를 요구하는데 계약은 27 B 만, 입력은 실제로 .skla 조각(contracts/proto:13)인데 '27 B 점군'이라 적음, 28 B 패딩 상수는 renderer_basis §7-4·contracts/points·ASSET_FORMAT 어디에도 근거 없음, T12.2 셰이딩에 필요한 법선(세계 좌표 Rᵀn, §7-1)·색(rgb u8) 의미 없음. ② 스칼라 배율 K 는 3×3 마지막 행까지 늘리고 가로·세로 비가 다를 때를 정하지 않음, K·width·height 가 CSS 픽셀인지 장치 픽셀인지·dpr 적용 지점 미정(T12.4 핵심), contracts/raster 의 픽셀 중심 규약(u=i+0.5) 누락인데 ':2 그쪽이 정본' 이라 적음(감독이 :1-40 직접 읽음). ③ key 형식이 contracts/proto:109 `a:b:…` 와 server/asset/ids `a.b.…` 둘 중 무엇인지 미정. ④ 서명 시험이 자동 통과.
+- 고칠 것: 형식 선택(FORMAT_POINT27/GAUSS56)과 입력이 .skla 조각임을 적고 법선·색 의미 명시(아니면 0012 를 대신할 결정 기록), 28 B 는 근거를 대거나 지움; fx·cx 에 sx, fy·cy 에 sy 를 따로 곱하고 픽셀 단위·dpr 적용 지점·픽셀 중심 규약을 적음; key 형식 지정; 서명 문자열 전체 비교 시험, ClientRasterError 사용.
+- 확인 기준: 계약 시험이 두 형식 상수를 contracts/asset 과 대조, 해상도·dpr 을 바꾼 손계산 예제에서 투영 차이 ≤ 0.5 px, 서명 한 글자 바꾸는 변이에 시험 실패.
+- 권장 모델: opus(②), haiku(③④), sonnet(①)
+- 이력: 2026-10-04 03:45 감독 등록(축 2·4b 보고, 감독 :1-40 직접 읽음). 신규 — 이번 PR 의 새 계약. T12.1 이후 구현 전에 고친다.
+
+### F-216 [열림] (심각도: 중간) — ASSET_FORMAT §3.2 규칙 번호를 밀어 바뀐 범위 밖 참조가 틀린 규칙을 가리킨다
+- 위치(3de555f): format/ASSET_FORMAT.md:92(새 규칙 7 삽입)·:96(`parseHeader(계약)는 1·2·3·7 을 본다`)·:98(`규칙 4·11`); 옛 번호 참조 server/codec/chunk/index.mjs:51·:117, server/codec/chunk/masking.test.mjs:57, tools/asset_validate/index.mjs:87(감독 grep 으로 `§3.2-10` 세 곳 확인 — 지금 10 은 anchor 규칙), 그 밖 client/codec:226·client/asset:42·server/asset/header:8(축 2 보고, 미확인)
+- 실패 상황: 코드 주석 '§3.2-10(body_bytes >= 필수 합)' 을 따라가면 'anchor 세 값 유한' 이 나온다. 축 2 실행: parseHeader 는 codec=7·codec1+format2 를 그대로 받아 :96 문구와 다름. :98 은 원래 '3·11'.
+- 고칠 것: 새 규칙을 끝 번호(14)로 옮겨 기존 번호를 되돌리거나 참조를 모두 고친다. :96 을 '3 의 format 만' 등 사실대로.
+- 확인 기준: `grep -rn "§3.2-"` 의 번호가 모두 실제 규칙 내용과 맞음.
+- 권장 모델: haiku
+- 이력: 2026-10-04 03:45 감독 등록(축 2 보고, :86-99·grep 감독 직접 확인). 신규 — 이번 PR 의 F-209 ② 수정에서 생김.
+
+### F-217 [열림] (심각도: 중간) — PR #41 시험 판별력·시한 잔여
+- 위치·실패 상황(3de555f):
+  ① (중간) server/ws/frame/frame.test.mjs:160-164(같은 방식 :33·:183-184) 동기 루프가 끝난 뒤에야 `ms < 2000` 을 봄 — frame/index.mjs:119 dirty 빠른 경로 제거 변이에서 파일이 not ok 없이 90 s 넘게 멈춤, 복사 순서 변이 180 s(축 4a).
+  ② (중간) server/scheduler/scheduler.test.mjs:285 상대 기준이 대칭 회귀를 놓침 — enqueue 마다 groups 전체 순회 변이(S5, 100k 11.7 s)가 두 F-208 시험 모두 통과(축 4b). F-208 과 함께 고친다.
+  ③ (낮음) server/adapter/core/core.test.mjs:517-522 거부 목록에 '같은 bytes·다른 key' 가 없어 sameAsUnfinished 의 key 비교 제거(core:159, A4) 생존 — 그 변이에서 seq 1·2 가 두 key 에 쓰임(축 4b 재현).
+  ④ (낮음) frame.test.mjs:133-140 원 버퍼 변경 시험이 16 KiB 미만만 — 큰 조각 복사 생략 변이 생존. :10-25 4 MiB 100 ms 벽시계 문턱이 부하 환경에서 137 ms 로 1회 실패(축 7, 감독 전체 실행에서는 통과).
+  ⑤ (낮음) server/ws/resume/resume.test.mjs:611 살아 있는 3개에 상한 16 — 압축 문턱 3/4 변이 생존; :569 주석 '경과 2*(ttl-1)+1' 이 사실과 다름.
+  ⑥ (낮음) server/scheduler/initial/index.mjs:15-18 `FRAME_HEADER_BYTES = 4` 가 계약 contracts/proto:32 의 8 과 다름(감독 직접 확인; 지금은 ws 머리 10 B 여유로 상한이 지켜짐), :53·:83 budgetBytes < 23 이면 frameBytes > budgetBytes.
+  ⑦ (낮음) bench/client_bundle/bundle.test.mjs:26·:39·:69 esbuild 가 없으면 t.skip 이 통과로 보임, /tmp 고정 경로·시한 없음, 모듈 목록 복사본; bench/client_bundle/index.mjs:1-13 이 three·렌더러 청크를 재지 않아 S4 증거 아님(T12.1 뒤 진입점 추가).
+  ⑧ (낮음) 제품 README.md 작업 순서가 한국어(T07 뒤 T11)와 English(T10 뒤 T11)에서 다름(축 11, 미확인).
+- 고칠 것: ① 루프 안에서 경과를 재 넘으면 즉시 throw(또는 시한 있는 worker) ② 같은 프로세스 선형 기준선(Map 100k set)의 k배 또는 n 2배 시 시간비 ≤ 3 ③ 같은 bytes·다른 key, 조각 순서만 바꾼 사례 추가 ④ 16384 B 이상 조각 시험, 벽시계 대신 비율·최솟값 ⑤ 길이 ≤ 2×살아 있는 수, 주석 정정 ⑥ 계약 상수 import, 작은 예산 RangeError ⑦ mkdtemp·시한·index.mjs modules 재사용·건너뜀을 드러냄 ⑧ 순서 맞춤.
+- 확인 기준: ① 두 변이가 3~5 s 안 not ok ② S1·S5·옛 구현 모두 100k 시험 실패 ③ A4 실패 ④ 큰 조각 복사 생략 변이 실패 ⑤ 문턱 3/4 변이 실패 ⑥ WELCOME_FRAME_BYTES === encodeMessage(WELCOME).length + WS_HEADER_MAX_BYTES 단언 ⑦ esbuild 부재 시 '건너뜀' 이 드러남 ⑧ 두 절 순서 같음.
+- 권장 모델: sonnet(①②③⑥), haiku(④⑤⑦⑧)
+- 이력: 2026-10-04 03:45 감독 등록(축 4a·4b·7·11·1b 보고, ⑥ 감독 직접 확인, 나머지는 축 변이 실행·미재실행). 신규 — 이번 PR 시험·코드(⑧ 만 기존 README).

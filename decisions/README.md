@@ -78,3 +78,4 @@
 | [0028](0028-codec-quality-order-aligned-reference.md) | codec 화질 시험은 기준 렌더를 codec 점 순서로 그려 양자화 영향만 비교 | 승인 | 감독(PR #36) |
 | [0029](0029-levels-state-machine.md) | 수준 상태 기계: 도착 이벤트만으로 갱신, 교체·건너뛰기 판정을 계약 함수로 고정 | 승인 | 작업자 제안·감독 승인(PR #38) |
 | [0030](0030-protocol-wire-format.md) | 웹소켓 프로토콜: 8 B 머리 + 고정 배치 본문, 검사 순서를 서버·클라이언트가 공유 | 승인 | 작업자 제안·감독 승인(PR #39) |
+| [0031](0031-adapter-unfinished-event-and-ws-limits.md) | 어댑터 송출 실패는 같은 이벤트 재시도로만 회복(UNFINISHED_EVENT), ws 미결 핸들러는 pause·send 초과는 1008 | 승인 | 작업자 제안·감독 승인(PR #41) |
