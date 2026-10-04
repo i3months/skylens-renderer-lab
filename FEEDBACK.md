@@ -2670,6 +2670,8 @@
 
 - → 2026-10-04 08:59 감독(축 4a 늦은 보고, 병합 뒤 도착, 미재실행) 보강 ⑤ (중간): index.mjs:476 `last >= s.nextSeq` → `>` 변이 생존(F-238 ⑨(a) 그대로) — level-arrived.test.mjs:157 은 la(9,0,2,2) 가 앞 기록과 겹쳐 (b) 가 대신 던진다. 변이 상태에서 아직 기록하지 않은 seq 3 의 LA(10,0,3,1) 가 true 로 lastLevel 을 차지하고, 뒤의 진짜 기록은 (a) 로 미저장 → resendPlan 에서 빠짐(축 4a 재현). 고칠 것: 겹치지 않는 창으로 `/조각 먼저 기록/` 정규식 단언. ⑥ (낮음) 상한 while 줄 제거 변이 생존 — 시험 이름을 실제 확인 범위로 좁히거나 무작위 불변식 `levels ≤ unacked + 1` 단언; :250 `≤ MAX + 1` 은 다음 줄 deepEqual 에 덮여 늘 참(F-242 ⑤ 와 합침). 권장 모델: sonnet. 판정 변화 없음.
 
+- → 2026-10-04 09:05 감독(축 4b 늦은 보고, 병합 뒤 도착, 미재실행) 보강 ⑦ (중간): server/scheduler/scheduler.test.mjs:318·:338·:407 — reads 는 check(ops) 에서만 검사하고 c.cap·over() 에 없어, heapPop·nextBatch 안 동기 복사 변이는 group 20k 58 s 뒤에야 실패, 100k asc+drain 은 300 s 넘게 안 끝남(:301-302 '전체 상한을 넘는 순간 던진다' 와 어긋남). 고칠 것: c.cap.reads 와 get 트랩 즉시 상한 검사, 관측기 자체 시험에 reads 사례, F-213 시험(:617) bounds 에 reads. 확인 기준: 그 변이가 수 초 안에 '관측 상한 초과 … reads' 로 실패. 권장 모델: sonnet. ⑧ (낮음) core.test.mjs:1093 L==M 사례는 기계가 같은 key 를 쥐어 '쥐지 않은 key 해제 생략' 변이를 못 잡음 — 다른 key 집합으로 확정 뒤 rel == []; :920 단언은 앞 deepEqual 과 중복; arrival.test.mjs:182 서로소 단언은 고정 기대값 뒤라 늘 참(deepEqual 앞으로); fuzz.test.mjs:211 메시지에 r.kind. 권장 모델: haiku. 판정 변화 없음.
+
 ### F-242 [열림] (심각도: 낮음) — PR #47 잔여 세부
 - 위치·문제(제품 6941ccd):
   ① (축 1b 실행) contracts/client_raster/arrival.mjs:12 머리 ⓪ 이 'sessionId 는 u32 정수' — 검사(:181)·JSDoc(:158)은 1 이상. '1 이상(서버는 0 을 발급하지 않음)' 으로.
