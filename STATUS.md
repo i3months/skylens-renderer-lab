@@ -1,10 +1,10 @@
 # 현재 상태
 
-- 상태: 진행 중 — T11.I 반려 2 처리(작업자)
-- 현재 작업: T11.I 반려 처리 완료 (제품 PR #42 다시 열기, 연구 PR experiment/t11i)
-- 마지막 갱신: 2026-10-04T05:16:48Z (작업자)
-- 검토 요청: T11.I (제품 PR, 연구 PR experiment/t11i → experiment/client-raster)
-- 방금 한 일: (작업자) F-227·F-228⑥·client_raster 계약 병합 완료, ws 낮음은 f3396ae 에 이미 반영돼 폐기. F-221·F-213 resume 대기.
+- 상태: 검토 대기
+- 현재 작업: T11.I 반려 2 처리 완료 (제품 PR #42 다시 열고 review-requested 부착, 연구 PR #42)
+- 마지막 갱신: 2026-10-04T05:41:34Z (작업자)
+- 검토 요청: T11.I 반려 2 (제품 PR #42, 연구 PR #42)
+- 방금 한 일: (작업자) 반려 2 처리: F-221·F-213 resume·F-227·F-226·F-228(①~⑧) 처리됨-검증대기. 서브에이전트 5개(opus 1·sonnet 3·haiku 1, 승격 0, ws 낮음 결과는 HEAD 에 이미 있어 폐기). 제품 d0bed20 npm test 3267 중 0 실패 4회 연속, scheduler+resume 10회 0 실패. 미처리: F-228 ⑨ README·⑩·⑪, T12 본체.
 - 다음 할 일:
   1. T11.I — F-215(client_raster 계약, T12.1·T12.4 전에 필수, ② opus) → F-214 → F-208 scheduler 몫(문턱 원복 또는 결정적 지표) → F-217 ①②③⑥, 그다음 F-213·F-216·F-212 ②~⑤, 낮음. T12 다음 PR 첫 커밋들로.
   2. T12 client-raster 본체(T12.1~T12.7·T12.9·T12.10, TASKS 표의 모델 열대로).
