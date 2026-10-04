@@ -3027,7 +3027,7 @@
 - → 2026-10-04 작업자: 처리됨-검증대기. 제품 feat/t12u(PR #54) e26ffe0e·9aae7a7f: 희생 후보 목록(meta 순서, 증분 갱신). bench f266 보호 key 앞쪽 16000 상주 업로드당 0.118~0.134 ms(부하 없을 때 5회, 기준 0.5 ms 미만; 전체 시험과 동시에 돌리면 0.195~1.246 ms 로 흔들림). room_victim_cursor.test.mjs 결정적 meta 읽기 79840 → 4000 미만. 첫 구현은 선택 기준 경로에서 같은 비용이 남아 보완함. npm test 3719 중 3707 통과·0 실패·12 건너뜀.
 - → 2026-10-04 15:20 감독(PR #54 검토 #1) 닫음: 확인 기준 충족 — 축 5 재측정 bench f266 보호 key 앞쪽 16000 상주 업로드당 0.226~0.357 ms(부하 5.7~6.9, 기준 0.5 ms 미만), 축 1b 차분 퍼저 120만 단계 old/new 희생 불일치 0. 다만 이 수정이 다른 시나리오(LOD 승격 교대)에서 main 대비 회귀를 만들었다 → F-271(높음) 신규.
 
-### F-270 [처리됨-검증대기] (심각도: 높음) — 이어받기 뒤 nextPieceSeq 가 배선 밖으로 나오지 않아, 새 key 에 이미 쓴 순번이 조용히 기록 없이 송출된다(F-204 위반)
+### F-270 [닫힘] (심각도: 높음) — 이어받기 뒤 nextPieceSeq 가 배선 밖으로 나오지 않아, 새 key 에 이미 쓴 순번이 조용히 기록 없이 송출된다(F-204 위반)
 - 위치: server/ws/session/connection.mjs:53(onSession(sessionId, { resumed }) — result.nextPieceSeq 버림), :16, contract.mjs:30-32, emit.mjs:66(recordSent true 면 send), 관련 server/ws/resume recordSent 의 seq <= ackedUpTo 멱등 true(F-219 ③), server/adapter/core/index.mjs:71-72(새 어댑터 firstPieceSeq 는 open 의 nextPieceSeq 이상이어야 한다) (제품 feat/t12u ab12b7c)
 - 문제: 어댑터는 이어받기 뒤 firstPieceSeq ≥ nextPieceSeq 로 만들어야 하는데 attachConnection 은 그 값을 호출자에게 주지 않고 저장소에도 읽을 API 가 없다. emit 은 저장소가 true 를 돌려주면 그대로 보낸다 — seq <= ackedUpTo 인 새 key PIECE 는 기록 없이 true 라 송출된다.
 - 실패 상황(감독 직접 재현, scratchpad rev1/a.mjs): seq1·2 조각 + LA(1..2) 기록 → HELLO{lastPieceSeq:2} 이어받기(WELCOME nextPieceSeq 3, onSession 이 받은 info 는 {resumed:true} 뿐) → 새 key(level 2) PIECE pieceSeq 1 emit → 예외 없이 송출, 저장소 unacked [] (기록 안 됨) → 이어서 LA(1..1) 은 RangeError('앞선 기록의 창과 겹친다'). 한 pieceSeq 가 두 key 에 쓰여 클라이언트는 중복으로 버리고, 어댑터는 UNFINISHED_EVENT 로 막힌다.
@@ -3036,8 +3036,9 @@
 - 권장 모델: opus
 - 이력: 2026-10-04 15:20 감독 등록(PR #54 검토 #1). 축 1a 보고, 감독이 재현 스크립트를 직접 돌려 확인. 신규 — 이번 PR 의 배선에서 생김(범위 안).
 - → 2026-10-04 작업자: 처리됨-검증대기. 제품 feat/t12u(PR #54) 0c738012: onSession 에 nextPieceSeq, createRecordingEmit minPieceSeq 하한(SeqFloorError), 닫는 중 emit 던짐, 둘째 HELLO ERROR+close(1002). seq_floor.test.mjs 6건(감독 재현이 send 0회로 던지고 새 이벤트 기록·완료 key 4, 하한 변이 3건 실패). 노트 experiments/t12u.md.
+- → 2026-10-04 15:50 감독 확인 닫음(PR #54 검토 #2, 제품 693a39f). seq_floor.test.mjs 6건 통과, 축 1a 재현: 이어받기 뒤 새 key pieceSeq 1 은 SeqFloorError·send 0회, seq == nextPieceSeq 허용, 둘째 HELLO ERROR+1002, 닫는 중 emit 던짐 확인.
 
-### F-271 [처리됨-검증대기] (심각도: 높음) — makeRoom 희생 후보 목록이 LOD 승격마다 버려져 meta 전체를 다시 돈다(main 대비 약 25배 회귀)
+### F-271 [닫힘] (심각도: 높음) — makeRoom 희생 후보 목록이 LOD 승격마다 버려져 meta 전체를 다시 돈다(main 대비 약 25배 회귀)
 - 위치: client/raster/index.mjs:461(`if (bk !== k || !added) rc.cand = null;`) → :497-500(cand 재구성, meta 전체 순회) (제품 ab12b7c)
 - 문제: 타일의 chosen LOD 가 바뀌어 보호에서 빠진 key 가 생기면 rc.cand 를 버리고, 다음 makeRoom 이 O(상주 수)로 다시 만든다. main 은 앞쪽 희생 후보를 바로 찾아 O(1) 에 끝나던 경우다. F-269 는 '보호 key 앞쪽' 시나리오만 고치고 '상주는 많고 보호는 적은데 LOD 승격이 잦은' 시나리오를 악화시켰다.
 - 실패 상황(감독 직접 재현, scratchpad ax6/cli2.mjs, 상주 free 20000·보호 타일 300·LOD 승격 업로드와 비승격 도착 key 업로드 교대 200회): main 24.1 µs/upload, PR 604.8 µs/upload. 축 6: 5000 → 526 µs, 40000 → 1777 µs(상주 수에 선형). :461 을 무력화한 사본은 24.9 µs.
@@ -3046,8 +3047,9 @@
 - 권장 모델: opus
 - 이력: 2026-10-04 15:20 감독 등록(PR #54 검토 #1). 축 6 보고(축 1b 도 같은 줄을 성능 확인 대상으로 지목), 감독이 main worktree 와 PR 로 직접 측정. 신규 — 이번 PR 의 F-269 수정이 만든 회귀(범위 안).
 - → 2026-10-04 작업자: 처리됨-검증대기. 제품 23c35d9c: metaSeq·복귀 집합(rc.back)으로 cand 를 버리지 않음. 교대 시나리오 업로드당 µs(최소/중앙값) 5000 12.8/18.1·20000 12.4/17.8·40000 13.4/15.2, 같은 스크립트 main 10.0~11.9/12.0~14.2(수정 전 285/1080/2058). room_cand_promote.test.mjs(교대 meta 읽기 수정 전 80040 → 4×N 미만, 변이 2종 실패). bench f266 0.104~0.134 ms.
+- → 2026-10-04 15:50 감독 확인 닫음(PR #54 검토 #2). 축 6 측정(5회 최소/최대 µs/upload): 5000 main 14.4/45 vs PR 17.9/27.5, 20000 13.1/47 vs 14.9/29, 40000 11.9/14.2 vs 12.8/16.1 — 상주 수와 무관, main 2배 이내. bench f266 16000 PR 0.183~0.288 ms(<0.5). room_cand_promote 통과.
 
-### F-272 [처리됨-검증대기] (심각도: 중간) — 재전송 중 조각 바이트를 못 얻으면 뒤 순번을 계속 보내 누적 ACK 가 빠진 조각과 그 창을 영구히 지운다·missing 탐색 O(N·L)
+### F-272 [닫힘] (심각도: 중간) — 재전송 중 조각 바이트를 못 얻으면 뒤 순번을 계속 보내 누적 ACK 가 빠진 조각과 그 창을 영구히 지운다·missing 탐색 O(N·L)
 - 위치: server/ws/session/resume.mjs:130(빠진 순번을 건너뛰고 계속), :135(missing.some 선형 탐색), contract.mjs:13, 결정 0040 '결정' 둘째 항목 (제품 ab12b7c)
 - 문제·실패 상황: ① (축 1a·2 보고, 감독이 :130·:135 직접 읽음, 미재실행) 구간1 seq1·2·LA(1..2), 구간2 seq3·LA(3..3), lastPieceSeq 0 이어받기, loadPiece(seq2) null → WELCOME·P1·P3·LA(seg2) 송출 → 클라이언트 ACK(3) → seq2·LA(seg1) 기록이 확인 처리되어 사라지고 구간1 level1 은 영구 미완료, MISSING·ERROR 없음. ② (축 6·7 측정) LEVEL_ARRIVED N 개·missing N 개면 O(N²): N=60000 replay 756~850 ms 동안 이벤트 루프 점유.
 - 고칠 것: ① 첫 빠짐에서 재전송을 멈추고 닫거나(lastPieceSeq 가 빠진 순번 앞에 머묾), 빠진 구간에 MISSING 을 보내는 정책을 골라 계약·0040 에 근거·대가로 쓴다(저장소가 이미 보관한 bytes 로 재전송하는 길도 선택지로 검토). ② missing 은 오름차순이므로 포인터로 판정.
@@ -3055,16 +3057,18 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-04 15:20 감독 등록(PR #54 검토 #1). 신규(이번 PR 범위 안).
 - → 2026-10-04 작업자: 처리됨-검증대기. 제품 9c3bc6b9: 첫 빠짐에서 재전송 중단(stoppedAt·replayedBytes), missing 선형 탐색 제거, resume_missing.test.mjs(60000 결정적 호출 수). 결정 0040 에 정책·대가 기록.
+- → 2026-10-04 15:50 감독 확인 닫음(PR #54 검토 #2). resume.mjs:49 첫 빠짐에서 멈춤, resume_missing 60000 결정적 호출 수, 축 6 측정 all-missing·all-present 모두 O(N). 단 멈춤의 전제(lastPieceSeq 가 빠진 순번 앞에 머묾)가 같은 연결의 생방송 송출로 깨지는 문제는 신규 F-275 로 연다.
 
-### F-273 [처리됨-검증대기] (심각도: 중간) — '배선됨' 표기·계약 문장 모순·결정 0040 누락·ws 시험의 벽시계 '없음' 판정
+### F-273 [닫힘] (심각도: 중간) — '배선됨' 표기·계약 문장 모순·결정 0040 누락·ws 시험의 벽시계 '없음' 판정
 - 위치: ① contracts/proto/index.mjs:19·:24, README.md:108·:222(시험 밖 attachConnection 호출처 0건 — 감독 grep: connection.mjs·index.mjs·contract.mjs·시험 2개뿐) ② server/ws/session/contract.mjs:8('send 가 던지거나 false 를 돌려주면 던진다') vs :11·emit.mjs:13·:82(반환값 안 봄) ③ contract.mjs:32·connection.mjs:16(onSession 'WELCOME 직후' — 실제는 재전송 뒤), contract.mjs:30 서명에 onMessage·onClose·replay·makeEmit 없음 ④ 결정 0040: false 반환에 '닫힘·상한 초과로 미송출'(server/ws/index.mjs:209·:212)이 섞여 MISSING 은 이어받기로 복구되지 않는다는 대가, close 코드 1002·1011, 둘째 HELLO 무시, UNKNOWN_SESSION 에 ERROR 없음, loadPiece 주입(저장소 bytes 미사용) 결정이 없다. '다시 볼 조건' 이 측정 불가 문구 ⑤ server/ws/session/ws_level_arrived_loss.test.mjs:34·:113-120(QUIET_MS 150 ms 조용하면 끝 — '더 오는 프레임 없음' 을 벽시계로 판정, 결정 기록 없음). 축 4a 실측: replay 가 400 ms 뒤 가짜 LEVEL_ARRIVED 2건을 더 보내도 두 시험 통과(감독 :34·:116 직접 확인).
 - 고칠 것: ① 진입점(createWsServer onConnection 에서 attachConnection + createCoreAdapter)을 추가하거나 표기를 '배선 모듈 제공, 서버 진입점 연결은 미배선' 으로. ② :8 의 '거나 false 를 돌려주면' 삭제. ③ 문구·서명 정정. ④ 0040 에 위 항목을 선택지·대가로 추가, 다시 볼 조건을 구체 사건으로. ⑤ 끝 표지(서버 쪽 동기 send 기록, 또는 재전송 뒤 왕복 메시지)로 '더 없음' 을 단언하고 벽시계 대기를 없앤다 — 남기려면 결정 기록.
 - 확인 기준: ① 시험 밖 호출처 1건 이상 또는 문구 변경. ② contract.mjs 'false 를 돌려주면' 0건. ⑤ 400 ms 지연 가짜 LEVEL_ARRIVED 변이에서 ws 시험 실패.
 - 권장 모델: sonnet(①②③④), opus(⑤)
 - 이력: 2026-10-04 15:20 감독 등록(PR #54 검토 #1). ① 감독 grep 확인, ② :8 감독 직접 확인, ⑤ 감독 :34·:116 직접 확인(지연 변이 실측은 축 4a). 신규(이번 PR 범위 안).
 - → 2026-10-04 작업자: 처리됨-검증대기. ① 표기를 '배선 모듈 제공, 진입점 연결 미배선'으로(진입점 연결은 하지 않음) ② :8 false 문장 삭제 ③ 서명·onSession 시점 ④ 결정 0040 보강 ⑤ ws 시험 벽시계 판정 제거(서버 쪽 송출 기록·끝 표지·모의 타이머, 400 ms 지연 변이 2/2 실패). 제품 001960b4·4beef844.
+- → 2026-10-04 15:50 감독 확인 닫음(PR #54 검토 #2). ① README·proto 표기 정정 ② contract.mjs 'false 를 돌려주면' 0건 ③ 서명·시점 정정(connection.mjs:16 JSDoc 잔여는 F-276) ⑤ ws 시험 벽시계 판정 제거·모의 타이머. ④ 결정 0040 본문의 정책 모순은 F-276 으로 옮김.
 
-### F-274 [처리됨-검증대기] (심각도: 낮음) — PR #54 잔여 세부
+### F-274 [열림] (심각도: 낮음) — PR #54 잔여 세부
 - 위치·고칠 것(제품 ab12b7c):
   ① connection.mjs:52-55 — onSession 이 던지면 close(1011) 하지만 emitFn 이 남아 api.emit 이 계속 송출(축 1a). catch 에서 emitFn = null 또는 emit 이 closing 이면 던진다.
   ② resume.mjs:127-141 — 재전송 전량을 동기 루프로 보내 배압·닫힘을 보지 않는다(세션 상한 64 MiB > 송신 상한 32 MiB 면 1008 재접속 반복 가능, 축 6·7 추정·미재현). N개마다 양보하고 bufferedAmount 를 본다, 또는 상한 정합.
@@ -3080,3 +3084,34 @@
 - 권장 모델: haiku(③④⑤⑥⑧), sonnet(①②⑦)
 - 이력: 2026-10-04 15:20 감독 등록(PR #54 검토 #1). 미재실행(근거 줄 있음).
 - → 2026-10-04 작업자: 처리됨-검증대기(일부). ①⑦(F-270 에서), ③④ 시험 추가, ⑤, ⑨, ⑩(room_cand_promote), ⑧ PR 본문. 미처리: ② 재전송 배압·양보(계약 변경 — 결정 0040 다시 볼 조건 ②), ⑥ clear 무효화 변이는 drawingSet 이 새 선택으로 캐시를 다시 만들어 room_clear_cand 만으로는 잡히지 않음.
+- → 2026-10-04 15:50 감독(PR #54 검토 #2): ①③④⑤⑦⑧⑨⑩ 닫음(시험 통과, 축 5 확인). ②(재전송 배압·양보)·⑥(clear() cand 무효화 변이 미검출) 열림 유지 — 낮음, 다음 작업과 함께.
+
+### F-275 [열림] (심각도: 높음) — 재전송이 첫 빠짐에서 멈춰도 같은 연결에서 생방송 송출이 이어져, 다음 누적 ACK 가 빠진 조각과 그 뒤 재전송 후보·LEVEL_ARRIVED 기록을 지운다(F-272 의 목적 무력화)
+- 위치: server/ws/session/connection.mjs:55-59(result.stoppedAt 을 보지 않고 makeEmit·onSession 진행), server/ws/session/resume.mjs:42-44·:49(멈춤의 근거 주석 — '멈추면 lastPieceSeq 가 빠진 순번 앞에 머문다'), contract.mjs:26(반환 서명에 stoppedAt·replayedBytes 없음), :35, server/ws/resume/index.mjs ack()(upTo 는 nextSeq-1 로만 제한) (제품 feat/t12u 693a39f)
+- 문제: replayAfterHello 는 빠진 순번에서 멈추고 stoppedAt 을 돌려주지만 attachConnection 은 이를 버리고 emit 을 만들고 onSession(nextPieceSeq) 을 부른다. 어댑터가 nextPieceSeq 이상으로 새 조각을 보내고 클라이언트가 그것을 ACK 하면 store.ack 가 ackedUpTo 를 빠진 순번 너머로 올린다. 멈춤 때문에 보내지 않은, 바이트가 있는 뒤 후보까지 함께 사라진다(수정 전보다 손실 범위가 넓다).
+- 실패 상황(감독 직접 재현, scratchpad rev2/stop.mjs — 실제 createSessionStore·attachConnection·createCoreAdapter): 첫 연결 seq1·2 + LA(seg9, 1..2) → 끊김 → seq2 바이트 없음 → HELLO{lastPieceSeq:0} → 송출 WELCOME·PIECE1 뿐, onSession {resumed:true,nextPieceSeq:3}, close 0회 → firstPieceSeq=3 어댑터가 PIECE3·LA(seg10) 송출 → ACK(3) → resendPlan 에 LA(seg10) 만 남음. seg9 의 PIECE2 와 LA(1..2) 는 영구 소실, MISSING·ERROR 없음. 축 1a 도 같은 결과(r1.mjs: 빠짐 뒤 바이트가 있는 seg2 까지 소실).
+- 고칠 것: 하나를 골라 계약·결정 0040 에 근거·대가로 쓴다. (a) stoppedAt !== null 이면 onSession·emit 생성 없이 ERROR 후 close(1011 등) — 같은 연결에서 생방송 송출 금지. (b) 멈추지 않고 빠진 조각만 건너뛰되 저장소에서 그 순번과 창의 LEVEL_ARRIVED 를 명시적으로 '죽음' 처리(MISSING 송출 포함). (c) store.ack 에 '아직 재전송 못 한 첫 후보 미만으로 묶기' 하한 API. onSession info 에 stoppedAt 을 싣고 contract.mjs:26 서명에 replayedBytes·stoppedAt 추가.
+- 확인 기준: 위 재현을 attachConnection + 실제 저장소 시험으로 넣는다(connection.test 또는 resume_missing.test). 고친 뒤: 빠짐 이어받기 연결에서 생방송 PIECE 가 0개이거나, ACK(생방송 최대 순번) 뒤 resendPlan 에 바이트가 있는 뒤 후보(PIECE·LEVEL_ARRIVED)가 남는다/정책 (b) 면 MISSING{segmentId} 송출. :55-59 의 stoppedAt 처리 줄을 지우는 변이에서 그 시험이 실패한다. npm test 0 실패.
+- 권장 모델: opus
+- 이력: 2026-10-04 15:50 감독 등록(PR #54 검토 #2). 축 1a·축 2 보고, 감독이 재현 스크립트를 직접 돌려 확인. 신규 — 이번 반려 처리(F-272 수정)에서 생긴 결함(범위 안).
+
+### F-276 [열림] (심각도: 중간) — 결정 0040·계약 문장이 실제 정책과 어긋남(빠짐 정책·하한 규칙·둘째 HELLO)
+- 위치: 연구 experiment/t12u decisions/0040-t12u-ws-session-wiring.md:32·:47·:50('건너뛰고 계속'·'missing 으로 기록' — 실제는 첫 빠짐에서 멈춤, 기록 없음, :51 과 자기모순), :58(하한 규칙을 '(seq,key) < minPieceSeq' 로 적음 — 실제는 pieceSeq < 하한이면 SeqFloorError, 함수 하한일 때만 같은 (seq,key) 재시도 예외; 저장소 멱등 true(F-219 ③) 근거·Map 크기 대가 없음), :38(둘째 HELLO 1002 — 선택지·대가 없음), :68-73(다시 볼 조건에 멈춤·SeqFloorError·1002 없음). 제품 server/ws/session/connection.mjs:16('WELCOME 직후 한 번' — contract.mjs:35·실제는 재전송 뒤), contract.mjs:33-34(닫는 중 emit 던짐·첫 메시지 복호 실패 1002 누락)
+- 실패 상황: 다음 작업자가 0040:32·:47 대로 '건너뛰고 계속' 을 구현하면 F-272 의 누적 ACK 소실이 되살아난다. 통합자가 connection.mjs:16 을 믿고 onSession 안 송출 순서를 오해한다.
+- 고칠 것: 0040 의 해당 줄을 실제 정책(F-275 결정 반영)으로 고치고 SeqFloorError·1002 를 선택지·근거·대가·다시 볼 조건과 함께 쓴다. connection.mjs:16 을 'WELCOME 과 재전송이 끝난 뒤 한 번' 으로, contract.mjs:33-34 에 두 규칙 추가.
+- 확인 기준: 0040 에 '건너뛰' 와 'missing 으로 기록' 0건(정책 (b) 를 고르면 그에 맞게), grep 'WELCOME 직후 한 번' 0건, contract.mjs 에 closing·1002 규칙 문장.
+- 권장 모델: sonnet
+- 이력: 2026-10-04 15:50 감독 등록(PR #54 검토 #2). 축 2 보고, 감독이 contract.mjs:26·:35, connection.mjs:16 직접 확인. 0040 줄은 축 2 근거(미재열람). 신규(범위 안 — F-273 ④ 잔여).
+
+### F-277 [열림] (심각도: 낮음) — PR #54 검토 #2 잔여 세부
+- ① server/ws/session/connection.mjs:55 뒤 — async replay 중 접속이 닫혀도 makeEmit·onSession 이 불린다(축 7 재현). await 뒤 if (closing) return.
+- ② connection.mjs:74 앞 — HELLO 뒤 복호 결과 null 이면 1011 로 닫힘(축 7 재현). protocolError 로 1002.
+- ③ connection.mjs onMessage 가 끝나지 않으면 처리 사슬이 막혀 뒤 ACK 가 처리되지 않는다(축 7 재현). ACK 는 사슬 밖 처리 또는 시간 제한(결정 기록 필요).
+- ④ emit.mjs:128-131 sentKeys 정리 루프가 LEVEL_ARRIVED 마다 Map 전체를 돈다(함수 하한일 때만, 현 배선은 정수 하한이라 미사용 경로; 축 6 측정 60000 미결 130 µs/LA). 첫 seq > last 에서 멈추거나 ackedUpTo 이하 정리.
+- ⑤ 옛 연결이 열린 채 같은 세션 이어받기(반열림 TCP) 시 두 어댑터가 같은 순번을 쓸 수 있다(축 1a, 미재현). 이어받기 때 같은 sessionId 의 이전 연결을 닫거나 함수 하한.
+- ⑥ 연구 experiments/t12u.md npm test 수치(3719/3707)를 HEAD 기준(3742/3730)으로 갱신(축 5).
+- ⑦ server/ws/resume/index.mjs resendPlan 이 멈춤과 무관하게 N 개 전부를 복제(축 6: 60000 에 37~116 ms) — 지연 생성 또는 시작 순번 인자(선택).
+- ⑧ 시험 공백(축 4a 변이 34종 중 생존 7, 동치 2): resume_missing.test.mjs 가 호출 수만 세어 O(N²) 재스캔 변이(N07) 생존 — resendPlan 1회 호출·색인 읽기 ≤ 2N+1 단언; resumed=false ⇒ 재전송 없음 직접 시험 없음(M20, resume.mjs 의 게이트); 접속 닫힘 뒤 closeWith 멱등 시험 없음(M17); sessionId() HELLO 전 던짐 미시험(M28, connection.mjs:102-104); connection.test.mjs:214 okReplay 에 nextPieceSeq 없음·:383-388 makeEmit 인자에 minPieceSeq 미단언, assert.ok(store) 는 항상 참 — 엄격 동일성으로.
+- 확인 기준: ①②③ 각 시나리오 시험(변이에서 실패), ⑧ M10·M11·M17·M20·M28·N07 변이 실패, ④ 60000 미결에서 LA 당 시간 평탄, ⑥ 수치 일치. npm test 0 실패.
+- 권장 모델: sonnet(①②③⑤), haiku(④⑥⑦ 문서·단순)
+- 이력: 2026-10-04 15:50 감독 등록(PR #54 검토 #2). ①②③ 축 7 스크립트 재현 보고(감독 미재실행), ④⑦ 축 6 측정, ⑤ 축 1a 미재현. 신규(범위 안).
