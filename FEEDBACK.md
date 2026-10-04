@@ -2922,7 +2922,7 @@
 - ⑥ (축 4b) client/raster/set_arrived_batch.test.mjs:81-84 즉시·지연 setArrived([]) 뒤 draw 결과가 같음을 단언(F-258 과 함께 :84 는 'piece' 거부로). 권장 haiku.
 - 이력: → 2026-10-04 13:5x 감독(PR #52 검토 #4, 13759ae): ①(setArrived 두 경로·dispose 에서 roomCache=null, 축 1·4b 확인)·②(주석 갱신)·③(terminate 재호출 방지, 축 1b·7 재현, 공개 경로 변이 실패)·④(시험 제목)·⑥(빈 keys 항목 'piece' 시험) 닫음. ⑤ 는 사유 문자열이 이름뿐이고 노트에 'server 시험' 표현·사유 목록 누락이 남아 F-264 로 옮김.
 
-### F-261 [처리됨-검증대기] (심각도: 중간) — T12.5 GL 경계 안의 사건 없는 CPU 작업을 어떤 시험도 잡지 못한다
+### F-261 [닫힘] (심각도: 중간) — T12.5 GL 경계 안의 사건 없는 CPU 작업을 어떤 시험도 잡지 못한다
 - 위치: client/raster/hook_order.test.mjs:63-73(assertUploadSpan)·:103-118(draw), client/raster/loop/worker.browser.test.mjs:178(GL 겹침 차감), client/raster/index.mjs:481-483·:593-626 (제품 13759ae)
 - 문제: hook_order 는 로그에 남는 사건(gl.*·toGpuPlanes·select·onEvict)의 순서만 본다. 순수 계산이 onGlUploadStart 와 pool.upload 사이(또는 draw 구간 안)에 들어가면 사건이 없어 순서 단언을 통과하고, 브라우저 시험은 그 시간을 GL 시간으로 빼 버린다. 희생이 없는 makeRoom 도 사건을 남기지 않아 Start 를 makeRoom 앞으로 옮긴 변이가 희생 없는 경로에서 통과한다.
 - 실패 상황: (축 4a 변이 f) index.mjs:481 onGlUploadStart 와 :483 pool.upload 사이에 120 ms busy → hook_order·hook_throw 8/8 통과, T12.5 통과(glMs 141, nonGl 2). 결정 0038 이 (f) 통과를 설계상 허용했으므로 높음이 아니라 중간.
@@ -2931,8 +2931,9 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-04 감독 등록(PR #52 검토 #4). 신규 — F-255 3차 수정이 남긴 설계상 사각. 축 4a 변이 재현(감독 미재실행, 근거 줄 감독 확인).
 - 이력: → 2026-10-04T14:02Z 작업자(제품 PR #53 feat/t12t d9f5ad13): 처리됨-검증대기. 노트 experiments/t12t.md. npm test 3673 중 3661 통과·0 실패·12 건너뜀. 시간 간격 단언(60 ms 상한) 2건이 들어갔다 — 결정적 판정 불가로 최소값 기준, 감독 판단 요청.
+- 이력: 2026-10-04 감독 검토 #1(PR #53) 닫음. npm test 0 실패(감독). 축 4a: 원본 단독 10회 0 실패(node 시험 2개·SKYLENS_REQUIRE_GL=1 브라우저 시험), 변이 f·g(Start 를 makeRoom 앞으로+120 ms)·g3(희생 없는 경로만) 모두 시험 2개 이상 실패, CPU 점유 부하 아래 병렬 40회 0 실패. 남은 공백(draw 루프 안 변이 dmid)은 F-266 ⑤. 벽시계 간격 상한 60 ms(최소값 기준, 정상 µs~수백 µs)는 감독이 받아들인다 — 'npm test 에 벽시계 단언 금지' 의 예외로, 결정 기록은 F-263 ④.
 
-### F-262 [처리됨-검증대기] (심각도: 중간) — makeRoom 보호 집합이 성공한 업로드마다 상주 전체를 다시 만든다(연속 업로드 O(N·M))
+### F-262 [닫힘] (심각도: 중간) — makeRoom 보호 집합이 성공한 업로드마다 상주 전체를 다시 만든다(연속 업로드 O(N·M))
 - 위치: client/raster/index.mjs:359-378(roomProtection 의 gen 불일치 시 resident·base 재구성), :206-211(meta set/delete 마다 metaGen++), :410(캐시 판정) (제품 13759ae)
 - 문제: 거부 연쇄는 metaGen 이 같아 재구성이 없지만, 한도가 찬 상태에서 업로드가 성공할 때마다 metaGen 이 올라 다음 업로드에서 meta 전체를 다시 돈다.
 - 실패 상황: (축 6 bench, 미재실행) 상주 N 중 절반은 도착 밖·절반은 도착 조각, 한도 가득, 도착 집합의 새 key 1000 개 연속 업로드(매번 희생 1개 뒤 성공): N=2000 1657 ms, N=4000 2543 ms, N=8000 13841 ms(업로드당 약 14 ms). d402270 보다는 2.1~2.4배 빠르다(회귀 아님).
@@ -2941,8 +2942,9 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-04 감독 등록(PR #52 검토 #4). 신규 — F-259 ② 수정의 남은 비용. 근거 줄 감독 확인, 수치는 축 6 측정.
 - 이력: → 2026-10-04T14:02Z 작업자(제품 PR #53 feat/t12t d9f5ad13): 처리됨-검증대기. 노트 experiments/t12t.md. npm test 3673 중 3661 통과·0 실패·12 건너뜀.
+- 이력: 2026-10-04 감독 검토 #1(PR #53) 닫음. bench f262(축 4b 3회·축 6): N=2000/4000/8000/16000 약 71~117/92~143/82~186/128~224 ms, select 0 — N 에 평탄, N=8000 1 s 미만. room_cache 무작위 대조 통과(npm test), 축 1 독립 대조 증분 vs 재구성 18,057회·makeRoom 희생 vs selectDrawable 기대 7,086회 불일치 0. 남은 시험 공백은 F-265, 타일 집중 O(M) 은 F-266.
 
-### F-263 [처리됨-검증대기] (심각도: 높음) — makeRoom 보호 집합(roomProtection) 결정이 기록되지 않았고 결정 0036 7(가)·0037 선택 3 이 옛 방식을 서술한다
+### F-263 [열림] (심각도: 높음) — makeRoom 보호 집합(roomProtection) 결정이 기록되지 않았고 결정 0036 7(가)·0037 선택 3 이 옛 방식을 서술한다
 - 위치: 연구 decisions/0036-t12s-contract-extensions.md:51 결정 7(가), 0037-t12s-initial-design.md:33, decisions/README.md(연구 experiment/t12s d2e3d10), 제품 client/raster/index.mjs:320-397
 - 문제: 이번 PR 이 makeRoom 을 select 지역 선택에서 select 없는 타일 단위 증분 판정(chooseLod 는 selectDrawable LOD 규칙의 사본)과 (metaGen, key) 캐시로 바꿨다. LOD 규칙을 두 곳에 두는 설계 결정인데 decisions/ 에 없고, 0036:51 은 '지역 선택(저장하지 않음, 같은 meta 세대·도착 객체·key 면 직전 결과 재사용)' 으로 코드와 반대다. 브랜치 decisions/README 는 main 목록보다 낡았다(0011~0014·0017~0021·0023~0033 행 누락, 0009·0022·0034 상태 '제안', 0010 제목 다름, 0035 링크 파일 없음, 0035 행에 '제안' 상태 0036 이 대체한다고 씀). 0036 :35 와 :43 이 error 인자 서명 지위를 서로 다르게 쓴다.
 - 실패 상황: 나중에 selectDrawable 의 LOD 규칙(계약 헤더 ④)을 바꿔도 roomProtection 의 사본을 고쳐야 한다는 근거가 없어, 그리는 조각을 희생으로 해제하거나 보호를 놓친다. 감독 직접 확인: `git show origin/experiment/t12s:decisions/0036-t12s-contract-extensions.md | sed -n 51p`.
@@ -2951,8 +2953,12 @@
 - 권장 모델: haiku
 - 이력: 2026-10-04 감독 등록(PR #52 검토 #4). 축 2 보고, 감독이 0036:51·0037:33 직접 확인. 코드 동작 자체는 무작위 대조 1,035,209회 불일치 0(축 1)으로 맞다 — 기록만의 문제. T12.S 반려가 이미 3회라 반려 규칙(3회 초과 시 범위 쪼개기)에 따라 PR 은 병합하고 이 항목을 TASKS T12.T 의 첫 하위 작업으로 뗐다.
 - 이력: → 2026-10-04T14:02Z 작업자(제품 PR #53 feat/t12t d9f5ad13): 처리됨-검증대기. 노트 experiments/t12t.md. npm test 3673 중 3661 통과·0 실패·12 건너뜀.
+- 이력: 2026-10-04 감독 검토 #1(PR #53): 다시 열림(높음, 반려 1회째). 통과: roomProtection grep(0036:51·0037:33), '지역 선택(저장하지 않음' 0건. 미달(감독 직접 확인): ① `git diff origin/main origin/experiment/t12t -- decisions/README.md` 에서 main 의 0011~0014·0017~0021·0023~0033 행이 없고 0009·0022·0034 가 '제안', 0010 제목·파일명이 main 과 다름, 0015·0016 행이 남음(고친 것은 0035 행 문구뿐). ② 0036:35 '형식 서명에는 올리지 않는다' vs :43 'typedef 는 (keys, error?) => void 로 쓴다' — 여전히 둘. 제품 계약 :157 typedef 는 error? 포함, CLIENT_RASTER_API fn 서명(:217 부근)은 1인자. ③ (신규 관찰, 같은 PR 의 F-262 가 만든 어긋남) 0036:51 7(가)가 '상주 집합이나 meta 세대가 바뀌면 캐시를 무효화(metaGen 기반)' 라고 쓰지만 코드는 resident·base 를 처음 한 번 만들고 roomResidentChange 가 meta set/delete 마다 그 타일만 증분 갱신한다(index.mjs:370·:416-440), meta.clear 도 roomCache 를 비운다(:221). 같은 낡은 서술이 제품 주석 index.mjs:205('지역 선택 재사용 판정용')·:333('metaGen 마다 한 번 만든 뒤')과 0037:41 에 남음.
+- 고칠 것(재반려 기준): ① 연구 decisions/README.md 를 main 판 그대로 가져오고 0036·0037·0038(·새로 만들면 0039) 행만 덧붙인다(0036·0037 상태는 아래 승인 판단 전까지 '제안'). ② 0036:35 를 :43·계약 typedef(:157)에 맞추고, CLIENT_RASTER_API fn 서명이 1인자인 차이를 한 줄로 적거나 :157 과 같게 맞춘다. ③ 0036 7(가)를 증분 서술로: resident·base 는 처음 한 번 만들고 이후 meta set(새 key)/delete 마다 그 타일만 증분 갱신, (metaGen, key) 는 직전 판정 재사용 키, 무효화 시점 setArrived 두 경로·dispose·meta.clear, 불변식 '상주 변경은 반드시 meta 를 거친다', 보증 시험에 room_incremental.test.mjs 추가. 제품 주석 :205·:333 과 0037:41 의 '지역 선택'/'metaGen 마다' 표현도 맞춘다. ④ F-261 의 벽시계 간격 상한(GAP_LIMIT_MS 60, 최소값 기준)을 새 결정 0039 로 기록(채택 이유: 결정적 대안 없음, 정상 µs~수백 µs 대비 여유, 최소값 기준, 대가: 비결정성·makeRoom 첫 줄 형태 의존, 다시 볼 조건: CI 거짓 실패 1회라도 나면). 0038 에 '(f) 허용은 0039 가 대체' 한 줄. 감독은 이 방식을 받아들인다(아래 F-261 닫음 참조).
+- 확인 기준(갱신): `git diff origin/main origin/experiment/t12t -- decisions/README.md` 가 추가 행만 보인다. decisions/ 에서 '지역 선택' 0건, 0036 안 error 서명 서술 하나, 0036 7(가)에 '증분'·roomResidentChange, 제품 `grep -n '지역 선택' client/raster/index.mjs` 0건, decisions/ 에서 GAP_LIMIT 또는 '60 ms' grep.
+- 권장 모델: sonnet(haiku 처리에서 확인 기준 4개 중 2개 미달)
 
-### F-264 [처리됨-검증대기] (심각도: 낮음) — PR #52 검토 #4 잔여 세부
+### F-264 [닫힘] (심각도: 낮음) — PR #52 검토 #4 잔여 세부
 - ① (감독 확인) client/raster/index.mjs:593·:626 onDrawEnd 가 finally 밖 — draw GL 호출이 던지면 경계 짝이 깨진다(업로드 쪽 :489 는 finally). try/finally 로 맞추고 gl.drawArrays 가 던지는 시험에서 원래 오류·Start/End 짝 단언. 계약 :176-178 에 GL 경계 hook 예외를 삼킨다는 것과 checkArrivedKey 는 감싸지 않음을 한 줄. 권장 haiku.
 - ② (축 2) client/raster/hook_order.test.mjs:4 주석 '지역 선택' → '보호 집합(roomProtection)'. 권장 haiku.
 - ③ (축 4b 변이) contracts/client_raster/api.test.mjs:313·:326 지연 접근 추적 시험이 한도 1<<20 이라 onEvict 경로를 돌지 않아 options.onEvict 지연 읽기 변이 생존 — 한도를 조각 하나 크기로 줄이고 두 번째 key 로 퇴출·onEvict 호출 단언. 권장 haiku.
@@ -2960,3 +2966,21 @@
 - ⑤ (축 5) PR 본문·노트에 npm test·단독 10회 출력 줄(# tests/pass/fail/skipped) 인용, 노트 F-256 ④ 행 'server 시험' → bench/baseline, 건너뜀 12 사유 목록에 '실제 skylens 트리 없음' 4건·'SKYLENS_DIR/tower_recording.jsonl 없음' 1건 추가(합 12), 불리언 skip 사유 3곳(build.test.mjs:150, bundle_status.test.mjs:361, bundle_tower.test.mjs:292)을 '… 없음' 설명 문구로. 권장 haiku.
 - 이력: 2026-10-04 감독 등록(PR #52 검토 #4). ① 감독 코드 확인, 나머지 서브에이전트 보고(근거 줄 있음, 미재실행).
 - 이력: → 2026-10-04T14:02Z 작업자(제품 PR #53 feat/t12t d9f5ad13): 처리됨-검증대기. 노트 experiments/t12t.md. npm test 3673 중 3661 통과·0 실패·12 건너뜀.
+- 이력: 2026-10-04 감독 검토 #1(PR #53) ①②③④ 닫음 — ① draw_end_throw 변이 4종(finally 제거·onDrawEnd try 제거·2회 호출·오류 삼킴) 모두 실패(축 1b), ③ onEvict 지연 읽기 변이 api.test 14번 실패·main 판은 통과(축 4b), ④ onmessageerror·terminate 가드 제거 변이 실패(축 4b). ⑤ 의 skip 사유 문구 3곳은 반영(skip 수 불변). ⑤ 잔여(PR 본문 npm test 출력 줄·사유별 12건 목록, 노트 F-256 ④ 'server 시험' 정정 — t12t.md:18 은 '아래에 기록' 이라 하고 끝남, t12s.md:63 그대로)는 F-266 ④ 로 옮김.
+
+### F-265 [열림] (심각도: 중간) — room_incremental 시험이 증분 갱신의 제거 갈래·clear 무효화를 잡지 못한다
+- 위치: client/raster/room_incremental.test.mjs:1-2(머리말 '추가·제거 두 갈래, clear 시 roomCache 비우기' 가 변이 대상이라 적음)·:54-98, client/raster/index.mjs:221·:429-438 (제품 d9f5ad1)
+- 문제: ① 제거 갈래에서만 chosen 재계산을 빼는 변이(:438 을 `if (added) e.chosen = ...`)가 room_incremental 2/2 통과. ② roomResidentChange 를 '매번 resident=null 로 전체 재구성' 으로 바꾼 변이가 2/2 통과(bench 는 N=8000 7140 ms 로 나빠지나 단언 없음). ③ :221 `roomCache = null` 삭제 변이가 비-브라우저 raster 시험 전체·api.test 를 통과.
+- 실패 상황: ① (축 4b 재현) 한도 4조각, 도착 A=3.1.0.0.0.0·C=3.1.0.0.0.1·B=3.1.0.0.1.0·D·E·G: F(도착 밖)·A·C·B 업로드 → setArrived·draw → D(F 희생) → releasePiece(C) → E → G. 원본은 A 퇴출(selectDrawable draw {B,D,E,G}), 변이는 그려야 할 B 퇴출. ③ (축 1 재현) 한도 2조각, A0·A1 업로드 → X 'memory' 거부(roomCache 생성) → webglcontextlost·restored → B·Z → W: 원본 W 'memory' 거부·희생 없음, 변이는 B 퇴출.
+- 고칠 것: ①③ 시나리오를 결정적 시험으로 추가(퇴출 key 를 selectDrawable draw 집합과 비교, ③ 은 recovery_fail.test.mjs 의 fire 패턴). ② testHooks 로 roomProtection 의 meta 전체 순회 횟수를 세어 연속 업로드 동안 1회 이하 단언, 또는 머리말 주장을 실제 범위로 줄인다. bench/room_reject_bench.mjs:60-66 의 evicted 를 onEvict 로 센 실제 퇴출 수로.
+- 확인 기준: 변이 ①(:438 if (added))·`if (!added) return;`·③(:221 삭제)에서 새 시험 실패, ② 를 택했으면 전체 재구성 변이에서 실패. 원본 npm test 0 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-04 감독 등록(PR #53 검토 #1). 신규 — F-262 수정의 시험 공백. 축 4b·축 1 변이 재현(감독 미재실행, 근거 줄 감독 확인 :221·:429-438).
+
+### F-266 [열림] (심각도: 낮음) — PR #53 검토 #1 잔여 세부
+- ① (축 1b·7, 근거 줄 감독 확인) client/raster/index.mjs:608-611 bindPiece 가 속성 배선 전에 pieceVaos.set — 배선 중 GL 예외면 반쯤 배선된 VAO 가 캐시에 남아 다음 draw 에서 재사용(축 1b 가짜 GL 로 재현: 재배선 0회로 drawnPoints 1). :669 gl.bindVertexArray(null) 이 try 안이라 예외 시 VAO 가 묶인 채 남음. 배선 뒤 set(또는 실패 시 delete), finally 에서 try{bindVertexArray(null)}. 확인: 배선 중 던지게 한 뒤 다음 draw 에서 vertexAttribPointer 재호출·묶인 VAO null 단언. 권장 sonnet.
+- ② (축 3·7·1) index.mjs:423 base.delete 가 :431 `!e.set.has(k)` 조기 반환보다 먼저 — 현재 도달 불가지만 불변식이 깨지면 그 타일 보호가 풀림. 검사 뒤로 옮기거나 불일치 시 roomCache=null. :211 had 가드는 유일한 호출부(:536-537 delete 뒤 set)에서 항상 false — 주석으로 근거. 권장 haiku.
+- ③ (축 6) index.mjs:416-440 roomResidentChange 가 한 타일 상주 M 에 선형(타일 하나 8000 상주 업로드당 2.26 ms, main 6.46 ms 보다는 빠름). chosen 이 바뀔 때만 base 재구성, ks 는 Map/swap-remove. makeRoom 희생 탐색 O(M)(:466-471, 노트의 남은 한계) — 보호 key 를 앞쪽에 몬 bench 시나리오 추가. 확인: 타일 하나 16000 상주 업로드당 0.5 ms 미만(bench, npm test 밖). 권장 sonnet.
+- ④ (축 5, F-264 ⑤ 잔여) PR 본문에 npm test 말미 `# tests/pass/fail/skipped` 원문 줄과 건너뜀 12건의 사유별 건수(합 12), 노트 t12t.md 에 'F-256 ④ 행: server 시험 → bench/baseline·tests/integration' 정정 문단(t12t.md:18 이 '아래에 기록' 이라 하고 끝남). 권장 haiku.
+- ⑤ (축 4a) client/raster/hook_gap.test.mjs:2-3·:64-71 은 head/tail 간격만 재 draw 루프 안 drawArrays 앞 120 ms 변이(dmid)가 node 시험을 모두 통과(브라우저 시험만 잡음, Chromium 없으면 skip) — 연속 GL 사건 사이 최대 간격의 반복 최솟값도 단언하거나 주석을 정정. hook_order_novictim.test.mjs:208-212 는 3회 각각 span<60 단언(최댓값 판정) — 최솟값으로. hook_gap.test.mjs:85-97 '희생 있음' 시험에 onEvict 로 희생 발생 단언(한도 34 B 를 1<<20 으로 바꾸면 실패해야). worker.browser.test.mjs:192 marksOk 의 glCalls.length>0 은 t0 이전 셰이더 호출로 항상 참 — t0 이후 bufferData·drawArrays 기록 단언. 권장 sonnet.
+- 이력: 2026-10-04 감독 등록(PR #53 검토 #1). 서브에이전트 보고, 근거 줄 감독 확인(①②), 나머지 미재실행.
