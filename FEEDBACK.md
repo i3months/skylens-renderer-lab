@@ -2500,7 +2500,7 @@
 
 - → 2026-10-04 06:35 감독(PR #43 검토 #1, 제품 415939d) 닫음: ① 감독 변이(siftUp 에 전체 인덱스 대입 루프) → scheduler.test 4건 실패 3.1 s, 원래 코드 5회 연속 0 실패. ②③ 구현·주석 확인 — 남은 경계는 F-231 로. ④⑤⑦ 주석·보고 전용 표시 확인. ⑥ 상한 경계 실행(축 1a·7). SCALE_LIMIT 4096·maxDimension 32768 값은 감독 승인(근거 주석은 F-232 ②).
 
-### F-230 [열림] (심각도: 중간) — client_raster 그리기 규칙이 요구하는 LEVEL_ARRIVED.keys 를 전송 규약이 싣지 않고, 만드는 규칙도 없다
+### F-230 [닫힘] (심각도: 중간) — client_raster 그리기 규칙이 요구하는 LEVEL_ARRIVED.keys 를 전송 규약이 싣지 않고, 만드는 규칙도 없다
 - 위치: contracts/client_raster/index.mjs:68-71·:164(항목 {segmentId, level, keys}, keys 없으면 빈 집합)·:388-397, contracts/proto/index.mjs:14·:85(LEVEL_ARRIVED 9 B = segmentId u32, level u8, pieceCount u32), server/adapter/core/index.mjs:251(생산자는 pieceCount 만) (제품 415939d)
 - 문제: F-227 수정으로 selectDrawable 이 완료 key 집합만 draw 하게 됐으나, 그 집합은 와이어에 없다. 클라이언트가 PIECE 수신분과 pieceCount 로 집합을 만드는 규칙(예: LEVEL_ARRIVED 직전 같은 (segmentId, level) 의 연속 pieceSeq pieceCount 개, 재전송 규약 :15-18 과의 관계)이 어느 계약에도 없다. 감독이 :68-71·proto :14·:85·adapter :251 을 직접 읽어 확인(축 1b·2·3 독립).
 - 실패 상황: 복호한 LEVEL_ARRIVED 를 그대로 넘기면 `selectDrawable(['9.1.0.0.0.0','9.1.0.0.0.1'],[{segmentId:9,level:1}])` → draw [] (감독 실행). 정상 송출이어도 아무것도 그려지지 않는다(안전 쪽 실패라 미도착분을 그리지는 않음). 또 keys:[] 인 높은 수준 항목이 M 을 올려 이미 그리던 낮은 수준을 모두 discard 한다(축 1b: [{9,0,keys:['9.0.0.0.0.0']},{9,1,keys:[]}] → draw []).
@@ -2508,8 +2508,9 @@
 - 확인 기준: 서버 어댑터가 낸 메시지 열(정상 1수준 도착, abandoned 섞인 재시도)을 복호 → 변환 → selectDrawable 에 넣는 시험에서 정상 도착 key 는 모두 draw, abandoned key 는 discard. 빈 keys 항목이 던짐.
 - 권장 모델: opus(여러 모듈에 걸친 계약)
 - 이력: 2026-10-04 06:25 감독 등록(PR #43 검토 #1, 축 1b·2·3 보고, 감독 줄 직접 읽음·실행). 신규 — 이번 PR 의 F-227 수정에서 생김. 소비자(T12 렌더러)가 아직 없어 중간. T12.1 구현 전에 고친다.
+- → 2026-10-04 07:20 감독(PR #44 검토 #1, 제품 4653d7c) 확인 닫음: (a) 방식 — contracts/client_raster/arrival.mjs completedKeys·collectArrivals. 어댑터 구동 메시지 열을 코덱 왕복 → 변환 → selectDrawable 시험(arrival.test.mjs) 통과, 빈 keys 거부(index.mjs), 감독 `npm test` 2회 0 실패. 남은 경계는 F-234(세션 경계)·F-235(LEVEL_ARRIVED 송출 뒤 skip 모순)·F-236(LEVEL_ARRIVED 유실)로 따로 연다.
 
-### F-231 [열림] (심각도: 중간, ③ 미확인) — 어댑터 abandoned 재통지(F-229 ②)의 남은 경계
+### F-231 [열림] (심각도: 중간, ⑥ 만 남음) — 어댑터 abandoned 재통지(F-229 ②)의 남은 경계
 - 위치: server/adapter/core/index.mjs:167-181(pendingRelease·flushPendingRelease), :264-268(skip 경로), :300(handle 첫 줄 flush), REPLACE 경로 notifyRelease (제품 415939d)
 - 문제·실패 상황:
   ① (축 7 재현, 감독 :176-181·:300 직접 읽음) onRelease 가 계속 던지면 handle() 이 매번 flush 에서 던져 이후 이벤트를 하나도 처리하지 않는다(영구 먹통). 재시도 상한·포기 경로 없음.
@@ -2522,8 +2523,9 @@
 - 권장 모델: opus(①②), sonnet(③⑤), haiku(④)
 - 이력: 2026-10-04 06:25 감독 등록(PR #43 검토 #1, 축 3·4b·7 보고). 신규 — 이번 PR 의 F-229 ② 수정에서 생김. onRelease 실제 소비자가 아직 없어 중간.
 - → 2026-10-04 06:55 감독(예비 실행, 제품 415939d = main 7e95050 의 PR 쪽) 보강 ⑥ (감독 직접 재현): onRelease 가 같은 어댑터의 handle() 을 부르면(재진입) 무한 재귀. 재현: 공유 기계에서 seg 1 level 1 시도가 emit 실패로 unfinished → 기계가 level 2 도착 → handle(level_arrived seg1 lv1) 로 skip, onRelease = () => a.handle({kind:'segment_expected', segmentId:9}). 결과 PR 머리 `RangeError: Maximum call stack size exceeded`(onRelease 중첩 1897회), main 59b2311 은 같은 입력에서 skip 정상 반환·onRelease 1회 — 회귀. 원인 :265 에서 알림 전에 pendingRelease 를 세우고 :300 flush 가 알림 중에도 같은 보관분을 다시 알림. 고칠 것: flush 시작 때 보관분을 꺼내 비우고(실패 시 되돌림) 재진입 중에는 flush 하지 않는다. 확인 기준: 위 재현이 예외 없이 끝나고 key 당 알림 횟수 유한(시험으로 고정). 권장 모델: opus(①② 와 함께). 소비자 없음이라 중간 유지, T11.K 에서 ①② 와 같이 고친다.
+- → 2026-10-04 07:20 감독(PR #44 검토 #1, 제품 4653d7c): ①②③④⑤ 충족(축 1b 재현: 항상 던지는 onRelease 에서 segment_expected 5개 처리·상한 3 뒤 releaseDropped, 가짜 기계로 ② live 재검사, REPLACE 보관. ⑤ 는 축 4b 변이 결과로 확인). **⑥ 미해결 — 감독 직접 재현**: skip 경로에서 onRelease 가 같은 어댑터 handle({kind:'segment_expected'}) 을 부르면 onRelease 1546회 중첩(축 1b: REPLACE 1412~1550회, `--stack-size=4000` 이면 5749회). 스택 넘침 RangeError 를 flushPendingReleases 의 catch(index.mjs:249 부근)가 삼켜 겉보기 정상 반환 — key 당 알림 횟수가 스택 크기에만 묶임. 원인: notifyRetained(:217)가 알림 전에 보관하고, 재진입한 handle 의 flush(:245-248)가 알림 중인 같은 항목을 다시 알림, 재진입 가드 없음. 덧붙여 재진입 중 버린 알림의 releaseDropped 가 안쪽 handle 결과로 새어 바깥 호출자에게 안 감(축 1b, :202·:259-264). 고칠 것: 알림 중 항목 inFlight 표시 또는 재진입 깊이 플래그로 재진입 handle 에서는 flush 하지 않음, releaseDropped 는 깊이 0 결과에만 싣는다. 확인 기준: 위 재현에서 onRelease 호출 key 당 2회 이하, RangeError 없음, 바깥 결과에 releaseDropped — 시험으로 고정. 권장 모델: opus(같은 항목 두 번째 미해결).
 
-### F-232 [열림] (심각도: 낮음, 일부 중간·미확인) — PR #43 잔여 세부
+### F-232 [열림] (심각도: 낮음, ⑥ 만 남음) — PR #43 잔여 세부
 - 위치·문제(제품 415939d):
   ① (중간, 축 6 측정, 미확인) contracts/client_raster/index.mjs:390-404 selectDrawable 이 key 를 두 번 파싱(arrived.keys 와 keys) — 10만 key 예열 뒤 main 약 55~75 ms → 약 130~147 ms. 호출 주기(도착 이벤트마다, 프레임마다 아님)를 계약에 적고 중복 파싱을 줄인다(F-228 ⑩ 과 함께 T12 호출처에서).
   ② (축 2) :181-185 MAX_BUFFER_DIMENSION_LIMIT 32768·SCALE_LIMIT 4096 근거 주석 없음. 감독은 두 값을 승인(입력 상식 검사용 상한, 장치 한도 아님) — 그 역할과 '실제 장치 한도는 호출자가 gl.getParameter 로 확인'을 주석에 적는다.
@@ -2534,8 +2536,9 @@
 - 확인 기준: 각 줄대로. ④ 두 변이 실패.
 - 권장 모델: sonnet(①④⑤), haiku(②③⑥)
 - 이력: 2026-10-04 06:25 감독 등록(PR #43 검토 #1, 축 2·4b·5·6·7 보고, 감독 미재실행 — 미확인). 신규 — 모두 이번 PR 이 바꾼 계약·시험.
+- → 2026-10-04 07:20 감독(PR #44 검토 #1): ①~⑤ 충족(select.test split 계수 50, sy·keys 형 변이 시험, 중복 key 첫 등장만, -0 거부 — 축 4a 변이로 죽음 확인). ⑥ 미이행: experiments/t11j.md 에 측정 조건 미기록(t11k.md 에만 적음, 축 5). 고칠 것: t11j.md 에 정정 주석(코어·부하). 권장 모델: haiku.
 
-### F-233 [열림] (심각도: 중간, 미확인) — scheduler 관측 시험의 timeout 이 폭주 루프를 멈추지 못하고, 교체 시 wrapArray 로 감싸는 변이를 세지 못한다(축 4a 늦은 보고)
+### F-233 [닫힘] (심각도: 중간, 미확인) — scheduler 관측 시험의 timeout 이 폭주 루프를 멈추지 못하고, 교체 시 wrapArray 로 감싸는 변이를 세지 못한다(축 4a 늦은 보고)
 - 위치: server/scheduler/scheduler.test.mjs:309(PERF_TIMEOUT_MS 120000)·:324-331(c.wrap 은 set 만 셈)·:382-410(measured/check), server/scheduler/index.mjs:2(서명에 wrapArray 없음)·:58-59·:163 (제품 415939d, main 7e95050)
 - 문제·실패 상황(축 4a 변이, 감독 미재실행):
   ① node:test timeout 은 실패 표시만 하고 측정 루프는 계속 돈다. 지역 배열에 O(n) 복사 삽입 뒤 `heap = wrapArray(a)` 로 바꾸는 변이에서 시험 21 단독 120 s 에 timed out 표시 뒤 프로세스 8분 27초, 파일 전체는 18분 넘게 안 끝남. timeout 뒤 프로토타입 패치·계수기가 남아 뒤 시험을 오염시킬 수 있음(추정). 정상 코드에는 영향 없음 — 그래서 높음 보고를 중간으로 내림.
@@ -2545,3 +2548,43 @@
 - 확인 기준: ①② 위 변이가 단언으로 몇 초 안에 실패하고 파일 전체가 곧 끝남. ③ 전체 시간 main 의 1.5배 이내.
 - 권장 모델: opus(①②), haiku(③)
 - 이력: 2026-10-04 06:40 감독 등록(PR #43 검토 #1, 축 4a 보고가 병합 뒤 도착). 신규 — 이번 PR 의 F-229 ① 수정에서 생김. 감독의 다른 인덱스 루프 변이(siftUp 안 루프)는 3.1 s 에 단언으로 잡힘.
+- → 2026-10-04 07:20 감독(PR #44 검토 #1) 확인 닫음: 축 4b 가 같은 변이(지역 배열 O(n) 복사 뒤 heap = wrapArray(a))를 넣어 F-221 시험 3개가 touched 3678 > 상한으로 즉시 실패, 파일 전체 2.6 s. t.signal 중단·wrap 시 length 셈 확인. ③ scheduler.test 단독 6.6~8.4 s(base 8.2 s, 축 5·6) — main 의 1.5배 이내. 남은 시험 공백은 F-237 ⑧.
+
+### F-234 [열림] (심각도: 중간) — collectArrivals 가 새 세션(WELCOME resumed=false)을 무시하고 pieceSeq 단조성도 보지 않아, 완료되지 않은 key 를 draw 로 내고 실제 완료 key 를 discard 한다
+- 위치: contracts/client_raster/arrival.mjs:125·:141(WELCOME 건너뜀), :63-68(addPiece 가 maxSeq 이하 새 pieceSeq 를 받음), :88(창 끝 = 이력 전체 maxSeq) (제품 4653d7c)
+- 문제: 새 세션은 pieceSeq 를 1부터 다시 쓴다(server/ws/resume). 머리 주석은 '한 세션의 수신 이력' 이라 하지만 함수는 WELCOME 을 받으면서 아무것도 막지 않는다.
+- 실패 상황(감독 직접 실행): `collectArrivals([P(1,9.1.0.0.0.0), P(2,9.1.0.0.0.1), WELCOME{resumed:false}, P(1,9.1.0.0.0.0), LA(9,1,1)])` → arrived `[{9,1,keys:['9.1.0.0.0.1']}]`, selectDrawable → draw `['9.1.0.0.0.1']`, discard `['9.1.0.0.0.0']`. 어느 LEVEL_ARRIVED 도 덮지 않은 조각이 그려지고 완료된 조각은 버려진다. 새 세션 첫 key 가 다르면 '두 key 에 쓰임' 으로 이력 전체가 무너진다. 소비자(T12 렌더러)가 아직 없어 중간 — T12.1 구현 전에 고친다.
+- 고칠 것: WELCOME resumed=false 에서 색인·keys 를 비우거나(새 세션) 거부한다. addPiece 는 재전송이 아닌 새 pieceSeq 가 maxSeq 이하면 ClientRasterError('piece')(단조 증가) — completedKeys 에도 같은 보호.
+- 확인 기준: 위 입력에서 '9.1.0.0.0.1' 이 draw 에 없다(arrived 가 ['9.1.0.0.0.0'] 이거나 던짐). 시험으로 고정.
+- 권장 모델: opus(세션·재개 규약에 걸친 계약)
+- 이력: 2026-10-04 07:20 감독 등록(PR #44 검토 #1, 축 1a '높음' 보고 → 감독 재현, 소비자 없음으로 중간). 신규 — 이번 PR 의 arrival.mjs 에서 생김.
+
+### F-235 [열림] (심각도: 중간) — LEVEL_ARRIVED 를 선에 쓴 뒤 실패해 재시도가 skip 되면 어댑터는 abandoned 로 알리고 클라이언트는 완료로 그린다; 계약 문구와 시험이 서로 반대
+- 위치: contracts/client_raster/arrival.mjs:17-19, index.mjs:69-71·:76-78('창 밖이라 완료가 아니다'), index.mjs:116·:159(releasePiece 가 서버 어댑터 onRelease 재통지를 근거로 듦), server/adapter/core/index.mjs:17·:331; 반대 동작을 고정한 시험 contracts/client_raster/arrival.test.mjs:164-177 (제품 4653d7c)
+- 문제: 감독이 arrival.test.mjs:164-177 을 직접 읽음 — `where:'after'` 실패 → 기계 수준 3 → 재시도 skip → r.abandoned 두 key, 같은 두 key 가 selectDrawable draw. 데이터는 모두 도착했으므로 '미도착분 그리기' 는 아니지만, 계약 주석(abandoned 는 discard)·:141 의 불변식과 이 시험이 정반대를 단언하고, onRelease 가 renderer.releasePiece 로 이어지면 해제한 key 를 draw 로 돌려준다. onRelease 는 서버 콜백이고 proto 에 해제 메시지가 없다.
+- 고칠 것: 어댑터가 실패 시도에서 LEVEL_ARRIVED emit 까지 시도했는지 기억해, 그랬으면 skip 때 abandoned 에서 빼거나 levelArrivedMaybeSent 같은 표시로 구분한다. 주석 다섯 곳을 'LEVEL_ARRIVED 가 쓰였으면 완료로 센다' 로 맞춘다. client_raster 계약에서 서버 onRelease 를 근거로 삼는 문구를 없애고(클라이언트 해제 근거는 selectDrawable discard·pending 정리) 직결 금지를 적는다.
+- 확인 기준: arrival.test 164 시나리오에서 r.abandoned ∩ draw = ∅ 가 'before'·'after' 두 경우 모두 통과. contracts/client_raster 안에 어댑터 onRelease 를 근거로 삼는 문구 0건.
+- 권장 모델: opus
+- 이력: 2026-10-04 07:20 감독 등록(PR #44 검토 #1, 축 1a·2·4a 독립 보고, 작업자가 PR 본문·노트에 '알려진 모순' 으로 밝힘). 소비자 없음으로 중간, T12.1 전에 정한다.
+
+### F-236 [열림] (심각도: 중간, 미확인) — LEVEL_ARRIVED 를 끊김으로 잃으면 그 수준은 영구히 pending 이고, 창 규칙 때문에 단독 재전송도 못 한다
+- 위치: server/ws/resume/index.mjs:19-30(recordSent·unacked 는 PIECE 만), contracts/client_raster/arrival.mjs:9-11·:22-23·:85-105, index.mjs:82-84 (제품 4653d7c)
+- 문제·실패 상황(축 2, 감독 미재실행): PIECE f..f+n−1 전달 뒤 LEVEL_ARRIVED 가 끊김으로 사라짐 → emit 은 안 던졌으니 어댑터는 확정 → LEVEL_ARRIVED 는 pieceSeq 가 없어 lastPieceSeq 로 표시 불가, resume 은 재전송할 것이 없음 → 클라이언트는 pending 뒤 재개 때 해제 → 서버는 같은 수준을 skip → 더 높은 수준이 올 때까지 그 구간 그려지지 않음(안전 쪽). LEVEL_ARRIVED 만 뒤늦게 다시 보내면 창(그때까지 최대 pieceSeq) 이 어긋나 ClientRasterError. 이번 PR 이전부터의 규약 공백이지만 창 규칙이 굳힌다.
+- 고칠 것(proto 결정, decisions/ 에 기록): LEVEL_ARRIVED 에 firstPieceSeq(u32) 를 넣어 창을 명시(단독 재전송 멱등)하고 resume 저장소가 LEVEL_ARRIVED 를 기록·재전송하거나, LEVEL_ARRIVED 가 pieceSeq 하나를 쓰게 한다. 코덱·퍼저·어댑터·arrival 함께.
+- 확인 기준: 'PIECE 전부 수신, LEVEL_ARRIVED 유실, HELLO(lastPieceSeq=f+n−1)' 시험에서 재개 뒤 collectArrivals·selectDrawable draw 에 n 개 key 가 나온다.
+- 권장 모델: opus
+- 이력: 2026-10-04 07:20 감독 등록(PR #44 검토 #1, 축 2 '높음' 보고 → 안전 쪽 실패·규약 공백·소비자 없음으로 중간, 미확인). T12 렌더러가 재개를 다루기 전에 고친다.
+
+### F-237 [열림] (심각도: 낮음, 일부 중간) — PR #44 잔여 세부
+- 위치·문제(제품 4653d7c):
+  ① (낮음, 축 1a·2·7 독립 재현) arrival.mjs:73-82 checkLevelArrived 가 segmentId −0 을 받아 collectArrivals 가 {segmentId:-0} 항목을 만들고, selectDrawable(index.mjs:405)은 거부. 같은 −0 거부를 넣는다.
+  ② (낮음, 축 4a 변이 생존) arrival.mjs:60 `seq < 1`→`seq < 0`, `seq > U32_MAX` 삭제, :73 type 검사 삭제 변이가 산다. arrival.test.mjs:210·:211 음성 시험이 다른 이유로 던진다. 유효 조각 뒤 pieceSeq 0, pieceSeq 2^32, type 만 틀린 LEVEL_ARRIVED 사례를 넣는다. :90 guard 는 등가(메시지만 다름) — 메시지를 단언하거나 지운다.
+  ③ (낮음, 축 4a) select.test.mjs:15-31 String.prototype.split 계수는 parsePieceKey 구현 방식에 묶였다 — 주석으로 결합을 밝히거나 주입 계수로.
+  ④ (중간, 축 6 측정) completedKeys 는 호출마다 pieces 전체로 색인을 다시 만든다(n=100k 한 번 105.6 ms). 도착 이벤트마다 부르면 O(n·k). JSDoc·index.mjs ④ 에 '이벤트마다 호출 금지, 증분은 collectArrivals' 를 적거나 증분 추적기를 둔다(T12 호출처, F-228 ⑩ 과 함께).
+  ⑤ (낮음, 축 6 측정, 부하 5.6~6.6) selectDrawable 중복 없는 10만 key 가 base 45~47 ms → 71~80 ms(약 1.6배). key 당 Map get·set 추가. 줄이거나 근거를 JSDoc 에.
+  ⑥ (중간, 축 4b 변이 생존) core.test 가 보관 알림 2개 이상을 만들지 않는다 — flush 를 `pendingReleases.slice(0, 1)` 로 바꾼 변이 58/58 통과. level_arrived 결과의 releaseDropped 미단언 — `withDropped(onArrived(..))` 를 빼는 변이 통과. pendingReleases()·releaseDropped 사본 여부 미단언(변이 2개 통과).
+  ⑦ (낮음, 축 5) PR 본문 '검증' 의 간헐 실패 파일 'server/proto/fuzz' 는 시간 단언이 있는 server/asset/fuzz/fuzz.test.mjs:246 일 가능성이 높다. 실제 파일을 확인해 고치고, npm test 안의 시간 단언(:246 elapsed < TOTAL_BUDGET_MS) 처리 방침을 정한다(F-221 규칙).
+  ⑧ (낮음, 축 4b) scheduler.test.mjs:409-413 check 에 하한이 없어 wrapArray 를 아예 거치지 않는 O(n) 복사 변이는 120 s timeout 으로만 실패. `c.stored >= ops - SLACK` 같은 하한 단언.
+- 확인 기준: 각 줄대로. ② ⑥ ⑧ 의 변이가 단언으로 실패.
+- 권장 모델: sonnet(②④⑥⑧), haiku(①③⑤⑦)
+- 이력: 2026-10-04 07:20 감독 등록(PR #44 검토 #1, 축 1a·2·4a·4b·5·6·7 보고, ① 은 세 축 독립 재현, 나머지 감독 미재실행). 신규 — 모두 이번 PR 이 바꾼 파일.
