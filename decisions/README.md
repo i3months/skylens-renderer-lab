@@ -46,6 +46,8 @@
 어떤 측정·사건이 생기면 이 결정을 다시 검토하는가.
 ```
 
+이 계통에 없는 결정 파일은 main 의 decisions/ 를 참조한다.
+
 ## 목록
 
 | 번호 | 제목 | 상태 | 결정한 사람 |
@@ -64,6 +66,8 @@
 | [0012](0012-input-both-formats.md) | 입력 점 형식: 27 B 점과 56 B 가우시안 둘 다 지원 (Q1) | 승인 | 사람 |
 | [0013](0013-separate-service.md) | 자산 처리 서버는 별도 서비스, 포트 맵 행 추가 허용 (Q6) | 승인 | 사람 |
 | [0014](0014-defer-legal.md) | 약관·특허·AI 제한 라이선스(H1~H3)는 2단계에서 결정 | 승인 | 사람 |
+| [0015](0015-asset-single-format.md) | 자산 포맷: 두 입력 형식을 한 포맷(.skla)에 담는다 | 승인 | 작업자(제안)·감독 승인 |
+| [0016](0016-gps-enu-exact.md) | GPS↔ENU 는 WGS-84 정확식으로 구현하고 skylens 식과의 대조를 별도 과제로 둔다 | 기각 | 작업자(제안) |
 | [0017](0017-geo-dateline-wrap.md) | GPS↔ENU 날짜변경선 경도 감싸기(geo.ts 이탈) 허용 | 승인 | 감독 |
 | [0018](0018-geo-polar-anchor.md) | 극 앵커 e=0·위도 ±90 붙임·경도 −180→180(geo.ts 이탈) | 승인 | 작업자 제안·감독 승인 |
 | [0019](0019-raster-reference-conventions.md) | 참조 래스터 규약: OpenCV 카메라·칸 모서리 픽셀 좌표·빈 칸 표시·단순 배율 K 환산 | 승인 | 작업자 제안·감독 승인 |
@@ -87,3 +91,4 @@
 | [0037](0037-t12s-initial-design.md) | T12.S 초기 설계: 지연 경로, Worker 타임아웃, 호출자 예외 | 승인 | 작업자 제안·감독 승인 |
 | [0038](0038-t12s-long-task-gl-stage-split.md) | T12.5 long task 판정에서 GL 단계 분리 보고 | 승인 | 작업자 제안·감독 승인 |
 | [0039](0039-t12t-gap-limit-wallclock.md) | hook 간격 시험의 벽시계 상한(GAP_LIMIT_MS 60, 최솟값 기준) | 승인 | 작업자 제안·감독 승인 |
+| [0040](0040-t12u-ws-session-wiring.md) | ws 세션 배선: LEVEL_ARRIVED 는 send 전에 기록, 이어받기 때 resendPlan 재전송 | 승인 | 작업자 제안, 감독 승인(PR #54 검토 #3) |
