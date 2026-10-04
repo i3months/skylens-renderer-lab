@@ -2044,34 +2044,34 @@
 - 권장 모델: haiku
 - 이력: 2026-10-04 00:28 감독 등록(직접 읽음, 축 11 보고). → 2026-10-04 작업자 처리(제품 feat/protocol 1107514, PR #39): 제품 feat/protocol 첫 커밋에서 UNVERIFIED.txt 삭제, 연구 experiments/levels_unverified.md 로 이동(10항목). → 2026-10-04 01:20 감독 확인 닫음(PR #39 1107514): 제품 diff 에서 UNVERIFIED.txt 삭제, 연구 experiment/protocol 에 experiments/levels_unverified.md 추가 확인.
 
-### F-184 [열림] (심각도: 높음) — pieceSeq 0 이 '받은 것 없음' 과 겹쳐 재접속 때 첫 조각이 영구 누락된다
+### F-184 [처리됨-검증대기] (심각도: 높음) — pieceSeq 0 이 '받은 것 없음' 과 겹쳐 재접속 때 첫 조각이 영구 누락된다
 - 위치(제품 feat/protocol 1107514): contracts/proto/index.mjs:8(lastPieceSeq "새 접속이면 0", pieceSeq 시작값 없음)·:12, server/adapter/core/index.mjs:85·:98(firstPieceSeq 기본 0), server/ws/resume/index.mjs:61(`ackedUpTo: 0`)·:83·:118(`e.seq > s.ackedUpTo`)
 - 문제: 어댑터는 pieceSeq 를 0 부터 매기고, 이어받기 저장소는 ackedUpTo 0 에서 시작해 seq > ackedUpTo 인 것만 미확인으로 본다. seq 0 조각은 기록되는 순간 '확인됨' 이다.
 - 실패 상황: 어댑터 기본값으로 PIECE(seq 0) 송출 → 클라이언트가 못 받고 끊김 → HELLO{sessionId, lastPieceSeq:0} → open 후 unacked() = [], shouldSend(key) = false. 그 구간의 LEVEL_ARRIVED(pieceCount 개 완료)는 이미 나갔으므로 한 조각이 빠진 채 완료로 표시된다(RULES 도착한 것만·완료 표시 어긋남). 감독이 resume:55-120·adapter:98 직접 읽어 확인, 축 3 실행 재현.
 - 고칠 것: 계약에 "pieceSeq 는 1 부터, 0 은 '받은 것 없음'" 을 적고 어댑터 기본 firstPieceSeq 를 1 로(0 은 RangeError). 어댑터 출력 → resume.recordSent 를 잇는 통합 시험 추가.
 - 확인 기준: 어댑터 기본값으로 낸 첫 PIECE 를 recordSent 한 뒤 open({sessionId, lastPieceSeq:0}) → unacked() 에 그 조각이 있고 shouldSend true. firstPieceSeq:0 은 RangeError.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 01:20 감독 등록(직접 읽음, 축 2·3 보고). 신규 — 이번 PR 코드.
+- 이력: 2026-10-04 01:20 감독 등록(직접 읽음, 축 2·3 보고). 신규 — 이번 PR 코드. → 2026-10-04 작업자 처리(제품 feat/protocol 7f362d0, PR #39 재검토 요청): 확인 기준 시험 추가, 전체 npm test 3128 중 3116 통과·0 실패. 상세 experiments/protocol.md T11.F.
 
-### F-185 [열림] (심각도: 높음) — 추월 판정 묶음 기준이 계약에 없고 scheduler·resume 이 서로 달라, 재접속 경로가 추월당한 낮은 수준을 다시 보낸다
+### F-185 [처리됨-검증대기] (심각도: 높음) — 추월 판정 묶음 기준이 계약에 없고 scheduler·resume 이 서로 달라, 재접속 경로가 추월당한 낮은 수준을 다시 보낸다
 - 위치(제품 feat/protocol 1107514): server/ws/resume/index.mjs:9·:20(groupStr 에 chunkIndex 포함)·:104-105, server/scheduler/index.mjs:10-12("chunkIndex 는 묶음 기준이 아니다(계약 지시문 그대로)" — 해당 계약 문구 없음)·:29-31, contracts/levels/index.mjs:3-5(교체는 구간 단위), contracts/proto/index.mjs(묶음 기준 없음)
 - 문제: 같은 (segment, tile, lod) 에서 수준 3 chunk 0 을 보낸 뒤 수준 1 chunk 1 은 resume 의 묶음이 달라 shouldSend true. scheduler 는 chunkIndex 를 빼고 묶는다. 계약에는 기준이 없다.
 - 실패 상황: recordSent(k(level 3, chunk 0)) → shouldSend(k(level 1, chunk 1)) === true(감독 resume:20·104-105 직접 읽음, 축 3 실행 확인). 높은 수준 위에 낮은 수준이 다시 나간다(RULES 1.1 누적 금지·추월 건너뛰기).
 - 고칠 것: 추월 묶음 기준을 contracts/proto(또는 contracts/levels)의 함수 하나로 정의(구간 단위 수준 계약과의 관계 명시)하고 scheduler·resume 이 같이 쓴다.
 - 확인 기준: 위 입력에서 shouldSend false. scheduler·resume 이 같은 키 쌍 표에 같은 판정을 내는 교차 시험.
 - 권장 모델: opus(여러 모듈 계약 통합)
-- 이력: 2026-10-04 01:20 감독 등록(직접 읽음, 축 2·3 보고). 신규.
+- 이력: 2026-10-04 01:20 감독 등록(직접 읽음, 축 2·3 보고). 신규. → 2026-10-04 작업자 처리(제품 feat/protocol 7f362d0, PR #39 재검토 요청): 확인 기준 시험 추가, 전체 npm test 3128 중 3116 통과·0 실패. 상세 experiments/protocol.md T11.F.
 
-### F-186 [열림] (심각도: 높음) — SPEC S6 의 15 MB·3 MB 를 15 MiB·3 MiB 로 구현해 성공 기준이 4.9% 느슨해졌다
+### F-186 [처리됨-검증대기] (심각도: 높음) — SPEC S6 의 15 MB·3 MB 를 15 MiB·3 MiB 로 구현해 성공 기준이 4.9% 느슨해졌다
 - 위치(제품 feat/protocol 1107514): server/scheduler/initial/index.mjs:7·:9(`15 * 1024 * 1024`, 주석 "SPEC S6"), bench/proto/index.mjs:2·:5, bench/proto/report.mjs:8, server/scheduler/initial/initial.test.mjs:5·:40, bench/proto/index.test.mjs:9·:84-97
 - 문제: SPEC.md:95 "초기 ≤ 15 MB + 구간당 ≤ 3 MB", TASKS T11.5 "≤ 15 MB". 주석은 "SPEC S6: ≤ 15 MiB" 라고 SPEC 에 없는 단위를 인용한다. 성공 기준 수치는 작업자가 바꿀 수 없다.
 - 실패 상황: 초기 15,728,640 B·구간 3,145,728 B 가 통과로 판정된다(감독 직접 읽음).
 - 고칠 것: 15_000_000·3_000_000 B 로 되돌리고 주석이 SPEC 단위를 그대로 인용. 실험 노트의 MiB 표기도 고친다.
 - 확인 기준: 15,000,001 B 초기·3,000,001 B 구간이 초과로 판정되는 경계 시험, 15,000,000·3,000,000 은 통과.
 - 권장 모델: haiku
-- 이력: 2026-10-04 01:20 감독 등록(직접 읽음, 축 2·5 보고). 신규.
+- 이력: 2026-10-04 01:20 감독 등록(직접 읽음, 축 2·5 보고). 신규. → 2026-10-04 작업자 처리(제품 feat/protocol 7f362d0, PR #39 재검토 요청): 확인 기준 시험 추가, 전체 npm test 3128 중 3116 통과·0 실패. 상세 experiments/protocol.md T11.F.
 
-### F-187 [열림] (심각도: 높음) — T11.5·T11.9·T11.11 완료 기준이 재현되지 않는다(합성 장면 미사용, 경로 재생 없음, 실제 송출 미집계)
+### F-187 [처리됨-검증대기] (심각도: 높음) — T11.5·T11.9·T11.11 완료 기준이 재현되지 않는다(합성 장면 미사용, 경로 재생 없음, 실제 송출 미집계)
 - 위치(제품 feat/protocol 1107514): server/scheduler/initial/initial.test.mjs:37-48(손으로 만든 grid, fixtures/scenes 미사용), tools/mock_client/index.mjs(내보내기는 :23 createLoopbackPair·:94 createMockClient 뿐, fixtures/paths 재생 없음), bench/proto/index.mjs(createByteLedger 를 bench/proto 밖에서 쓰는 곳 0 — 감독 grep), bench/proto/report.mjs:44-49(손으로 적은 1.5·2 MiB 표)
 - 문제·실패 상황:
   ① T11.5 "합성 장면 초기 ≤ 15 MB": 시험 카탈로그는 100 KB×격자라 상한에 닿지 않아 `totalBytes <= 15 MiB` 가 입력만으로 참. 실제 합성 장면(.skla) 크기와 연결 없음.
@@ -2080,77 +2080,77 @@
 - 고칠 것: ① fixtures/scenes(large 포함)를 server/asset/pack 으로 .skla 카탈로그로 만들고 fixtures/viewpoints 시점으로 buildInitialBundle → totalBytes 수치를 실험 노트에. ② replayPath(path, codec) 를 mock_client 에 두고 실제 server/proto·client/proto codec 으로 시험. ③ 합성 장면 구간을 실제 송출 경로로 흘려 프레임 바이트를 장부에 기록, 구간별 ≤ 3 MB 대비 표 출력(미달이면 미달로 보고).
 - 확인 기준: ① 레벨 0 합이 15 MB 를 넘는 합성 대형 장면에서 droppedCount > 0, totalBytes ≤ 15,000,000. ② 경로 1개 재생 시 서버 복호기가 경로 시점 수만큼 VIEW_UPDATE 를 받는다. ③ 합성 장면 구간 N 개의 실제 프레임 바이트 표가 시험·노트에 같은 수치로.
 - 권장 모델: sonnet(② haiku)
-- 이력: 2026-10-04 01:20 감독 등록(① initial.test:37-56·② mock_client export·③ grep 직접 확인, 축 5 보고). 신규 — 이번 작업의 완료 기준.
+- 이력: 2026-10-04 01:20 감독 등록(① initial.test:37-56·② mock_client export·③ grep 직접 확인, 축 5 보고). 신규 — 이번 작업의 완료 기준. → 2026-10-04 작업자 처리(제품 feat/protocol 7f362d0, PR #39 재검토 요청): 확인 기준 시험 추가, 전체 npm test 3128 중 3116 통과·0 실패. 상세 experiments/protocol.md T11.F.
 
-### F-188 [열림] (심각도: 높음) — 웹소켓 서버가 소비자 콜백 예외를 잡지 않아 프로세스 전체가 죽는다
+### F-188 [처리됨-검증대기] (심각도: 높음) — 웹소켓 서버가 소비자 콜백 예외를 잡지 않아 프로세스 전체가 죽는다
 - 위치(제품 feat/protocol 1107514): server/ws/index.mjs:61(`msgCb(ev.data)`)·:46(`closeCb(result)`)
 - 문제: 소켓 'data'·'close' 핸들러 안에서 소비자 콜백을 try 없이 부른다. 소비자는 외부 입력을 decodeMessage 로 복호하므로 ProtoError 가 그대로 올라올 수 있다.
 - 실패 상황: onMessage 에서 throw → uncaughtException('UNCAUGHT boom', 감독이 축 7 재현 스크립트 직접 실행해 확인). 핸들러가 없으면 모든 연결이 끊긴다. 한 클라이언트의 잘못된 프레임 하나로 서버가 멈출 수 있다.
 - 고칠 것: 콜백 호출을 try 로 감싸 실패한 연결만 1011 로 닫고 오류는 onError 옵션으로 넘긴다.
 - 확인 기준: throw 하는 onMessage 시험에서 uncaughtException 0, 그 연결만 1011 close, 다른 연결은 메시지 왕복 계속.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 01:20 감독 등록(:56-70 직접 읽음·재현 실행). 신규.
+- 이력: 2026-10-04 01:20 감독 등록(:56-70 직접 읽음·재현 실행). 신규. → 2026-10-04 작업자 처리(제품 feat/protocol 7f362d0, PR #39 재검토 요청): 확인 기준 시험 추가, 전체 npm test 3128 중 3116 통과·0 실패. 상세 experiments/protocol.md T11.F.
 
-### F-189 [열림] (심각도: 높음) — 어댑터가 상태를 먼저 확정한 뒤 송출해, 송출 중 실패하면 나머지 조각과 LEVEL_ARRIVED 가 영영 나가지 않는다
+### F-189 [처리됨-검증대기] (심각도: 높음) — 어댑터가 상태를 먼저 확정한 뒤 송출해, 송출 중 실패하면 나머지 조각과 LEVEL_ARRIVED 가 영영 나가지 않는다
 - 위치(제품 feat/protocol 1107514): server/adapter/core/index.mjs:271-277(machine.arrive 후 PIECE 루프·LEVEL_ARRIVED)·:281(onRelease)
 - 문제: 기계 상태가 도착으로 바뀐 뒤 emit 이 던지면 일부만 나가고, 같은 이벤트 재시도는 skip 이다.
 - 실패 상황: emit 이 2번째 호출에서 throw → emitted ['PIECE'], 재시도 skip(감독이 축 7 스크립트 직접 실행해 'emitted [ 'PIECE' ] … retry skip 0' 확인). 구간이 조각 일부만 가진 채 완료 표시도 없이 멈춘다.
 - 고칠 것: 메시지를 먼저 모두 만들고(부호화 포함) 송출이 끝난 뒤 상태를 확정하거나, 실패 시 상태·nextSeq 를 되돌린다. onRelease 는 분리해 전부 호출.
 - 확인 기준: emit 이 n 번째에 던지는 시험에서 상태가 바뀌지 않고, 재시도 action 이 first(또는 replace)이며 pieceSeq 가 끊기지 않는다.
 - 권장 모델: opus
-- 이력: 2026-10-04 01:20 감독 등록(재현 실행). 신규.
+- 이력: 2026-10-04 01:20 감독 등록(재현 실행). 신규. → 2026-10-04 작업자 처리(제품 feat/protocol 7f362d0, PR #39 재검토 요청): 확인 기준 시험 추가, 전체 npm test 3128 중 3116 통과·0 실패. 상세 experiments/protocol.md T11.F.
 
-### F-190 [열림] (심각도: 중간) — scheduler 가 이미 나간 높은 수준을 기억하지 않아 뒤늦은 낮은 수준을 받는다
+### F-190 [처리됨-검증대기] (심각도: 중간) — scheduler 가 이미 나간 높은 수준을 기억하지 않아 뒤늦은 낮은 수준을 받는다
 - 위치(제품 feat/protocol 1107514): server/scheduler/index.mjs:13·:85·:97-109
 - 실패 상황: 수준 3 enqueue → nextBatch 로 나감 → 같은 묶음 수준 1 enqueue 가 true, 다음 배치로 나간다(축 3 실행, 미확인). 주석은 도착 쪽 기계에 위임한다. 지금은 비시험 호출자가 없어 중간.
 - 고칠 것: 묶음별 나간 최고 수준을 기억(F-185 공통 묶음 함수)해 낮은 수준 enqueue 거절, 또는 어댑터 skip 을 거친 것만 넣는다는 계약을 적고 통합 시험.
 - 확인 기준: 위 순서에서 수준 1 enqueue false, pending 0.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 01:20 감독 등록(:5-13 주석 직접 읽음). 신규.
+- 이력: 2026-10-04 01:20 감독 등록(:5-13 주석 직접 읽음). 신규. → 2026-10-04 작업자 처리(제품 feat/protocol 7f362d0, PR #39 재검토 요청): 확인 기준 시험 추가, 전체 npm test 3128 중 3116 통과·0 실패. 상세 experiments/protocol.md T11.F.
 
-### F-191 [열림] (심각도: 중간) — 프레임 파서 수신 버퍼 O(n²) 복사와 빈 연속 프레임 무제한 누적
+### F-191 [처리됨-검증대기] (심각도: 중간) — 프레임 파서 수신 버퍼 O(n²) 복사와 빈 연속 프레임 무제한 누적
 - 위치(제품 feat/protocol 1107514): server/ws/frame/index.mjs:75(`Buffer.concat([this.buf, chunk])`)·:110·:113-117·:128-129, encodeFrame :52
 - 실패 상황: 4 MiB 프레임을 1400 B 조각으로 push → 약 1~1.4 s 이벤트 루프 정지(축 1a·6·7 각각 측정, 미확인). 길이 0 연속 프레임 100만 개 → RSS 약 245 MB 증가(축 7, 미확인).
 - 고칠 것: 조각 목록+누적 길이로 모아 필요할 때 한 번 합침, 조각 개수 상한(넘으면 1009), 길이 0 조각은 쌓지 않음. 언마스크·송신 이중 복사 줄이기.
 - 확인 기준: 같은 입력 50~100 ms 이내·조각 크기에 선형, 빈 fin=0 프레임 10만 개에 1009.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 01:20 감독 등록(:75 직접 읽음). 신규.
+- 이력: 2026-10-04 01:20 감독 등록(:75 직접 읽음). 신규. → 2026-10-04 작업자 처리(제품 feat/protocol 7f362d0, PR #39 재검토 요청): 확인 기준 시험 추가, 전체 npm test 3128 중 3116 통과·0 실패. 상세 experiments/protocol.md T11.F.
 
-### F-192 [열림] (심각도: 중간) — scheduler 큐·resume 세션 sent 맵에 상한이 없다
+### F-192 [처리됨-검증대기] (심각도: 중간) — scheduler 큐·resume 세션 sent 맵에 상한이 없다
 - 위치(제품 feat/protocol 1107514): server/scheduler/index.mjs:139-141·:168-204(큐 상한 없음, 틱마다 전체 재정렬), server/ws/resume/index.mjs:57(create 마다 sweep 전체)·:92(bytes 보관)·:107-113(ack 가 항목을 지우지 않음)
 - 실패 상황: 100 KB 조각 2000개 기록·전부 ack 후에도 약 201 MB 보관(축 7, 미확인). 큐 N 개면 틱마다 O(N log N).
 - 고칠 것: ack 된 항목은 bytes 해제(groupMax 는 유지), 세션별 보관 상한, 스케줄러 maxPending 상한과 증분 정렬.
 - 확인 기준: 전부 ack 후 보관 바이트 ≈ 0, 상한 초과 enqueue 거부·축출 시험.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 01:20 감독 등록(resume:92·107-113 직접 읽음). 신규.
+- 이력: 2026-10-04 01:20 감독 등록(resume:92·107-113 직접 읽음). 신규. → 2026-10-04 작업자 처리(제품 feat/protocol 7f362d0, PR #39 재검토 요청): 확인 기준 시험 추가, 전체 npm test 3128 중 3116 통과·0 실패. 상세 experiments/protocol.md T11.F.
 
-### F-193 [열림] (심각도: 중간) — 계약 공백: PieceKey chunkIndex u16 대 asset u32, VIEW_UPDATE quat 축 규약, 예산 초과 단독 항목 예외, 주소·포트 검사 범위
+### F-193 [처리됨-검증대기] (심각도: 중간) — 계약 공백: PieceKey chunkIndex u16 대 asset u32, VIEW_UPDATE quat 축 규약, 예산 초과 단독 항목 예외, 주소·포트 검사 범위
 - 위치(제품 feat/protocol 1107514): contracts/proto/index.mjs:9·:17 vs contracts/asset/index.mjs:135·:302, server/scheduler/initial/index.mjs:4-5·:12-16, tools/mock_client/index.mjs:207, server/scheduler/index.mjs:7-8·:123-130, server/ws/ws.test.mjs:274-297
 - 문제·실패 상황: ① chunkIndex ≥ 65536 인 유효 .skla 조각은 PIECE 로 보낼 수 없다(축 2). ② quat 은 "x,y,z,w 단위" 만 있고 카메라 축 규약이 없다 — 모의 클라이언트 기본 [0,0,0,1] 은 initial 가정상 하늘(+u)을 본다. ③ T11.4 "예산 초과 0" 인데 단독 oversize 항목은 예산을 넘겨 나간다(계약·완료 기준 문구에 예외 없음). ④ "저장소에 주소·포트 문자열 0" 시험이 server/ws 만 훑는다.
 - 고칠 것: ① 두 계약이 같은 상한을 쓰게(PieceKey u32 또는 asset 쪽 < 65536 명시). ② 계약에 quat = 카메라→ENU, 축은 contracts/raster 규약 명시, mock 기본값·시험 주석 정리. ③ oversize 정책을 계약에 적고 완료 기준 문구를 그에 맞춤(감독 확인 필요 시 결정 기록). ④ 검사 범위를 server/·tools/ 로 넓히거나 문구를 정직하게.
 - 확인 기준: ① chunkIndex 65536 을 두 계약이 같게 처리하는 시험. ② 반대 규약 quat 이면 결과가 달라짐을 고정한 시험. ③ oversize 정책 시험. ④ 시험 대상 디렉터리 = 문서 범위.
 - 권장 모델: sonnet(④ haiku)
-- 이력: 2026-10-04 01:20 감독 등록(축 2·5 보고, ③ scheduler:7-8 직접 읽음, 나머지 미확인). 신규.
+- 이력: 2026-10-04 01:20 감독 등록(축 2·5 보고, ③ scheduler:7-8 직접 읽음, 나머지 미확인). 신규. → 2026-10-04 작업자 처리(제품 feat/protocol 7f362d0, PR #39 재검토 요청): 확인 기준 시험 추가, 전체 npm test 3128 중 3116 통과·0 실패. 상세 experiments/protocol.md T11.F.
 
-### F-194 [열림] (심각도: 낮음) — 프레임·코덱 세부 불일치
+### F-194 [처리됨-검증대기] (심각도: 낮음) — 프레임·코덱 세부 불일치
 - 위치(제품 feat/protocol 1107514): server/ws/frame/index.mjs:100-108(확장 길이 최소 부호화 미검사, 64비트 최상위 비트 1 → 1009 대신 1002)·:38-46(encodeFrame opcode 범위)·:23-29(close 사유 ≤123 B 미검사), server/ws/index.mjs:63-67(close 에코 직후 destroy), client/proto/index.mjs:224(Buffer 입력이면 chunk 가 입력과 메모리 공유)·:73·server/proto/codec/index.mjs:164(TextDecoder ignoreBOM 기본 — BOM 왕복 깨짐)·client :197-199 vs server :168(비-바이트 입력 code 'short' vs 'field')·client :81 vs server :88(encodeMessage(null) 'field' vs 'type')·client :66(배열 흉내 객체 허용)·server :4·client :6-7(검사 순서 주석 낡음)
 - 고칠 것: 각 항목 위치대로. 서버·클라이언트 code 는 계약에 정해 맞춘다.
 - 확인 기준: `82 FE 00 05 …` 1002, 비-바이트·null 입력 양쪽 같은 code(교차 시험), Buffer 입력 복호 후 원 버퍼를 바꿔도 chunk 불변, BOM 텍스트 왕복 동일.
 - 권장 모델: haiku
-- 이력: 2026-10-04 01:20 감독 등록(축 1a·1b·2·7 실측 보고, 미확인). 신규.
+- 이력: 2026-10-04 01:20 감독 등록(축 1a·1b·2·7 실측 보고, 미확인). 신규. → 2026-10-04 작업자 처리(제품 feat/protocol 7f362d0, PR #39 재검토 요청): 확인 기준 시험 추가, 전체 npm test 3128 중 3116 통과·0 실패. 상세 experiments/protocol.md T11.F.
 
-### F-195 [열림] (심각도: 중간) — T11 시험 판별력: 변이가 살아남는 시험들
+### F-195 [처리됨-검증대기] (심각도: 중간) — T11 시험 판별력: 변이가 살아남는 시험들
 - 위치(제품 feat/protocol 1107514): tools/mock_client/index.test.mjs:11-143(자체 MinimalCodec — 순환)·:266-274·:293(`received.length === 0` 항상 참), server/scheduler/scheduler.test.mjs:116·:142·:162-165(sentIds 미사용, 취소·유실 미검사), server/scheduler/initial/initial.test.mjs:50-71(같은 크기만 — '넘으면 건너뛰고 계속' 미검사), server/adapter/core/core.test.mjs:283-305(상한값 수용 시험 없음), server/ws/ws.test.mjs:243-247(426 미검사), server/ws/resume/resume.test.mjs:106-115(ack clamp 미검사), bench/proto/index.test.mjs:117-127(초기 정확히 상한 미검사)·bench/proto/report.mjs:159(import 때 main() 실행)
 - 실패 상황(축 4b 변이, 미확인): mock_client:201 `atMs <= currentTime`→`true` 통과, :139 viewSeq→0 통과; scheduler cancel 을 priority>0 일 때만 지우게 해도 9/9 통과; initial:153 `droppedCount++`→`break` 통과; adapter SEGMENT_ID_LIMIT-1→-2·chunkIndex 0xffff→0xfffe 통과; ws:102 426→200 통과; resume ack 의 Math.min 제거 통과; bench index:86 `>`→`>=` 통과.
 - 고칠 것: 각 위치에 위 변이를 죽이는 손계산 시험 추가(mock_client 는 실제 server/proto·client/proto codec 사용, 필드 deepEqual; initial 은 [3000,1000,400]·예산 3500 → 3000·400, dropped 1; report.mjs 는 직접 실행 때만 main()).
 - 확인 기준: 위 변이 8종이 각각 1개 이상 실패.
 - 권장 모델: sonnet(ws·resume·bench haiku)
-- 이력: 2026-10-04 01:22 감독 등록(축 4b 보고, mock_client:293·initial 시험 직접 읽음). 신규.
+- 이력: 2026-10-04 01:22 감독 등록(축 4b 보고, mock_client:293·initial 시험 직접 읽음). 신규. → 2026-10-04 작업자 처리(제품 feat/protocol 7f362d0, PR #39 재검토 요청): 확인 기준 시험 추가, 전체 npm test 3128 중 3116 통과·0 실패. 상세 experiments/protocol.md T11.F.
 
-### F-196 [열림] (심각도: 중간) — 퍼저 판정이 typed array 할당을 못 보고, 기준 코덱과 차등 비교를 하지 않는다
+### F-196 [처리됨-검증대기] (심각도: 중간) — 퍼저 판정이 typed array 할당을 못 보고, 기준 코덱과 차등 비교를 하지 않는다
 - 위치(제품 feat/protocol 1107514): server/proto/fuzz/index.mjs:111·:116·:119(used_heap_size 만 봄), :231-233(제품 encode→decode 로만 판정), server/proto/fuzz/reference-codec.mjs:92-93(field 가 length 보다 먼저 — 계약과 반대), fuzz.test.mjs:13-17·:81-86·:95, client/proto/cross.test.mjs:150-152·:301, contracts/proto/proto.test.mjs:5·:9-14
 - 문제·실패 상황: ① count 를 믿고 `new Uint8Array(c*4096)`·`Buffer.alloc(c*1024)` 를 선할당하는 복호기가 runFuzz 위반 0(감독이 축 4a alloc_probe 직접 실행해 확인 — :111 used_heap_size 는 ArrayBuffer 를 세지 않음). '10만 회 패닉 0' 자체는 충족(서버·클라이언트 각 100000 회 위반 0, 축 4a). ② HELLO flags·reserved 검사 제거 변이가 퍼저를 통과(축 4a, 미확인). ③ 본문 length↔field 순서 교환 변이가 모든 시험 통과(cross :301 이 둘 다 허용). ④ fuzz.test :81-86 이름은 'length 먼저' 인데 ProtoError 여부만 봄. ⑤ 코덱 모듈이 없으면 skip 으로 녹색. ⑥ 계약 시험이 DIRECTION·MAX_ERROR_TEXT 등을 리터럴로 고정하지 않음(ACK 방향 반전 변이 통과).
 - 고칠 것: ① process.memoryUsage().arrayBuffers 증가분 합산 + typed array 선할당 자기 검증 사례. ② 기준 코덱을 계약 순서에 맞추고 checkOne 에 제품·기준 (성공/실패, code, 값) 차등 비교. ③ count=0xffff·본문 6 B → 'length', msgLen=300·본문 4 B → 'length' 사례. ④ `e.code === 'length'`. ⑤ 정적 import 또는 skip 을 실패로. ⑥ 계약 값 리터럴 고정.
 - 확인 기준: typed array 선할당 복호기 3종이 위반 ≥ 1, 원 코덱 위반 0; flags·reserved 제거 변이에서 fuzz.test 실패; 순서 교환 변이에서 시험 실패; 코덱 파일 이름 변경 시 fuzz·cross 실패.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 01:23 감독 등록(① 직접 실행 확인, 축 4a 는 높음으로 보고했으나 완료 기준 '패닉 0' 은 충족하고 판정 보조 장치의 판별력 문제라 중간으로 하향). 신규.
+- 이력: 2026-10-04 01:23 감독 등록(① 직접 실행 확인, 축 4a 는 높음으로 보고했으나 완료 기준 '패닉 0' 은 충족하고 판정 보조 장치의 판별력 문제라 중간으로 하향). 신규. → 2026-10-04 작업자 처리(제품 feat/protocol 7f362d0, PR #39 재검토 요청): 확인 기준 시험 추가, 전체 npm test 3128 중 3116 통과·0 실패. 상세 experiments/protocol.md T11.F.
