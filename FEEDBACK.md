@@ -2434,3 +2434,13 @@
 - 확인 기준: 각 변이 5 s 안 not ok, 병렬 부하 10회 반복 통과.
 - 권장 모델: sonnet(①③), haiku(②④⑤)
 - 이력: 2026-10-04 04:40 감독 등록(축 4a 늦은 보고, 반려·닫기 뒤 도착). 축 4a 는 F-218·F-214 ①②③·F-217 ①(dirty 경로)④⑤·F-220 ① 충족 보고 — F-218 은 감독 직접 변이로 이미 닫음, 나머지는 감독 미재실행이라 처리됨-검증대기 그대로.
+
+### F-226 [열림] (심각도: 중간) — client_raster drawingBufferSize 에 상한·유한 검사가 없다(축 7 늦은 보고)
+- 위치: contracts/client_raster/index.mjs:133-139(drawingBufferSize), 이를 쓰는 scaleIntrinsics (PR #42 머리 a14111d)
+- 문제: dpr 은 '양의 유한 수'만, 곱한 결과는 0 이하만 거른다. 결과의 유한성·정수 안전 범위·GPU 상한 검사가 없다(감독 줄 직접 읽음).
+- 실패 상황(축 7 재현): drawingBufferSize(1920,1080,1e300) → 1.92e303×1.08e303, (1e10,1e10,1e300) → Infinity, (3000,2000,1e6) → 3e9×2e9, (2**53,1,1) 통과. 구현이 canvas.width 에 그대로 넣으면 문맥 생성 실패·메모리 폭주.
+- 고칠 것: Number.isSafeInteger·Number.isFinite 검사, maxDimension(기본 16384, 주입 가능) 초과 거부. T12.1·T12.4 전에.
+- 확인 기준: 위 네 입력이 ClientRasterError('view'), 1920×1080@2 정상, 기존 0.4 거부 유지.
+- 권장 모델: haiku
+- 이력: 2026-10-04 04:45 감독 등록(축 7 늦은 보고, :133-139 감독 직접 읽음). 신규 — 이번 PR 의 계약 재작성.
+- 함께(낮음, 축 7, 미확인): ① server/ws/index.mjs:198-199 서버가 먼저 close 를 보낸 뒤 상대가 에코 없이 FIN 만 보내면 CLOSE_WAIT_MS(약 2 s)까지 기다림 — end 처리기에서 closeSent 면 socket.end(finish). ② :117-122 주입 시계가 계속 NaN 이면 ping 횟수가 리셋되지 않아 긴 연결이 1008 로 끊김 — now 계약에 명시하거나 대체. (축 7 의 FRAME_HEADER_BYTES 8 지적은 F-217 ⑥ 의 의도된 변경이라 기각.)
