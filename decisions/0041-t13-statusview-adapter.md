@@ -16,9 +16,12 @@
 | 조각 요청 입력 | A. 수준 도착 때 그 창의 키(이미 받은 것)를 요청 / B. 호출자가 넘기는 자산 색인 pieceIndex, MISSING 구간이 도착 전일 때 색인 중 받지 않은 key 만 | B | pieceIndex 를 안 넘기면 requests() 는 늘 빈 배열. 선 메시지에 아직 받지 않은 PieceKey 를 알리는 것이 없어 호출자 색인이 필요하다. A 는 이미 받은 조각만 되요청해 대역폭 중복(F-291) |
 | 교체 해제 키 출처 | arrive 결과의 released / levels.released() | levels.released()(돌려준 뒤 비움) | 어댑터가 받아들인 arrive 직후 불러 levels 쪽 누적이 쌓이지 않게 한다. 가짜 모듈도 같은 의미 |
 | WELCOME resumed=false | 색인만 비움 / 수준 상태·planner·색인을 모두 새로 만들고 이전 그리던 key 를 releasedKeys 로 내보냄 | 후자(F-288) | 새 세션 도착분이 (구간, 수준) 키로 교체, 도착시키지 않은 칸은 비운다(server/ws/session/contract.mjs). 앞 세션에서 알던 구간은 도착 전 표시. 새 세션이 같은 key 를 도착시키면 같은 frame 의 releasedKeys 에서 빼고, PIECE 만 오고 LEVEL_ARRIVED 전에 frame 이 불리면 앞 세션 해제 목록에 그 key 가 나간다(호출자 보관 규칙 필요, 미결) |
+| 해제·건너뜀 조각의 pieceSeq 장부와 이어받기 재전송(F-295·F-296 ③) | A. 해제·skip 때 seq 색인을 지운다(75eb20a, resumed 재전송이 RangeError) / B. 조각 항목을 세션 내내 둔다(a8d0654, 해제 수준도 무거운 항목이 남음) / C. 끝난 seq 는 무거운 색인에서 빼고 retired 에 seq→key 만 남긴다 / D. 세션 안 최소 미해제 seq 하한 하나만 둔다 | C | 재전송 PIECE(같은 key)와 끝난 조각이 든 창의 LEVEL_ARRIVED 는 조용히 무시한다(같은 세션에서 수준은 늘기만 하니 다시 넣어도 skip 이라 결과 같음). 다시 그리지도 releasedKeys 에 다시 내지도 않는다. 같은 seq 다른 key 는 TypeError. D 는 하한 아래 seq 의 key 대조를 잃는다. 대가: retired 가 세션 길이에 비례해 자란다(40만 조각 heap 86.5 MB, 조각당 약 216 B). LEVEL_ARRIVED 가 끝내 오지 않는 PIECE 는 live 에 남는다. 새 세션에서 모두 비운다 |
 | 대응표 원본 열 | 추정으로 표시 / 비워 둠 | 'estimated' | T13L [local] 에서 skylens 와 한 줄씩 대조해 'verified' 로 바꾼다 |
 
 ## 다시 볼 조건
 - skylens 원본 대조(T13L)에서 메서드 이름·인자가 다르면 대응표를 고친다.
 - 서버가 구간 도착 이벤트·자산 색인을 선에 싣게 되면 pieceIndex 를 선 입력으로 바꾼다.
-- 추월로 건너뛴 창의 pieceSeq 색인이 세션 동안 남는 것은 미해결.
+- 한 세션의 받은 조각이 100만을 넘거나 장부 heap 이 200 MB 를 넘으면 retired 를 "연속 구간 하한 + 하한 위 seq→key" 로 줄인다(C·D 혼합).
+- 서버 ACK 하한(resendPlan 시작 seq)이 선에 실리면 그 아래 retired 를 지운다.
+- live 에 창 없이 남은 조각이 세션 조각의 1% 를 넘으면 정리 규칙(같은 구간의 더 높은 수준이 받아들여질 때 낮은 수준의 미창 조각을 끝냄)을 둔다.
