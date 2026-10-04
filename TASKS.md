@@ -442,6 +442,7 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T14.9 | 6,191동 규모 처리 시간·크기 | `bench/tower_assets/` | 크기 기록(초기 ≤ 15 MB 대비) | haiku |
 | T14.10 | 외부 호출 없는 녹화 입력 사용 검사 | `server/terrain/offline/` | 시험 중 네트워크 호출 0 | haiku |
 | T14.R | (PR #58 검토 #1 반려, 같은 브랜치 feat/t14·experiment/t14) 순서: F-305(opus) → F-306(opus) → F-307(opus) → F-308(sonnet) → F-309(sonnet, 결정 파일) → F-310·F-315·F-316 ①~④(sonnet) → F-312(sonnet)·F-313(opus, 결정으로 대신 가능)·F-311(opus) → F-314·F-316 ⑤⑥(haiku/sonnet) | T14 소유 경로 전부, bench/tower_assets/, 연구 decisions/·experiments/t14.md | 각 FEEDBACK 확인 기준, 치명·높음 0, npm test 0 실패, 문턱 변경 금지 | 항목별(왼쪽) |
+| T14.R2 | (PR #58 검토 #2 반려, 같은 브랜치 feat/t14·experiment/t14) 순서: F-307(opus, 방향 상자 또는 각 허용 + 실제 합쳐지는 8시점 장면) → F-311(opus, 같은 파일) → F-312 LOD 상자 벽(sonnet) → F-317(opus) → F-320 ①②③⑤⑦(sonnet)·④⑥(haiku) → F-319(sonnet) → F-318(sonnet/haiku) → F-321·F-316 ⑤⑥(haiku) | T14 소유 경로 전부, bench/tower_assets/, 연구 decisions/0044·experiments/t14.md | F-307 확인 기준, 치명·높음 0, npm test 0 실패, 문턱 변경 금지 | 항목별(왼쪽) |
 | T14L | [local] 실제 VWorld DEM·위성·건물 외곽 입력으로 T14.1~T14.9 재측정(사람 입력 필요) | 연구 experiments/ | 실제 입력 수치 기록 | sonnet |
 
 ### T15 `controlview-b` — [cloud]
