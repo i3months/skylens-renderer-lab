@@ -33,3 +33,5 @@ SwiftShader 가 아닌 환경에서 GL 호출 자체가 길어지는 회귀는 �
 - 승인. 판정(task 마다 비-GL 시간 = duration − GL 호출 구간 겹침 합, 50 ms 초과 task 수 = 0)과 경계 hook 순서 단위 시험(client/raster/hook_order.test.mjs)이 이 문서 서술과 일치한다.
 - 감독 확인: npm test 3662 중 3650 통과·0 실패·12 건너뜀(서브에이전트 병렬 부하 중). 변이 (a) makeRoom 앞 120 ms·(b) Worker gpu 제거·(c) setArrived 300 ms·(d) 메인 동기 복호는 T12.5 시험이, (e) onGlUploadStart 를 makeRoom 앞으로 옮김은 hook_order 시험이 잡는다. 원본 단독 10회 0 실패.
 - 남은 약점: GL 경계 hook 과 첫 GL 호출 사이에 사건 없는 CPU 작업을 넣는 변이는 두 시험 모두 통과한다(FEEDBACK F-261, 중간). 실제 GPU 에서 GL 포함 전체 구간 long task 0 은 TASKS T12.5L [local].
+
+(f) 허용은 0039 가 대체: hook 간격(Start→첫 GL 등)의 벽시계 상한 단언은 결정 0039 가 기록한다.

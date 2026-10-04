@@ -58,13 +58,32 @@
 | [0006](0006-model-assignment.md) | 작업별 모델 배정과 승격 | 승인 | 사람 |
 | [0007](0007-review-notes-via-actions.md) | 감독 판정은 검토 노트 파일 → Actions 봇이 게시 | 승인 | 사람 |
 | [0008](0008-merge-commit.md) | 제품 PR 은 merge commit 으로 병합 | 승인 | 사람 |
-| [0009](0009-stack.md) | T02 스택 선정 | 제안 | 작업자(제안) |
-| [0010](0010-baseline-tool-hardening.md) | 측정 도구 보강(heap 지표·worker 감시·종료코드) | 승인 | 작업자(제안), 감독 승인 |
-| [0015](0015-asset-single-format.md) | 자산 포맷 단일 포맷(27 B 점·56 B 가우시안 형식 표시) | 승인 | 작업자(제안), 감독 승인 |
-| [0016](0016-gps-enu-exact.md) | GPS↔ENU WGS-84 정확식 | 기각 | 작업자(제안), 감독 기각 |
-| [0022](0022-lod-levels-positions-copy.md) | levels[l].positions 대표점 위치 사본 보관 | 제안 | 작업자(제안) |
-| [0034](0034-t12p-contract-extensions-and-lod-rule.md) | client_raster 계약 확장, 타일당 LOD 규칙, 묘비 지평 | 제안 | 작업자(제안) |
-| [0035](0035-t12r-deferred-arrival-gpu-trust-queue-timeout.md) | setArrived 지연 경로, Worker gpu 평면 신뢰 경계, 복호 Worker 큐 기준 시한, 시험 전용 확장 | 승인(③·④ 는 0036 이 대체) | 감독 |
-| [0036](0036-t12s-contract-extensions.md) | T12.S 계약 확장 입력 검사, 시험 전용 옵션 | 제안 | 작업자(제안) |
-| [0037](0037-t12s-initial-design.md) | T12.S 초기 설계: 지연 경로, Worker 타임아웃, 호출자 예외 | 제안 | 작업자(제안) |
+| [0009](0009-stack.md) | T02 스택 선정 | 승인 | 작업자(제안)·감독 승인 |
+| [0010](0010-ws-bytes-copy-rule.md) | ws_bytes 끊긴 같은 최고 수준 원본은 사본 | 승인 | 작업자 제안·감독 승인 |
+| [0011](0011-no-separate-low-cycles.md) | 기준값 도구의 낮음 잔여는 별도 주기 없이 다음 제품 작업에 묶음 | 승인 | 감독 |
+| [0012](0012-input-both-formats.md) | 입력 점 형식: 27 B 점과 56 B 가우시안 둘 다 지원 (Q1) | 승인 | 사람 |
+| [0013](0013-separate-service.md) | 자산 처리 서버는 별도 서비스, 포트 맵 행 추가 허용 (Q6) | 승인 | 사람 |
+| [0014](0014-defer-legal.md) | 약관·특허·AI 제한 라이선스(H1~H3)는 2단계에서 결정 | 승인 | 사람 |
+| [0017](0017-geo-dateline-wrap.md) | GPS↔ENU 날짜변경선 경도 감싸기(geo.ts 이탈) 허용 | 승인 | 감독 |
+| [0018](0018-geo-polar-anchor.md) | 극 앵커 e=0·위도 ±90 붙임·경도 −180→180(geo.ts 이탈) | 승인 | 작업자 제안·감독 승인 |
+| [0019](0019-raster-reference-conventions.md) | 참조 래스터 규약: OpenCV 카메라·칸 모서리 픽셀 좌표·빈 칸 표시·단순 배율 K 환산 | 승인 | 작업자 제안·감독 승인 |
+| [0020](0020-lod-grid-hierarchy.md) | LOD 규약: 2배 격자 단계·화면 공간 오차 거리표·입력 점 부분집합 | 승인 | 작업자 제안·감독 승인(F-098 보완 조건) |
+| [0021](0021-off-axis-screen-error.md) | 화면 공간 오차 축 밖 보정(d·cos²α_min, max(fx,fy))과 (리프 × 칸) 조각 대표점 | 승인 | 작업자 제안·감독 승인(PR #17) |
+| [0022](0022-lod-levels-positions-copy.md) | levels[l].positions 대표점 위치 사본 보관 | 승인 | 작업자 제안·감독 승인(PR #19) |
+| [0023](0023-culling-conservative-leaf-masks.md) | 컬링은 리프 단위 보수적 0/1 마스크의 AND(원판 여유 절두체·덮임 판정 뒷면 포함) | 승인 | 작업자 제안·감독 승인(PR #21, 본문은 experiment/culling) |
+| [0024](0024-degenerate-raster-limits.md) | 퇴화 시점에 래스터 해상도 조건 포함, 모든 컬링 단계가 isDegenerateView 하나를 씀 | 승인 | 감독(PR #23) |
+| [0025](0025-camera-shape-uniform-throw.md) | 카메라 구조 오류는 모든 컬링 단계가 cull: 로 던지고 값 퇴화만 빈 결과 | 승인 | 작업자 제안·감독 승인(PR #24) |
+| [0026](0026-predict-tau0-pure-frustum.md) | 예측 마스크 tau=0 은 순수 절두체, 퇴화 예측 표본 구간 비단조는 계약 한계 | 승인 | 감독(PR #25·#26) |
+| [0027](0027-codec1-sklc1.md) | codec 1(SKLC1): 양자화 값 유지 + 모턴 재배치 + 직접 구현 범위 부호화 | 승인 | 작업자 제안·감독 승인(PR #36) |
+| [0028](0028-codec-quality-order-aligned-reference.md) | codec 화질 시험은 기준 렌더를 codec 점 순서로 그려 양자화 영향만 비교 | 승인 | 감독(PR #36) |
+| [0029](0029-levels-state-machine.md) | 수준 상태 기계: 도착 이벤트만으로 갱신, 교체·건너뛰기 판정을 계약 함수로 고정 | 승인 | 작업자 제안·감독 승인(PR #38) |
+| [0030](0030-protocol-wire-format.md) | 웹소켓 프로토콜: 8 B 머리 + 고정 배치 본문, 검사 순서를 서버·클라이언트가 공유 | 승인 | 작업자 제안·감독 승인(PR #39) |
+| [0031](0031-adapter-unfinished-event-and-ws-limits.md) | 어댑터 송출 실패는 같은 이벤트 재시도로만 회복(UNFINISHED_EVENT), ws 미결 핸들러는 pause·send 초과는 1008 | 승인 | 작업자 제안·감독 승인(PR #41) |
+| [0032](0032-level-arrived-first-piece-seq.md) | LEVEL_ARRIVED 에 firstPieceSeq(u32, 9→13 B), 이어받기 저장소가 LEVEL_ARRIVED 기록·재전송 | 승인 | 작업자 제안·감독 승인(PR #45, 배선은 F-238) |
+| [0033](0033-level-arrived-record-rules.md) | LEVEL_ARRIVED 기록 상한 maxEntries+1, 지운 기록의 같은 값 재시도는 멱등 true, 살아 있는 기록과 겹치면 RangeError | 승인 | 작업자 제안·감독 승인(PR #47), PR #48 묘비로 갱신(대가: 잊힌 범위만 다른 값 true) |
+| [0034](0034-t12p-contract-extensions-and-lod-rule.md) | client_raster 계약 확장 반영, 타일당 LOD 하나(세밀한 미완 LOD 는 pending), 묘비 지평 판정을 기억한 기록 겹침으로 | 승인 | 작업자 제안·감독 승인(PR #49), 규칙 2 보완 승인(PR #50) |
+| [0035](0035-t12r-deferred-arrival-gpu-trust-queue-timeout.md) | setArrived 지연 경로(마지막 입력으로 합침), Worker gpu 평면 O(1) 검사·신뢰 경계, 복호 시한은 처리 시작 기준, testHooks 시험 전용 | 승인 | 감독 기록·승인(PR #51, 작업자 기록 누락 F-249 ①) |
+| [0036](0036-t12s-contract-extensions.md) | T12.S 계약 확장 입력 검사, 시험 전용 옵션 | 승인 | 작업자 제안·감독 승인 |
+| [0037](0037-t12s-initial-design.md) | T12.S 초기 설계: 지연 경로, Worker 타임아웃, 호출자 예외 | 승인 | 작업자 제안·감독 승인 |
 | [0038](0038-t12s-long-task-gl-stage-split.md) | T12.5 long task 판정에서 GL 단계 분리 보고 | 승인 | 작업자 제안·감독 승인 |
+| [0039](0039-t12t-gap-limit-wallclock.md) | hook 간격 시험의 벽시계 상한(GAP_LIMIT_MS 60, 최솟값 기준) | 승인 | 작업자 제안·감독 승인 |
