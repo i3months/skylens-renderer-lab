@@ -55,7 +55,7 @@ tools/       명령줄 도구
 - [ ] **T08 `culling`** — 뷰 의존 컬링(절두체·법선·가림).
 - [x] **T09 `codec`** — 양자화·직렬화·압축. (2026-10-03 PR #36 병합, 반려 1회, 제품 3d3a26f)
 - [x] **T10 `levels`** — 딜레이 패턴 수준 상태(서버·클라이언트 공통). (2026-10-04 PR #38 병합, 반려 0회, 제품 dbb59e7 merge commit, 연구 experiment/codec-review-fixes 53aca0f. 잔여 중간 F-178~F-183 → T10.F, 원본 대조 [local] T10.10L)
-- [x] **T11 `protocol`** — 웹소켓 메시지·서버 송출 스케줄러. (2026-10-04 PR #39 병합, 반려 1회(F-184~F-189 높음), 제품 merge commit(해시는 감독 기록), 연구 experiment/protocol → experiment/levels. F-180·F-184~F-191·F-194~F-196 닫음, 잔여 중간 F-192·F-193·F-197~F-202·낮음 F-203 → T11.G, 결정 0030 승인)
+- [x] **T11 `protocol`** — 웹소켓 메시지·서버 송출 스케줄러. (2026-10-04 PR #39 병합, 반려 1회(F-184~F-189 높음), 제품 2b154aa merge commit, 연구 experiment/levels 57bbdc2. F-180·F-184~F-191·F-194~F-196 닫음, 잔여 중간 F-192·F-193·F-197~F-202·낮음 F-203 → T11.G, 결정 0030 승인)
 - [ ] **T12 `client-raster`** — 클라이언트 경량 래스터라이저(B).
 - [ ] **T13 `statusview-b`** — 현황판에 B 적용.
 - [ ] **T14 `tower-assets`** — 관제탑 지형·드레이프·건물 자산 가공.
