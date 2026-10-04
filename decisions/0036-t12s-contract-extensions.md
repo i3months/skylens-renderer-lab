@@ -54,7 +54,7 @@
 
 - **입력 검사**: 지연 경로의 목표는 고빈도 도착 이벤트를 합쳐 프레임당 1회만 선택을 돌리는 것(0037 결정 1)이다. 입력 검사는 O(key 수)로 합치기와 상충하지 않고, 호출자는 던진 예외를 어댑터 경계에서 한 번만 처리하면 된다.
 - **testHooks**: 계약에 올리면 정상 배포본도 그리기 규칙을 우회할 수 있다. 계약 주석으로 제한하고 타입 서명에서 빼면 정적 분석이 이 옵션을 사용하는 코드를 경고할 수 있다. 구현에서 받는 것은 시험 경로에서만 의도되기 때문이다.
-- **error 인자**: 계약 onContextRestored typedef 와 CLIENT_RASTER_API.onContextRestored 는 둘 다 error 를 계약 밖 구현 확장(시험용)으로 적고, 구현은 복구 중 프로그램 재생성 실패(failure)일 때만 key 목록을 비우고 error 를 보낸다. 서명에 올리지 않는 것은 testHooks 와 같은 이유(계약 표면을 늘리지 않음)이고, 호출자는 실패 때 빈 key 배열과 error 로 복구 실패를 알아볼 수 있다.
+- **error 인자**: 계약 onContextRestored typedef 에는 error? 를 두고 '구현 확장(시험용, 계약 밖)' 으로 표시하며(:35, 결정 3), CLIENT_RASTER_API 의 fn 문자열에는 1인자 callback(keys) 만 명시해 typedef 와 다르게 둔다. 구현은 복구 중 프로그램 재생성 실패(failure)일 때만 key 목록을 비우고 error 를 보낸다. 호출자는 구현이 보내는 error 로 복구 실패를 진단할 수 있으며, ignore 해도 하위 호환이다.
 - **시한 뒤 terminate**: 살려 둔 Worker 는 버려진 요청을 계속 처리하므로 새 요청이 거짓 timeout 을 받는다(0035 ③ 대가, F-253 ③). 스스로 terminate 하면 이후 요청은 즉시 'terminated' 로 거부되어 영구 미결도 없다.
 - **checkArrived**: selectDrawable 은 타일 표·LOD 고르기까지 만들어 10만 key 에 150~210 ms 가 든다(F-253 ②). 지연 경로는 결과가 필요 없으므로 같은 거부 기준만 검사한다.
 
