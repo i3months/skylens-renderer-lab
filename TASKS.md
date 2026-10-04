@@ -369,7 +369,8 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T11.10 | 프로토콜 퍼저 | `server/proto/fuzz/` | 10만 회 패닉 0 | sonnet |
 | T11.11 | 바이트 집계 | `bench/proto/` | 구간당 바이트 기록(≤ 3 MB 대비) | haiku |
 | T11.F [x] | (PR #39 반려 1회, 같은 브랜치) 높음 F-184(pieceSeq 0)·F-185(추월 묶음 기준 계약화)·F-186(MB 단위 되돌리기)·F-187(T11.5·T11.9·T11.11 완료 기준 재현)·F-188(ws 콜백 예외)·F-189(어댑터 송출 원자성) 먼저. 중간 F-190~F-193·F-195·F-196 은 같은 PR 또는 다음 PR, 낮음 F-194 | F-184~F-196 위치 경로 | 각 항목 확인 기준, npm test 0 실패 | sonnet(F-185·F-189 opus, F-186 haiku) |
-| T11.G | (T12 PR 에 함께, 첫 커밋들) PR #39 재검토 잔여: F-197(어댑터 재시도 순번 ↔ resume 재기록, ws 배선 전 필수)·F-192(resume 유한 기본 상한)·F-198(코덱 pieceSeq 0 거부)·F-199(unacked 추월 거름)·F-201(시험 공백) 먼저, 그다음 F-193 ①·F-200·F-202, 낮음 F-203 | F-192·F-193·F-197~F-203 위치 경로 | 각 항목 확인 기준, npm test 0 실패 | sonnet(F-197 opus, F-203 ⑥⑦⑧ haiku) |
+| T11.G [x] | (2026-10-04 제품 PR #40 병합, 반려 0회, 병합 해시는 감독 기록) (T12 PR 에 함께, 첫 커밋들) PR #39 재검토 잔여: F-197(어댑터 재시도 순번 ↔ resume 재기록, ws 배선 전 필수)·F-192(resume 유한 기본 상한)·F-198(코덱 pieceSeq 0 거부)·F-199(unacked 추월 거름)·F-201(시험 공백) 먼저, 그다음 F-193 ①·F-200·F-202, 낮음 F-203 | F-192·F-193·F-197~F-203 위치 경로 | 각 항목 확인 기준, npm test 0 실패 | sonnet(F-197 opus, F-203 ⑥⑦⑧ haiku) |
+| T11.H | (T12 PR 에 함께, 첫 커밋들) PR #40 검토 잔여 중간: F-204(어댑터 실패 뒤 다른 이벤트 — 순번 규약, ws 배선 전 필수)·F-206(pong 상한이 send 데이터를 셈·옵션 검사·단조 시계)·F-205(코덱 pieceCount 0 거부)·F-207(시험 공백) 먼저, 그다음 F-200 잔여(비동기 onMessage 미결·send 상한)·F-208, 낮음 F-209 | F-200·F-204~F-209 위치 경로 | 각 항목 확인 기준, npm test 0 실패 | sonnet(F-204 opus, F-209 ①②③ haiku) |
 | T11.8L [local] | skylens 원본 코어 이벤트 모양·실제 녹화로 어댑터 재생 대조(클라우드 시험은 합성 녹화 — experiments/protocol.md '원본 미열람, 가정') | `server/adapter/core/` | 실제 녹화 재생 시 상태 일치 | opus |
 
 ### T12 `client-raster` — [cloud] (fps 확정 측정은 T17 [local])
