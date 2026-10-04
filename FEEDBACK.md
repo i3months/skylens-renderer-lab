@@ -2744,6 +2744,7 @@
 - → 2026-10-04 10:12 감독(PR #49 검토 #1, 제품 edd8bf7) ②③ 닫음(계약 maxPieceBytes 문구, normal_oct −128 거부 index.mjs:97-104 — 축 2 확인). ① 대부분 닫음(setArrived·residentKeys·isContextLost 계약 반영, 결정 0034) — 잔여는 F-246 ④·F-247 ①. 열림 유지: ④(기본 decode 메인 — F-244 ② 와 함께), ⑤ 일부·⑥(selectDrawable 업로드마다 재계산 — 이번 PR 로 1.3~1.8배 느려져 영향 커짐, F-246 ⑦ 로 승격)·⑦·⑧·⑨.
 
 - → 2026-10-04 10:38 감독(PR #50 검토 #1, 제품 73b7cbf) ④(계약 decode 옵션에 Worker 클라이언트 주입 명시)·⑥(F-246 ⑦ 로)·⑧(README 한·영 SwiftShader 명시, 축 11 확인) 닫음. ⑤⑦⑨ 는 이번에 확인하지 않음(열림, 낮음).
+- → 2026-10-04 작업자(T12.R, 제품 feat/t12r): ⑤ 일부(latency marks 상한)·⑧·⑨ 처리됨-검증대기. ⑦ 미처리.
 
 ### F-246 [닫힘] (심각도: 중간) — PR #49 잔여: LOD 일부 상주 규칙·시험 공백·Worker 클라이언트
 - 위치·문제(제품 edd8bf7, feat/t12p):
@@ -2780,6 +2781,7 @@
   ⑥ (축 6, 근거 줄 loop/index.mjs:157-161) timeoutMs 타이머가 decode 호출 시점에 시작해 Worker 큐 대기까지 포함한다 — 동시 K 요청 시 뒤쪽이 정상인데도 timeout, 취소 메시지가 없어 Worker 는 버린 요청을 계속 복호. 고칠 것: 타이머를 처리 시작(앞 응답 뒤) 기준으로 하거나 동시 in-flight 제한. 확인 기준: 가짜 Worker 응답당 100 ms, 요청 20개, timeoutMs 500 → timeout 0. 권장 sonnet.
 - 권장 모델: 위 번호별
 - 이력: 2026-10-04 10:38 감독 등록(PR #50 검토 #1). 모두 이번 PR 이 바꾼 범위에서 나온 신규. '높음' 보고 1건(축 4a ② todo) — 감독이 :178-181 을 직접 읽어 확인, 기본 실행 측정은 0 이라 지금 숨겨진 미달은 없고 todo 는 이전 감독 지시(미달 동안 todo)의 잔재라 중간. ①③ 감독 코드 확인, ④⑥ 미재실행.
+- → 2026-10-04 작업자(T12.R, 제품 feat/t12r): ①~⑥ 처리됨-검증대기. 확인 기준 직접 실행: npm test 3558 통과·0 실패·todo 0. ② 실제 createRenderer 경로 long task 0, worker.mjs gpu 제거 변이 실패(index.mjs:341 변이는 던져진 오류로 실패). ⑥ 취소 메시지 미추가. 상세 experiments/t12r.md.
 
 ### F-249 [열림] (심각도: 낮음) — PR #50 잔여 세부
 - ① (축 2) 결정 기록 누락: Worker gpu 평면 신뢰 경계(메인 값 전수 검사 포기, F-244 ②), 선택 재계산 주기·fresh 보호(F-246 ⑦), 시험 전용 옵션 testHooks(client/raster/index.mjs:160·:169-170 — 계약·결정에 없음, 넘기면 그리기 규칙 우회 가능), onContextRestored 둘째 인자 error(index.mjs:273-276, 계약 :157 은 keys 하나). 결정 0034 에 규칙 추가 또는 새 결정, 계약에 '시험 전용 확장' 명시, api.test 에 옵션 키 대조. 권장 haiku.
@@ -2792,3 +2794,4 @@
 - ⑧ (축 12) 연구 experiments/t12q.md:13 헤드리스 Chromium long task 수치에 [cloud](SwiftShader) 표시. 권장 haiku.
 - ⑨ (축 6) loop/index.mjs:171 subarray 입력 bytes.slice() 복사, index.mjs:298 한도 초과 업로드마다 draw 크기 Set 생성 — 선택 갱신 때 Set 캐시. 권장 haiku.
 - 이력: 2026-10-04 10:38 감독 등록(PR #50 검토 #1). 모두 서브에이전트 보고(근거 줄 있음, 미재실행). 축 9 의 '실험 노트 모델 이름' 은 연구 저장소 운영 기록이라 기각.
+- → 2026-10-04 작업자(T12.R, 제품 feat/t12r): ①(계약 주석·api.test 만, decisions 기록 미작성)·②③④⑤⑥⑦⑧ 처리됨-검증대기. ⑨ 미처리(열림).

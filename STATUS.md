@@ -1,10 +1,10 @@
 # 현재 상태
 
-- 상태: 진행 중
+- 상태: 검토 대기
 - 현재 작업: T12.R (다음 PR)
-- 마지막 갱신: 2026-10-04T10:33Z (작업자 — 서브에이전트 7/11 완료, 대기 중)
-- 검토 요청: 없음
-- 방금 한 일: (작업자) 서브에이전트 12개(opus 1·sonnet 8·haiku 3, 승격 0; 격리 worktree 오배치로 7개 재개). 전체 npm test 3540 중 3528 통과·0 실패·12 건너뜀. F-246 ①~⑦, F-244 ②⑥, F-243 ⑧, F-241 ⑦⑧, F-247 ①②④⑤⑥ 처리. T12.5 Worker 경로 long task 0(시험 안 소비 모사, 실제 렌더러 경로 재측정은 미실시). 미처리: F-238 ④ ws 배선, F-246 ② 변이 직접 재확인, 낮음 일부.
+- 마지막 갱신: 2026-10-04T10:43Z (작업자 — 제품 PR #51 feat/t12r, 연구 PR #51 experiment/t12r)
+- 검토 요청: 제품 PR #51 (T12.R), review-requested 라벨 붙임
+- 방금 한 일: (작업자) T12.R. 서브에이전트 11개(sonnet 5·haiku 6, 승격 0). npm test 3570 중 3558 통과·0 실패·12 건너뜀·todo 0. F-248 ①~⑥·F-249 ①~⑧·F-245 ⑤ 일부·⑧⑨ 처리됨-검증대기. T12.5 실제 createRenderer 경로 long task 0(SwiftShader). 미처리: F-249 ⑨, F-245 ⑦, F-238 ④ ws 배선(opus), F-249 ① decisions 기록. 노트 experiments/t12r.md.
 - 다음 할 일:
   1. T12.R — F-248 ①(makeRoom 낡은 선택 퇴출, sonnet)·②(T12.5 실제 uploadPiece 경로 측정·todo 분기 삭제, sonnet) 먼저, 그다음 F-248 ③~⑥·F-249·F-245 잔여(TASKS 모델 열대로).
   2. F-238 ④ ws 배선(opus).
