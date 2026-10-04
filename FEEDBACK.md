@@ -2771,7 +2771,7 @@
 
 - → 2026-10-04 10:38 감독(PR #50 검토 #1, 제품 73b7cbf) ①②④⑤⑥ diff 대조로 닫음(축 5·1b·4b), ③ 은 Worker gpu 로 해소. 결정 0034 다시 볼 조건에 거리 기반 선택 조건을 감독이 추가.
 
-### F-248 [열림] (심각도: 중간) — PR #50 잔여: 낡은 선택 퇴출·T12.5 실제 경로·Worker 클라이언트 견고성
+### F-248 [닫힘] (심각도: 중간) — PR #50 잔여: 낡은 선택 퇴출·T12.5 실제 경로·Worker 클라이언트 견고성
 - 위치·문제(제품 73b7cbf, feat/t12q):
   ① (축 1b 재현, 감독 코드 확인 client/raster/index.mjs:296-299) makeRoom 이 선택을 다시 돌지 않고 직전 selection.draw 와 fresh 만 보호한다. 직전 선택에서 pending 이던 성긴 LOD 의 기존 chunk 는 보호되지 않아, 새 chunk 업로드로 그 LOD 가 막 완전해진 순간 퇴출된다(F-246 ⑦ 회귀, F-246 ① 로 이런 pending 이 늘어남). 실패 상황: maxResidentBytes 51 B(17 B 조각 3개), 완료 집합 lod2 c0·c1·lod0 c0·c1. lod2.c0·lod0.c0 업로드 → setArrived(draw [lod0.c0], pending [lod2.c0]) → lod2.c1 업로드 → draw 전에 다른 pending 조각 업로드 → lod2.c0 퇴출, draw 1조각(origin/main 은 lod0.c0 퇴출, lod2 두 조각 draw). 고칠 것: makeRoom 에서 selectionStale 이면 희생 고르기 전에 currentSelection() 으로 한 번 다시 계산(한도 여유 시 조기 반환은 유지). 확인 기준: 위 순서에서 onEvict [lod0.c0], drawnPieces 2 — index.test 에 시험 추가. 권장 sonnet.
   ② (축 4a·5 독립, 감독 코드 확인 client/raster/loop/worker.browser.test.mjs:133-148·:180-181) T12.5 측정이 createRenderer.uploadPiece 를 거치지 않고 페이지 안에서 count·origin·길이 검사를 흉내 낸다 — checkGpuPlanes·:341 분기·pool.upload bufferData 가 측정 구간 밖. 또 long task 가 있으면 t.todo 뒤 assert 라 실패가 TODO 로 빠진다(축 4a: worker.mjs 에서 gpu 를 뺀 변이 → 메인 58 ms long task 인데 fail 0·todo 1). 현재 측정이 0 이므로 todo 분기는 회귀를 숨길 뿐이다. 고칠 것: todo 분기 삭제(기준 0 정상 단언), 페이지에서 실제 createRenderer(webgl2 canvas, decode = Worker client.decode)로 uploadPiece 부터 첫 draw 까지를 측정. 확인 기준: index.mjs:341 에서 gpu 를 무시하는 변이 → 브라우저 시험 fail, worker.mjs gpu 제거 변이 → fail(exit≠0). 이 시험이 실제 경로로 통과하면 T12.5 를 완료로 본다. 권장 sonnet.
@@ -2782,6 +2782,7 @@
 - 권장 모델: 위 번호별
 - 이력: 2026-10-04 10:38 감독 등록(PR #50 검토 #1). 모두 이번 PR 이 바꾼 범위에서 나온 신규. '높음' 보고 1건(축 4a ② todo) — 감독이 :178-181 을 직접 읽어 확인, 기본 실행 측정은 0 이라 지금 숨겨진 미달은 없고 todo 는 이전 감독 지시(미달 동안 todo)의 잔재라 중간. ①③ 감독 코드 확인, ④⑥ 미재실행.
 - → 2026-10-04 작업자(T12.R, 제품 feat/t12r): ①~⑥ 처리됨-검증대기. 확인 기준 직접 실행: npm test 3558 통과·0 실패·todo 0. ② 실제 createRenderer 경로 long task 0, worker.mjs gpu 제거 변이 실패(index.mjs:341 변이는 던져진 오류로 실패). ⑥ 취소 메시지 미추가. 상세 experiments/t12r.md.
+- → 2026-10-04 감독(PR #51 검토 #1, 제품 ae746a3) ①~⑥ 닫음. 감독 확인: npm test 3570 중 3558 통과·0 실패·12 건너뜀·todo 0, ① index.test 재현 순서 시험·옛 makeRoom 변이 실패(축 4a), ② 실제 createRenderer→uploadPiece→첫 draw long task 0(감독 6회 반복 모두 0, 대조 727 ms 1개)·todo 분기 없음·worker gpu 제거 변이 실패, ③ now_throw 변이 실패, ④ set_arrived_batch 걸음 수 시험·변이 실패, ⑤ origin 유한성 검사(시험 약함은 F-250 ⑤), ⑥ timeout_queue 499/500 ms 경계·변이 실패. 잔여(업로드 key 자신이 완성하는 LOD 퇴출, 지연 입력 검사, 시한 연쇄 오탐)는 F-250 로.
 
 ### F-249 [열림] (심각도: 낮음) — PR #50 잔여 세부
 - ① (축 2) 결정 기록 누락: Worker gpu 평면 신뢰 경계(메인 값 전수 검사 포기, F-244 ②), 선택 재계산 주기·fresh 보호(F-246 ⑦), 시험 전용 옵션 testHooks(client/raster/index.mjs:160·:169-170 — 계약·결정에 없음, 넘기면 그리기 규칙 우회 가능), onContextRestored 둘째 인자 error(index.mjs:273-276, 계약 :157 은 keys 하나). 결정 0034 에 규칙 추가 또는 새 결정, 계약에 '시험 전용 확장' 명시, api.test 에 옵션 키 대조. 권장 haiku.
@@ -2795,3 +2796,27 @@
 - ⑨ (축 6) loop/index.mjs:171 subarray 입력 bytes.slice() 복사, index.mjs:298 한도 초과 업로드마다 draw 크기 Set 생성 — 선택 갱신 때 Set 캐시. 권장 haiku.
 - 이력: 2026-10-04 10:38 감독 등록(PR #50 검토 #1). 모두 서브에이전트 보고(근거 줄 있음, 미재실행). 축 9 의 '실험 노트 모델 이름' 은 연구 저장소 운영 기록이라 기각.
 - → 2026-10-04 작업자(T12.R, 제품 feat/t12r): ①(계약 주석·api.test 만, decisions 기록 미작성)·②③④⑤⑥⑦⑧ 처리됨-검증대기. ⑨ 미처리(열림).
+- → 2026-10-04 감독(PR #51 검토 #1, 제품 ae746a3) ①(계약 주석 + 감독이 결정 0035 로 기록)·②(floor 변이 실패, 축 4b)·③(e.bufs 변이 실패)·④(주석 정정 맞음)·⑦(missing: 오류)·⑧(t12q.md [cloud] 표시) 닫음. 열림: ⑤(api.test 옵션 키 대조가 손으로 적은 두 목록 비교 — F-251 ④)·⑥(READS_PER_REPLACEMENT 주석 근거가 실측과 다름: 힙 최대 길이 1, 회당 20.25 중 LRU 큐 약 6 — 배열별 분해로 근거화, 축 4b scratchpad a4b/heap.mjs)·⑨.
+
+### F-250 [열림] (심각도: 중간) — PR #51 잔여: 지연 setArrived 입력 검사·makeRoom 업로드 key·복호 큐 시한·T12.5 측정 구간
+- 위치·문제(제품 ae746a3, feat/t12r):
+  ① (축 1a·2·3·4a·7 독립, 감독 재현 scratchpad a1a/repro.mjs) client/raster/index.mjs:400-416 지연 경로가 배열·정수 모양만 보고 arrived·selectionStale 을 먼저 덮는다. key 형식·(segmentId, level) 일치·level 0..3 은 :231 select 에서야 검사되고, 던지면 selectionStale 이 true 로 남는다. 실패 상황: setArrived([{segmentId:3,level:1,keys:['bogus']}],{deferResult:true}) → 이후 draw 가 매번 'piece: key 형식이 틀림'(gl.clear 뒤라 빈 프레임, droppedFrames 미집계), level 9 지연 입력 뒤 한도 초과 상태에서 관계없는 정상 uploadPiece 가 makeRoom(:302)에서 'piece' 로 거부(감독 재현). 고칠 것: 지연 경로에서 상태를 바꾸기 전에 항목·key 검사(parsePieceKey·범위·일치, O(key 수))를 즉시 하고, 통과했을 때만 arrived 를 바꾼다. 계약 :158 의 'key 해석 오류를 draw 에서 낸다' 문구와 서명표 :215(두 번째 인자·undefined 반환 누락, client_raster.test :433) 정정. 확인 기준: 위 두 입력이 setArrived 호출 시점에 'piece', 그 뒤 draw·uploadPiece 는 직전 선택으로 정상(set_arrived_batch 에 시험). 권장 sonnet.
+  ② (축 1b 재현 a1b/t.mjs cascade, 축 2·7) client/raster/loop/index.mjs:115-121 맨 앞 요청이 시한으로 버려지면 다음 요청 타이머가 바로 시작되지만 Worker 는 버려진 요청을 아직 처리 중 — 처리 80 ms 인 요청이 timeout(timeoutMs 100, 앞 요청 150 ms). 또 :97-98 JSDoc '그 시간 안에 응답이 없는 요청만' 이 새 동작(처리 시작 기준, k 번째 거부까지 k×timeoutMs)과 다르다. setTimeoutFn 이 던지면 :188-189 order 유령 항목·:172-174 settle 전 release 로 영구 미결(낮음, 축 1b·7 재현). 고칠 것: 시한 뒤 Worker 를 막힌 것으로 보고 failAll(또는 respawn)하거나 버려진 id 의 늦은 응답까지 다음 arm 을 미룬다, JSDoc 정정, settle 뒤 release·arm 을 try 안으로. 확인 기준: cascade 입력에서 B resolve(또는 명시한 failAll), setTimeoutFn 이 던져도 promise settle, order.length == pending.size. 권장 sonnet.
+  ③ (축 1a 재현 a1a/repro.mjs, 감독 실행) client/raster/index.mjs:302 재계산이 [...meta.keys()] 로 돌아 지금 올리는 key(아직 meta 에 없음)가 완성할 LOD 를 불완전으로 보고 그 LOD 의 상주 chunk 를 퇴출한다(fresh.clear 로 base 의 fresh 보호도 사라짐). 실패 상황: 한도 51 B(17 B ×3), c=3.1.0.0.1.0 업로드·setArrived([c,a,b]) → a=3.1.0.0.0.0 → x=4.1.0.0.0.0(미도착) → b 업로드 시 HEAD 는 a 퇴출·x 상주, origin/main 은 x 퇴출·a·b 상주. 고칠 것: key ∈ arrivedKeys 면 key 를 넣은 목록으로 선택하거나 재계산 전 fresh 를 합친다. :17-19 머리 주석('selectDrawable 은 setArrived 때만 돈다')도 정정. 확인 기준: 위 순서에서 onEvict [x], index.test 에 시험. 권장 sonnet.
+  ④ (축 4a, 감독 코드 확인 client/raster/loop/worker.browser.test.mjs:120-130, 감독 6회 반복은 6/6 통과) 유휴 기준선 take 뒤 Worker 생성·createRenderer·getContext·셰이더 컴파일이 t0 전에 일어나는데 버리지 않아 realPathTasks 에 섞인다 — 축 4a 는 부하 중 7회 중 2회 t0 보다 86 ms 앞에서 시작한 long task 로 실패. 실패 쪽(엄격) 오류라 거짓 통과는 아니다. 고칠 것: 렌더러·Worker 생성 뒤 sleep·take 로 버리고 t0 를 잰다, start ≥ t0 인 항목만 센다. 확인 기준: 10회 반복 0 실패, worker.mjs gpu 제거 변이는 여전히 실패. 권장 haiku.
+  ⑤ (축 4a 변이) gpu_planes_check.test.mjs:116-139 는 bboxMin 이 유한한 채 origin 만 Infinity 라 앞 검사('bboxMin 과 다름')가 먼저 던진다 — index.mjs:138 유한성 줄 삭제 변이 생존. bboxMin·origin 을 둘 다 [Infinity,0,0] 으로, 메시지 /유한/. 또 loop 시험 공백: postMessage 실패 시 release 제거(M9)·failAll 의 order.length=0 제거(M10)·t1 쪽 now() 보호 제거(M5b) 변이 생존. 확인 기준: 각 변이가 실패. 권장 haiku.
+  ⑥ (축 4b 변이) client/raster/gl_calls.test.mjs:134-147 을 재업로드 시나리오로 바꾸면서 'releasePiece 뒤 draw 에서 VAO 삭제' 경우가 빠졌다 — index.mjs:488 deletePieceVao 제거 변이가 HEAD 에서 생존(origin/main 은 실패). 해제→draw(delete 1·create 0)와 해제→재업로드→draw(create 1·delete 1)로 나눈다. 확인 기준: 두 변이가 각각 실패. 권장 haiku.
+  ⑦ (축 4b 변이) client/raster/latency/index.test.mjs:219·:241 '상한 도달 시 삭제' 시험이 상한 10000 에 닿지 않는다(50개) — 상한 비교를 Infinity 로 바꾼 변이 생존. 상한을 옵션으로 작게 하거나 MAX+1 개를 넣는다. 권장 haiku.
+- 권장 모델: 위 번호별
+- 이력: 2026-10-04 감독 등록(PR #51 검토 #1). 모두 이번 PR 이 바꾼 범위에서 나온 신규. '높음' 보고 1건(축 4a ④ T12.5 흔들림) — 감독이 측정 구간 코드를 직접 읽어 확인했으나 감독 환경 6회 반복은 모두 0 이고 실패 방향이 엄격 쪽이라 중간. ①③ 감독 재현, ② 서브에이전트 재현 스크립트를 감독이 실행.
+
+### F-251 [열림] (심각도: 낮음) — PR #51 잔여 세부
+- ① (축 1b) client/raster/missing/index.mjs:81-97 nonEmptyValuesInEmpty 가 assertRenderResult 를 먼저 불러 :96-97 깊이·색 조건이 죽은 코드가 되고, '목록 반환' 이 '첫 위반 예외' 로 바뀜. holes_client.test.mjs:133-158 이 index 만 바꿔 덮음. 계약을 정해 문서·시험 일치. 권장 haiku.
+- ② (축 6·7) missing/index.mjs:36-45 toMask 가 assertRenderResult 후 drawnMask 안에서 한 번 더 — 4096² 에서 2.9배(축 7 측정). 한 번만. 권장 haiku.
+- ③ (축 3) client/raster/index.mjs fresh Set(:208·:233·:374·:395·:415-416·:425)은 이제 읽는 곳이 없다 — F-250 ③ 에서 쓰거나 지운다. :415 주석 정정. 권장 haiku.
+- ④ (축 2) contracts/client_raster/api.test.mjs:170-192 옵션 키 대조가 손으로 적은 두 목록을 비교 — options.foo 읽기 변이 생존. 구현이 옵션 키 목록을 export 하거나 소스에서 추출. 권장 haiku.
+- ⑤ (축 1b) client/raster/latency/index.mjs:12-13 '~100초 분량' — 프레임당 마크 4개면 약 25초. 권장 haiku.
+- ⑥ (축 12) 연구 experiments/t12r.md:10 '실제 경로 long task 0(SwiftShader CPU, 60만 점)' 에 [cloud] 표시. 권장 haiku.
+- ⑦ (축 7, 기존 동작) loop/index.mjs onerror 뒤 terminated 를 세우지 않아 timeoutMs 없이 decode 하면 영구 미결. 권장 haiku.
+- ⑧ (축 4b) camera.test.mjs:206 worst <= 0.5 는 앞 단언(< 1e-6) 때문에 항상 참이고 메시지가 비교 대상과 다르다. 지우거나 실제 렌더러 두 단계와 비교. 권장 haiku.
+- 이력: 2026-10-04 감독 등록(PR #51 검토 #1). 모두 서브에이전트 보고(근거 줄 있음, 미재실행).
