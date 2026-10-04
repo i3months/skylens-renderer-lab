@@ -2612,6 +2612,7 @@
 - 확인 기준: ① 위 재현에서 모두 true(시험 추가). ② 같은 key 대체 1만 회 기록 뒤 levels ≤ maxEntries, stats().levels 노출. ③ 겹치는 창 RangeError. ④ ws 경로 시험: LEVEL_ARRIVED 프레임만 유실 → HELLO 재개 → 그 LEVEL_ARRIVED 를 다시 받고 draw 에 n 개 key.
 - 권장 모델: opus(①③④), sonnet(②)
 - 이력: 2026-10-04 08:00 감독 등록(PR #45 검토 #1, 축 2·6 보고, ① 감독 재현). 신규 — 이번 PR 의 F-236 수정에서 생김. 저장소 기록이 아직 어디서도 불리지 않아(소비자 없음) 중간. ④ 는 T12 ws 배선 전 필수.
+- → 2026-10-04 08:06 감독(축 4b 늦은 보고, 병합 뒤 도착, 미재실행) 보강 ⑤ (중간): level-arrived.test.mjs:120-136 에 `ackedUpTo == last` 뒤 처음 기록하는 경우가 없어 index.mjs:405 `last >= ackedUpTo` 를 `>`·`last + 1 >=` 로 바꾼 변이가 산다 — `>` 이면 F-235 재시도로 늦게 기록된 LEVEL_ARRIVED 를 버려 F-236 결함이 되살아난다. 고칠 것: 조각만 보내고 ack(5) 뒤 처음 recordLevelArrived(9,1,3,3) → resendPlan [LA(9,1,3,3)], ack(6) 뒤 처음 기록 → []. 확인 기준: 두 변이 모두 실패. 권장 모델: sonnet.
 
 ### F-239 [열림] (심각도: 낮음) — PR #45 잔여 세부
 - 위치·문제(제품 7518ec9):
@@ -2628,3 +2629,4 @@
 - 확인 기준: 각 줄대로. ⑤ 두 변이(:115 무시, :112 -1 제거)가 arrival 시험에서 실패.
 - 권장 모델: sonnet(③⑤⑥⑦⑨), haiku(①②④⑧⑩)
 - 이력: 2026-10-04 08:00 감독 등록(PR #45 검토 #1, 축 1a·1b·2·3·4a·5·7 보고). ①④ 감독 확인, ⑤ 일부 감독 재현, 나머지 미재실행. 축 4a 의 '높음'(firstPieceSeq 창 시험 부재)은 감독 재현에서 level-arrived.test 가 같은 변이를 잡아 낮음으로 내림.
+- → 2026-10-04 08:06 감독(축 4b 늦은 보고, 미재실행) 보강 ⑪ (낮음, 일부 중간): server/scheduler/scheduler.test.mjs:389 주석은 지역 배열 O(n) 삽입 변이가 바로 실패한다고 하지만, 감싼 힙을 읽어 push 마다 지역 배열로 복사하는 변이는 :331 Proxy 에 get 트랩이 없어 count 단언에 안 걸리고 120 s timeout 으로 cancelled 만 된다(fail 0). get 트랩으로 읽기를 세거나 주석을 한계대로 고친다. ⑫ (낮음) core.test 재진입 releaseDropped 바깥 전용 동작을 잡는 시험이 하나뿐 — 단순 재진입 사례에 `!('releaseDropped' in inner[0])` 추가. 권장 모델: sonnet(⑪), haiku(⑫).
