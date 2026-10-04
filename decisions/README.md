@@ -64,5 +64,5 @@
 | [0016](0016-gps-enu-exact.md) | GPS↔ENU WGS-84 정확식 | 기각 | 작업자(제안), 감독 기각 |
 | [0022](0022-lod-levels-positions-copy.md) | levels[l].positions 대표점 위치 사본 보관 | 제안 | 작업자(제안) |
 | [0034](0034-t12p-contract-extensions-and-lod-rule.md) | client_raster 계약 확장, 타일당 LOD 규칙, 묘비 지평 | 제안 | 작업자(제안) |
-| [0035](0035-t12s-initial-design.md) | T12.S 초기 설계: 지연 경로, Worker 타임아웃, 호출자 예외 | 승인 | 작업자(제안) |
+| [0037](0037-t12s-initial-design.md) | T12.S 초기 설계: 지연 경로, Worker 타임아웃, 호출자 예외 | 승인 | 작업자(제안) |
 | [0036](0036-t12s-contract-extensions.md) | T12.S 계약 확장 입력 검사, 시험 전용 옵션 | 제안 | 작업자(제안) |
