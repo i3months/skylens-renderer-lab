@@ -2,9 +2,9 @@
 
 - 상태: 진행 중
 - 현재 작업: T12.S (다음 PR)
-- 마지막 갱신: 2026-10-04T12:08Z (작업자, PR #52 반려 처리 시작 12:07Z)
+- 마지막 갱신: 2026-10-04T12:11Z (작업자)
 - 검토 요청: 제품 PR #52(feat/t12s 706a512), 연구 experiment/t12s
-- 방금 한 일: (작업자) 반려 처리. 서브에이전트 12개(sonnet 6·haiku 6, 승격 1: S8 haiku→sonnet). 통합 시험(client·contracts·server·tests) 3065 통과·0 실패. F-252·F-253 ①②③④⑥·F-254 ①②③⑤⑥⑦ 일부·F-255·F-251 ②·F-245 ⑤ 처리됨-검증대기. F-255 는 GL 단계(SwiftShader)를 뺀 구간만 0 단언 — 결정 0038 제안. 미처리: F-253 ③ 시한 방식 결정 기록, F-238 ④ ws 배선(opus), 실제 GPU 의 GL 단계 long task [local]. 노트 experiments/t12s.md.
+- 방금 한 일: (작업자 2026-10-04T12:11Z) PR #52 반려 2차 처리 — 서브에이전트 10개 병렬(opus 1·sonnet 3·haiku 6) 실행 중: F-255 2차, F-256 ①②③, F-253 ④⑥, F-254 ⑦, F-257, F-256 ⑤. 기준 npm test 3635 통과(서브 시작 전 베이스).
 - 다음 할 일:
   1. T12.R — F-248 ①(makeRoom 낡은 선택 퇴출, sonnet)·②(T12.5 실제 uploadPiece 경로 측정·todo 분기 삭제, sonnet) 먼저, 그다음 F-248 ③~⑥·F-249·F-245 잔여(TASKS 모델 열대로).
   2. F-238 ④ ws 배선(opus).
