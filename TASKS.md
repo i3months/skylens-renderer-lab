@@ -406,67 +406,67 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 
 ### T13 `statusview-b` — [cloud]
 
-| 하위 | 내용 | 소유 경로 | 완료 기준 |
-|---|---|---|---|
-| T13.0 | 계약: 현황판 화면 어댑터 인터페이스(기존 `splatScene.ts` 공개 메서드와 대응표) | `contracts/statusview/` | 대응표 전 메서드 포함 |
-| T13.1 | 구간 도착 → 조각 요청 | `client/status/arrival/` | 녹화 재생 시 요청 순서 일치 |
-| T13.2 | 수준 교체 화면 반영 | `client/status/levels/` | 교체 후 낮은 수준 점 0 |
-| T13.3 | 도착 기준 노출(기존 `splatReveal.ts` 의미) | `client/status/reveal/` | 도착 전 구간 점 0 |
-| T13.4 | 카메라 동기(기존 `cameraSync.ts` 의미) | `client/status/camera/` | 기존 시험 사례 일치 |
-| T13.5 | 드론·마커 덧그리기(기존 오버레이 유지) | `client/status/overlay/` | 마커 위치 ENU 일치 ≤ 1 cm |
-| T13.6 | "없음" 안내 표시 | `client/status/missing_ui/` | 미도착 구간에 안내 표시 |
-| T13.7 | 폴백 화면(SPEC §5 제안, 사람 확인 전 임시) | `client/status/fallback/` | 서버 불가 모의 시 폴백 표시 |
-| T13.8 | 통합 시험(모의 코어 + 모의 렌더 서버) | `client/status/e2e/` | 3구간×4수준 재생 시 상태 일치 |
-| T13.9 | 대역폭 측정(현황판 경로) | `bench/status_bw/` | 초기 ≤ 15 MB, 구간당 ≤ 3 MB(합성) |
-| T13.10 | 화질 측정(현황판 8시점) | `bench/status_quality/` | SSIM ≥ 0.95 |
+| 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
+|---|---|---|---|---|
+| T13.0 | 계약: 현황판 화면 어댑터 인터페이스(기존 `splatScene.ts` 공개 메서드와 대응표) | `contracts/statusview/` | 대응표 전 메서드 포함 | haiku |
+| T13.1 | 구간 도착 → 조각 요청 | `client/status/arrival/` | 녹화 재생 시 요청 순서 일치 | sonnet |
+| T13.2 | 수준 교체 화면 반영 | `client/status/levels/` | 교체 후 낮은 수준 점 0 | sonnet |
+| T13.3 | 도착 기준 노출(기존 `splatReveal.ts` 의미) | `client/status/reveal/` | 도착 전 구간 점 0 | sonnet |
+| T13.4 | 카메라 동기(기존 `cameraSync.ts` 의미) | `client/status/camera/` | 기존 시험 사례 일치 | opus |
+| T13.5 | 드론·마커 덧그리기(기존 오버레이 유지) | `client/status/overlay/` | 마커 위치 ENU 일치 ≤ 1 cm | opus |
+| T13.6 | "없음" 안내 표시 | `client/status/missing_ui/` | 미도착 구간에 안내 표시 | haiku |
+| T13.7 | 폴백 화면(SPEC §5 제안, 사람 확인 전 임시) | `client/status/fallback/` | 서버 불가 모의 시 폴백 표시 | sonnet |
+| T13.8 | 통합 시험(모의 코어 + 모의 렌더 서버) | `client/status/e2e/` | 3구간×4수준 재생 시 상태 일치 | opus |
+| T13.9 | 대역폭 측정(현황판 경로) | `bench/status_bw/` | 초기 ≤ 15 MB, 구간당 ≤ 3 MB(합성) | sonnet |
+| T13.10 | 화질 측정(현황판 8시점) | `bench/status_quality/` | SSIM ≥ 0.95 | sonnet |
 
 ### T14 `tower-assets` — [cloud]
 
-| 하위 | 내용 | 소유 경로 | 완료 기준 |
-|---|---|---|---|
-| T14.0 | 계약: 지형 타일·드레이프·건물 자산 형식(T03 포맷 확장) | `contracts/tower_assets/` | 명세 일치 |
-| T14.1 | DEM 타일 → 지형 격자 LOD | `server/terrain/mesh_lod/` | 높이 오차 단계별 상한 이내 |
-| T14.2 | 위성 영상 드레이프 타일(밉 단계) | `server/terrain/drape/` | 단계별 크기 기록, 좌표 정합 ≤ 1 px |
-| T14.3 | 건물 외곽 돌출 → 프리즘 | `server/buildings/extrude/` | 동 수 보존, 높이 규칙(층×3 m, 기본 6 m) 일치 |
-| T14.4 | 건물 LOD(먼 곳 상자 합치기) | `server/buildings/lod/` | 8시점 SSIM ≥ 0.95 |
-| T14.5 | 건물 점 표시 옵션용 표본 | `server/buildings/points/` | 동별 표본 수 규칙 일치 |
-| T14.6 | 검정 텍스처 건물(기본)·선 표시 자산 | `server/buildings/black/` | 모서리 선 수 = 정답 |
-| T14.7 | 실사 항공뷰 UV | `server/buildings/aerial_uv/` | UV 범위 [0,1], 정합 ≤ 1 px |
-| T14.8 | 타일 공간 색인(관제탑 범위) | `server/terrain/tile_index/` | 무작위 조회 오분류 0 |
-| T14.9 | 6,191동 규모 처리 시간·크기 | `bench/tower_assets/` | 크기 기록(초기 ≤ 15 MB 대비) |
-| T14.10 | 외부 호출 없는 녹화 입력 사용 검사 | `server/terrain/offline/` | 시험 중 네트워크 호출 0 |
+| 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
+|---|---|---|---|---|
+| T14.0 | 계약: 지형 타일·드레이프·건물 자산 형식(T03 포맷 확장) | `contracts/tower_assets/` | 명세 일치 | haiku |
+| T14.1 | DEM 타일 → 지형 격자 LOD | `server/terrain/mesh_lod/` | 높이 오차 단계별 상한 이내 | opus |
+| T14.2 | 위성 영상 드레이프 타일(밉 단계) | `server/terrain/drape/` | 단계별 크기 기록, 좌표 정합 ≤ 1 px | opus |
+| T14.3 | 건물 외곽 돌출 → 프리즘 | `server/buildings/extrude/` | 동 수 보존, 높이 규칙(층×3 m, 기본 6 m) 일치 | sonnet |
+| T14.4 | 건물 LOD(먼 곳 상자 합치기) | `server/buildings/lod/` | 8시점 SSIM ≥ 0.95 | opus |
+| T14.5 | 건물 점 표시 옵션용 표본 | `server/buildings/points/` | 동별 표본 수 규칙 일치 | sonnet |
+| T14.6 | 검정 텍스처 건물(기본)·선 표시 자산 | `server/buildings/black/` | 모서리 선 수 = 정답 | sonnet |
+| T14.7 | 실사 항공뷰 UV | `server/buildings/aerial_uv/` | UV 범위 [0,1], 정합 ≤ 1 px | opus |
+| T14.8 | 타일 공간 색인(관제탑 범위) | `server/terrain/tile_index/` | 무작위 조회 오분류 0 | sonnet |
+| T14.9 | 6,191동 규모 처리 시간·크기 | `bench/tower_assets/` | 크기 기록(초기 ≤ 15 MB 대비) | haiku |
+| T14.10 | 외부 호출 없는 녹화 입력 사용 검사 | `server/terrain/offline/` | 시험 중 네트워크 호출 0 | haiku |
 
 ### T15 `controlview-b` — [cloud]
 
-| 하위 | 내용 | 소유 경로 | 완료 기준 |
-|---|---|---|---|
-| T15.0 | 계약: 관제탑 화면 어댑터 인터페이스(기존 `towerViewer.ts` 공개 메서드 대응표) | `contracts/controlview/` | 대응표 전 메서드 포함 |
-| T15.1 | 지형 그리기 | `client/tower/terrain/` | 8시점 SSIM ≥ 0.95 |
-| T15.2 | 드레이프 그리기 | `client/tower/drape/` | 정합 ≤ 1 px |
-| T15.3 | 건물 그리기(3옵션 전환, 재요청 없음) | `client/tower/buildings/` | 전환 시 네트워크 요청 0 |
-| T15.4 | 방향키 조향·Q/E 고도 로컬 처리 | `client/tower/input/` | 입력→카메라 갱신이 같은 프레임 안 |
-| T15.5 | 추적 카메라(기존 감쇠 의미) | `client/tower/chase/` | 기존 시험 사례 일치 |
-| T15.6 | 드론·경로·탐지 마커 | `client/tower/overlay/` | 위치 ENU 일치 ≤ 1 cm |
-| T15.7 | 시점 이동에 따른 조각 요청 | `client/tower/streaming/` | 경로 재생 시 빠진 조각 0 |
-| T15.8 | 폴백(2D 지도 표시, 사람 확인 전 임시) | `client/tower/fallback/` | 서버 불가 모의 시 표시 |
-| T15.9 | 통합 시험 | `client/tower/e2e/` | 녹화 재생 상태 일치 |
-| T15.10 | 번들·대역폭 측정 | `bench/tower/` | 번들 ≤ 300 KB, 초기 ≤ 15 MB |
+| 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
+|---|---|---|---|---|
+| T15.0 | 계약: 관제탑 화면 어댑터 인터페이스(기존 `towerViewer.ts` 공개 메서드 대응표) | `contracts/controlview/` | 대응표 전 메서드 포함 | haiku |
+| T15.1 | 지형 그리기 | `client/tower/terrain/` | 8시점 SSIM ≥ 0.95 | sonnet |
+| T15.2 | 드레이프 그리기 | `client/tower/drape/` | 정합 ≤ 1 px | opus |
+| T15.3 | 건물 그리기(3옵션 전환, 재요청 없음) | `client/tower/buildings/` | 전환 시 네트워크 요청 0 | sonnet |
+| T15.4 | 방향키 조향·Q/E 고도 로컬 처리 | `client/tower/input/` | 입력→카메라 갱신이 같은 프레임 안 | sonnet |
+| T15.5 | 추적 카메라(기존 감쇠 의미) | `client/tower/chase/` | 기존 시험 사례 일치 | sonnet |
+| T15.6 | 드론·경로·탐지 마커 | `client/tower/overlay/` | 위치 ENU 일치 ≤ 1 cm | opus |
+| T15.7 | 시점 이동에 따른 조각 요청 | `client/tower/streaming/` | 경로 재생 시 빠진 조각 0 | opus |
+| T15.8 | 폴백(2D 지도 표시, 사람 확인 전 임시) | `client/tower/fallback/` | 서버 불가 모의 시 표시 | sonnet |
+| T15.9 | 통합 시험 | `client/tower/e2e/` | 녹화 재생 상태 일치 | opus |
+| T15.10 | 번들·대역폭 측정 | `bench/tower/` | 번들 ≤ 300 KB, 초기 ≤ 15 MB | haiku |
 
 ### T16 `load-harness` — [cloud]
 
-| 하위 | 내용 | 소유 경로 | 완료 기준 |
-|---|---|---|---|
-| T16.0 | 계약: 부하 시나리오 형식(접속 수·경로·시간), 결과 스키마(T01 스키마 재사용) | `contracts/load/` | 스키마 검증 |
-| T16.1 | 모의 클라이언트 30개 동시 구동 | `bench/load/clients/` | 30개 동시 접속 유지 |
-| T16.2 | 서버 CPU·메모리 기록 | `bench/load/server_stats/` | 1초 간격 기록 |
-| T16.3 | 클라이언트별 바이트·지연 기록 | `bench/load/per_client/` | 30개 각각 기록 |
-| T16.4 | 첫 프레임 시간 분포 | `bench/load/first_frame/` | 30명 95% 분위 ≤ 3 s(헤드리스 참고) |
-| T16.5 | 대역 총합 | `bench/load/bandwidth/` | 총합 기록 |
-| T16.6 | 수준 도착 폭주 시나리오 | `bench/load/burst/` | 상태 불변식 위반 0 |
-| T16.7 | 느린 회선 모의 | `bench/load/slow_link/` | 역압 동작 |
-| T16.8 | 결과 → SPEC §4 표 보고서 | `tools/load_report/` | 표 생성 |
-| T16.9 | 회귀 문턱 파일(확정 기준값) | `bench/thresholds/` | 문턱 초과 시 실패 종료 |
-| T16.10 | 한 명령 재현 | `bench/load/run_all/` | 클린 클론에서 통과 |
+| 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
+|---|---|---|---|---|
+| T16.0 | 계약: 부하 시나리오 형식(접속 수·경로·시간), 결과 스키마(T01 스키마 재사용) | `contracts/load/` | 스키마 검증 | haiku |
+| T16.1 | 모의 클라이언트 30개 동시 구동 | `bench/load/clients/` | 30개 동시 접속 유지 | sonnet |
+| T16.2 | 서버 CPU·메모리 기록 | `bench/load/server_stats/` | 1초 간격 기록 | haiku |
+| T16.3 | 클라이언트별 바이트·지연 기록 | `bench/load/per_client/` | 30개 각각 기록 | haiku |
+| T16.4 | 첫 프레임 시간 분포 | `bench/load/first_frame/` | 30명 95% 분위 ≤ 3 s(헤드리스 참고) | sonnet |
+| T16.5 | 대역 총합 | `bench/load/bandwidth/` | 총합 기록 | haiku |
+| T16.6 | 수준 도착 폭주 시나리오 | `bench/load/burst/` | 상태 불변식 위반 0 | sonnet |
+| T16.7 | 느린 회선 모의 | `bench/load/slow_link/` | 역압 동작 | sonnet |
+| T16.8 | 결과 → SPEC §4 표 보고서 | `tools/load_report/` | 표 생성 | haiku |
+| T16.9 | 회귀 문턱 파일(확정 기준값) | `bench/thresholds/` | 문턱 초과 시 실패 종료 | sonnet |
+| T16.10 | 한 명령 재현 | `bench/load/run_all/` | 클린 클론에서 통과 | haiku |
 
 ### T17 `phase1-verify` — [local]
 
