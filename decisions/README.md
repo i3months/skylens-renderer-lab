@@ -92,3 +92,5 @@
 | [0038](0038-t12s-long-task-gl-stage-split.md) | T12.5 long task 판정에서 GL 단계 분리 보고 | 승인 | 작업자 제안·감독 승인 |
 | [0039](0039-t12t-gap-limit-wallclock.md) | hook 간격 시험의 벽시계 상한(GAP_LIMIT_MS 60, 최솟값 기준) | 승인 | 작업자 제안·감독 승인 |
 | [0040](0040-t12u-ws-session-wiring.md) | ws 세션 배선: LEVEL_ARRIVED 는 send 전에 기록, 이어받기 때 resendPlan 재전송 | 승인 | 작업자 제안, 감독 승인(PR #54 검토 #3) |
+| [0041](0041-t13-statusview-adapter.md) | 현황판 어댑터: 모듈 주입 조립·조각 요청 시점·대응표 추정 상태 | 승인 | 작업자 제안, 감독 승인(PR #56 검토 #3) |
+| [0042](0042-t13-wire-and-bandwidth-records.md) | ws 진입점 wire 층(store.close 직접 호출)·F-287 ⑦ 구조 시험·S6 미달 기록 방식 | 승인 | 작업자 제안, 감독 승인(PR #56 검토 #3) |
