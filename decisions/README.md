@@ -81,4 +81,4 @@
 | [0031](0031-adapter-unfinished-event-and-ws-limits.md) | 어댑터 송출 실패는 같은 이벤트 재시도로만 회복(UNFINISHED_EVENT), ws 미결 핸들러는 pause·send 초과는 1008 | 승인 | 작업자 제안·감독 승인(PR #41) |
 | [0032](0032-level-arrived-first-piece-seq.md) | LEVEL_ARRIVED 에 firstPieceSeq(u32, 9→13 B), 이어받기 저장소가 LEVEL_ARRIVED 기록·재전송 | 승인 | 작업자 제안·감독 승인(PR #45, 배선은 F-238) |
 | [0033](0033-level-arrived-record-rules.md) | LEVEL_ARRIVED 기록 상한 maxEntries+1, 지운 기록의 같은 값 재시도는 멱등 true, 살아 있는 기록과 겹치면 RangeError | 승인 | 작업자 제안·감독 승인(PR #47), PR #48 묘비로 갱신(대가: 잊힌 범위만 다른 값 true) |
-| [0034](0034-t12p-contract-extensions-and-lod-rule.md) | client_raster 계약 확장 반영, 타일당 LOD 하나(세밀한 미완 LOD 는 pending), 묘비 지평 판정을 기억한 기록 겹침으로 | 승인 | 작업자 제안·감독 승인(PR #49), 규칙 2 보완은 F-246 ① |
+| [0034](0034-t12p-contract-extensions-and-lod-rule.md) | client_raster 계약 확장 반영, 타일당 LOD 하나(세밀한 미완 LOD 는 pending), 묘비 지평 판정을 기억한 기록 겹침으로 | 승인 | 작업자 제안·감독 승인(PR #49), 규칙 2 보완 승인(PR #50) |
