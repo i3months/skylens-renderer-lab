@@ -419,6 +419,8 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T13.8 | 통합 시험(모의 코어 + 모의 렌더 서버) | `client/status/e2e/` | 3구간×4수준 재생 시 상태 일치 | opus |
 | T13.9 | 대역폭 측정(현황판 경로) | `bench/status_bw/` | 초기 ≤ 15 MB, 구간당 ≤ 3 MB(합성) | sonnet |
 | T13.10 | 화질 측정(현황판 8시점) | `bench/status_quality/` | SSIM ≥ 0.95 | sonnet |
+| T13.R | (반려 1회 2026-10-04 17:48, PR #56 검토 #1) 같은 브랜치 feat/t13(연구 experiment/t13)에서 **F-288(높음, opus — 새 세션 상태 초기화)** → **F-289(높음, sonnet — 문턱 10^6 B)** → **F-290(높음, sonnet — createWire 결정·계측)** → F-291(sonnet) → F-292 이 PR 부분(sonnet) → F-293(opus) → F-294(①②③④⑥⑨ sonnet, ⑤⑧ haiku, ⑦ opus) → F-287 ③⑦(haiku) | client/status/, contracts/statusview/, bench/status_bw/, bench/status_quality/, server/ws/wire/, server/ws/index.mjs, server/ws/session/, README.md, 연구 decisions/·experiments/ | 각 FEEDBACK 항목 확인 기준, npm test 0 실패 | 항목별(왼쪽) |
+| T13.B | SPEC S6 구간당 문턱: 구간당 250만 점 합성에서 구간당 ≤ 3,000,000 B(F-292). 수준별 증분 송출·구간 송출 점 예산·압축률 개선 중 선택을 결정으로 남긴다. T13 병합 뒤 별도 PR | `bench/status_bw/`, `server/scheduler/`, `server/codec/`, 연구 decisions/ | large 구간당 ≤ 3,000,000 B 단언 | opus |
 
 ### T14 `tower-assets` — [cloud]
 
