@@ -2,7 +2,7 @@
 
 ## 처리 범위
 - T12.1 문맥 초기화·소실 복구, T12.2 점 셰이더, T12.3 조각 버퍼, T12.4 카메라·K 환산, T12.5 프레임 루프·복호 Worker 래퍼, T12.6 빈자리 표시, T12.7 메모리 집계, T12.9 캡처 시험 틀, T12.10 지연 계측, 통합 createRenderer(client/raster/index.mjs).
-- T11.O: F-241·F-242·F-240 ⑥③ 는 이 노트 아래 '결과' 의 T11.O 줄 참조(처리 여부는 PR 본문과 diff 로 확인).
+- T11.O: F-241 ①~⑥(묘비 기억으로 재시도 판정을 ackedUpTo 와 무관하게, 보관 판정은 죽음·기록 없음만, 재시도 걸음 수 호출당 1), F-242 ③④⑤⑥(⑥ 은 stats 대신 levelStats 메서드 — core.test 가 stats 전체를 deepEqual 로 봐서), F-240 ⑥·F-242 ①②(proto·arrival 주석).
 - 미처리: F-238 ④(ws 배선), F-228 ⑩(T12 호출처), T12.5 의 실제 Worker 스크립트 연결, 실제 skylens 체크아웃 [local], T12.8 은 이전 PR 에서 완료.
 
 ## 실행 기록
@@ -15,6 +15,9 @@
 - T12.2: 실제 WebGL2 8시점 참조 대비 SSIM 1.0000(기준 ≥ 0.95), 셰이딩 끄기·빛 방향 뒤집기·점 크기 2배 변이는 0.95 아래로 떨어져 시험이 잡는다(서브에이전트 보고, 임시 스크립트).
 - T12.4: 8개 화면·dpr 조합 투영 오차 최대 4.5e-13 CSS px(기준 ≤ 0.5), 단계 반올림 차 0.252 장치 px.
 - T12.3: createBuffer 수 == deleteBuffer 수. T12.5: 도착 100건에도 프레임당 draw 1회.
+
+- T11.O 변이 13개 중 12개 죽음. 상한 while 줄 제거는 도달 불가한 방어 코드라 등가 변이(F-241 ⑥ '변이를 죽인다' 는 미달, 대신 stored ≤ unacked+1·capDropped == 0 불변식 단언). 남은 대가: 묘비 상한을 넘어 잊힌 범위에서는 다른 값 재시도도 true(결정 0033 의 '죽은 창 다른 값 true' 는 사라짐 — 결정 갱신 필요).
+- 전체 `npm test`: 3439 중 3427 통과, 0 실패, 12 건너뜀(작업자 직접 실행, 병합 후).
 
 ## 한계·결정 필요
 - 계약 밖 확장: createRenderer 의 decode·shading·now·onEvict·contextAttributes 옵션과 setArrived·residentKeys·isContextLost 메서드(LEVEL_ARRIVED 를 렌더러에 넘길 계약 경로가 없었다). 계약 반영 결정 필요.
