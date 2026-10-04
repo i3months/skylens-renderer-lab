@@ -55,7 +55,7 @@ tools/       명령줄 도구
 - [ ] **T08 `culling`** — 뷰 의존 컬링(절두체·법선·가림).
 - [x] **T09 `codec`** — 양자화·직렬화·압축. (2026-10-03 PR #36 병합, 반려 1회, 제품 3d3a26f)
 - [x] **T10 `levels`** — 딜레이 패턴 수준 상태(서버·클라이언트 공통). (2026-10-04 PR #38 병합, 반려 0회, 제품 dbb59e7 merge commit, 연구 experiment/codec-review-fixes 53aca0f. 잔여 중간 F-178~F-183 → T10.F, 원본 대조 [local] T10.10L)
-- [ ] **T11 `protocol`** — 웹소켓 메시지·서버 송출 스케줄러.
+- [x] **T11 `protocol`** — 웹소켓 메시지·서버 송출 스케줄러. (2026-10-04 PR #39 병합, 반려 1회(F-184~F-189 높음), 제품 merge commit(해시는 감독 기록), 연구 experiment/protocol → experiment/levels. F-180·F-184~F-191·F-194~F-196 닫음, 잔여 중간 F-192·F-193·F-197~F-202·낮음 F-203 → T11.G, 결정 0030 승인)
 - [ ] **T12 `client-raster`** — 클라이언트 경량 래스터라이저(B).
 - [ ] **T13 `statusview-b`** — 현황판에 B 적용.
 - [ ] **T14 `tower-assets`** — 관제탑 지형·드레이프·건물 자산 가공.
@@ -368,7 +368,8 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T11.9 | 모의 클라이언트(시험용) | `tools/mock_client/` | 경로 재생 스크립트 동작 | haiku |
 | T11.10 | 프로토콜 퍼저 | `server/proto/fuzz/` | 10만 회 패닉 0 | sonnet |
 | T11.11 | 바이트 집계 | `bench/proto/` | 구간당 바이트 기록(≤ 3 MB 대비) | haiku |
-| T11.F | (PR #39 반려 1회, 같은 브랜치) 높음 F-184(pieceSeq 0)·F-185(추월 묶음 기준 계약화)·F-186(MB 단위 되돌리기)·F-187(T11.5·T11.9·T11.11 완료 기준 재현)·F-188(ws 콜백 예외)·F-189(어댑터 송출 원자성) 먼저. 중간 F-190~F-193·F-195·F-196 은 같은 PR 또는 다음 PR, 낮음 F-194 | F-184~F-196 위치 경로 | 각 항목 확인 기준, npm test 0 실패 | sonnet(F-185·F-189 opus, F-186 haiku) |
+| T11.F [x] | (PR #39 반려 1회, 같은 브랜치) 높음 F-184(pieceSeq 0)·F-185(추월 묶음 기준 계약화)·F-186(MB 단위 되돌리기)·F-187(T11.5·T11.9·T11.11 완료 기준 재현)·F-188(ws 콜백 예외)·F-189(어댑터 송출 원자성) 먼저. 중간 F-190~F-193·F-195·F-196 은 같은 PR 또는 다음 PR, 낮음 F-194 | F-184~F-196 위치 경로 | 각 항목 확인 기준, npm test 0 실패 | sonnet(F-185·F-189 opus, F-186 haiku) |
+| T11.G | (T12 PR 에 함께, 첫 커밋들) PR #39 재검토 잔여: F-197(어댑터 재시도 순번 ↔ resume 재기록, ws 배선 전 필수)·F-192(resume 유한 기본 상한)·F-198(코덱 pieceSeq 0 거부)·F-199(unacked 추월 거름)·F-201(시험 공백) 먼저, 그다음 F-193 ①·F-200·F-202, 낮음 F-203 | F-192·F-193·F-197~F-203 위치 경로 | 각 항목 확인 기준, npm test 0 실패 | sonnet(F-197 opus, F-203 ⑥⑦⑧ haiku) |
 | T11.8L [local] | skylens 원본 코어 이벤트 모양·실제 녹화로 어댑터 재생 대조(클라우드 시험은 합성 녹화 — experiments/protocol.md '원본 미열람, 가정') | `server/adapter/core/` | 실제 녹화 재생 시 상태 일치 | opus |
 
 ### T12 `client-raster` — [cloud] (fps 확정 측정은 T17 [local])
