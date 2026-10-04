@@ -2312,7 +2312,7 @@
 
 ### F-214 [열림] (심각도: 중간) — F-210·F-211 수정의 남은 경계: close+FIN 에서 미전송 데이터·close 에코 유실, 성공 경로 'handshake' 오보, 하한·선할당
 - 위치(3de555f): ① server/ws/index.mjs:173(`socket.on('end', finish)`)이 :149(`socket.end(finish)`)·:148 주석과 겹침 ② :211 upgrade error 처리기가 101 뒤에도 남음 ③ :198 `checkInt('maxWriteBuffer', …, CLOSE_RESERVE + 1)` ④ server/ws/frame/index.mjs:129-131 꼬리 버퍼를 남은 need 전체로 선할당
-- 문제·실패 상황: ① 서버가 send 로 3 MiB 를 쌓은 상태에서 클라이언트가 close(1000) 직후 FIN → 'end' 가 finish 로 곧바로 destroy, 클라이언트는 3.93 MB 만 받고 close 에코 없음. 'end' 처리기를 뺀 변이에서는 6.29 MB 전부와 에코 `880203e8` 수신(축 1a srv2.mjs·srv2m.mjs 재현, 감독은 :148-149·:173 직접 읽음). ② 정상 연결 뒤 RST 가 onError(ECONNRESET,'handshake') 로 보고(축 1a 재현). ③ 257~382 를 주면 pong(최대 127 B)이 늘 상한을 넘어 첫 ping 에 1008. ④ 4 MiB 프레임 머리+16384 B 뒤 1 B 를 보내면 연결마다 4 MiB 할당, 연결 200개에 arrayBuffers +792 MiB(축 1a 실측, RSS 는 지연 할당이라 미증가).
+- 문제·실패 상황: ① 서버가 send 로 3 MiB 를 쌓은 상태에서 클라이언트가 close(1000) 직후 FIN → 'end' 가 finish 로 곧바로 destroy, 클라이언트는 3.93 MB 만 받고 close 에코 없음. 'end' 처리기를 뺀 변이에서는 6.29 MB 전부와 에코 `880203e8` 수신(축 1a srv2.mjs·srv2m.mjs 재현, 감독은 :148-149·:173 직접 읽음). ② 정상 연결 뒤 RST 가 onError(ECONNRESET,'handshake') 로 보고(축 1a 재현). ③ 257~382 를 주면 pong(최대 127 B)이 늘 상한을 넘어 첫 ping 에 1008. ④ (F-218 로 올림) 4 MiB 프레임 머리+16384 B 뒤 1 B 를 보내면 연결마다 4 MiB 할당, 연결 200개에 arrayBuffers +792 MiB(축 1a 실측, RSS 는 지연 할당이라 미증가).
 - 고칠 것: ① 'end' 에서 이미 닫는 중이면 아무것도 하지 않고, 아니면 result 1006 으로 socket.end(finish) + CLOSE_WAIT_MS 타이머로 마무리 ② 101 응답 뒤 그 처리기를 떼거나 where 를 바꾼다 ③ 하한을 CLOSE_RESERVE+127+1 로 ④ 선할당 상한(예: 1 MiB) 후 단계적으로 키운다.
 - 확인 기준: ① 위 시나리오에서 데이터 전부와 close 에코 수신, FIN 만 시험은 여전히 2 s 안 1006 ② 연결 뒤 RST 에 'handshake' 보고 0, 400 경로 RST 20회 uncaught 0 ③ 383 미만 RangeError ④ 같은 시나리오 연결당 arrayBuffers 증가 ≤ 받은 바이트 + 상한.
 - 권장 모델: sonnet
@@ -2348,3 +2348,32 @@
 - 확인 기준: ① 두 변이가 3~5 s 안 not ok ② S1·S5·옛 구현 모두 100k 시험 실패 ③ A4 실패 ④ 큰 조각 복사 생략 변이 실패 ⑤ 문턱 3/4 변이 실패 ⑥ WELCOME_FRAME_BYTES === encodeMessage(WELCOME).length + WS_HEADER_MAX_BYTES 단언 ⑦ esbuild 부재 시 '건너뜀' 이 드러남 ⑧ 두 절 순서 같음.
 - 권장 모델: sonnet(①②③⑥), haiku(④⑤⑦⑧)
 - 이력: 2026-10-04 03:45 감독 등록(축 4a·4b·7·11·1b 보고, ⑥ 감독 직접 확인, 나머지는 축 변이 실행·미재실행). 신규 — 이번 PR 시험·코드(⑧ 만 기존 README).
+
+### F-218 [열림] (심각도: 높음) — 프레임 파서 꼬리 버퍼가 머리의 선언 길이만 보고 최대 4 MiB 를 미리 할당한다(원격 메모리 증폭, F-214 ④ 승격)
+- 위치: server/ws/frame/index.mjs:129-131(`cap = Math.max(TAIL_MIN_BYTES, Math.min(remaining, this.maxPayload + FRAME_HEADER_MAX))` → `Buffer.allocUnsafeSlow(cap)`) (제품 main de39732, 커밋 ee1deee — PR #41 의 F-208 수정)
+- 문제: 상대가 길이 4,000,000 을 선언한 127형 머리와 데이터 조금만 보내도, 서버는 받은 바이트가 아니라 선언 길이만큼 버퍼를 잡는다. 이전 코드는 받은 만큼만 썼다.
+- 실패 상황: 연결 50개가 각자 머리 14 B + 16000 B + 1000 B 만 보냄(합 850,700 B) → 서버 arrayBuffers +200,269,246 B(약 235배). 감독이 scratchpad amp.mjs 로 직접 재현. 인증 없는 원격 클라이언트 수백 개로 서버 메모리를 소진시킬 수 있다(접속 수 상한도 없음) — F-210 과 같은 급의 원격 가용성 결함이라 높음.
+- 고칠 것: 꼬리 크기를 받은 양에 비례하게(지수 증가, 한 번에 최대 256 KiB~1 MiB) 하고, 그 이상은 조각을 쌓는 방식으로. 1 B 조각 RSS 기준(F-208)은 유지.
+- 확인 기준: 위 재현(50 연결, 머리 + 17,000 B)에서 서버 arrayBuffers 증가 ≤ 보낸 바이트의 4배 + 1 MB 를 시험으로 고정; 1 B 조각 4 MiB 프레임 RSS 증가 ≤ 프레임 + 수 MB 유지; 선할당 복원 변이에서 시험 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-04 03:50 감독 등록(03:10 라벨 이벤트 감독 실행의 축 1 보고, 감독 직접 재현). 같은 PR 을 03:20 예비 감독 실행이 먼저 통과·병합해 병합 뒤 main 결함으로 올림. F-214 ④ 에서 승격 — T11.I 맨 앞.
+
+### F-219 [열림] (심각도: 중간) — 어댑터 미완 이벤트(F-204 방식 b)의 남은 경계: Buffer 사본 아님·skip 경로·축출 뒤 재시도
+- 위치(de39732): server/adapter/core/index.mjs:222(`p.bytes.slice()`)·:117(Buffer 도 통과)·:209-213(skip 경로)·:17-33 주석, server/ws/resume/index.mjs:218-222
+- 문제·실패 상황: ① Buffer 의 slice 는 사본이 아니라 뷰다(감독 :222 직접 읽음). pool Buffer 조각으로 실패 → 호출자가 pool 을 덮어씀 → 재시도가 '같은 이벤트' 로 통과해 같은 pieceSeq·key 로 내용이 다른 조각이 나감(축 2 재현). 사본 대신 참조 변이(A9) 전체 스위트 생존(축 4b). ② 주입 기계가 외부에서 진행돼 재시도 결정이 skip 이면 미완 표시가 영구히 남아 모든 이벤트가 막힘(축 2 재현, 미확인). ③ 실패 사이 ack·축출이 끼면(maxEntriesPerSession=1) 재시도마다 recordSent RangeError(축 2 재현, 미확인). ④ 재시도가 영구 실패할 때 복구 경로가 문서에 없음(축 7).
+- 고칠 것: ① `new Uint8Array(b)` 로 실제 복사(또는 해시) ② skip 이면 정해진 오류 또는 순번 소비·표시 해제를 주석에 정하고 시험 ③ seq ≤ ackedUpTo 이고 항목이 없으면 멱등 true, 또는 미완 key 축출 제외 ④ 복구 경로(어댑터 재생성 등) 주석.
+- 확인 기준: A9 변이 실패(Buffer 조각 실패 → 원본 변경 → 재시도가 UnfinishedEventError), ②③ 시나리오 시험이 정해진 결과로 끝남.
+- 권장 모델: opus
+- 이력: 2026-10-04 03:50 감독 등록(03:10 감독 실행의 축 2·4b·7 보고, ① 감독 직접 읽음). 신규 — F-217 ③(key 비교)과 겹치지 않는 부분만.
+
+### F-220 [열림] (심각도: 낮음) — PR #41 잔여 세부(03:10 감독 실행)
+- 위치·문제(de39732):
+  ① server/ws/index.mjs:187·frame/index.mjs:36 — close(code, 123 B 초과 사유)가 startClose 안에서 RangeError 를 던져 타이머가 걸리지 않고 연결이 열린 채 남음(감독 직접 읽음, 코드는 dbf4790 부터). 코드 유효성 검사 없음.
+  ② ws/index.mjs:99-104·:202 — 주입 시계가 NaN 이거나 교대로 되감으면 핑 창이 깨짐(축 7 재현). 실서비스 performance.now 는 영향 없음.
+  ③ server/scheduler/index.mjs:28-34 chunkIndex 범위 미검사(65536·−1 enqueue true, 부호화에서야 실패, 축 1 실측).
+  ④ server/ws/ws.test.mjs:700-727 미결 onMessage 상한 시험이 메시지를 한꺼번에 보내 socket.resume()·pause() 제거 변이가 생존(축 4a 재현) — 한 번 상한에 닿은 연결이 영구 정지해도 못 잡음(중간에 가까움). connect() 시한 없음(:45-101)·옵션 검증 실패 시 서버 누수(:609-620)로 60 s 멈춤.
+  ⑤ 제품 커밋 50c6023·3e6b62e 메시지에 로컬 작업 트리 병합 브랜치 이름 'worktree-agent-…' — 다음부터 의미 있는 이름으로.
+- 고칠 것: ① 사유를 123 B 로 자르거나 비우고 무효 코드는 1000/1011, 어떤 경우에도 타이머·destroy 보장 ② Number.isFinite 검사, 되감기 시 카운트 유지 ③ keyId 에서 PieceKey 범위 검사 ④ gate 해제 뒤 새 메시지 처리 단언 + 상한 중 수신 정지 단언, connect 시한·reject ⑤ 이름.
+- 확인 기준: ① 긴 사유·close(1005) 에서 2 s 안 onClose ② 교대 되감기 시험에서 한도 초과 1008 ③ chunkIndex 65536 거부 ④ resume·pause 제거 변이가 5 s 안 not ok.
+- 권장 모델: sonnet(⑤ haiku)
+- 이력: 2026-10-04 03:50 감독 등록(03:10 감독 실행의 축 1·4a·7·9 보고, ① 감독 직접 읽음). 신규 — F-213~F-217 과 겹치지 않는 것만.
