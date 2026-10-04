@@ -2240,6 +2240,7 @@
 - 실패 상황(축 4a 변이, 감독은 :93 직접 읽음): onConnection catch 의 socket.destroy 제거 → 시험이 실패하지 않고 60 s 까지 멈춤; DEFAULT_MAX_WRITE_BUFFER 1 GiB(W2)·DEFAULT_MAX_PINGS_PER_SECOND 5000(P2)·창 재설정 줄 제거(P5)·창 60 s(P7) 생존, 창 1 ms(P6) 실행 방식에 따라 판정 갈림; resume:234 else 제거(G3, groups 무한 증가) 생존; resume:211 retained 갱신 제거(R6) 생존.
 - 고칠 것: closed() 에 next() 와 같은 시한; 시계 주입 후 '창 안 N+1 → 1008', '창 경과 뒤 N → 모두 pong' 결정적 시험; 옵션 없이 띄운 서버로 기본값 시험(51번째 ping 1008, 1 MiB 단언); 같은 key 새 seq 대체 뒤 축출하며 groups ≤ maxEntries 단언; 다른 크기 재기록 뒤 retainedBytes 손계산 대조·ack 후 0.
 - 확인 기준: 위 변이(socket.destroy 제거, W2, P2, P5, P6, P7, G3, R6)가 각각 1 이상 실패하고, 멈춤 없이 3~5 s 안에 not ok 로 끝난다.
+- 추가(02:50 축 4b, 미확인): client/asset/index.mjs:61-62 chunkIndex 경계 — `>65535`→`>65536`(K2)·`>65534`(K3) 변이가 전체 스위트 3143/3143 통과(F-209 ① 을 여기로 올림). proto.test 교차 시험에 readHeaderClient 추가, K1~K3 이 proto.test 단독 실행에서 실패해야 한다.
 - 권장 모델: sonnet
 - 이력: 2026-10-04 02:35 감독 등록(축 4a 보고·변이 실행, :93 직접 읽음). 신규 — 이번 PR 시험.
 
@@ -2253,13 +2254,16 @@
 
 ### F-209 [열림] (심각도: 낮음) — protocol 잔여 세부(T11.G 검토)
 - 위치·문제(598c4da):
-  ① client/asset/index.mjs:61-62 chunkIndex 검사를 지키는 시험 없음(`if (false)` 변이 248 시험 통과, 축 2). F-193 교차 시험(contracts/proto/proto.test.mjs:74-102)에 readHeaderClient 추가.
+  ① (F-207 로 올림) client/asset/index.mjs:61-62 chunkIndex 검사를 지키는 시험 없음(`if (false)` 변이 248 시험 통과, 축 2). F-193 교차 시험(contracts/proto/proto.test.mjs:74-102)에 readHeaderClient 추가.
   ② format/ASSET_FORMAT.md:69·:81-92·:94 chunk_index 상한 없음·'parseHeader 는 최소 검사' 문구가 사실과 다름, server/asset/ids/index.mjs:44·:69 는 여전히 0..U32_MAX.
   ③ server/scheduler/initial/scenes.test.mjs:66·:83 가 `totalBytes` 만 단언 — `frameBytes <= LIMIT` 도.
   ④ 초기 15 MB 예산이 PIECE 프레임만 세고 WELCOME·LEVEL_ARRIVED 는 뺌(SPEC §4 '접속 → 첫 프레임' 정의와 간극, 축 5 추론). 비-PIECE 몫을 예약하거나 계약에 범위를 적는다(수치 변경 금지).
   ⑤ buildInitialBundle 이 bytes·budgetBytes 를 검사하지 않음(bytes −100 이면 예산이 늘어남, 축 7 재현).
   ⑥ 재전송 규약 '수신측은 하나로 센다'(contracts/proto:15)를 구현·시험한 수신 모듈이 없음 — T12 수신 경로의 확인 기준에 넣는다.
   ⑦ resume ackedQ dead 항목이 축출 전까지 쌓이고 축출 실패 시 매번 전부 순회(resume:226-235, 축 6).
+  ⑧ (축 4b) scheduler.test.mjs:104-110·:199-200 골든 값은 구현 출력(사후 기준), :140 pending↔nextBatch 비교는 순환 — drain 마다 pending id 집합 = 모델 live 대조(Sch5 변이 생존).
+  ⑨ (축 4b, 감독 직접 읽음) server/proto/codec/index.test.mjs:213-217 은 s2c 라 seq 와 무관하게 direction — F-198 을 지키지 않음. 이름·위치 정리.
+  ⑩ (축 4b) 퍼저·cross 생성기가 PIECE seq 0 을 만들지 않음(fuzz/index.mjs:53-54, cross.test.mjs:52-53) — 기준 부호화기 seq1 무력화(R1)·클라이언트 PIECE seq 복호 검사 제거(C4) 생존.
 - 고칠 것: 각 줄에 적은 대로.
 - 확인 기준: ① 변이 시 1 이상 실패, ② grep 상한 일치·ids 65536 거부, ③ 오버헤드 제거 변이에 scenes.test 실패, ④ 접속→첫 프레임 실제 송출 합 ≤ 15,000,000 B 시험 또는 계약 문구, ⑤ RangeError 시험, ⑥ T12 시험, ⑦ ack 후 같은 key 재기록 100만 번에 ackedQ ≤ maxEntries.
 - 권장 모델: haiku(①②③), sonnet(④⑤⑥⑦)
