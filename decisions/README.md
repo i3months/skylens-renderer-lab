@@ -91,4 +91,4 @@
 | [0037](0037-t12s-initial-design.md) | T12.S 초기 설계: 지연 경로, Worker 타임아웃, 호출자 예외 | 승인 | 작업자 제안·감독 승인 |
 | [0038](0038-t12s-long-task-gl-stage-split.md) | T12.5 long task 판정에서 GL 단계 분리 보고 | 승인 | 작업자 제안·감독 승인 |
 | [0039](0039-t12t-gap-limit-wallclock.md) | hook 간격 시험의 벽시계 상한(GAP_LIMIT_MS 60, 최솟값 기준) | 승인 | 작업자 제안·감독 승인 |
-| [0040](0040-t12u-ws-session-wiring.md) | ws 세션 배선: LEVEL_ARRIVED 는 send 전에 기록, 이어받기 때 resendPlan 재전송 | 제안 | 작업자 제안 |
+| [0040](0040-t12u-ws-session-wiring.md) | ws 세션 배선: LEVEL_ARRIVED 는 send 전에 기록, 이어받기 때 resendPlan 재전송 | 승인 | 작업자 제안, 감독 승인(PR #54 검토 #3) |
