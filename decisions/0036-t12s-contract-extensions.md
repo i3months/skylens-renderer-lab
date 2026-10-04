@@ -32,7 +32,7 @@
 | B | `onContextRestored(error?: Error)` 로 정의 | 복구 오류를 알 수 있음 | 타입 시그니처 확장 |
 | C | 계약은 key 배열 1인자, 구현만 2인자(error)를 보내고 계약 주석에 '구현 확장(계약 밖)' 으로 표시 | 호출자가 진단 정보 받음, 계약 서명 불변 | 계약 밖 동작을 호출자가 의존할 수 있음 |
 
-**선택: C**: 계약은 key 배열 1인자, 구현만 2인자(error)를 보내고 계약 주석에 '구현 확장(시험용, 계약 밖)' 으로 표시하며 형식 서명에는 올리지 않는다. 호출자가 진단 정보를 받을 수 있고 계약 서명은 불변이다.
+**선택: C**: 계약 onContextRestored typedef 는 `(keys: string[], error?: Error) => void` 로 쓰고 둘째 인자를 '구현 확장(시험용, 계약 밖)' 으로 표시한다(결정 3 과 같다). CLIENT_RASTER_API 의 `fn` 서명 문자열만 `callback?: (keys: string[]) => void` 1인자로 남아 typedef 와 다르며, 같은 줄 설명에 둘째 인자가 구현 확장임을 적었다. 호출자가 진단 정보를 받을 수 있고 key 배열 인자는 불변이다.
 
 ## 결정
 
@@ -48,7 +48,7 @@
 
 6. **checkArrived 분리**: 지연 setArrived 의 호출 시점 검사는 selectDrawable 이 아니라 타일 표 없는 가벼운 검사기 checkArrived(client/raster/arrived_check)가 한다. 거부 기준(항목 모양, key 형식·범위, (segmentId, level) 일치)과 던지는 오류('piece')는 selectDrawable 과 같고, 10만 key 에서 지연 경로가 즉시 경로의 0.21 배(기준 ≤ 0.5)다(F-253 ②, experiments/t12s.md). 시험은 testHooks.checkArrivedKey 로 key 당 단계 수를 센다. 계약 testHooks typedef 에는 checkArrivedKey·onGlUploadStart/End·onDrawStart/End(결정 0038)를 호출 시점과 함께 추가했다(F-259 ③).
 
-7. **makeRoom 의 roomProtection 보호 집합 판정과 업로드 key 포함 규칙**: (가) roomProtection 는 새 key 추가 시 희생(evict)할 조각을 정하기 위해 타일 단위로 증분 판정하는 보호 집합 계산 함수다. select 호출 없이 타일 표(타일·도착 최고 수준 여부·LOD 별 필요 chunk 수)와 타일별 상주 정보(상주 수·상주 key·선택된 LOD)를 이용해 각 타일의 drawing set 을 정한다. chooseLod 함수는 selectDrawable 의 LOD 고르기 규칙을 따르고(계약 헤더 ④), 캐시 키는 (metaGen, key) 쌍이다. 상주 집합이나 meta 세대가 바뀌면 캐시를 무효화하고(metaGen 기반), setArrived 의 두 경로(즉시·지연)와 dispose 에서 null 로 초기화한다. selectDrawable 과의 동치는 client/raster/room_cache.test.mjs 의 무작위 대조 시험으로 보증된다. 대가는 LOD 규칙을 함수로 사본 유지하는 것이고, 계약 헤더 ④ 가 변경되면 함께 수정해야 한다. 한도 여유가 있으면 보호 집합 계산을 건너뛴다. (나) 업로드 실패 시 희생이 있었으면 selectionStale=true 로 두어 다음 draw 에서 한 번 다시 돈다(F-256 ②: 희생은 해제됐는데 새 조각이 없어 선택이 해제된 key 를 가리키던 문제). (다) Worker 의 messageerror 도 onerror 처럼 대기 중 전부를 거부하고 Worker 를 terminate 하며 terminated 로 둔다(F-256 ②, F-253 ③ 과 같은 이유로 살려 두면 거짓 timeout).
+7. **makeRoom 의 roomProtection 보호 집합 판정과 업로드 key 포함 규칙**: (가) roomProtection 은 새 key 를 올릴 때 희생에서 뺄 보호 집합(drawing set)을 select 호출 없이 타일 단위로 증분 판정한다(client/raster/index.mjs). 도착 입력에서 타일 표(타일 → 후보 여부·LOD 별 완료 chunk 수)를 한 번 만들고, resident(타일 → 상주 수·상주 key·고른 LOD)와 base(새 key 를 넣지 않은 보호 Set)는 처음 한 번만 meta 전체를 돌아 만든다. 이후에는 meta.set(새 key)·meta.delete 마다 roomResidentChange 가 그 key 의 타일 하나만 증분 갱신한다(덮어쓰기는 상주 목록이 같아 갱신하지 않는다). 새 key 마다 그 타일의 have 를 하나 늘려 chooseLod 로 고른 LOD 가 바뀌는지만 보고, 바뀔 때만 그 타일의 drawing 을 따로 만든다. chooseLod 는 selectDrawable 의 LOD 고르기 규칙(완전한 LOD 중 가장 세밀한 것, 없으면 상주 chunk 가 있는 가장 세밀한 LOD, 계약 헤더 ④)의 사본이다. (metaGen, key) 는 직전 판정(올리는 key 와 보호 집합)을 재사용할 수 있는지 가리는 키이고, resident·base 는 이 키와 상관없이 증분으로 유지된다. 캐시는 setArrived 의 두 경로(즉시·지연)·dispose·meta.clear 에서 null 로 돌려 도착 입력 사본을 붙잡지 않고 다음 판정에서 다시 만든다. 불변식: 상주 변경은 반드시 meta 를 거친다(pool 만 바꾸고 meta 를 건너뛰면 증분 갱신이 빠진다). selectDrawable 과의 동치는 client/raster/room_cache.test.mjs 의 무작위 대조 시험이, 증분 갱신 자체는 client/raster/room_incremental.test.mjs 가 보증한다. 대가는 LOD 규칙을 사본으로 유지하는 것(계약 헤더 ④ 가 바뀌면 함께 고친다)과 불변식을 코드 규율로 지키는 것이다. 한도 여유가 있으면 보호 집합 계산을 건너뛴다. (나) 업로드 실패 시 희생이 있었으면 selectionStale=true 로 두어 다음 draw 에서 한 번 다시 돈다(F-256 ②: 희생은 해제됐는데 새 조각이 없어 선택이 해제된 key 를 가리키던 문제). (다) Worker 의 messageerror 도 onerror 처럼 대기 중 전부를 거부하고 Worker 를 terminate 하며 terminated 로 둔다(F-256 ②, F-253 ③ 과 같은 이유로 살려 두면 거짓 timeout).
 
 ## 근거
 
