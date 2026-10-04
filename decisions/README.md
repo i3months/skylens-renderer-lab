@@ -76,3 +76,4 @@
 | [0026](0026-predict-tau0-pure-frustum.md) | 예측 마스크 tau=0 은 순수 절두체, 퇴화 예측 표본 구간 비단조는 계약 한계 | 승인 | 감독(PR #25·#26) |
 | [0027](0027-codec1-sklc1.md) | codec 1(SKLC1): 양자화 값 유지 + 모턴 재배치 + 직접 구현 범위 부호화 | 승인 | 작업자 제안·감독 승인(PR #36) |
 | [0028](0028-codec-quality-order-aligned-reference.md) | codec 화질 시험은 기준 렌더를 codec 점 순서로 그려 양자화 영향만 비교 | 승인 | 감독(PR #36) |
+| [0029](0029-levels-state-machine.md) | 수준 상태 기계: 도착 이벤트만으로 갱신, 교체·건너뛰기 판정을 계약 함수로 고정 | 승인 | 작업자 제안·감독 승인(PR #38) |

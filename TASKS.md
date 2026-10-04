@@ -54,7 +54,7 @@ tools/       명령줄 도구
 - [x] **T07 `lod`** — 거리 제곱 근거의 LOD 계층. (2026-10-03 병합, 제품 3c150a7 merge commit, 연구 experiment/reference-raster b1a2b3f, 반려 0회. F-092~F-095 닫음, 잔여 F-096~F-100 → T08.F·F2·F3, T07.8 실데이터 순위는 [local] T07L.1, 결정 0020 승인)
 - [ ] **T08 `culling`** — 뷰 의존 컬링(절두체·법선·가림).
 - [x] **T09 `codec`** — 양자화·직렬화·압축. (2026-10-03 PR #36 병합, 반려 1회, 제품 3d3a26f)
-- [ ] **T10 `levels`** — 딜레이 패턴 수준 상태(서버·클라이언트 공통).
+- [x] **T10 `levels`** — 딜레이 패턴 수준 상태(서버·클라이언트 공통). (2026-10-04 PR #38 병합, 반려 0회, 제품 MERGEHASH. 잔여 중간 F-178~F-183 → T10.F, 원본 대조 [local] T10.10L)
 - [ ] **T11 `protocol`** — 웹소켓 메시지·서버 송출 스케줄러.
 - [ ] **T12 `client-raster`** — 클라이언트 경량 래스터라이저(B).
 - [ ] **T13 `statusview-b`** — 현황판에 B 적용.
@@ -348,7 +348,9 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T10.7 | 수준 이력 기록(디버그) | `server/levels/log/` | 이력이 입력 열과 일치 | haiku |
 | T10.8 | 무작위 순서 속성 시험 | `server/levels/property/` | 무작위 10만 열 불변식 위반 0 | opus |
 | T10.9 | 타이머 진행 금지 검사(시간 흘려도 상태 불변) | `server/levels/no_timer/` | 가짜 시계 1시간 진행 후 상태 불변 | sonnet |
-| T10.10 | skylens `splatScene.ts` 동작과 대조표 | `server/levels/parity/` | 기존 동작 시험 사례 전부 일치 | opus |
+| T10.10 [x] (문서 기준 대조 19건; 원본 대조는 T10.10L) | skylens `splatScene.ts` 동작과 대조표 | `server/levels/parity/` | 기존 동작 시험 사례 전부 일치 | opus |
+| T10.10L [local] | skylens 원본 `splatScene.ts` 직접 대조 — UNVERIFIED 10항목(F-183 으로 연구 노트로 옮긴 목록)을 사례 또는 해소 기록으로 | `server/levels/parity/` | 원본 코드 줄 출처 사례로 기존 동작 전부 일치 | opus |
+| T10.F | (T11 PR 에 함께) PR #38 검토 중간: F-183(먼저, 연구 기록 이동), F-181, F-178, F-182, F-180, F-177 ②~④, F-176 ③ 은 T12.5 와. F-179 는 T12 착수 전 | F-178~F-183 의 위치 경로 | 각 항목 확인 기준 | sonnet(F-181·F-183 haiku) |
 
 ### T11 `protocol` — [cloud]
 

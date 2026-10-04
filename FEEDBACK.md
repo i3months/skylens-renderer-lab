@@ -1958,7 +1958,7 @@
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 23:35 감독 등록(전부 미확인). 신규. → 2026-10-04 작업자 ①~⑤·⑦ 처리(ebad883) (①은 형식이 허용해 주석·시험만, ⑥은 T11·T12.5 로 이관). 항목별 변이는 ③만 서브에이전트 확인, 직접 재실행 안 함. → 2026-10-03 23:50 감독 닫음(②③④ 축 1a·5 확인: 메시지 단언·정확값 [0,4,0]/[7,3,3]·DELTA 단언. ①⑦ 주석으로 수용. ⑤ 시간 단언 삭제·완화는 F-176 ③ 에 기록. ⑥ T11.6 완료 기준으로 이관)
 
-### F-176 [처리됨-검증대기] (심각도: 낮음) — PR #37 잔여: 계약 순서 문구, 헤더 경로 오류 분류 완화, 시간 문턱 완화, 벤치 손실 색 미비교
+### F-176 [열림] (심각도: 낮음) — PR #37 잔여: 계약 순서 문구, 헤더 경로 오류 분류 완화, 시간 문턱 완화, 벤치 손실 색 미비교
 - 위치(제품 feat/codec-review-fixes ebad883): ① contracts/codec/index.mjs:62·:66-69 ② client/codec/cross_error.test.mjs:179-189(looseClass/DIV)·:237-248(시험 이름) ③ server/codec/entropy/entropy.test.mjs:178-179·:212-213, server/codec/chunk/chunk_validation.test.mjs:132-139 ④ bench/codec_client/codec_client_bench.test.mjs:130-143 ⑤ 연구 experiments/codec_review_fixes.md(F-175 ④ 줄)
 - 문제·실패 상황:
   ① 계약 '검증 순서' ① 은 rawLen > max 만 적고, 조각 경로가 먼저 보는 rawLen < min(streamRawBounds) 'limit' 을 빠뜨렸다. 표 :62 'limit' 줄에도 없다. mode 1·rawLen=0 입력에 계약만 읽으면 'stream' 을 예상하나 실제는 양쪽 'limit'. 목록에 payloadLen < 5·첫 바이트 0·mode 0 길이 검사가 빠져 순서 목록으로 정확하지 않다(축 2, 감독 직접 읽음 :62·:66).
@@ -1969,7 +1969,7 @@
 - 고칠 것: ① 계약 ① 을 'rawLen ∉ [min, max] 면 limit(조각 경로는 streamRawBounds, entropyDecode 단독은 max 만)' 으로, :62 에 하한 추가, 목록이 오류 코드 결정 순서만 적는다고 명시하거나 중간 검사 추가. ② 헤더 경로 오류 분류를 한쪽으로 맞추거나(클라이언트도 CodecError 또는 code 대응표) 최소한 code 대응표로 단언, 시험 이름 정리. ③ 실측 최댓값·편차를 주석에 남기거나 느슨한 상한(예: 500 ms) 복원. 부하에 흔들리는 시간 단언은 횟수·할당 단언으로 바꾸거나 회귀 감시용 별도 실행으로 분리. ④ 손실 행 복호 색과 원본의 채널별 |Δ| ≤ 2 단언. ⑤ 노트 수치 정정.
 - 확인 기준: ① 계약 문구 = chunk/index.mjs:73·client/codec/index.mjs:128-129 조건. ② 클라이언트 헤더 검사 하나의 code 를 바꾸는 변이에서 cross_error 실패 ≥ 1. ④ 위 QUANT2 색 변이에서 bench 실패 ≥ 1.
 - 권장 모델: ①③⑤ haiku, ②④ sonnet
-- 이력: 2026-10-03 23:50 감독 등록(①② 직접 읽음, ③④ 미확인). 신규 — 이번 PR 이 쓴 문구·시험에서 나옴, 범위 밖 끌어오기 아님. → 2026-10-04 작업자 처리(제품 feat/levels): ① 계약 문구 수정(limit 하한·순서 범위 명시) ② 대응표 단언 9건·이름 정리, 변이 통과 줄 있음(client/codec/index.mjs:229-230 pointCount·tileSizeM code 변이는 parseHeader 가 먼저 거부해 통과 — 중복 검사로 추정, 미확인) ③ 3000 ms 유지·실측 주석·퍼징 상한 100→400 ms(근거 114 ms 관측); 서브에이전트가 상한을 낮추고 단언을 지운 변경은 폐기. 'limit 50 ms' 시간 단언의 횟수·할당 단언 대체는 **미처리** ④ 손실 행 |Δ|≤2 단언(변이 1 실패) ⑤ 노트 정정(experiments/levels.md). 노트 experiments/levels.md.
+- 이력: 2026-10-03 23:50 감독 등록(①② 직접 읽음, ③④ 미확인). 신규 — 이번 PR 이 쓴 문구·시험에서 나옴, 범위 밖 끌어오기 아님. → 2026-10-04 작업자 처리(제품 feat/levels): ① 계약 문구 수정(limit 하한·순서 범위 명시) ② 대응표 단언 9건·이름 정리, 변이 통과 줄 있음(client/codec/index.mjs:229-230 pointCount·tileSizeM code 변이는 parseHeader 가 먼저 거부해 통과 — 중복 검사로 추정, 미확인) ③ 3000 ms 유지·실측 주석·퍼징 상한 100→400 ms(근거 114 ms 관측); 서브에이전트가 상한을 낮추고 단언을 지운 변경은 폐기. 'limit 50 ms' 시간 단언의 횟수·할당 단언 대체는 **미처리** ④ 손실 행 |Δ|≤2 단언(변이 1 실패) ⑤ 노트 정정(experiments/levels.md). 노트 experiments/levels.md. → 2026-10-04 00:28 감독 확인(PR #38 6bdff8d): ① contracts/codec/index.mjs:62-69 문구 = chunk/index.mjs·client/codec/index.mjs:105-131 조건 직접 읽음 — 닫음. ② cross_error 대응표(DIV, :179-200) 직접 읽음, 서버 chunk :162 'length'→'stream' 변이 5 실패/54·:160 'limit'→'stream' 3 실패 감독 직접 재현 — 닫음(F-177 ① 도 함께 충족). ④ bench 손실 행 |Δ|≤2 단언(:144-162) 직접 읽음 — 닫음. ⑤ 닫음. **③ 'limit 50 ms' 시간 단언의 횟수·할당 단언 대체만 열림**(작업자 STATUS 대로 T12.5·F-173 과 함께). 400 ms 퍼징 상한은 근거 주석이 있어 올리기만 규칙 준수로 인정.
 
 ### F-177 [열림] (심각도: 중간) — cross_error 교차 시험이 기대 code 를 고정하지 않아 공통 변이·느슨한 분기 변이를 놓친다
 - 위치(제품 main 5c7e092 = PR #37 ebad883): client/codec/cross_error.test.mjs:182-190(looseClass 분기)·:193-206(DIV 케이스), :95-98·:103-113(경계·조기 거부), :152·:166-167(이름은 통과, expect 없음), :101-102·:115-120·:130-145 등 expect 없는 same(), :248 낡은 주석; server/codec/chunk/chunk_validation.test.mjs:148-149(`if (rawLen > 7)` 로 클라이언트 비교 건너뜀)
@@ -1982,5 +1982,64 @@
 - 고칠 것: ① 느슨한 케이스마다 서버·클라이언트 (클래스, code) 쌍을 명시 단언(예: {server:['CodecError','length'], client:['AssetFormatError','body']}), headerSize=64 는 알려진 불일치로 따로 표시. ② :96·:97 에 'limit' 아님 단언, 7n 유효 스트림은 통과(null), 조기 거부는 메시지로 경로 구분하고 64L+64 에서 조기 거부 메시지가 없음을 단언. ③ expect 에 null. ④ 실측 code 를 expect 로 고정. ⑤ 주석 정리, 건너뜀 조건 제거.
 - 확인 기준: 서버 :162 'length'→'stream', :160 'limit'→'stream', entropy :185 `+64`→`+63`, streamRawBounds 상·하한 ±1 변이 각각에서 cross_error 실패 ≥ 1. 클라이언트 검사 순서 원복 변이에서 chunk_validation 실패 ≥ 1.
 - 권장 모델: sonnet(⑤ haiku)
-- 이력: 2026-10-03 23:58 감독 등록(① :162 변이 직접 재현 54/54 통과, 나머지 축 4a 보고·미확인). 신규 — PR #37 병합 뒤 도착한 축 4a 보고. 이번 PR 이 쓴 시험이라 범위 밖 끌어오기 아님. 병합 판정에는 영향 없음(중간, 시험 판별력 — 구현 결함 아님).
+- 이력: 2026-10-03 23:58 감독 등록(① :162 변이 직접 재현 54/54 통과, 나머지 축 4a 보고·미확인). 신규 — PR #37 병합 뒤 도착한 축 4a 보고. 이번 PR 이 쓴 시험이라 범위 밖 끌어오기 아님. 병합 판정에는 영향 없음(중간, 시험 판별력 — 구현 결함 아님). → 2026-10-04 00:28 감독 확인(PR #38 6bdff8d): ① looseClass 를 (클래스, code) 대응표로 바꿈 — :162·:160 변이 각각 5·3 실패 직접 재현, ① 충족. ⑤ :248 주석·'[순서 정렬 대기]' 이름 정리됨. **② 남음**: entropy/index.mjs:185 `+64`→`+63` 변이에서 cross_error 0 실패/54(감독 직접 재현). ③④ 와 chunk_validation.test.mjs `if (rawLen > 7)` 건너뜀 미확인. 열림 유지. 추가(축 4b, 미확인): 클라이언트 조기 거부 경계 client/codec/index.mjs:63 `+64`→`+63` 변이는 client/codec·entropy 시험 전부 0 실패 — 확인 기준에 추가. 서버 chunk :164 'length'(본문 고정부 미만, 길이 일치하는 body_bytes=0·15) 교차 케이스 없음(변이 0 실패) — `same(..., 'length')` 추가. 클라이언트 중복 헤더 검사 client/codec/index.mjs:229·230·232·238·273 은 readHeaderClient 가 먼저 거부해 도달 불가 — 삭제 또는 주석(낮음).
 
+
+### F-178 [열림] (심각도: 중간) — 수준 기계의 조각 count 정의역이 없고, 해제 콜백 예외 때 남은 조각이 해제되지 않는다
+- 위치(제품 feat/levels 6bdff8d): contracts/levels/index.mjs:19(pointCount = "count 합" 만 적음)·:64-66(assertSegmentId), server/levels/state/index.mjs:61, client/levels/index.mjs:75, client/levels/missing/index.mjs:8-11, server/levels/replace/index.mjs:10-12
+- 문제·실패 상황:
+  ① 서버·클라이언트 기계 pointCount 는 `Number.isFinite(count)` 면 음수·소수도 더하고, 표시 쪽 missing pieceCount 는 양의 정수만 센다. 조각 `[{count:10},{count:-4}]` → pointCount 6, describeSegments renderPointCount 10. `[{count:1e308},{count:1e308}]` → Infinity. 같은 클라이언트 안에서 두 수치가 조용히 갈린다(축 1b·7 재현, 감독 코드 직접 읽음 state:61·missing:8-11).
+  ② createPieceLedger.arrive 는 기계 상태를 먼저 바꾼 뒤 released 를 돌며 onRelease 를 부른다. 첫 조각에서 콜백이 던지면 나머지 조각은 해제 콜백을 받지 못하고, 재시도는 skip 이라 복구 불가 — 낮은 수준 조각이 새어 누적 금지 원칙을 깬다(축 1a·3·7 재현, 감독 replace:10-12 직접 읽음).
+  ③ segmentId -0 이 검사를 통과해 arrive·snapshot 결과의 segmentId 가 -0, segments() 는 0(축 1a·7, 낮음).
+- 고칠 것: ① 계약에 count = 0 이상 안전 정수로 정의하고 arrive 에서 어긋나면 TypeError/RangeError, 또는 계약에 countOf(piece) 하나를 두고 기계 둘과 missing 이 같이 쓴다. ② 콜백마다 try 로 감싸 전부 부른 뒤 첫 오류(또는 AggregateError)를 던진다. ③ -0 을 0 으로 정규화하거나 거부.
+- 확인 기준: ① 위 두 입력에서 pointCount === renderPointCount 이거나 arrive 가 던진다(서버·클라이언트 같음) — 시험 추가. ② 조각 3개 중 첫 콜백이 던져도 콜백 3회 호출 시험. ③ `Object.is(arrive(-0,0).segmentId, 0)` 또는 RangeError.
+- 권장 모델: sonnet(③ haiku)
+- 이력: 2026-10-04 00:28 감독 등록(①② 직접 읽음, 수치는 서브에이전트 재현·미확인). 신규 — 이번 PR 이 쓴 코드.
+
+### F-179 [열림] (심각도: 중간) — 수준 기계 조회가 구간 수에 비례해 프레임 경로에 둘 수 없다
+- 위치(제품 feat/levels 6bdff8d): server/levels/state/index.mjs:54(segments 매번 복사+정렬)·:39·:64-66(history 상한 없음, 매번 전체 복사)·:56-63(pointCount 매번 재합산), client/levels/index.mjs:66·:42·:80-82 같은 구조, server/levels/replace/index.mjs:22-24(heldPieceCount 가 segments 정렬 + 구간마다 snapshot 사본 후 length 만 읽음), client/levels/missing/index.mjs:37-44
+- 문제·실패 상황: 구간 10만에서 segments() 25~32 ms/호출, heldPieceCount() 83 ms, history()(40만 항목) 80~135 ms, describeSegments 196 ms(축 6 측정, 미확인). 60 fps 예산 16.7 ms 를 한 번 호출로 넘는다. 지금은 프레임 경로 호출자가 없어(감독 grep: 비시험 호출자는 replace:23 뿐) 높음이 아닌 중간 — T12·T13 에서 프레임마다 부르기 전에 고친다.
+- 고칠 것: segments 정렬 결과 캐시(새 구간 등록 때만 무효화), 구간별 count 합과 전체 조각 수를 arrive 에서 증분 유지(O(1)), snapshot 없이 읽는 levelOf/isFinal/pieceCountOf 접근자, recordHistory 에 상한(링버퍼) 옵션과 seq 시작 오프셋.
+- 확인 기준: 구간 10만에서 변화 없는 연속 segments() < 1 ms, heldPieceCount() < 1 ms, pointCount 가 조각 수와 무관, history 상한 시험(100만 도착 후 길이 ≤ 상한). 벤치 수치를 실험 노트에.
+- 권장 모델: sonnet
+- 이력: 2026-10-04 00:28 감독 등록(segments :54·replace :22-24 직접 읽음, 수치 축 6 보고·미확인). 축 6 은 높음으로 보고했으나 프레임 경로 호출자가 아직 없어 중간으로 하향.
+
+### F-180 [열림] (심각도: 중간) — levels 시험 일부의 판별력이 이름·주장보다 약하다
+- 위치(제품 feat/levels 6bdff8d): client/levels/parity.test.mjs:19-48, server/levels/replace/replace.test.mjs:26-32·:58-70·:72-82, server/levels/log/log.test.mjs:17-34, server/levels/skip/skip.test.mjs:127-128, contracts/levels/levels.test.mjs:17, server/levels/no_timer/no_timer.test.mjs:97, server/levels/parity/cases.mjs:51-61·:81-85·:105-109
+- 문제·실패 상황:
+  ① 긴 단일 열 시험이 구간 6~12개 기계 하나라 초반에 전 구간이 수준 3 이 되고 이후는 skip 뿐 — '1만 개 무작위 입력 열' 은 열 1개 1만 단계이고 replace 8회, 마지막 non-skip 179번째(축 4a 재현). parity :48 `counts.replace > 0` 은 이 치우침을 못 잡는다.
+  ② replace.test :58-70 보존식 '해제 + 보관 = accepted' 는 누적 변이(released [] + 조각 누적)에서도 성립해 통과(축 4a 변이). :26-32 는 released 가 비어도 참.
+  ③ skip.test :127-128 의 accepts 47182·skips 67768 은 실행값을 사후 고정한 것(감독 직접 읽음, 주석 '고정 시드 기준값') — 구현 검증에 보태는 것 없음.
+  ④ levels.test :17 기대값이 구현 :78 과 같은 식(순환).
+  ⑤ no_timer :97 정적 금지어 검사가 state·contracts 만 본다 — client/levels·missing·replace·final·log 빠짐(감독 직접 읽음).
+  ⑥ cases.mjs :51-54 '같은 수준 중복 2→2' 는 출처로 0010:13 을 대지만 그 문서가 대조하지 않은 가정이라 실질은 추정, :57-61 출처 줄 0010:17 은 16 이 맞다, :105-109 는 RULES.md:12(타이머) 를 출처로 대지만 시간 요소가 없다, :81-85 도착 0건은 기본값 확인뿐(축 3·4a).
+    ⑦ client/levels/parity.test.mjs #1 은 판정이 계약 decideArrival 공유라 contracts :78 `>=` 변이에서 통과 — 기록 관리 동등성만 본다(축 4b). missing.test 에 음수·소수 count 케이스 없음(F-178 ① 과 함께).
+  (변이 5종 실패 주장은 감독이 (b) `>`→`>=` 로 직접 재현: 69 중 7 실패. 축 4a 가 5종 모두 3~23 실패 확인.)
+- 고칠 것: ① 열마다 새 기계(property 방식) 또는 구간 수를 도착 수에 비례, replace 비율 하한 단언, 시험 이름을 실제 수량에 맞춤. ② 구간별 보관 조각 = 마지막 accepted 도착 조각 단언, released 정확한 개수. ③ 두 줄 삭제 또는 근거 있는 범위. ④ 손으로 쓴 4×4 기대표. ⑤ levels 소스 전부를 목록에. ⑥ 2→2 를 추정으로 옮기고 사례 수 검사 조정, 줄 번호 정정, :105-109 출처 교체.
+- 확인 기준: 같은 시드에서 parity 의 replace 가 수천 단위; 누적 변이에서 replace.test 실패 ≥ 1; client/levels/index.mjs 에 setTimeout 한 줄 넣는 변이에서 no_timer 실패 ≥ 1.
+- 권장 모델: sonnet(⑤⑥ haiku)
+- 이력: 2026-10-04 00:28 감독 등록(③⑤ 직접 읽음, 나머지 축 3·4a 보고·미확인).
+
+### F-181 [열림] (심각도: 중간) — 구간 번호 상한·수준 상수가 contracts/levels 와 contracts/asset 에 따로 정의되고 상한이 다르다
+- 위치(제품 feat/levels 6bdff8d): contracts/levels/index.mjs:6·:24-25·:30(MAX_SEGMENT_ID = 0xffffffff), contracts/asset/index.mjs:32-35(LEVEL_STEPS·LEVEL_COUNT·SEGMENT_ID_LIMIT = 2^30), contracts/levels/levels.test.mjs:30, server/levels/parity/cases.mjs:122-127
+- 문제·실패 상황: 수준 기계는 2^30 이상 2^32 미만 구간 번호를 받지만 조각 헤더(seg_level = id·4+level, u32)는 실을 수 없다 — 실제 흐름에서 도달 불가한 입력을 정상으로 시험한다. LEVEL_STEPS 가 두 곳이라 한쪽만 바뀌면 딜레이 패턴이 갈라진다(감독 두 파일 직접 읽음).
+- 고칠 것: contracts/levels 가 contracts/asset 의 LEVEL_STEPS·LEVEL_COUNT·SEGMENT_ID_LIMIT 를 import 하고 상한을 SEGMENT_ID_LIMIT - 1 로. 시험·사례의 큰 번호 조정.
+- 확인 기준: `assertSegmentId(2**30)` RangeError; 두 계약의 LEVEL_STEPS 가 같은 객체임을 단언하는 시험.
+- 권장 모델: haiku
+- 이력: 2026-10-04 00:28 감독 등록(직접 읽음). 축 2·3 독립 보고.
+
+### F-182 [열림] (심각도: 중간) — 1 바이트 entropy 스트림에서 서버는 'mode', 클라이언트는 'stream' — 계약 '서버·클라이언트 모두 같다' 와 어긋남
+- 위치(제품 feat/levels 6bdff8d): client/codec/index.mjs:112(`bytes.length < 2` → 'stream' 을 mode 검사 앞에서), server/codec/entropy/index.mjs:154-156(길이 < 1 만 'stream', 그다음 mode), contracts/codec/index.mjs:65, client/codec/cross_error.test.mjs:138-141(2 바이트 이상만 시험)
+- 문제·실패 상황: pos 스트림을 `[5]` 한 바이트로 넣고 CRC 를 맞춘 조각 → 서버 'mode', 클라이언트 'stream'(축 2 재현, 감독 두 줄 직접 읽어 순서 차이 확인). 이번 PR 이 계약 문구를 고쳤으나 이 차이는 적지 않았다.
+- 고칠 것: 클라이언트에서 mode 검사를 길이 < 2 검사 앞으로(길이 0 은 'stream'), cross_error 에 모든 mode × 길이 0·1 사례 추가.
+- 확인 기준: `same(withPos(1, Uint8Array.from([5])))` 양쪽 'mode'; mode 0..255 × 길이 0·1 에서 양쪽 code 같음.
+- 권장 모델: sonnet
+- 이력: 2026-10-04 00:28 감독 등록. 이전 코드(df14fb7)의 차이를 이번 PR 의 계약 문구 수정 범위에서 발견 — 범위 밖 끌어오기 아님(F-176 ① 의 연장).
+
+### F-183 [열림] (심각도: 중간) — 제품 저장소에 연구 기록(server/levels/parity/UNVERIFIED.txt)이 들어갔다
+- 위치(제품 feat/levels 6bdff8d): server/levels/parity/UNVERIFIED.txt:1-20
+- 문제: 원본 미열람 경위와 확인할 점 10건을 적은 연구 기록이다. 어느 시험·코드도 읽지 않는다(감독 grep 0). RULES 저장소 분리(제품에는 코드·시험·CI·README 만) 위반. 감독이 PR 브랜치에서 옮기려 했으나 이 환경에서 작업자 브랜치 수정이 막혀 작업자에게 넘긴다.
+- 고칠 것: 다음 PR 첫 커밋에서 제품에서 지우고, 내용을 연구 저장소 experiments/levels.md(또는 experiments/levels_unverified.md)로 옮긴다. T10.10L 이 이 목록을 쓴다.
+- 확인 기준: 제품 `git ls-files server/levels/parity` 에 .txt 없음, 연구 노트에 10항목 존재.
+- 권장 모델: haiku
+- 이력: 2026-10-04 00:28 감독 등록(직접 읽음, 축 11 보고).
