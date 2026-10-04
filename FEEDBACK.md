@@ -3256,16 +3256,16 @@
 - → 2026-10-04 17:48 감독(PR #56 검토 #1): 일부 통과. 감독 grep·직접 읽음(feat/t13 a8d0654): ① contract.mjs '버리거나' 0건·교체 규약 문장(:50-51), ② '새 세션으로 받게' 0건, ④ emit_sentkeys.test.mjs:80·:93(LA('3',2)·(1,Infinity)·2**60 TypeError, _tracked 불변), ⑤ connection_edge.test.mjs:18(NaN·'3'·1.5·Infinity·{}), ⑥ :52-57(closeCb 2회 → onClose 1회), ⑧ room_cand_promote.test.mjs:166·:170, ⑩ emit.mjs:7·:11, ⑨ t12v.md 갱신 — 통과. ③ 변이 재실행은 축 4b 결과 미도착으로 이번 판정에서 보류(처리됨-검증대기). ⑦ 감독 판단: 오름차순 순번 어댑터에서 만들 수 없는 흐름이라 구조 시험 대체를 받아들인다 — 단 그 판단과 대가(앞쪽 끼어들기 O(N), N=60000 에서 86 µs/LA)는 결정 기록에 남긴다(F-290 에 포함). 남은 것: ③ 변이 확인, ⑦ 결정 기록. 권장 모델: haiku.
 - → 2026-10-04 17:52 감독(판정 뒤 도착한 축 4b): 닫음. ③ 전부 비움 분기 삭제 변이에서 emit_sentkeys.test.mjs:36 실패, ④⑤⑥ 변이도 각각 실패. ⑦ 의 결정 기록은 F-290 확인 기준으로 옮겨 그쪽에서 확인한다.
 
-### F-288 [열림] (심각도: 높음) — 새 세션(WELCOME resumed=false) 뒤 이전 세션의 구간·수준 상태가 남아 그려지고, 새 세션 도착분이 추월로 버려진다
+### F-288 [닫힘] (심각도: 높음) — 새 세션(WELCOME resumed=false) 뒤 이전 세션의 구간·수준 상태가 남아 그려지고, 새 세션 도착분이 추월로 버려진다
 - 위치: 제품 client/status/e2e/index.mjs:11-12(머리 주석 ⓪ "이미 도착한 수준 상태는 그대로 둔다"), :104-107(onWelcome 이 bySeq·maxSeq 만 비움), e2e.test.mjs:122(이 동작을 정답으로 고정), client/status/arrival/index.mjs:35(seen 세션 단위 초기화 없음), 연구 decisions/0041:18('도착 안 한 칸을 비우는 일은 호출자 몫(미결)') (feat/t13 a8d0654)
 - 문제: 같은 PR 이 server/ws/session/contract.mjs:50-51 에 쓴 클라이언트 규약("새 세션 도착분이 (구간, 수준) 키로 교체하고, 새 세션이 도착시키지 않은 칸은 비운다. 이전 세션 데이터로 채우거나 보간하지 않는다")을 현황판 어댑터가 어긴다. StatusView API(handle/setCamera/setMarkers/frame/requests)에는 호출자가 칸을 비울 수단도 없다. RULES 의 '도착한 것만 그린다' 위반.
 - 실패 상황(축 3·축 2·축 7 각각 재현, 감독이 :104-107·e2e.test.mjs:122 직접 읽어 확인): 세션 A 에서 구간 5 가 수준 3 까지 도착 → 재전송 정지 → WELCOME{resumed:false}(세션 B). (a) B 가 구간 5 를 도착시키지 않았는데 frame().drawKeys 에 A 의 수준 3 조각이 남고 reveal.visible 에 5, "없음" 안내 없음. (b) B 가 구간 5 수준 1 을 도착시키면 levels 가 A 의 수준 3 에 추월당했다고 보고 skip — 새 도착분이 영구히 무시된다. (c) planner seen 이 남아 B 의 같은 PieceKey 요청 0.
 - 고칠 것: resumed=false 의 WELCOME 에서 levels·planner·pendingReleased 를 새로 만들고, 이전 drawKeys 를 releasedKeys 로 내보내 호출자가 해제하게 한다. resumed=true 는 유지. 머리 주석 ⓪·e2e.test.mjs:122 기대·0041 해당 행을 규약에 맞게 고친다. contracts/statusview createStatusView rule 에 이 규약을 한 줄 참조(contract.mjs 로).
 - 확인 기준: 실제 모듈 조립(loadDefaultModules) 시험 — A 에서 구간 5 수준 3 도착 → WELCOME{resumed:false} → frame(): drawKeys 에 5 의 조각 0, reveal.hidden 에 5, renderPointCount 0, releasedKeys 에 A 의 key 전부. 이어 B 가 구간 5 수준 1 도착 → accepted, drawKeys = 수준 1 조각만. resumed=true 시나리오는 기존 상태 유지. 변이(onWelcome 의 levels 재생성 삭제)에서 시험 실패.
 - 권장 모델: opus(여러 모듈 통합)
-- 이력: 2026-10-04 17:46 감독 등록(PR #56 검토 #1, 축 3 높음·축 2 높음·축 7 중간 같은 결함). 신규 — 이번 PR 의 새 코드.
+- 이력: 2026-10-04 17:46 감독 등록(PR #56 검토 #1, 축 3 높음·축 2 높음·축 7 중간 같은 결함). 신규 — 이번 PR 의 새 코드. → 2026-10-04 18:08 감독 확인 닫음(PR #56 검토 #2, 축 1b: real_modules.test.mjs:72-117 실제 조립 시험·변이 8종 사망, 감독이 e2e/index.mjs:107-130 직접 읽음). 단 이 수정과 함께 들어간 해제 색인 삭제가 이어받기 재전송을 깨뜨림 — F-295
 
-### F-289 [열림] (심각도: 높음) — 현황판 대역폭 문턱이 MiB 라 SPEC S6(MB = 10^6 B)보다 4.9% 느슨한데 시험이 "SPEC 수치 그대로"라 단언
+### F-289 [닫힘] (심각도: 높음) — 현황판 대역폭 문턱이 MiB 라 SPEC S6(MB = 10^6 B)보다 4.9% 느슨한데 시험이 "SPEC 수치 그대로"라 단언
 - 위치: 제품 contracts/statusview/index.mjs:118(15*1024*1024, 3*1024*1024), bench/status_bw/status_bw.test.mjs:8-10, README.md 의 "3 MiB"(한·영 두 곳), 연구 experiments/t13.md:10(16.4배). 기존 고정 값: bench/proto/index.mjs:2-5(15_000_000·3_000_000, "SPEC 의 MB 는 10^6 B 이며 이 값은 고정"), server/scheduler/initial/index.mjs:9.
 - 문제: 성공 기준 수치가 완화됐다(작업자가 낮출 수 없음). 저장소 안에서 같은 S6 가 두 값으로 갈린다.
 - 실패 상황: 구간 바이트 3,000,001~3,145,728 B 는 SPEC·bench/proto 로는 미달인데 현황판 시험은 통과. 미달 배율도 16.4배가 아니라 51.6/3.0 = 17.2배.
@@ -3273,16 +3273,16 @@
 - 확인 기준: contracts/statusview 에서 grep '1024 \* 1024' 0건, 시험이 15_000_000·3_000_000 단언, 3,000,001 B 가 초과로 판정되는 시험 1건, README 한·영 "MiB" 0건.
 - 재발: F-186 에서 이미 15_000_000·3_000_000 으로 고친 문제가 새 계약에서 다시 생겼다(축 4b). 같은 실수가 세 번째로 나오면 opus.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 17:46 감독 등록(PR #56 검토 #1, 축 2·축 5 — 감독이 contracts/statusview/index.mjs:118 과 bench/proto/index.mjs:2-5 직접 읽어 확인). 신규.
+- 이력: 2026-10-04 17:46 감독 등록(PR #56 검토 #1, 축 2·축 5 — 감독이 contracts/statusview/index.mjs:118 과 bench/proto/index.mjs:2-5 직접 읽어 확인). 신규. → 2026-10-04 18:08 감독 확인 닫음(PR #56 검토 #2, 감독 grep: contracts/statusview/index.mjs:118 15_000_000·3_000_000, status_bw.test.mjs:9-27, README MiB 0건; 축 5 재현 구간당 51,602,140 B·17.2배). 잔여 낮음: 3,000,001 시험이 overBudget 키 불일치로 STATUS_BW_LIMITS 를 실제로 쓰지 않음 → F-298 ⑩
 
-### F-290 [열림] (심각도: 높음) — ws 진입점 배선(createWire)의 결정 기록 누락, 계측이 구조적으로 항상 같은 값
+### F-290 [닫힘] (심각도: 높음) — ws 진입점 배선(createWire)의 결정 기록 누락, 계측이 구조적으로 항상 같은 값
 - 위치: 제품 server/ws/wire/index.mjs:23-40(handleStopped: stoppedCalls++ 직후 조건 없이 storeCloseCalls++·store.close), :28(비동기 onStopped 를 기다리지 않음), wire.test.mjs(stoppedCalls === storeCloseCalls 단언), server/ws/index.mjs(wire 옵션·stats 추가); 연구 decisions/0041(wire·F-287 ⑦·S6 기록 방식 0건), 0040:139·:145('남은 것' 갱신 없음) (feat/t13 a8d0654, experiment/t13 6b6551b)
 - 문제: SUPERVISOR §3.1 — 이번 PR 의 기술 결정(접속 계층이 store.close 를 직접 부름 = 0040 이 기각한 선택지 C 를 wire 층에서 채택, createWsServer 의 wire 옵션, F-287 ⑦ 을 구조 시험으로 대체, S6 미달을 단언 없이 기록)이 decisions/ 에 선택지·근거·대가·다시 볼 조건으로 없다. 또 0040 다시 볼 조건 ①('호출자가 onStopped 에서 store.close 를 빠뜨리는가')을 재려던 계측이 같은 함수 안 두 카운터라 항상 같다 — 측정이 아니다. store.close 가 성공하면 같은 sid 가 UNKNOWN_SESSION 이 되어 sameSidStops 문턱도 사실상 도달 불가.
 - 실패 상황: 운영에서 stats() 가 늘 stoppedCalls === storeCloseCalls 라 0040 ① 을 다시 볼 신호가 나오지 않는다. 비동기 onStopped 가 저장소의 빠진 조각을 점검하는 중에 세션이 지워진다(0040 C 의 대가 그대로).
 - 고칠 것: 둘 중 하나를 골라 결정으로 남긴다. (a) wire 가 C 를 채택했다고 0040 ① 을 개정(새 결정 또는 0041 행)하고 계측을 '성공한 close 수·실패 수'로 의미 있게 바꾼다. (b) store.close 는 호출자 onStopped 안에서 부르게 하고 wire 는 store 프록시로 실제 close 호출을 센다(비동기 onStopped 는 끝난 뒤). 어느 쪽이든 0041(또는 새 결정)에 wire·F-287 ⑦·S6 기록 방식을 선택지·근거·대가·다시 볼 조건과 함께 넣고 0040:145 '남은 것' 갱신.
 - 확인 기준: (b) 면 store.close 를 안 부르는 onStopped 주입 시 storeCloseCalls < stoppedCalls 시험, 비동기 onStopped 끝나기 전 store 크기 불변 시험. (a) 면 결정 문서에 C 채택·대가·다시 볼 조건, 계측이 항상 같은 값이 아님을 보이는 시험(close 던짐 → 성공 수 < 정지 수). 공통: 0041(또는 새 결정)에서 grep 'createWire'·'F-287 ⑦'·'S6' 각 1건 이상, 해당 행에 대가·다시 볼 조건.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 17:46 감독 등록(PR #56 검토 #1, 축 2 — 감독이 wire/index.mjs:23-40 과 0041 전문을 직접 읽어 확인). 신규 — 이번 PR 이 만든 결정.
+- 이력: 2026-10-04 17:46 감독 등록(PR #56 검토 #1, 축 2 — 감독이 wire/index.mjs:23-40 과 0041 전문을 직접 읽어 확인). 신규 — 이번 PR 이 만든 결정. → 2026-10-04 18:08 감독 확인 닫음(PR #56 검토 #2, 감독이 wire/index.mjs:1-75 직접 읽음 — 선택지 (a), storeCloseOk/Failed 계측, 0042 grep createWire·F-287 ⑦·S6 6건; 축 4b 변이 M1·M2·M12 사망). 0042 §2·§3 표·대가 누락은 F-297
 
 ### F-291 [열림] (심각도: 중간) — 현황판 조각 요청이 언제나 이미 받은 조각만 다시 요청한다
 - 위치: 제품 client/status/e2e/index.mjs:149-156(planner.onSegmentArrived 에 windowPieces — 이미 받은 PIECE 의 key — 를 넘김), e2e.test.mjs:190-198(받은 조각 14개 요청을 정답으로 고정), 연구 0041:16(대가 '다시 요청할 수 있다')
@@ -3290,7 +3290,7 @@
 - 고칠 것: 요청 입력을 정한다 — 구간 도착(MISSING/구간 목록) 때 아직 받지 않은 PieceKey(자산 색인)를 planner 에 넣거나, 요청 경로가 필요 없으면 requests() 를 빼고 계약 T13.1 해석을 결정에 남긴다. 0041 대가를 사실대로.
 - 확인 기준: 받은 뒤 requests() 에 이미 받은 key 0건 시험(실제 모듈 조립), 0041 행 갱신.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 17:46 감독 등록(PR #56 검토 #1, 축 1b·축 2). 신규.
+- 이력: 2026-10-04 17:46 감독 등록(PR #56 검토 #1, 축 1b·축 2). 신규. → 2026-10-04 18:08 감독 되돌림 열림 유지(PR #56 검토 #2, 축 1b: 기본 시나리오 통과 real_modules.test.mjs:119-155, 그러나 MISSING → 조각 도착 → requests() 순서에서 이미 받은 key 2건 요청 — e2e/index.mjs:206·:263-265 가 drain 결과를 거르지 않음, 감독 미재실행). 확인 기준 추가: 그 순서에서 requests() items 0건(실제 조립). 권장 모델 sonnet
 
 ### F-292 [열림] (심각도: 중간) — SPEC S6 구간당 문턱이 SPEC 가정 규모(구간당 250만 점)에서 17배 미달 — 별도 작업 T13.B
 - 위치: 제품 bench/status_bw/index.mjs:25-33(수준 0..3 을 각각 통째로 팩), status_bw.test.mjs:21-24(10만 점 합성만 단언), :32-46(250만 점 단언 없음), result.json large.rows
@@ -3299,17 +3299,17 @@
 - 고칠 것(이 PR): 10만 점 시험 제목에 'SPEC 규모 아님 — S6 충족을 뜻하지 않음', large 에 현재값 회귀 상한 단언(예: 구간당 ≤ 53,000,000 B)을 S6 통과 단언과 구분해 둔다. (T13.B, opus): 수준별 증분 송출·구간 송출 점 예산·압축률 개선 중 선택을 결정으로 남기고 large 에서 구간당 ≤ 3,000,000 B 단언.
 - 확인 기준: 이 PR — 회귀 상한 단언·제목 grep. T13.B — measureStatusBandwidth({segments:3, pointsPerSegment:2500000}) 구간당 ≤ 3,000,000 B 시험.
 - 권장 모델: sonnet(이 PR 부분), opus(T13.B)
-- 이력: 2026-10-04 17:46 감독 등록(PR #56 검토 #1, 축 5·축 6·축 12 — 감독이 bench/status_bw/index.mjs·status_bw.test.mjs 직접 읽음, 수치는 축 5 cli 재현). 작업자가 t13.md 에 '감독에게 올린다'고 적은 S6 미달을 등록.
+- 이력: 2026-10-04 17:46 감독 등록(PR #56 검토 #1, 축 5·축 6·축 12 — 감독이 bench/status_bw/index.mjs·status_bw.test.mjs 직접 읽음, 수치는 축 5 cli 재현). 작업자가 t13.md 에 '감독에게 올린다'고 적은 S6 미달을 등록. → 2026-10-04 18:08 감독 이 PR 부분 확인(축 5·4b: status_bw.test.mjs:42 제목, :12·:61 회귀 상한 53,000,000, 변이 M10 사망). 남은 것은 T13.B
 
-### F-293 [열림] (심각도: 중간) — T13.5 "마커 ENU ≤ 1 cm" 가 같은 식의 왕복이라 검사가 되지 않는다
+### F-293 [닫힘] (심각도: 중간) — T13.5 "마커 ENU ≤ 1 cm" 가 같은 식의 왕복이라 검사가 되지 않는다
 - 위치: 제품 client/status/overlay/index.test.mjs:62-98(project → unproject 왕복, 측정 7e-13 m), contracts/statusview/index.mjs:71
 - 문제·실패 상황(축 1): 두 함수가 같은 R·K 를 쓰므로 함께 틀려도(R↔Rᵀ 를 양쪽에 넣거나 K·dpr 규약이 래스터와 어긋나도) 왕복 시험은 통과. 마커가 래스터가 그린 점과 같은 화면 위치에 오는지는 어디서도 확인하지 않는다.
 - 고칠 것: syncCamera(pose, size(dpr≠1)) 로 view 를 만들고 projectMarkers 와 client/raster buildCameraUniforms+projectWithUniforms(÷dpr)를 같은 ENU 점에 대해 비교, 픽셀 차를 미터로(Δpx·d/f) ≤ 0.01 m 단언. renderer_basis §2-3 실제 점 사례 하나 이상을 독립 기준으로.
 - 확인 기준: projectMarkers·unprojectToEnu 양쪽에 같은 전치 변이를 넣었을 때 새 시험 실패.
 - 권장 모델: opus
-- 이력: 2026-10-04 17:46 감독 등록(PR #56 검토 #1, 축 1 — 감독이 overlay/index.test.mjs:62-98 직접 읽음). 신규.
+- 이력: 2026-10-04 17:46 감독 등록(PR #56 검토 #1, 축 1 — 감독이 overlay/index.test.mjs:62-98 직접 읽음). 신규. → 2026-10-04 18:08 감독 확인 닫음(PR #56 검토 #2, 축 1: raster_agree.test.mjs:74-142 래스터 ÷dpr 독립 비교·renderer_basis camF_0030 사례, 양쪽 전치 변이에서 시험 3개 실패). 잔여 낮음 fx↔fy 변이 생존 → F-298 ①
 
-### F-294 [열림] (심각도: 낮음~중간) — PR #56 잔여 세부
+### F-294 [처리됨-검증대기] (심각도: 낮음~중간) — PR #56 잔여 세부
 - ① (중간, 축 2) contracts/statusview/index.mjs:85-87 createStatusView 서명 `modules?: object` "기본은 ../<모듈>/index.mjs" ↔ 구현 client/status/e2e/index.mjs:43-44 는 modules 없으면 TypeError(시험이 단언), 0041:15 는 loadDefaultModules(). 계약을 `modules: object`(필수, 기본 조립은 await loadDefaultModules())로.
 - ② (중간, 축 1b) 실제 levels(client/status/levels/index.mjs:20-22)는 교체마다 releasedKeys 에 쌓고 released() 를 불러야 비우는데 어댑터는 released() 를 부르지 않아 끝없이 쌓인다(1000구간×4수준 뒤 3000개). 가짜(fakes.mjs)는 누적 사본이라 의미도 다르다. 하나로 정하고 가짜를 맞춘다.
 - ③ (낮음, 축 1b·6) e2e/index.mjs bySeq 가 세션 동안 조각마다 남는다(해제된 수준 항목도). 해제된 key 항목 제거.
@@ -3322,4 +3322,43 @@
 - ⑩ (낮음, 축 4b 변이 M3b) connection.mjs:102 닫힌 뒤 정지 분기의 Number.isInteger(stoppedAt) 를 지워도 server/ws 전체 통과 — 'replay 대기 중 closeCb 뒤 stoppedAt NaN 이면 onStopped 0회, 정수면 1회' 시험 추가.
 - 확인 기준: ① 계약 문자열과 e2e.test 단언 일치, ② 실제 조립에서 교체 N번+frame() 뒤 levels.released().length 0, ③ 교체 뒤 해제 수준 pieceSeq 색인 없음, ④⑤ 해당 변이 실패, ⑥ 재현 입력 시험, ⑦ 1e4 m 왕복 ≤ 1 cm, ⑧⑨ grep·시험.
 - 권장 모델: sonnet(①②③④⑥⑨), haiku(⑤⑧), opus(⑦)
-- 이력: 2026-10-04 17:46 감독 등록(PR #56 검토 #1, 축 1·1b·2·4a·5·6·7 — 감독 미재실행, 근거 줄은 보고 기준). 신규 — 모두 이번 PR 의 새 코드.
+- 이력: 2026-10-04 17:46 감독 등록(PR #56 검토 #1, 축 1·1b·2·4a·5·6·7 — 감독 미재실행, 근거 줄은 보고 기준). 신규 — 모두 이번 PR 의 새 코드. → 2026-10-04 18:08 감독 부분 확인(PR #56 검토 #2): ①②④⑥⑦⑨ 닫음(축 1·1b·2·4a·4b 변이 근거), ③ 해제 key 색인 삭제는 했으나 이어받기 재전송을 깨뜨림 → F-295, 건너뛴 창 색인 잔여 → F-296 ③, ⑤ missing_ui 얼지 않은 입력 변이 M12 생존 → F-298 ④, ⑧ 시험·t13.md 는 통과·README 한·영에 S9 확정 아님 문구 없음 → F-298 ⑨, ⑩ 미처리(connection.mjs 무변경, M3b 생존, 축 4b) → F-298 ⑧. 남은 세부는 F-295~F-298 로 옮기고 이 항목은 그쪽이 닫히면 닫는다
+
+### F-295 [열림] (심각도: 높음) — 이어받기(resumed=true) 재전송에서 이미 해제된 조각의 PIECE 가 오면 현황판 어댑터가 RangeError 로 던진다
+- 위치: 제품 client/status/e2e/index.mjs:139-146(onPiece: bySeq 에 없고 seq ≤ maxSeq 면 RangeError), :178-184(onLevelArrived: 해제된 key 의 bySeq·seqsByKey 항목 삭제 — F-294 ③ 수정으로 이번에 들어옴) (feat/t13 75eb20a)
+- 문제: server/ws/session/contract.mjs:12 — resumed 이면 resendPlan(ACK 되지 않은 메시지)을 순서대로 다시 보낸다. 클라이언트가 수준 0·1 을 받아 수준 0 을 해제한 뒤 ACK 전에 접속이 끊기면, 이어받기 재전송으로 수준 0 의 PIECE 가 다시 온다. 해제 때 bySeq 항목을 지웠으므로 재전송으로 인식하지 못하고 던진다. 이전 머리 a8d0654 에서는 같은 입력이 정상 처리됐다(회귀).
+- 실패 상황(감독 직접 재현, scratchpad/sv/resume.mjs, 실제 모듈 조립): WELCOME{1,false} → PIECE 1(0.0.*)·LEVEL_ARRIVED(0,0)·PIECE 2(0.1.*)·LEVEL_ARRIVED(0,1) → frame() → WELCOME{1,true} → 같은 4메시지 재전송 → 75eb20a: `RangeError pieceSeq 1 가 재전송이 아닌데 받은 가장 큰 pieceSeq 2 이하`. a8d0654: 정상, drawKeys ['0.1.0.0.0.0'].
+- 고칠 것: 해제·건너뜀으로 지운 pieceSeq 를 '받았음(해제됨)'으로 기억해(예: seq → key 만 남기는 가벼운 집합, 또는 세션 안 최소 미해제 seq 하한) 재전송 PIECE·LEVEL_ARRIVED 를 조용히 무시한다. 재전송된 해제 조각이 다시 그려지거나 releasedKeys 에 다시 나오면 안 된다. 머리 주석·0041 에 재전송 처리 규약을 한 줄.
+- 확인 기준: 위 시나리오를 실제 모듈 조립 시험으로 — 던지지 않고, frame().drawKeys = ['0.1.0.0.0.0'], releasedKeys 에 0.0 재출현 없음. 재전송 LEVEL_ARRIVED(0,0) 도 상태 불변. 수정을 되돌리는 변이에서 시험 실패. 같은 seq 가 다른 key 로 오면 여전히 TypeError.
+- 권장 모델: opus(여러 모듈 통합 — F-296 ③ 과 같은 색인 설계)
+- 이력: 2026-10-04 18:08 감독 등록(PR #56 검토 #2, 축 6 P3 보고 → 감독이 이어받기 경로로 직접 재현하고 a8d0654 와 대조해 회귀 확인, 높음 채택). 신규 — 이번 반려 처리(F-294 ③)가 만든 회귀.
+
+### F-296 [열림] (심각도: 중간) — 현황판 어댑터 해제·요청 장부 잔여
+- ① (중간, 축 1b, 감독 미재실행) releasedKeys 에 같은 key 가 두 번 나온다: e2e/index.mjs:117(새 세션 때 이전 drawKeys) + :179(교체 해제), :253 은 drawKeys 겹침만 거른다. 재현: A 가 0.0.* 그림·frame() → WELCOME(B,false) → B 가 0.0 재도착 → frame() 없이 0.1 교체 → releasedKeys 4개(2개 중복). 머리 주석 ③ "한 번씩" 위반, 호출자 이중 해제. 고칠 것: frame() 에서 중복 제거(또는 push 전 확인). 확인 기준: 그 순서에서 releasedKeys.length === new Set(releasedKeys).size === 2, 중복 제거 삭제 변이에서 실패.
+- ② (중간, 축 6, 감독 미재실행) MISSING 한 건마다 levels.snapshots() 전체 복사(e2e/index.mjs:191) — 4000구간에서 MISSING 4000건 1~3 s. 도착 구간 Set 또는 levels O(1) 질의. 확인 기준: 4000구간 MISSING 4000건 < 100 ms, 1000→4000 시간비 ≈ 4.
+- ③ (낮음, 축 1b·3·2) 건너뛴(skip) 창과 LEVEL_ARRIVED 없는 PIECE 의 bySeq·seqsByKey 항목이 세션 내내 남는다(e2e/index.mjs:173-185, arrive 결과 accepted 를 보지 않음). seqsByKey 에 남은 key 는 missingRequestKeys 에서 '받은 것'으로 취급. F-295 와 같은 장부 설계로 함께 정한다. 0041:24 '미해결' 을 선택지·대가·측정 가능한 다시 볼 조건으로. 확인 기준: skip 뒤 그 창 색인 없음(또는 0041 에 문턱), 재전송 처리 시험으로 고정.
+- ④ (낮음, 축 6) frame() 이 snapshots() 를 두 번 만든다(drawKeys 내부 포함) — 4000구간 frame 1회 약 20 ms. states 로 drawKeys 를 만들고 pendingReleased 가 비면 Set·filter 생략.
+- 권장 모델: sonnet(①②④), opus(③, F-295 와 함께)
+- 이력: 2026-10-04 18:08 감독 등록(PR #56 검토 #2, 축 1b A·C, 축 6 P1·P2, 축 2 ④). 신규 — 이번 PR 의 코드.
+
+### F-297 [열림] (심각도: 중간) — T13 결정·노트 정합성
+- ① 연구 decisions/0042 §2(F-287 ⑦, :22-24)에 선택지 표 없음, §3(S6 기록, :26-28)에 선택지 표·'대가:' 없음. 확인 기준: §1·§2·§3 각각에 표·'대가:'·'다시 볼 조건:' 1건 이상.
+- ② experiments/t13.md:10('단언 없이', '1024 기반 … 정리 필요'), :11('감독 판단 필요'), :12(storeCloseCalls, stoppedCalls === storeCloseCalls), :17('수준 도착 때' 요청) 이 현재 구현·0041·0042 와 어긋남. 확인 기준: grep 'storeCloseCalls'·'단언 없이'·'1024 기반'·'수준 도착 때' 0건 또는 '(당시)' 표시.
+- ③ 제품 server/ws/wire/index.mjs:1-2 머리 주석이 0040 만 가리킴 — 'decisions 0042 §1' 참조. 확인 기준: grep '0042' 1건 이상.
+- ④ 0041·0042 가 '상태: 제안'. 감독은 병합 때 승인으로 바꾼다(이번 반려에서는 보류). F-295·F-296 ③ 처리로 0041 행이 바뀌면 함께 갱신.
+- 권장 모델: haiku(②③), sonnet(①)
+- 이력: 2026-10-04 18:08 감독 등록(PR #56 검토 #2, 축 2 1·2·3·4, 축 5 연구 문서 불일치 — 감독이 0042 상태 줄·wire 머리 주석 직접 읽음). 신규.
+
+### F-298 [열림] (심각도: 낮음~중간) — PR #56 검토 #2 시험·견고성 잔여
+- ① (낮음, 축 1) fx≠fy 시험 없음 — overlay/index.mjs:98-99·:120-121 양쪽 fx↔fy 변이 생존. basis K {754.32, 753.85, 480, 270}, dpr 1.5 로 projectMarkers ↔ 래스터 ÷dpr 비교 시험. 확인: 그 변이에서 실패.
+- ② (중간, 축 4a) 직교 검사 대각 성분 시험 없음 — R = diag(1.01, 1/1.01, 1)(det 1) 거부 시험, index.test.mjs:199 주석 정정. 확인: 변이 B5 에서 실패.
+- ③ (낮음, 축 4a) reveal 합이 정확히 MAX_SAFE_INTEGER 인 정상 입력 시험(변이 B2 생존).
+- ④ (낮음, 축 4a, F-294 ⑤ 잔여) missing_ui.test.mjs:64-75 — 얼지 않은 사본으로 불변 단언(변이 M12 생존).
+- ⑤ (낮음, 축 4a) real_modules.test.mjs:187 의 made.levels[2].released().length === 0 은 항상 참 — 새 세션에서 교체 1회 + frame() 뒤 단언.
+- ⑥ (중간, 축 7, 감독 미재실행) wire/index.mjs:35 report 가 async onError 의 거부를 삼키지 않아 unhandledRejection(store.close 거부·onStopped 거부 경로). thenable 이면 .then(undefined, () => {}). 확인: async 로 던지는 onError 구성에서 unhandledRejection 0건 시험.
+- ⑦ (낮음, 축 7) overlay unprojectToEnu(…, 1e308, 50, 1e308) 가 비유한 배열 — RangeError 또는 계약에 범위 명시.
+- ⑧ (중간, 축 4b, F-294 ⑩ 미처리) connection.mjs:101 Number.isInteger(stoppedAt) 삭제 변이 M3b 생존 — 'replay 대기 중 closeCb 뒤 stoppedAt NaN 이면 onStopped 0회, 정수면 1회' 시험.
+- ⑨ (낮음, 축 5, F-294 ⑧ 잔여) README 한·영 현황판 절에 status_quality 조건(320×180·20만 점·무손실 색·CPU 래스터)과 'S9 확정 아님([local] T13.10L)'. 확인: grep -c 'T13.10L' README.md ≥ 2.
+- ⑩ (낮음, 축 4b) status_bw.test.mjs:19-26 overBudget(STATUS_BW_LIMITS) 의 키(initialBytes/perSegmentBytes)를 overBudget 이 읽지 않음(initialMax/perSegmentMax) — 키를 맞춘다. 확인: STATUS_BW_LIMITS.perSegmentBytes 만 3_145_728 로 바꾸는 변이에서 이 시험도 실패.
+- 권장 모델: sonnet(②⑥⑧⑩), haiku(③④⑤⑨), opus(①⑦)
+- 이력: 2026-10-04 18:08 감독 등록(PR #56 검토 #2, 축 1·4a·4b·5·7 — 근거 줄은 보고 기준, 감독 미재실행). 신규(④⑧⑨ 는 F-294 잔여 이관).
