@@ -2,9 +2,9 @@
 
 - 상태: 진행 중 — T11.F 반려 수정
 - 현재 작업: T11 protocol 반려 수정(T11.F) — 같은 브랜치 feat/protocol·experiment/protocol 에서 고친 뒤 제품 PR #39 를 다시 열고 라벨을 붙인다
-- 마지막 갱신: 2026-10-04T01:17Z (작업자)
+- 마지막 갱신: 2026-10-04T01:20Z (작업자)
 - 검토 요청: (없음)
-- 방금 한 일: (작업자) 계약 커밋(pieceSeq≥1·overtakeGroup·chunkIndex 상한·quat·oversize) 푸시, 서브에이전트 팬아웃 시작
+- 방금 한 일: (작업자) 서브에이전트 11개 팬아웃(opus 2·sonnet 7·haiku 2). 격리 worktree 가 연구 저장소로 만들어져 6개 실패 → 제품 worktree(/home/user/wt) 로 재투입 중
 - 다음 할 일:
   1. 높음 F-184 → F-188 → F-189 → F-185 → F-186 → F-187 순서.
   2. 중간 F-190~F-193·F-195·F-196, 낮음 F-194(같은 PR 권장).
