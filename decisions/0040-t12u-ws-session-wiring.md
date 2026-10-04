@@ -55,7 +55,7 @@
 
 ### 순번 하한(F-270·F-276)
 - attachConnection 의 onSession 에 nextPieceSeq 를 싣고 어댑터 adapter.firstPieceSeq 로 쓴다
-- emit 은 pieceSeq < minPieceSeq 인 새 PIECE 를 send·기록 없이 SeqFloorError 로 던진다(F-276): minPieceSeq 가 함수일 때만(올라갈 수 있을 때만) 적용
+- emit 은 pieceSeq < minPieceSeq(정수 또는 함수) 인 PIECE 를 send·기록 없이 SeqFloorError 로 던진다(F-276). 같은 (seq,key) 재시도 예외는 함수 하한일 때만 있다(아래)
 - 이어받기 전 연결이 쓴 순번을 같은 key 로 다시 쓰지 않게 함. 저장소의 recordSent 는 seq <= ackedUpTo 이고 항목이 없으면 멱등 true 를 주므로, 하한 없이는 다시 소개한 순번이 기록 없이 송출되어 누적 ACK 로 지워진다
 - 함수 하한일 때만 이 emit 이 이미 기록한 (seq, key) 재시도를 통과: 순번→key Map 을 유지하고 LEVEL_ARRIVED 송출 성공 때 그 창까지 정리
 
