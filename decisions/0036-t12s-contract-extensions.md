@@ -32,7 +32,7 @@
 | B | `onContextRestored(error?: Error)` 로 정의 | 복구 오류를 알 수 있음 | 타입 시그니처 확장 |
 | C | 계약은 key 배열 1인자, 구현만 2인자(error)를 보내고 계약 주석에 '구현 확장(계약 밖)' 으로 표시 | 호출자가 진단 정보 받음, 계약 서명 불변 | 계약 밖 동작을 호출자가 의존할 수 있음 |
 
-**선택: C**: 계약의 콜백 인자는 key 배열 하나다. 둘째 인자 error 는 계약 밖 구현 확장이며 계약 onContextRestored typedef 와 CLIENT_RASTER_API.onContextRestored 가 모두 '구현 확장(시험용)' 으로 적는다. 둘째 인자는 typedef 주석과 fn 설명에만 나타나고 형식 서명(함수 타입에 매개변수로)에는 올리지 않는다. 구현은 복구 중 프로그램 재생성이 실패한 경우(failure)에만 key 목록을 비우고 둘째 인자로 오류를 보낸다. 앞 판의 선택 B(계약 서명에 추가)는 채택되지 않았다.
+**선택: C**: 계약은 key 배열 1인자, 구현만 2인자(error)를 보내고 계약 주석에 '구현 확장(시험용, 계약 밖)' 으로 표시하며 형식 서명에는 올리지 않는다. 호출자가 진단 정보를 받을 수 있고 계약 서명은 불변이다.
 
 ## 결정
 
@@ -48,7 +48,7 @@
 
 6. **checkArrived 분리**: 지연 setArrived 의 호출 시점 검사는 selectDrawable 이 아니라 타일 표 없는 가벼운 검사기 checkArrived(client/raster/arrived_check)가 한다. 거부 기준(항목 모양, key 형식·범위, (segmentId, level) 일치)과 던지는 오류('piece')는 selectDrawable 과 같고, 10만 key 에서 지연 경로가 즉시 경로의 0.21 배(기준 ≤ 0.5)다(F-253 ②, experiments/t12s.md). 시험은 testHooks.checkArrivedKey 로 key 당 단계 수를 센다. 계약 testHooks typedef 에는 checkArrivedKey·onGlUploadStart/End·onDrawStart/End(결정 0038)를 호출 시점과 함께 추가했다(F-259 ③).
 
-7. **makeRoom 업로드 key 포함 규칙과 이번 수정에 포함된 두 가지**: (가) 한도 여유가 있으면 선택을 만들지 않고 돌아간다. 한도를 넘으면 지금 올리는 key 가 도착 집합에 들고 아직 상주하지 않을 때만 그 key 를 넣은 지역 선택(저장하지 않음, 같은 meta 세대·도착 객체·key 면 직전 결과 재사용)으로 희생을 정하고, 아니면 현재 선택(낡았으면 한 번 다시 돈 것)을 쓴다. 희생은 그 선택의 draw 조각과 올리는 key 를 제외한 오래된 상주 조각이다(0037 의 '현재 올리는 key 는 항상 포함' 서술을 이 규칙으로 정정). (나) 업로드 실패 시 희생이 있었으면 selectionStale=true 로 두어 다음 draw 에서 한 번 다시 돈다(F-256 ②: 희생은 해제됐는데 새 조각이 없어 선택이 해제된 key 를 가리키던 문제). (다) Worker 의 messageerror 도 onerror 처럼 대기 중 전부를 거부하고 Worker 를 terminate 하며 terminated 로 둔다(F-256 ②, F-253 ③ 과 같은 이유로 살려 두면 거짓 timeout).
+7. **makeRoom 의 roomProtection 보호 집합 판정과 업로드 key 포함 규칙**: (가) roomProtection 는 새 key 추가 시 희생(evict)할 조각을 정하기 위해 타일 단위로 증분 판정하는 보호 집합 계산 함수다. select 호출 없이 타일 표(타일·도착 최고 수준 여부·LOD 별 필요 chunk 수)와 타일별 상주 정보(상주 수·상주 key·선택된 LOD)를 이용해 각 타일의 drawing set 을 정한다. chooseLod 함수는 selectDrawable 의 LOD 고르기 규칙을 따르고(계약 헤더 ④), 캐시 키는 (metaGen, key) 쌍이다. 상주 집합이나 meta 세대가 바뀌면 캐시를 무효화하고(metaGen 기반), setArrived 의 두 경로(즉시·지연)와 dispose 에서 null 로 초기화한다. selectDrawable 과의 동치는 client/raster/room_cache.test.mjs 의 무작위 대조 시험으로 보증된다. 대가는 LOD 규칙을 함수로 사본 유지하는 것이고, 계약 헤더 ④ 가 변경되면 함께 수정해야 한다. 한도 여유가 있으면 보호 집합 계산을 건너뛴다. (나) 업로드 실패 시 희생이 있었으면 selectionStale=true 로 두어 다음 draw 에서 한 번 다시 돈다(F-256 ②: 희생은 해제됐는데 새 조각이 없어 선택이 해제된 key 를 가리키던 문제). (다) Worker 의 messageerror 도 onerror 처럼 대기 중 전부를 거부하고 Worker 를 terminate 하며 terminated 로 둔다(F-256 ②, F-253 ③ 과 같은 이유로 살려 두면 거짓 timeout).
 
 ## 근거
 
