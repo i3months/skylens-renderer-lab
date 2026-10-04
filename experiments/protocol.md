@@ -41,3 +41,17 @@
 - F-188: ws 콜백 try, 실패 연결만 1011, onError. F-189: 어댑터가 메시지를 모두 만들고 송출한 뒤 상태 확정(emit n 번째 실패 시 상태 불변). F-191: 프레임 파서 선형(4 MiB/1400 B 약 10~12 ms, 이전 920~1390 ms), 빈 연속 프레임 상한 1009. F-192: scheduler maxPending·maxSentGroups, resume ack 시 bytes 해제·세션 상한(상한 축출 시 중복 전송 가능 — 헤더에 대가 명시). F-193: ①u16 유지·65535/65536 시험 ②quat 규약 ③oversize ④주소·포트 검사 server/·tools/ 로. F-194: 코덱 code 통일('short'·'type')·BOM·Buffer 복사, 프레임 1002. F-195: 변이 시험 다수 추가. F-196: arrayBuffers 계측·선할당 복호기 3종·차등 비교·순서 교환 변이 사망.
 - 한계: 어댑터 재시도 시 일부 송출분이 같은 pieceSeq 로 한 번 더 나갈 수 있다(수신·resume 이 같은 조각으로 처리한다는 전제, 계약 미기재 — 감독 판단 요청). resume 상한 축출 시 중복 전송 가능. [local] 실제 skylens 녹화 대조는 T11.8L.
 - 전체 `npm test`(작업자 직접): 3128 중 3116 통과·0 실패·12 건너뜀.
+
+## T11.G 처리 (제품 feat/protocol-g 598c4da, PR #39 병합 뒤 후속)
+- 실행: 서브에이전트 5개(opus 1·sonnet 4, 승격 0). 하위 작업은 소유 경로로 나눴다(resume·어댑터 / 코덱 / ws / scheduler·bench / 계약). 10개 미만인 이유: F-192·197·199·203 이 resume/index.mjs 하나를 같이 고쳐 쪼개면 충돌한다.
+- F-197: resume.recordSent 가 같은 key·같은 seq 재기록을 멱등으로 받는다(미ack 면 bytes 교체, ack 됐으면 무변경). 다른 key 같은 seq·낮은 seq 는 RangeError 유지. core.test 통합: emit n=1..5 번째에서 던진 뒤 재시도 → PIECE 4개+LEVEL_ARRIVED 전부, unacked 순번 [1..6] 빈칸·중복 없음. 계약 문구(재전송 규약) contracts/proto 에 추가.
+- F-192: resume 기본 상한 65536 항목·64 MiB/세션(유한 강제), 무상한 값은 RangeError, 항목 축출 시 빈 groupMax 삭제. 옵션 없이 만든 저장소에서 상한 넘는 recordSent false, 전부 ack 후 보관 바이트 0.
+- F-199: unacked() 가 추월당한 조각 제외(같은 수준 다른 chunk 는 남음).
+- F-198: 두 코덱·퍼저 기준 코덱 모두 pieceSeq·nextPieceSeq 0 → 'field'(서버 복호는 방향 검사가 먼저라 'direction'). 시험 값 0→1.
+- F-193 ①: asset 계약이 chunkIndex 0..65535 만 받게 함(proto u16 과 일치, CHUNK_INDEX_LIMIT 공유). 소비자 파급: client/asset 헤더 파서와 header.test 무작위 범위를 작업자가 직접 맞춤. 두 계약 동일 처리 시험 추가(proto.test).
+- F-200(일부): ws maxWriteBuffer 1 MiB·maxPingsPerSecond 50, 초과 시 1008. 읽지 않는 클라이언트 핑 폭주 시험(64 KiB 상한, 최대 100만 핑 시도, 서버가 일찍 닫음). 미완: 비동기 onMessage 미결 무제한·서버 send() 쓰기 상한 → 열림 유지.
+- F-201: next() 시한 3 s(실패 시 멈춤 대신 실패), afterEach 가 서버·소켓 정리(진짜 멈춤 원인), onConnection throw·async reject 시험, 변이 5종(guarded 제거 2실패, try/catch 제거 1, 거절 처리 제거 1, 쓰기 상한 제거 1, 핑 제한 제거 1) 전부 실패시킴. resume PAIRS 를 === 12 와 손으로 쓴 열로, scheduler 5시드·시드별 기대값 고정, BOM 은 텍스트 동등, CHUNK_BYTES 삭제.
+- F-202: 초기 묶음 예산이 조각당 프레임 머리(PIECE 28 B + ws 최대 10 B = 38 B)를 센다. 5×2,999,962 B 는 15,000,000 B 에 정확히 들어가고 2,999,963 B 는 1개 버림. 감독이 가정한 10 B/조각이 아니라 실제 38 B 이므로 합 15,000,000−10n 은 초과분이 dropped 된다(시험으로 고정). SPEC 수치 불변.
+- F-203: ① 빈 pieces 도착은 RangeError(이전 수준 유지), ② recordSent(0xFFFFFFFF) 허용·그 세션은 재개 불가(새 세션), ③ scheduler 이진 삽입(5시드 결과 동일), ④ 프레임 파서 need 캐시(200 KB 1 B 조각 202→167 ms, 조각마다 Buffer 는 남음), ⑤ measure.mjs ENU 변환·타일(결과 수치 갱신: 구간당 조각 14/18/20/22, 프레임 2,064,896~2,066,292 B), ⑥ 주석, ⑦ scene_catalog → testing/*.testutil.mjs. ⑧ 조치 없음.
+- 전체 `npm test`(작업자 직접): 3155 중 3143 통과·0 실패·12 건너뜀. 실제 skylens 체크아웃 입력은 [local](T11.8L).
+- 남은 것: F-200 비동기 미결·send() 상한, F-203 ④ 조각마다 Buffer.
