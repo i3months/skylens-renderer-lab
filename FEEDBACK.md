@@ -1958,7 +1958,7 @@
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 23:35 감독 등록(전부 미확인). 신규. → 2026-10-04 작업자 ①~⑤·⑦ 처리(ebad883) (①은 형식이 허용해 주석·시험만, ⑥은 T11·T12.5 로 이관). 항목별 변이는 ③만 서브에이전트 확인, 직접 재실행 안 함. → 2026-10-03 23:50 감독 닫음(②③④ 축 1a·5 확인: 메시지 단언·정확값 [0,4,0]/[7,3,3]·DELTA 단언. ①⑦ 주석으로 수용. ⑤ 시간 단언 삭제·완화는 F-176 ③ 에 기록. ⑥ T11.6 완료 기준으로 이관)
 
-### F-176 [열림] (심각도: 낮음) — PR #37 잔여: 계약 순서 문구, 헤더 경로 오류 분류 완화, 시간 문턱 완화, 벤치 손실 색 미비교
+### F-176 [처리됨-검증대기] (심각도: 낮음) — PR #37 잔여: 계약 순서 문구, 헤더 경로 오류 분류 완화, 시간 문턱 완화, 벤치 손실 색 미비교
 - 위치(제품 feat/codec-review-fixes ebad883): ① contracts/codec/index.mjs:62·:66-69 ② client/codec/cross_error.test.mjs:179-189(looseClass/DIV)·:237-248(시험 이름) ③ server/codec/entropy/entropy.test.mjs:178-179·:212-213, server/codec/chunk/chunk_validation.test.mjs:132-139 ④ bench/codec_client/codec_client_bench.test.mjs:130-143 ⑤ 연구 experiments/codec_review_fixes.md(F-175 ④ 줄)
 - 문제·실패 상황:
   ① 계약 '검증 순서' ① 은 rawLen > max 만 적고, 조각 경로가 먼저 보는 rawLen < min(streamRawBounds) 'limit' 을 빠뜨렸다. 표 :62 'limit' 줄에도 없다. mode 1·rawLen=0 입력에 계약만 읽으면 'stream' 을 예상하나 실제는 양쪽 'limit'. 목록에 payloadLen < 5·첫 바이트 0·mode 0 길이 검사가 빠져 순서 목록으로 정확하지 않다(축 2, 감독 직접 읽음 :62·:66).
@@ -1969,7 +1969,7 @@
 - 고칠 것: ① 계약 ① 을 'rawLen ∉ [min, max] 면 limit(조각 경로는 streamRawBounds, entropyDecode 단독은 max 만)' 으로, :62 에 하한 추가, 목록이 오류 코드 결정 순서만 적는다고 명시하거나 중간 검사 추가. ② 헤더 경로 오류 분류를 한쪽으로 맞추거나(클라이언트도 CodecError 또는 code 대응표) 최소한 code 대응표로 단언, 시험 이름 정리. ③ 실측 최댓값·편차를 주석에 남기거나 느슨한 상한(예: 500 ms) 복원. 부하에 흔들리는 시간 단언은 횟수·할당 단언으로 바꾸거나 회귀 감시용 별도 실행으로 분리. ④ 손실 행 복호 색과 원본의 채널별 |Δ| ≤ 2 단언. ⑤ 노트 수치 정정.
 - 확인 기준: ① 계약 문구 = chunk/index.mjs:73·client/codec/index.mjs:128-129 조건. ② 클라이언트 헤더 검사 하나의 code 를 바꾸는 변이에서 cross_error 실패 ≥ 1. ④ 위 QUANT2 색 변이에서 bench 실패 ≥ 1.
 - 권장 모델: ①③⑤ haiku, ②④ sonnet
-- 이력: 2026-10-03 23:50 감독 등록(①② 직접 읽음, ③④ 미확인). 신규 — 이번 PR 이 쓴 문구·시험에서 나옴, 범위 밖 끌어오기 아님.
+- 이력: 2026-10-03 23:50 감독 등록(①② 직접 읽음, ③④ 미확인). 신규 — 이번 PR 이 쓴 문구·시험에서 나옴, 범위 밖 끌어오기 아님. → 2026-10-04 작업자 처리(제품 feat/levels): ① 계약 문구 수정(limit 하한·순서 범위 명시) ② 대응표 단언 9건·이름 정리, 변이 통과 줄 있음(client/codec/index.mjs:229-230 pointCount·tileSizeM code 변이는 parseHeader 가 먼저 거부해 통과 — 중복 검사로 추정, 미확인) ③ 3000 ms 유지·실측 주석·퍼징 상한 100→400 ms(근거 114 ms 관측); 서브에이전트가 상한을 낮추고 단언을 지운 변경은 폐기. 'limit 50 ms' 시간 단언의 횟수·할당 단언 대체는 **미처리** ④ 손실 행 |Δ|≤2 단언(변이 1 실패) ⑤ 노트 정정(experiments/levels.md). 노트 experiments/levels.md.
 
 ### F-177 [열림] (심각도: 중간) — cross_error 교차 시험이 기대 code 를 고정하지 않아 공통 변이·느슨한 분기 변이를 놓친다
 - 위치(제품 main 5c7e092 = PR #37 ebad883): client/codec/cross_error.test.mjs:182-190(looseClass 분기)·:193-206(DIV 케이스), :95-98·:103-113(경계·조기 거부), :152·:166-167(이름은 통과, expect 없음), :101-102·:115-120·:130-145 등 expect 없는 same(), :248 낡은 주석; server/codec/chunk/chunk_validation.test.mjs:148-149(`if (rawLen > 7)` 로 클라이언트 비교 건너뜀)
