@@ -27,4 +27,8 @@
 - F-183: 제품에서 UNVERIFIED.txt 삭제, [levels_unverified.md](levels_unverified.md) 로 이동(첫 커밋).
 - F-181·F-178: contracts/levels 가 asset 상수 import, 상한 2^30-1, count 정의역(0 이상 안전 정수), 해제 콜백 전부 호출 후 첫 오류, -0 거부(시험 12건).
 - F-180: 열마다 새 기계(replace 2720/15000), 손계산 4×4 표, 정적 검사 전 소스. 변이: 누적 2 실패, setTimeout 1 실패, `>`→`>=` 3 실패.
-- F-182·F-177 ②~④: (결과는 아래 갱신)
+- F-182: 클라이언트 entropy 의 mode 검사를 길이<1 검사 뒤로(서버와 같음), mode 0..255 × 길이 0·1 시험. F-177 ②~④: 기대 code 전부 고정, 경계 ±1 시험(streamRawBounds 12 + 조기 거부 6), body_bytes 0·1·15 length 케이스, rawLen>7 건너뜀 제거. 변이: client/codec/index.mjs:63 `+64`→`+63` 에서 client/codec+chunk_validation 1 실패(작업자 직접 확인; 에이전트의 21개 변이는 병렬 잡음이 있어 신뢰도 낮음). 도달 불가 중복 검사는 삭제하지 않고 이유 주석.
+- F-179(조회 성능)는 T12 착수 전 — 미처리. F-176 ③ 시간 단언 대체는 T12.5 와.
+
+## 전체 시험(작업자 직접)
+`npm test`: 3007 중 2995 통과·0 실패·12 건너뜀·todo 0 (f177 병합 직전 feat/protocol, 직접 실행). f177 병합 뒤 재실행 결과는 PR 본문 참조.
