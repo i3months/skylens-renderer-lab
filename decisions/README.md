@@ -66,3 +66,4 @@
 | [0034](0034-t12p-contract-extensions-and-lod-rule.md) | client_raster 계약 확장, 타일당 LOD 규칙, 묘비 지평 | 제안 | 작업자(제안) |
 | [0037](0037-t12s-initial-design.md) | T12.S 초기 설계: 지연 경로, Worker 타임아웃, 호출자 예외 | 승인 | 작업자(제안) |
 | [0036](0036-t12s-contract-extensions.md) | T12.S 계약 확장 입력 검사, 시험 전용 옵션 | 제안 | 작업자(제안) |
+| [0038](0038-t12s-long-task-gl-stage-split.md) | T12.5 long task 판정에서 GL 단계 분리 보고 | 제안 | 작업자(제안) |
