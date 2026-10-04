@@ -2620,6 +2620,7 @@
 - → 2026-10-04 08:30 감독(PR #46 검토 #1, 제품 71865e0) 닫음: ②③④⑦⑧⑩ 확인(③ 축 1b 경계값 재현·축 4b 변이 M3·M4 실패, ④ 축 4b 산술 15,000,001 B, ⑦ 축 4b·5 예산 상수 무변경·메시지만, ⑧ 축 2 주석 있음, ⑩ 축 12). 미충족·부분은 F-240 으로 옮김: ①(감독 grep 확인 — arrival.mjs:3·index.mjs:73 문장 그대로), ⑤ 일부(u32 마지막 순번 창 수락 시험 없음), ⑥ 일부(음성 시험 정규식), ⑨ 문구(L ≤ M), ⑪⑫ 미처리.
 
 - → 2026-10-04 08:36 감독(축 4a 늦은 보고, 병합 뒤 도착, 미재실행) 보강 ⑨ (낮음·일부 중간): 변이 21개 중 3개 생존. (a) index.mjs:443 `last >= s.nextSeq` → `>` 생존 — level-arrived.test.mjs:157·:159-162 가 RangeError 타입만 보고 앞 기록의 겹침 검사가 대신 던져 원인이 가려진다. 고칠 것: 앞 LEVEL_ARRIVED 없이 조각 1·2 만 기록한 상태에서 la(9,0,2,2) 를 `/이하여야 한다/` 정규식으로 단언. (b) :462 `last >= ackedUpTo` → `>` 생존 — ⑤ 와 같은 공백(ack(2) 뒤 창 1..2 첫 기록 → levels 1·resendPlan 포함 단언). (c) :376 `seq <= ackedUpTo` → `<` 는 unfinished.test 가 잡지만 resume.test 에 경계 시험 없음(낮음). 확인 기준: 세 변이 모두 resume 시험에서 실패. 권장 모델: sonnet. 판정 변화 없음.
+- → 2026-10-04 08:55 감독(PR #47 검토 #1, 제품 6941ccd) ⑤⑦⑧ 닫음, ⑥ 부분 닫음: 감독 재현 — ⑧ maxEntries=2 입력에서 resendPlan 에 LA9 포함(L9·P2·L10·P3·L11, levels 3), ⑥ A·B 재시도 모두 true, 살아 있는 기록과 다른 값 겹침 RangeError. ⑤ 축 5 단언 확인, ⑦ windowLive 에 추월 포함·stats().levels == resendPlan LA 수(축 1a·7 무작위 시험 위반 0). ⑥ 의 잔여(ack 진행 뒤 같은 값 재시도 RangeError, 기록 때 추월된 창 미보관)는 F-241 ①② 로 옮김. 남은 것: ④(ws 배선, T12 PR).
 ### F-239 [닫힘] (심각도: 낮음) — PR #45 잔여 세부
 - 위치·문제(제품 7518ec9):
   ① (감독 확인) contracts/client_raster/index.mjs:73-75 ④ 와 arrival.mjs:3 이 아직 '선의 LEVEL_ARRIVED 는 {segmentId, level, pieceCount} 뿐', 창 = maxSeq 추정이라고 쓴다. arrival.mjs:103-106·contracts/proto :15-17 의 firstPieceSeq 명시 창과 어긋난다(축 1a·2). firstPieceSeq 창을 기본 규칙, maxSeq 추정을 대체 규칙으로.
@@ -2637,7 +2638,7 @@
 - 이력: 2026-10-04 08:00 감독 등록(PR #45 검토 #1, 축 1a·1b·2·3·4a·5·7 보고). ①④ 감독 확인, ⑤ 일부 감독 재현, 나머지 미재실행. 축 4a 의 '높음'(firstPieceSeq 창 시험 부재)은 감독 재현에서 level-arrived.test 가 같은 변이를 잡아 낮음으로 내림.
 - → 2026-10-04 08:06 감독(축 4b 늦은 보고, 미재실행) 보강 ⑪ (낮음, 일부 중간): server/scheduler/scheduler.test.mjs:389 주석은 지역 배열 O(n) 삽입 변이가 바로 실패한다고 하지만, 감싼 힙을 읽어 push 마다 지역 배열로 복사하는 변이는 :331 Proxy 에 get 트랩이 없어 count 단언에 안 걸리고 120 s timeout 으로 cancelled 만 된다(fail 0). get 트랩으로 읽기를 세거나 주석을 한계대로 고친다. ⑫ (낮음) core.test 재진입 releaseDropped 바깥 전용 동작을 잡는 시험이 하나뿐 — 단순 재진입 사례에 `!('releaseDropped' in inner[0])` 추가. 권장 모델: sonnet(⑪), haiku(⑫).
 
-### F-240 [열림] (심각도: 낮음, ① 은 중간) — PR #46 잔여 세부(F-239 미충족분 포함)
+### F-240 [열림] (심각도: 낮음) — PR #46 잔여 세부(F-239 미충족분 포함)
 - 위치·문제(제품 71865e0):
   ① (중간, 감독 grep 확인 — F-239 ① 미충족, 열려 있던 항목) contracts/client_raster/arrival.mjs:3 과 contracts/client_raster/index.mjs:73 이 아직 '선의 LEVEL_ARRIVED 는 {segmentId, level, pieceCount} 뿐'. 같은 파일의 firstPieceSeq 기본 창 규칙(arrival.mjs ②, index.mjs:75-79)·proto 13 B 와 어긋난다. 실패 상황: T12 구현자가 머리 주석을 믿고 firstPieceSeq 를 버리면 단독 재전송이 거부돼 F-236 이 되살아난다. 고칠 것: 두 줄을 '{segmentId, level, pieceCount, firstPieceSeq} 이고 key 는 없다' 로. 확인 기준: `grep -rn 'pieceCount} 뿐' contracts/` 0건.
   ② (축 1b·4b 독립, 변이 M5 생존 — F-239 ⑤ 일부) arrival.mjs:114 `firstPieceSeq + pieceCount - 1 > U32_MAX` 에서 `- 1` 을 지운 변이가 arrival 시험 두 파일 15/15 통과. arrival.test.mjs:246-249 는 (0xffffffff, 2) 거부만 본다. 고칠 것: completedKeys([P(0xffffffff)], LA(1, 0xffffffff)) 수락 단언. 확인 기준: 그 변이가 실패.
@@ -2653,3 +2654,28 @@
 - 확인 기준: 각 줄대로.
 - 권장 모델: haiku(①③⑥⑦⑧⑩), sonnet(②④⑤⑨⑪)
 - 이력: 2026-10-04 08:30 감독 등록(PR #46 검토 #1). ① 감독 grep 확인, ② 두 축 독립 변이, 나머지 미재실행. ①②③④ 와 ⑪ 은 열려 있던 F-239 의 미충족분, ⑤~⑩ 신규.
+- → 2026-10-04 08:55 감독(PR #47 검토 #1, 제품 6941ccd) ①②④⑤⑦⑧⑨⑩⑪ 닫음: ① 감독 grep `pieceCount} 뿐` 0건, ② 축 1b 경계 실행(0xffffffff,n1 수락·n2 거부), ④ 축 1b decideArrival(1,0)·(3,3) skip 실행·core.test L==M 사례, ⑤ 비중복 단언 복원(축 5), ⑦⑧⑨ 축 1b·7 실행(sessionId 0·-0·NaN 거부, 1·0xffffffff 수락, 첫 WELCOME resumed=true 거부)·arrival.welcome.test, ⑩ fuzz 골든 `kind === 'ok'`, ⑪ scheduler Proxy get 트랩·core 재진입 단언(축 5 diff 확인, 변이는 축 4b). 열림 유지: ⑥ 미처리(감독 확인 — contracts/proto/index.mjs 가 diff 에 없음; PR 본문·실험 노트는 '⑥ proto 주석 처리' 라고 씀 → 처리 주장과 diff 를 대조할 것), ③ 일부(arrival.test.mjs:193·194·196·226 에 bare `isPiece)` 4건 남음, 감독 grep). 권장 모델: haiku.
+
+### F-241 [열림] (심각도: 중간) — LEVEL_ARRIVED 재시도 판정이 ackedUpTo·기록 순서에 따라 바뀐다(F-238 ⑥ 잔여)
+- 위치: server/ws/resume/index.mjs:483-488((c)/(d) 판정), :490-492(보관 판정이 추월 포함 windowLive), :306-313(levelOverlapping), 머리 주석 :37-58 (제품 6941ccd, feat/t11n-followups)
+- 문제·실패 상황:
+  ① (감독 직접 재현, scratchpad sv/f.mjs R1) (c)/(d) 가 현재 windowLive 에 기대 ackedUpTo 가 오르면 판정이 바뀐다. recordSent K0@1·K1@2 → LA(9,0,1,2) → K0@3(대체, 기록 1 지워짐) → LA(9,0,3,1) → 재시도 LA(9,0,1,2) = true → ack(1) → 같은 재시도 = RangeError '창 1..2 이 앞선 기록의 창과 겹친다'. 머리 주석 (c) '대체로 지워진 기록의 재시도 = true' 와 어긋나고, ④ 배선 뒤 재전송 도중 ack 가 끼면 어댑터 송출 경로가 예외로 끊긴다. 축 1a 무작위 시험(시드 4 × 5000회)에서 시드당 28~34건 이 형태의 예외.
+  ② (감독 직접 재현, R2) 같은 송출이라도 LEVEL_ARRIVED 를 추월 조각보다 먼저 기록하면 보관되고(추월이 ack 로 풀리면 다시 나감), 뒤에 기록하면(F-238 ⑤ 가 허용하는 늦은 첫 기록) 보관하지 않아 영구히 빠진다. (9,0,t0)@1·(9,0,t1)@2·(9,1,t0)@3 → LA(9,0,1,2) 를 seq3 뒤에 기록 → LA(9,1,3,1) → ack(1) → open(2) → resendPlan LA = [9:3]; seq3 앞에 기록하면 [9:1, 9:3]. 머리 주석 :54-58 '보관 뒤 추월은 지우지 않는다' 와 일관되지 않음.
+  ③ (축 1a 재현, 미재실행, 낮음) 앞 기록이 지워진 상태에서 tail 과 겹치고 last == ackedUpTo 인 다른 값 기록(순서 위반)이 (c) 로 true·미저장 — 고치기 전에는 RangeError. 입력: (9,0)@1 → LA(9,0,1,1) → (9,1)@2 → ack(2) → LA(9,1,first1,n2) → true, levels 0.
+  ④ (축 6 측정, 미재실행) levelOverlapping 이 gone 기록을 선형으로 건너뛰어(압축은 gone 이 절반을 넘을 때만) 지워진 기록 재시도 폭주 시 O(n²): 기록 8만·45% 대체 뒤 재시도 3.6만 회 5.2 s(호출당 145 µs, L 에 비례). (d) 판정의 windowLive 는 순서 위반 호출마다 O(W)(W=10만 6.1 ms/회, 낮음).
+- 고칠 것: ①③ 지운·미보관 기록의 네 값을 묘비로 남겨(최대 maxEntries+1 개, 결정 0033 대가 해소) (a) 에서 잡고, 묘비와 일치하지 않는데 tail 과 겹치면 RangeError — 또는 (d) 를 없애고 대가를 머리 주석에 적는다. 판정은 ackedUpTo 에 따라 바뀌지 않아야 한다. ② 보관 판정·(c)/(d) 판정은 '죽음·기록 없음' 만 보는 판정, resendPlan·stats 는 추월 포함 windowLive. ④ levelOverlapping 이 gone 을 상수 시간에 건너뛰게(다음 살아 있는 기록 포인터 또는 lowerBound 조건).
+- 확인 기준: ① R1 의 ack(1) 뒤 재시도 true, levels·resendPlan 그대로. 무작위 시험(재시도 섞음)에서 같은 값 재시도 예외 0. ② R2 의 두 순서에서 resendPlan 동일. ③ 위 입력 RangeError. ④ 기록 8만·45% 대체 재시도의 호출당 시간이 L 에 무관(수 µs) — 벽시계 단언은 npm test 에 넣지 말고 걸음 수 계측으로.
+- 권장 모델: opus(①②③ — F-238 ⑥ 두 번째), sonnet(④)
+- 이력: 2026-10-04 08:55 감독 등록(PR #47 검토 #1, 축 1a·6 보고, ①② 감독 재현). 이번 PR 이 바꾼 recordLevelArrived 에서 나옴(범위 안). 저장소 기록은 아직 배선 전(F-238 ④)이라 운영 경로 영향 없음 → 중간. ④ 배선 PR 전 필수.
+
+### F-242 [열림] (심각도: 낮음) — PR #47 잔여 세부
+- 위치·문제(제품 6941ccd):
+  ① (축 1b 실행) contracts/client_raster/arrival.mjs:12 머리 ⓪ 이 'sessionId 는 u32 정수' — 검사(:181)·JSDoc(:158)은 1 이상. '1 이상(서버는 0 을 발급하지 않음)' 으로.
+  ② (축 1b 실행) contracts/proto/index.mjs:12 WELCOME sessionId 정의역이 u32 이고 복호기는 0 을 받는데 collectArrivals 는 거부. proto 주석에 'sessionId ≥ 1(0 은 HELLO 새 접속 전용)' 을 적거나 복호에서 'field' 거부.
+  ③ (축 1b) server/adapter/core/index.mjs:65-66 해제 알림 생략 조건은 levelArrivedTried(:363)인데 주석은 L ≤ M 을 이유처럼 씀 — 인과를 분기 조건대로.
+  ④ (축 7, 미확인) server/ws/resume/index.mjs:467 recordLevelArrived·assertKey 는 segmentId 상한이 없고 클라이언트는 2^30 이상 거부(contracts/client_raster/index.mjs:198). 상위 계층이 거르는지 확인하고, 아니면 저장소에서 거부하거나 위치를 문서화.
+  ⑤ (축 5) server/ws/resume/level-arrived.test.mjs F-238 ② 시험 `s.levels <= MAX + 1` 에 근거 주석(불변식, 결정 0033) 추가, 가능하면 등호 단언.
+  ⑥ (축 3, 설계 확인) 저장하지 않고 true 를 돌려주는 경로(:483-492)와 방어 상한 shiftLevel(:495-497)은 호출자에게 알리지 않는다 — stats 에 미저장·상한 삭제 횟수를 세어 배선 뒤 관측 가능하게.
+- 확인 기준: 각 줄대로.
+- 권장 모델: haiku(①②③⑤), sonnet(④⑥)
+- 이력: 2026-10-04 08:55 감독 등록(PR #47 검토 #1). 모두 이번 PR 변경 범위에서 나온 신규, 미재실행(①② 는 축 1b 실행 결과).

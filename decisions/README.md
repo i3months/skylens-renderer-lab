@@ -80,3 +80,4 @@
 | [0030](0030-protocol-wire-format.md) | 웹소켓 프로토콜: 8 B 머리 + 고정 배치 본문, 검사 순서를 서버·클라이언트가 공유 | 승인 | 작업자 제안·감독 승인(PR #39) |
 | [0031](0031-adapter-unfinished-event-and-ws-limits.md) | 어댑터 송출 실패는 같은 이벤트 재시도로만 회복(UNFINISHED_EVENT), ws 미결 핸들러는 pause·send 초과는 1008 | 승인 | 작업자 제안·감독 승인(PR #41) |
 | [0032](0032-level-arrived-first-piece-seq.md) | LEVEL_ARRIVED 에 firstPieceSeq(u32, 9→13 B), 이어받기 저장소가 LEVEL_ARRIVED 기록·재전송 | 승인 | 작업자 제안·감독 승인(PR #45, 배선은 F-238) |
+| [0033](0033-level-arrived-record-rules.md) | LEVEL_ARRIVED 기록 상한 maxEntries+1, 지운 기록의 같은 값 재시도는 멱등 true, 살아 있는 기록과 겹치면 RangeError | 승인 | 작업자 제안·감독 승인(PR #47, 잔여 F-241) |
