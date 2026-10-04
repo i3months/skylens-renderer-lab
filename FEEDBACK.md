@@ -2656,6 +2656,8 @@
 - 이력: 2026-10-04 08:30 감독 등록(PR #46 검토 #1). ① 감독 grep 확인, ② 두 축 독립 변이, 나머지 미재실행. ①②③④ 와 ⑪ 은 열려 있던 F-239 의 미충족분, ⑤~⑩ 신규.
 - → 2026-10-04 08:55 감독(PR #47 검토 #1, 제품 6941ccd) ①②④⑤⑦⑧⑨⑩⑪ 닫음: ① 감독 grep `pieceCount} 뿐` 0건, ② 축 1b 경계 실행(0xffffffff,n1 수락·n2 거부), ④ 축 1b decideArrival(1,0)·(3,3) skip 실행·core.test L==M 사례, ⑤ 비중복 단언 복원(축 5), ⑦⑧⑨ 축 1b·7 실행(sessionId 0·-0·NaN 거부, 1·0xffffffff 수락, 첫 WELCOME resumed=true 거부)·arrival.welcome.test, ⑩ fuzz 골든 `kind === 'ok'`, ⑪ scheduler Proxy get 트랩·core 재진입 단언(축 5 diff 확인, 변이는 축 4b). 열림 유지: ⑥ 미처리(감독 확인 — contracts/proto/index.mjs 가 diff 에 없음; PR 본문·실험 노트는 '⑥ proto 주석 처리' 라고 씀 → 처리 주장과 diff 를 대조할 것), ③ 일부(arrival.test.mjs:193·194·196·226 에 bare `isPiece)` 4건 남음, 감독 grep). 권장 모델: haiku.
 
+- → 2026-10-04 09:30 감독(PR #48 검토 #1, 제품 4c798af) ⑥ 닫음: contracts/proto/index.mjs:12·:19·:37 diff 감독 확인(미배선 단서·결정 0032 두 조건·옛 9 B 거부). 열림 유지: ③ 일부(arrival.test.mjs:193·194·196·226 bare `isPiece)` 4건 그대로, 감독 grep). 권장 모델: haiku.
+
 ### F-241 [열림] (심각도: 중간) — LEVEL_ARRIVED 재시도 판정이 ackedUpTo·기록 순서에 따라 바뀐다(F-238 ⑥ 잔여)
 - 위치: server/ws/resume/index.mjs:483-488((c)/(d) 판정), :490-492(보관 판정이 추월 포함 windowLive), :306-313(levelOverlapping), 머리 주석 :37-58 (제품 6941ccd, feat/t11n-followups)
 - 문제·실패 상황:
@@ -2672,7 +2674,9 @@
 
 - → 2026-10-04 09:05 감독(축 4b 늦은 보고, 병합 뒤 도착, 미재실행) 보강 ⑦ (중간): server/scheduler/scheduler.test.mjs:318·:338·:407 — reads 는 check(ops) 에서만 검사하고 c.cap·over() 에 없어, heapPop·nextBatch 안 동기 복사 변이는 group 20k 58 s 뒤에야 실패, 100k asc+drain 은 300 s 넘게 안 끝남(:301-302 '전체 상한을 넘는 순간 던진다' 와 어긋남). 고칠 것: c.cap.reads 와 get 트랩 즉시 상한 검사, 관측기 자체 시험에 reads 사례, F-213 시험(:617) bounds 에 reads. 확인 기준: 그 변이가 수 초 안에 '관측 상한 초과 … reads' 로 실패. 권장 모델: sonnet. ⑧ (낮음) core.test.mjs:1093 L==M 사례는 기계가 같은 key 를 쥐어 '쥐지 않은 key 해제 생략' 변이를 못 잡음 — 다른 key 집합으로 확정 뒤 rel == []; :920 단언은 앞 deepEqual 과 중복; arrival.test.mjs:182 서로소 단언은 고정 기대값 뒤라 늘 참(deepEqual 앞으로); fuzz.test.mjs:211 메시지에 r.kind. 권장 모델: haiku. 판정 변화 없음.
 
-### F-242 [열림] (심각도: 낮음) — PR #47 잔여 세부
+- → 2026-10-04 09:30 감독(PR #48 검토 #1, 제품 4c798af) ①②③④⑤⑥ 닫음: 감독 직접 재현(scratchpad sv/f.mjs) — ① R1 ack(1) 앞뒤 재시도 모두 true·다른 값은 RangeError, ② R2 두 순서 resendPlan LA 모두 [9:1, 9:3], ③ 입력 RangeError. ④ levelOverlapping 제거·판정은 byLast Map 조회 하나(levelStats().work 호출당 1, 감독 diff 확인). ⑤ level-arrived.retry.test.mjs:73-80 정규식 단언. ⑥ 상한 시험 등호 단언(축 5 확인). 열림 유지: ⑦(scheduler reads 즉시 상한 — server/scheduler 가 diff 에 없음, 감독 확인, 중간, sonnet), ⑧(낮음, haiku). 상태는 [열림] 그대로(⑦⑧).
+
+### F-242 [닫힘] (심각도: 낮음) — PR #47 잔여 세부
 - 위치·문제(제품 6941ccd):
   ① (축 1b 실행) contracts/client_raster/arrival.mjs:12 머리 ⓪ 이 'sessionId 는 u32 정수' — 검사(:181)·JSDoc(:158)은 1 이상. '1 이상(서버는 0 을 발급하지 않음)' 으로.
   ② (축 1b 실행) contracts/proto/index.mjs:12 WELCOME sessionId 정의역이 u32 이고 복호기는 0 을 받는데 collectArrivals 는 거부. proto 주석에 'sessionId ≥ 1(0 은 HELLO 새 접속 전용)' 을 적거나 복호에서 'field' 거부.
@@ -2683,3 +2687,4 @@
 - 확인 기준: 각 줄대로.
 - 권장 모델: haiku(①②③⑤), sonnet(④⑥)
 - 이력: 2026-10-04 08:55 감독 등록(PR #47 검토 #1). 모두 이번 PR 변경 범위에서 나온 신규, 미재실행(①② 는 축 1b 실행 결과).
+- → 2026-10-04 09:30 감독(PR #48 검토 #1, 제품 4c798af) 닫음: ①②③ 주석 diff 감독 확인(arrival.mjs:12, proto:12, core:65-68), ④ assertSegmentId(resume index.mjs:126-130, SEGMENT_ID_LIMIT) 감독 diff 확인, ⑤ 등호 단언(축 5), ⑥ levelStats {stored, tombstones, horizon, unstored, blind, capDropped, work} 감독 diff 확인.
