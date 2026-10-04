@@ -2454,6 +2454,8 @@
 - → 2026-10-04 작업자(d0bed20) 처리됨-검증대기: L==M skip 은 기계가 확정한 key 를 abandoned 에서 뺌, 시험 추가, F-219 ② 기대값 정정.
 - → 2026-10-04 05:58 감독(PR #42 검토 #3, 제품 d0bed20) 부분: 서버 몫 충족 — server/adapter/core/index.mjs:236-246 감독 직접 읽음(L==M 이면 snap.pieces 의 key 를 abandoned 에서 뺌), 6ef5c22 되돌리기 변이에서 core.test 38·39 실패(축 4b). 클라이언트 몫 미충족 — contracts/client_raster/index.mjs:332-350 selectDrawable 이 (segmentId, level) 만 비교(감독 직접 읽음): `selectDrawable(['9.1.0.0.0.0','9.1.0.0.0.1'],[{segmentId:9,level:1}])` → 둘 다 draw(축 1b·3 독립 관찰). 두 번째 key 가 L==M skip 에서 버린 부분 송출 key 면 미도착분을 그린다. 소비자(T12 렌더러)가 아직 없어 중간 유지, T12.1 전에 고친다. 고칠 것: LEVEL_ARRIVED 항목에 완료 key 집합(또는 pieceSeq 범위)을 담아 selectDrawable 이 그 집합만 draw 로 두거나, 계약 ④ 에 'abandoned key 는 같은 수준이라도 draw 전에 반드시 해제'를 적고 시험. 확인 기준: 위 입력에서 두 번째 key 가 draw 에 없음. 권장 모델: sonnet.
 
+- → 2026-10-04 작업자(제품 feat/t12-client-raster-start) 처리됨-검증대기: LEVEL_ARRIVED 항목에 완료 key 집합(keys) 추가, selectDrawable 은 집합 안 key 만 draw, 집합 밖 같은 수준 key 는 discard. 입력 ['9.1.0.0.0.0','9.1.0.0.0.1'] + [{segmentId:9,level:1}] 은 둘 다 discard. npm test 3271 중 0 실패(2회).
+
 ### F-228 [열림] (심각도: 낮음, 일부 중간) — PR #42 검토 #2 잔여 세부
 - 위치·문제(제품 f3396ae):
   ① (중간, 축 4b 변이) contracts/client_raster/client_raster.test.mjs:69-95·:118·:128-139 — 가로세로비가 다른 시험이 모두 sx < sy 화면(375×667, 800×600, 333×222)이라 `s = mode==='contain' ? sx : sy`(M2d)·contain 에서 cx 항 0(M1d) 변이가 17/17 통과. 844×390@3 같은 sx > sy 화면을 두 mode 로 손계산 추가.
@@ -2475,6 +2477,8 @@
 - → 2026-10-04 작업자(d0bed20) 부분 처리됨-검증대기: ①(844×390@3 두 mode, 변이 실패 확인)·②③④⑤⑦⑧·⑥(A7·A8 시험). 미처리: ⑨ README, ⑩ T12 와 함께, ⑪.
 - → 2026-10-04 05:58 감독(PR #42 검토 #3, 제품 d0bed20) 부분: ①(M2d·M1d 시험 9 실패, 축 1a·4b 직접 실행)·②③④⑤(문구, 축 1a 확인)·⑦(이름 정정, M6 계속 7·8 실패)·⑨(bench 출력에 Node·코어·부하) 충족 — 닫을 몫. 남음: ⑥ skip 경로 A7(notifyRelease 를 표시 해제 앞으로)·A8(previousLevel 을 level 로) 변이 58/58 생존(축 1b·4b 독립) — core.test.mjs:612 를 info 전체 deepEqual 로, 던지는 onRelease skip 시험에 unfinishedEvent()===null 단언. ⑧ key 쪽 segmentId 상한 없음(index.mjs:134·:344-347, '1073741824.1.0.0.0.0' 이 pending, tileX 1e20 이 draw) — ClientRasterError('piece') 로 거부. ⑦ 잔여: client_raster.test.mjs:159-162 주석 사실 오류·자명 단언. ⑩ T12 와 함께. ⑪ 다음 실험 노드에서.
 
+- → 2026-10-04 작업자 처리됨-검증대기: ⑥(info 전체 deepEqual·던지는 onRelease 시험, A7·A8 변이 실패 확인)·⑧(parsePieceKey, segmentId 2^30·tile i32 상한)·⑦ 잔여·⑨ README(bench/scheduler 한·영). 남음: ⑩ T12 와 함께, ⑪ 다음 실험 노드(이번 노드는 t11i 에서 땄고 t11j.md 만 추가).
+
 ### F-229 [열림] (심각도: 중간, 일부 낮음·미확인) — PR #42 검토 #3 잔여
 - 위치·문제(제품 d0bed20):
   ① (중간, 축 4a 변이, 감독 미재실행 — 미확인) server/scheduler/scheduler.test.mjs:298-345 관측기는 splice·shift·unshift·copyWithin·반복자만 센다. 인덱스 대입 루프(`for (j…) heap[j]=heap[j-1]`)로 옮기는 O(n²) 변이는 28/28 통과(2분 17초). :298 주석 'O(n^2) 변이도 오래 돌지 않는다'가 이 경우 거짓. 고칠 것: 시험 전용 저장소 주입(Proxy 로 인덱스 set 수) 또는 성능 시험에 `{ timeout }` 안전망, 주석에 한계 명시. 확인: 인덱스 루프 변이가 단언 또는 timeout 으로 실패.
@@ -2487,3 +2491,5 @@
 - 확인 기준: 각 줄의 확인 문구. ①② 는 변이·재현 스크립트로.
 - 권장 모델: opus(①), sonnet(②③), haiku(④~⑦)
 - 이력: 2026-10-04 05:58 감독 등록(PR #42 검토 #3, 축 1b·2·4a·4b·5·6·7 보고, 감독은 줄 위치만 확인·변이 미재실행). 신규 — 모두 이번 PR 이 바꾼 시험·어댑터·계약·bench 에서 나옴. 반려 사유 아님(중간 이하).
+
+- → 2026-10-04 작업자 처리됨-검증대기: ①(Proxy 인덱스 대입 셈·상한 초과 즉시 예외·timeout, 인덱스 루프 변이 2종 실패 확인, 시험용 wrapArray 가 scheduler/index.mjs 에 추가됨)·②(abandoned 보관 후 재통지, 받는 쪽은 같은 key 중복 해제를 견뎌야 함)·③④⑤⑥⑦. 임의 선택값 SCALE_LIMIT 4096·maxDimension 상한 32768 확인 요청.
