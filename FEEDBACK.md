@@ -595,7 +595,6 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 08:30 감독 등록(축 4B 보고, 감독 직접 재현). 신규. → 2026-10-03 작업자 처리(제품 feat/asset-format 282d7d8): F-060 수정, 확인 기준 ①~④ 통과. 전체 npm test 510 중 통과 498·실패 0·건너뜀 12 → 2026-10-03 09:05 감독 확인 닫음(감독 직접: 사본 pack/index.mjs 문법 오류 → `node --test server/asset/determinism/*.test.mjs` fail 1·skip 0. 축 4A: packFn 생략 시 실제 packChunk, times NaN·1.5·Infinity 던짐 확인)
 
-
 ### F-061 [닫힘] (심각도: 높음) — unpack_error_bound 가 f_dc 반올림 방향 수정(f32Toward)을 고정하지 못하고, 오차 상한 시험이 제품 packChunk 가 아닌 복사본 부호기를 쓴다
 - 위치: 제품 e3133dc — server/asset/unpack/unpack.test.mjs:16-113(참조 부호기 복사본), :275·:285·:306(EDGE_FDC), server/asset/unpack/index.mjs:168·175, server/asset/pack/pack.test.mjs:77-88
 - 문제: 실험 노트 발견 1은 "f32 로 내릴 때 반올림 몇 ulp 가 상한을 넘어 처음 구현에서 위반 4건, 반올림 방향을 골라 해결" 이라고 적는다. 그런데 그 수정을 되돌려도 테스트가 통과한다. EDGE_FDC 는 0, ±0.5/C0 근처, 127.5 동점만 넣어 문제 경계(각 색 코드 c 의 하한 끝 f32 원본)를 포함하지 않는다. 또 무작위 왕복 상한 시험의 입력은 테스트 안의 복사본 부호기(packPoint27/packGauss56)로 만들고, 골든도 같은 식의 generate.mjs 로 만들어 제품 packChunk 와 복사본이 함께 틀리면 잡히지 않는다. quantExp 등호 경계(extent = 65535·2^-k)도 시험하지 않아 pack/index.mjs:112 의 `<=`→`<` 변형이 살아남는다(축 4A 보고).
@@ -604,7 +603,6 @@
 - 확인 기준: 사본 변형 세 가지 각각에서 해당 테스트 fail ≥1 — (a) unpack:168 f32Toward→Math.fround (b) unpack:175 opacity f32Toward→Math.fround (c) pack:112 `<=`→`<`. 원본에서 전체 npm test 실패 0, 상한 값(contracts/asset/index.mjs:60-69) 변경 없음.
 - 권장 모델: opus(수치 경계 계산)
 - 이력: 2026-10-03 08:30 감독 등록(축 4A 보고, (a) 감독 직접 재현). 신규. → 2026-10-03 작업자 처리(제품 feat/asset-format 282d7d8): 변형 (a)(b)(c) 각각 테스트 fail 직접 확인, 상한 변경 없음. 전체 npm test 510 중 통과 498·실패 0·건너뜀 12 → 2026-10-03 09:05 감독 확인 닫음(감독 직접: 사본 unpack:185 f32Toward→Math.fround → unpack 테스트 fail 1. 축 1b: (a)(b)(c) 각각 fail 1, 왕복 시험이 제품 packChunk 사용(unpack.test.mjs:12·34), contracts/ 변경 0)
-
 
 ### F-062 [닫힘] (심각도: 중간) — 명세·결정 0015 의 형식 1 점당 본문 바이트가 13 B 로 틀렸다(실제 11 B)
 - 위치: 제품 format/ASSET_FORMAT.md:20, :144, :287, :288 / 연구 experiment/asset-format decisions/0015-asset-single-format.md "13 B/점", "48%"
@@ -615,7 +613,6 @@
 - 권장 모델: haiku
 - 이력: 2026-10-03 08:30 감독 등록(축 1 보고, 감독 줄 확인). 신규. → 2026-10-03 작업자 처리(제품 feat/asset-format 282d7d8): 13 B·13n 0건, 0015 정정. 전체 npm test 510 중 통과 498·실패 0·건너뜀 12 → 2026-10-03 09:05 감독 확인 닫음(감독 직접: `grep -n '13 B\|13n' format/ASSET_FORMAT.md` 0건, 0015 11 B·40.7% 확인)
 
-
 ### F-063 [닫힘] (심각도: 중간) — packChunk 가 lod > 7 조각을 만든다(검증기·엄격 읽기가 거부)
 - 위치: server/asset/pack/index.mjs:86, :118-122
 - 문제: pack 은 lod 를 LOD_MAX(7)로 검사하지 않고 serializeHeader(0..255)만 거친다.
@@ -624,7 +621,6 @@
 - 확인 기준: `packChunk({lod:8})` 이 AssetFormatError('field'), 테스트 1건.
 - 권장 모델: sonnet
 - 이력: 2026-10-03 08:30 감독 등록(축 7). 신규. → 2026-10-03 작업자 처리(제품 feat/asset-format 282d7d8): lod 검사·테스트. 전체 npm test 510 중 통과 498·실패 0·건너뜀 12 → 2026-10-03 09:05 감독 확인 닫음(축 1: lod NaN·1.5·-1·8 → AssetFormatError field(pack/index.mjs:89))
-
 
 ### F-064 [닫힘] (심각도: 중간) — 클라이언트 읽기가 codec 을 검사하지 않고 헤더 의미 검사·음성 테스트가 거의 없다
 - 위치: client/asset/index.mjs:42(codec 읽기만), :72-88(readPlanesClient: 파일이 길어도 통과), client/asset/client_asset.test.mjs:15·22·24(gauss56 기준값 0 으로 꺼짐), :64-70(음성 2개)
@@ -635,7 +631,6 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 08:30 감독 등록(축 3·4B·7, 감독 :42 확인). 신규. → 2026-10-03 작업자 처리(제품 feat/asset-format 282d7d8): 클라이언트 검사·음성 테스트. 전체 npm test 510 중 통과 498·실패 0·건너뜀 12 → 2026-10-03 09:05 감독 확인 닫음(축 4B: 클라이언트 codec 검사 제거 변형 fail 2~4, 축 3: codec≠0·잘린 본문·뒤 바이트 거부)
 
-
 ### F-065 [닫힘] (심각도: 중간) — f32Toward 가 호출마다 타입 배열을 할당해 가우시안 unpack 이 100만 점에 3.3 s, 퍼저 시간 상한 여유가 얇다
 - 위치: server/asset/unpack/index.mjs:25-28(f32Toward), :168·:175 호출, server/asset/fuzz/fuzz.test.mjs:13(MAX_CALL_MS 50)·:171-179
 - 문제: `new Float32Array([f])`·`new Int32Array(buf.buffer)` 를 점당 최대 4회 만든다. 축 6 측정: GAUSS56 100만 점 unpackChunk 3272 ms(POINT27 169 ms), 프로파일 1위 f32Toward·2위 GC. 축 5 실행에서 퍼저 toSourceRecords 최대 45.14 ms(상한 50 ms), 노트는 11.3 ms 라고 적음.
@@ -645,7 +640,6 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 08:30 감독 등록(축 5·6, 감독 :25-28 확인, 시간 수치 미확인). 신규. → 2026-10-03 작업자 처리(제품 feat/asset-format 282d7d8): 100만 점 가우시안 unpack 394 ms(유휴, ≤ 500 ms), 점 27 135 ms, 출력 비트 동일. 전체 npm test 510 중 통과 498·실패 0·건너뜀 12 → 2026-10-03 09:05 감독 확인 닫음(축 5·6: 100만 점 GAUSS56 unpackChunk 316~377 ms·349 ms(≤500 ms), 출력 비트 동일(축 1, 200만 입력))
 
-
 ### F-066 [닫힘] (심각도: 중간) — 검증기·unpack 음성 테스트 누락(변형 생존)
 - 위치: tools/asset_validate/asset_validate.test.mjs:136-176(손상 목록), :102 / server/asset/unpack/unpack.test.mjs:468-486 / server/asset/fuzz/fuzz.test.mjs:204-208·:392-395·:398-403
 - 문제: 검증기의 tile·codec·anchor·pointCount 검사를 각각 `if (false)` 로 바꿔도 19/19 통과. unpack 의 pointCount 0·bboxMin 비유한 거부를 지워도 통과(NaN 좌표 출력). 퍼저는 형제 모듈 import 실패를 skip 으로 돌리고, 필드 표 오프셋을 OFFSETS 와 같은지 비교하지 않는다. 무작위 입력 테스트는 'validator failure'(내부 예외)를 걸러내지 않는다.
@@ -653,7 +647,6 @@
 - 확인 기준: 위 각 검사를 지운 사본에서 테스트 fail ≥1.
 - 권장 모델: sonnet
 - 이력: 2026-10-03 08:30 감독 등록(축 4A·4B, 변형 결과는 서브에이전트 보고, 감독 미재현). 신규. → 2026-10-03 작업자 처리(제품 feat/asset-format 282d7d8): 검증기·unpack·퍼저 음성 테스트, 퍼저 예산 CPU 시간화. 전체 npm test 510 중 통과 498·실패 0·건너뜀 12 → 2026-10-03 09:05 감독 확인 닫음(축 4A·4B: 검증기 tile·codec·anchor·pointCount if(false) 각각 fail 1, unpack pointCount·bboxMin 검사 제거 fail 2·18, 퍼저 import·OFFSETS·validator failure 확인)
-
 
 ### F-067 [닫힘] (심각도: 낮음) — 명세 문구·잔여 정리 묶음
 - 위치·고칠 것:
@@ -670,7 +663,6 @@
 - 권장 모델: haiku(①~⑤·⑧ 문구), sonnet(⑥⑦)
 - 처리 시점: F-060·F-061 과 같은 PR 에서 가능하면 함께, 아니면 T04 첫 하위 작업(결정 0011).
 - 이력: 2026-10-03 08:30 감독 등록. 신규. → 2026-10-03 작업자 처리(제품 feat/asset-format 282d7d8): ①~⑨ 반영(① SPEC 문구는 감독 몫으로 남김). 전체 npm test 510 중 통과 498·실패 0·건너뜀 12 → 2026-10-03 09:05 감독 확인 닫음(①~⑤ 문구 일부가 메모 형태로 남음(ASSET_FORMAT.md:37·249·259·260) → F-068 로 옮겨 닫음. ⑥~⑨ 확인)
-
 
 ### F-068 [닫힘] (심각도: 중간) — 자산 명세에 메모 문구가 규범 자리에 남고 Δd 근거가 다시 시점 거리로 읽힌다
 - 위치: 제품 main(PR #12 병합분) format/ASSET_FORMAT.md:37, :173, :229, :249, :259, :260
@@ -690,7 +682,6 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 09:05 감독 등록(축 7 보고, 감독 unpack:120 의 bboxMin 단독 검사 직접 확인, 나머지 수치 미재현). 신규. → 2026-10-03 작업자 처리(제품 feat/point-io c891c29): bbox·비유한·입력 형 검사, checkDeterminism times<2 거부. 전체 npm test 584 중 통과 572·실패 0·건너뜀 12 → 2026-10-03 09:40 감독 확인 닫음(비유한 테스트 4파일 통과, checkDeterminism(x,2,()=>null)·crc32(null) → AssetFormatError 직접 확인, 축 7 bboxMin 1e308 재현 거부)
 
-
 ### F-070 [닫힘] (심각도: 낮음) — PR #12 잔여 테스트 공백
 - 위치·고칠 것:
   ① tools/asset_validate/asset_validate.test.mjs:79 — 타일 검사 반복을 `a < 1` 로 줄여도 통과. tileY 손상 사례 추가. (축 4B)
@@ -704,7 +695,6 @@
 - 처리 시점: T04 첫 하위 작업(T04.F)에서 F-068·F-069 와 함께.
 - 이력: 2026-10-03 09:05 감독 등록. 신규. → 2026-10-03 작업자 처리(제품 feat/point-io c891c29): 검증기·tile_index·client·determinism 테스트 보강, 퍼저 벽시계 보호 150 s·재시도 통과 건수. 전체 npm test 584 중 통과 572·실패 0·건너뜀 12 → 2026-10-03 09:40 감독 확인 닫음(축 4B 사본 변형 ①②③⑤⑥ 모두 fail 확인, 관련 테스트 감독 직접 통과)
 
-
 ### F-071 [닫힘] (심각도: 높음) — GPS↔ENU 가 skylens geo.ts(등장방형 근사)가 아니라 WGS-84 정확식이다. T04.5·T04.7 완료 기준 미달
 - 위치: 제품 feat/point-io c891c29 server/geo/enu/index.mjs:1·30-60·78-103, client/geo/index.mjs:1·22-36, contracts/geo/index.mjs:9-10, server/geo/enu/enu.test.mjs:1·118-131, client/geo/geo.test.mjs:22-39·102-110. 규칙: 연구 RULES.md:22, SPEC.md:29, TASKS T04.5
 - 문제: RULES.md:22 는 "skylens src/shared/geo.ts 와 같은 식(등장방형 소영역 근사)" 을 요구한다. skylens develop src/shared/geo.ts 는 공개 저장소(NET-Challenge-S13/skylens, develop)에서 바로 받을 수 있고 식은 `e = Δλ·R·cos(φ0)`, `n = Δφ·R`, `u = alt − alt0`, R = 6378137, 역변환은 그 역이다. 구현은 ECEF 경유 타원체 정확식이라 다른 값을 낸다. 결정 0016 은 "체크아웃 없음" 을 근거로 들었으나 클라우드에서 확인 가능한 항목이다([local] 아님).
@@ -714,7 +704,6 @@
 - 권장 모델: opus
 - 이력: 2026-10-03 09:40 감독 등록(축 3·5 보고, 감독 skylens develop geo.ts 받아 직접 비교 재현). 신규. PR #13 반려 사유. → 2026-10-03 작업자 처리(제품 feat/point-io 병합 커밋 후속, 연구 experiment/point-io 349339f): geo.ts 식(R=6378137)으로 서버·클라이언트 교체, 기준 함수 대비 최대 차 0 m·왕복 ≤1.4e-9 m, 실제 skylens develop 자산 16개 readPly 성공. 전체 npm test 619 중 통과 607·실패 0·건너뜀 12 → 2026-10-03 10:25 감독 확인 닫음(제품 acb3818: skylens develop 59edcf9 geo.ts 식을 직접 옮긴 기준 함수와 앵커 (37.5665,126.978,30) 무작위 1만 점, 반경 0.1·0.5·1·5 km 에서 서버 gpsToEnu·클라이언트 gpsToEnuClient·역변환 모두 최대 차 0 m. 축 1 무작위 20만 쌍 비트 일치. npm test 619 중 통과 607·실패 0·건너뜀 12)
 
-
 ### F-072 [닫힘] (심각도: 중간) — 좌표 계약이 skylens geo.ts 와 표현·이름이 다르다
 - 위치: 제품 feat/point-io contracts/geo/index.mjs:6·13·15, contracts/geo/stubs.mjs:8-16, server/geo/scene/index.mjs:23·28
 - 문제: ① Enu 가 배열 [e,n,u] 이고 skylens 는 객체 {e,n,u}. ② skylens 의 gpsToScene·sceneToGps 가 없다. ③ contracts enuToScene([0,0,0]) → [0,0,−0], enuArrayToScene 은 0−n 이라 [0,0,0](deepStrictEqual 불일치).
@@ -723,7 +712,6 @@
 - 확인 기준: 객체 입력 → GeoError 또는 [1,3,−2], n=0 에서 두 함수 결과 deepStrictEqual 같음, skylens 함수 이름 6개가 모두 있음.
 - 권장 모델: sonnet (F-071 과 같은 하위 작업이면 opus)
 - 이력: 2026-10-03 09:40 감독 등록(축 1 보고, contracts/geo/index.mjs:6·13 감독 직접 확인). 신규. → 2026-10-03 작업자 처리(제품 feat/point-io 병합 커밋 후속, 연구 experiment/point-io 349339f): 배열 유지·경계 입력 검사·−0 정규화·skylens 이름 6개·어댑터. 전체 npm test 619 중 통과 607·실패 0·건너뜀 12 → 2026-10-03 10:25 감독 확인 닫음(enuToScene({e:1,n:2,u:3}) → GeoError(range), enuToScene([1,0,3]) → [1,3,0], 서버 모듈에 skylens 이름 6개 모두 있음)
-
 
 ### F-073 [닫힘] (심각도: 중간) — 점 입력 모듈의 이상 입력·큰 입력 처리 잔여
 - 위치·문제·실패 상황(축 6·7 재현 보고, 감독은 points_stat:25-43 코드만 직접 확인):
@@ -737,7 +725,6 @@
 - 확인 기준: 위 입력 각각 PointsError/GeoError, 두 NaN 위치 입력의 결과가 같고 NaN 미포함, 250만 점 readPly 헤더 단계 추가 할당 ≈ 0, 1바이트 청크 1M 개 머리 입력 1 s 미만.
 - 권장 모델: sonnet
 - 이력: 2026-10-03 09:40 감독 등록(축 1b·6·7 보고). 신규. → 2026-10-03 작업자 처리(제품 feat/point-io 병합 커밋 후속, 연구 experiment/point-io 349339f): ①~⑥ 처리, 헤더 추가 할당 0 B·1바이트 청크 1M 개 190 ms. 전체 npm test 619 중 통과 607·실패 0·건너뜀 12 → 2026-10-03 10:25 감독 확인 닫음(축 1b·6·7 재현: chunkPoints·vertexCount 상한, 1바이트 청크 1M 개 머리 145 ms, 헤더 단계 추가 할당 0 B, points_stat 비유한·길이 불일치 PointsError. ⑥ 은 비유한 결과는 막지만 범위 밖 결과는 통과 → F-076 으로 분리)
-
 
 ### F-074 [닫힘] (심각도: 낮음) — PR #13 문서·테스트 공백
 - 위치·고칠 것:
@@ -756,7 +743,6 @@
 - 권장 모델: haiku(①②③⑥⑧ 문구·단순 테스트), sonnet(④⑤⑦⑨⑩⑪)
 - 처리 시점: F-071 과 같은 PR 에서 가능하면 함께. 반려 사유 아님.
 - 이력: 2026-10-03 09:40 감독 등록(축 2·3·4A·4B·5·6 보고, ① :249 문구와 ② 실제 자산 읽기는 감독 직접 확인). 신규. → 2026-10-03 작업자 처리(제품 feat/point-io 병합 커밋 후속, 연구 experiment/point-io 349339f): ①~⑪ 처리. 전체 npm test 619 중 통과 607·실패 0·건너뜀 12 → 2026-10-03 10:25 감독 확인 닫음(②~⑪ 확인. ① 은 "밀도의 하한" 은 사라졌으나 새 문장이 Δd 를 다시 시점 거리와 잇는다 → F-068 다시 엶. ⑩ 의 테스트에서 기존 음성 사례 4개가 빠짐 → F-077 ④)
-
 
 ### F-075 [닫힘] (심각도: 높음) — ply_read_header_alloc 테스트가 GC 시점에 따라 실패한다(npm test 간헐 빨간불)
 - 위치: 제품 feat/point-io acb3818 server/points/ply_read/ply_read.test.mjs:79-93
@@ -800,7 +786,6 @@
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 10:25 감독 등록(축 1b·2·3·4A·4B·5·6·7 보고). 신규. 반려 사유 아님. → 2026-10-03 작업자 처리(제품 feat/point-io 병합 후속, 연구 experiment/point-io): 반려 2회차 수정. 전체 npm test 633 중 통과 621·실패 0·건너뜀 12, 바뀐 테스트 파일 반복 실행 실패 0 → 2026-10-03 10:55 감독 확인 닫음: ①②⑦ 축 1b·6·7 확인(본문 복사 없음, opts null 정상, 1 s 단언 제거), ③ 다중 앵커 반영(날짜변경선 한 방향 잔여는 F-079), ④⑤⑥ 문구 반영(⑤ 근거 문구 잔여는 F-081), ⑧ PR 본문 건너뜀 사유 확인.
 
-
 ### F-079 [닫힘] (심각도: 중간) — GPS↔ENU 경계 왕복 실패와 날짜변경선·경계 테스트 공백
 - 위치: 제품 main(PR #13 병합분) server/geo/enu/index.mjs:138·158-161(극 앵커), :162·168(위도 검사), :169-172(−180), client/geo/geo.test.mjs:131-136, server/geo/enu/enu.test.mjs:306-326
 - 문제: ① 극 앵커에서 gpsToEnu 가 cos(90°)=6.1e-17 을 곱해 e≈1e-11 을 내는데 enuToGps 는 e≠0 이면 거부해 자기 출력을 못 받는다. ② gps.lat 가 정확히 ±90 이면 반올림으로 90.00000000000001 이 나와 위도 검사에 걸린다. ③ 결과 lon 이 정확히 −180 이면 감싸지 않아 문서의 (−180,180] 과 어긋난다. ④ 클라이언트 날짜변경선 시험이 +360 방향뿐이라 client/geo/index.mjs:29 의 −360 분기를 지운 변형이 생존(서버·클라이언트가 조용히 갈라짐). ⑤ 여러 바퀴 넘는 경도(|lon|>540), Δλ 정확히 ±180, 클라이언트 경계 양성(lat 90·lon 180 허용) 시험 없음.
@@ -811,7 +796,6 @@
 - 이력: 2026-10-03 10:55 감독 등록(축 1·4A·7 보고, ①②③ 감독 직접 재현). 신규(이번 수정분 경계). 반려 사유 아님 → T05.F 로 처리.
  → 2026-10-03 작업자 처리(제품 6b24ab6, 결정 0018) → 2026-10-03 11:30 감독 확인 닫음: 극 앵커 ±90 × lon {−180,−10,10,180} 336건 왕복 실패 0, gps.lat=±90 무작위 앵커 10만 회 실패 0, enuToGps([0,0,0],lon −180) → 180, 범위 안 20만 점 geo.ts 식 대비 0 m. client −360/+360 분기 제거·`dLon >= 180`·모듈로 제거 변형 모두 fail. 여러 바퀴 감싸기 시험 공백은 F-088 ⑩ 으로 옮김.
 
-
 ### F-080 [닫힘] (심각도: 중간) — 복사·할당 측정 테스트가 일부 복사를 보지 못한다
 - 위치: 제품 main server/points/ply_read/ply_read.test.mjs:87-94·108-117, server/points/test_util/copies.mjs:5-13
 - 문제: ① measure 가 호출 뒤에도 GC 를 강제해 남은 메모리만 잰다. 쓰고 버리는 전체 복사가 delta 0 으로 통과. ② countCopies 가 Buffer.from/concat/alloc/allocUnsafe 만 가로채 `TypedArray.prototype.slice`·`ArrayBuffer.prototype.slice`·`Buffer.copyBytesFrom`·`new Uint8Array(view)` 복사를 세지 않는데, ply_stream.test.mjs:196-202·contracts/ply/ply.test.mjs:105-114 가 이를 "복사 없음" 근거로 쓴다. ③ 56B readPly 증가량이 +72.5 MB(열 배열 140 MB)로 앞 반복 잔여 회수가 섞여 상한에 약 67 MB 여유.
@@ -821,7 +805,6 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-03 10:55 감독 등록(축 4B 보고, 미확인). 신규. 반려 사유 아님 → T05.F.
  → 2026-10-03 작업자 처리(제품 6b24ab6) → 2026-10-03 11:30 감독 확인 닫음: parsePlyHeader slice·buffer.slice·alloc+set 변형, ply_stream 본문 slice·new Uint8Array 변형 모두 fail, 원본 통과. readPly 증가량 27 B +67.5 MB·56 B +140 MB = 열 배열 크기. ply_stream 의 alloc+set 경로 공백은 F-088 ⑪ 로 옮김.
-
 
 ### F-081 [닫힘] (심각도: 낮음) — PR #13 병합 후 잔여 묶음
 - 위치·고칠 것:
@@ -837,7 +820,6 @@
 - 이력: 2026-10-03 10:55 감독 등록(축 2·5·7·11 보고, ①②③ 감독 직접 확인). 신규. 반려 사유 아님 → T05.F.
  → 2026-10-03 작업자 처리(제품 feat/synthetic-scenes 6b24ab6, 연구 experiment/synthetic-scenes): 전체 npm test 730 중 통과 717·실패 0·건너뜀 13, 바뀐 테스트 20회 반복 실패 0. 세부는 experiments/synthetic-scenes.md
  → 2026-10-03 11:30 감독 확인 닫음: ①②③ grep 확인(normals:20, ASSET_FORMAT.md:249, README.md:63·131 한·영 일치), ⑤ `element vertex 0x10` → ply 오류. ④⑥ 은 작업자 노트 기준(미확인).
-
 
 ### F-082 [닫힘] (심각도: 높음) — 장면 미리보기 화면이 좌우로 뒤집힌다(오른쪽 축 부호 반대)
 - 위치: 제품 feat/synthetic-scenes 6b24ab6 tools/scene_preview/index.mjs:84-85(`right = cross(normalize(up), forwardNorm)`), :145-146(Math.round), 테스트 tools/scene_preview/scene_preview.test.mjs:174-235·377-397
@@ -1251,7 +1233,6 @@
 - 확인 기준: 항목별 grep 또는 변이.
 - 권장 모델: 항목별 표기
 - 이력: 2026-10-03 15:28 감독 등록(축 2·4a·4b). 신규. ⑦ 은 2026-10-03 15:20 중복 감독 실행(축 2)이 덧붙임. → 2026-10-03 작업자 처리(제품 feat/culling cde1f8c; 연구 experiment/culling): ①~⑥ 제품, 연구 ②③⑦ 처리. npm test 1394 중 1380 통과·0 실패·12 건너뜀·2 todo. 상세 experiments/culling.md. → 2026-10-03 15:55 감독 확인 닫음(PR #21 cde1f8c). ④ 는 감독이 fixtures/paths/paths.test.mjs:132 를 직접 읽음 — '실측 폭 최대값 ≈1.19 m' 가 여전히 틀림(1.19 m 는 0.4배 변이 값) → F-122 ⑩ 로 옮김. budget_discrim.test.mjs:15-16 머리 주석의 낡은 규칙 문장 → F-122 ⑪.
-
 
 ### F-115 [닫힘] (심각도: 높음) — distanceCull 이 리프 번호로 노드 상자를 읽어 보이는 리프를 버린다(거짓 제거)
 - 위치: 제품 server/cull/distance/index.mjs:53-58 (feat/culling cde1f8c), 시험 server/cull/distance/distance.test.mjs:9-20
@@ -1902,7 +1883,6 @@
 - 권장 모델: ①②③ haiku, ④⑤ sonnet
 - 이력: 2026-10-03 23:10 감독 등록(①② 직접 확인, ③④⑤ 미확인). 신규. → 작업자 처리(bd6d8be·24b9bfd·83960c8) → 2026-10-03 23:35 감독 부분 확인: ③④⑤ 처리 확인(축 4a·4b 변이). ② 재개 — bench/codec_client/index.mjs:56 의 비교 기준 extractOriginalPlanes 가 검증 대상 decodeChunkClient(encodeChunk(raw)) 로 만들어져 자기 비교(감독 직접 읽음), client/codec/index.mjs:215 `+`→`^` 변이에 bench 10/10 통과(축 4b). ① 재개 — benchmark() lossy 행 조각의 colorMode 를 단언하지 않아 index.mjs:185 `lossy: true`→`false` 변이에 bench 통과(축 4b, 미확인). 고칠 것: ② 기준을 packChunk 입력(u8 색·u16 위치·oct 평면, 서버 readPlanes 등)에서 만들고 모턴 순과 무관한 pointMultiset 비교, ① lossy 행 조각마다 colorMode === 1 단언. 확인 기준: 두 변이 각각에서 bench 시험 실패. 권장 모델: haiku → 2026-10-04 작업자 ①② 재처리(feat/codec-review-fixes ebad883): 기준을 원본 raw 파일에서 readPlanesClient 로, pointMultiset 비교; lossy 행 colorMode===QUANT2 단언. 변이 직접 실행: :217 `+`→`^` bench 1 실패, :214 lossy true→false bench 3 실패. 노트 experiments/codec_review_fixes.md → 2026-10-03 23:50 감독 확인 닫음(② 직접 변이: client/codec/index.mjs:217 `+`→`^` 에서 bench 1 실패/10. ① 축 4b 변이 :214 lossy true→false 3 실패·lossyColor 끔 4 실패. 기준 독립성: readPlanesClient 색 채널 맞바꿈 변이에서 bench 시험 실패 — 복호 경로와 공유 없음. 손실 행 색 오차 미비교는 F-176 ④)
 
-
 ### F-172 [닫힘] (심각도: 낮음) — PR #36 잔여 묶음(대부분 서브에이전트 보고, 미확인)
 - 위치·고칠 것(제품 1b071e0):
   ① 서버·클라이언트 오류 코드 불일치 — 범위 복호 실패·LEB128 과길이: 서버 'stream'(server/codec/entropy/index.mjs, position/index.mjs:87, normal), 클라이언트 'range'(client/codec/index.mjs:46·57·59·60·86·93·94). 클라이언트를 'stream' 으로 맞추고 robust 퍼저에 `e.code` 일치 단언(축 1a·1b·7). (haiku)
@@ -1944,7 +1924,6 @@
 - 권장 모델: ①② 문구 haiku, ②③④ 코드·시험 sonnet
 - 이력: 2026-10-03 23:35 감독 등록(① 직접 읽음, ② 코드 순서는 두 축 독립 재현·감독 미확인, ③④ 축 실행). 신규 — 이번 반려 보정이 새로 쓴 문구·검사에서 나옴. → 2026-10-04 작업자 처리(ebad883): ① 계약·명세 문구 = 구현 ② 클라이언트 범위 검사 먼저(양쪽 mode 1·rawLen=0 → 'limit') ③ :29 검사는 도달 불가라 삭제·:50 단독 변이 masking.test 2 실패 ④ cross_error.test 50여 입력, 서버 :73 변이 7 실패. 헤더 경로 분류 차이(서버 CodecError vs 클라이언트 AssetFormatError)는 남음 — 시험은 허용 클래스 단언. 전체 npm test 2779 통과·0 실패. → 2026-10-03 23:50 감독 확인 닫음(④ 직접 변이: server/codec/chunk/index.mjs:73 'limit'→'stream' 에서 cross_error 7 실패/54. ② 축 1b 경계 67건 서버·클라이언트 클래스·code 일치, 클라이언트를 main 판으로 되돌리면 20건 갈림. ③ 삭제된 :29 검사는 도달 불가 — 축 1a 표식 퍼징 20만 건 도달 0, 축 7 2.7만 건 패닉 0. ① 문구 = 구현(축 2). 계약 검증 순서 목록의 min 거부·중간 검사 누락과 헤더 경로 클래스 완화는 F-176)
 
-
 ### F-175 [닫힘] (심각도: 낮음) — PR #36 재검토 잔여(서브에이전트 보고, 미확인)
 - 위치·고칠 것(제품 c44dda9):
   ① 패딩 안의 pointCount 증가 수락 — n=5 파일을 6 으로 바꾸고 CRC 재계산하면 encodeChunk 가 받아 패딩 0 점이 생긴다(server/codec/chunk/index.mjs:46-52, 축 7). 명세가 허용하는지 §3.2 에 명시하거나 패딩 0 검사. (haiku)
@@ -1983,7 +1962,6 @@
 - 확인 기준: 서버 :162 'length'→'stream', :160 'limit'→'stream', entropy :185 `+64`→`+63`, streamRawBounds 상·하한 ±1 변이 각각에서 cross_error 실패 ≥ 1. 클라이언트 검사 순서 원복 변이에서 chunk_validation 실패 ≥ 1.
 - 권장 모델: sonnet(⑤ haiku)
 - 이력: 2026-10-03 23:58 감독 등록(① :162 변이 직접 재현 54/54 통과, 나머지 축 4a 보고·미확인). 신규 — PR #37 병합 뒤 도착한 축 4a 보고. 이번 PR 이 쓴 시험이라 범위 밖 끌어오기 아님. 병합 판정에는 영향 없음(중간, 시험 판별력 — 구현 결함 아님). → 2026-10-04 00:28 감독 확인(PR #38 6bdff8d): ① looseClass 를 (클래스, code) 대응표로 바꿈 — :162·:160 변이 각각 5·3 실패 직접 재현, ① 충족. ⑤ :248 주석·'[순서 정렬 대기]' 이름 정리됨. **② 남음**: entropy/index.mjs:185 `+64`→`+63` 변이에서 cross_error 0 실패/54(감독 직접 재현). ③④ 와 chunk_validation.test.mjs `if (rawLen > 7)` 건너뜀 미확인. 열림 유지. 추가(축 4b, 미확인): 클라이언트 조기 거부 경계 client/codec/index.mjs:63 `+64`→`+63` 변이는 client/codec·entropy 시험 전부 0 실패 — 확인 기준에 추가. 서버 chunk :164 'length'(본문 고정부 미만, 길이 일치하는 body_bytes=0·15) 교차 케이스 없음(변이 0 실패) — `same(..., 'length')` 추가. 클라이언트 중복 헤더 검사 client/codec/index.mjs:229·230·232·238·273 은 readHeaderClient 가 먼저 거부해 도달 불가 — 삭제 또는 주석(낮음). → 2026-10-04 작업자 처리(제품 feat/protocol 1107514, PR #39): ②~④ 기대 code 고정·경계 ±1 시험·rawLen>7 건너뜀 제거. 변이 client/codec :63 `+63` 1 실패(작업자 직접). 21개 변이 수치는 병렬 잡음으로 신뢰도 낮음. → 2026-10-04 01:20 감독 확인 닫음(PR #39 1107514): 서버 entropy/index.mjs:185 `+64`→`+63` 변이에서 cross_error 1 실패/71(감독 직접 재현, 이전 0 실패). 기대 code 고정·경계 시험 추가 확인, npm test 0 실패.
-
 
 ### F-178 [닫힘] (심각도: 중간) — 수준 기계의 조각 count 정의역이 없고, 해제 콜백 예외 때 남은 조각이 해제되지 않는다
 - 위치(제품 feat/levels 6bdff8d): contracts/levels/index.mjs:19(pointCount = "count 합" 만 적음)·:64-66(assertSegmentId), server/levels/state/index.mjs:61, client/levels/index.mjs:75, client/levels/missing/index.mjs:8-11, server/levels/replace/index.mjs:10-12
@@ -2301,7 +2279,7 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-04 02:40 감독 등록(축 4a·4b·6 보고, ③④ 줄 감독 확인, 나머지 미확인). 신규. → 2026-10-04 작업자 처리(제품 feat/client-raster 3de555f, 연구 experiment/client-raster): ①⑥ 처리, ②~⑤ 미처리. 열림 유지. → 2026-10-04 03:45 감독(PR #41 검토) 부분: ①⑥ 충족(축 4a 변이 touch 제거·미지 세션 true·TTL 무시·압축 제거 각 실패, 100만 회 큐 ≤ 2×maxEntries, 축 1b 퍼즈 불변식). ② 는 send 상한 시험 :688 이 closeSent 변이를 잡지만 정상 close 경로 직접 시험은 없음. ③④⑤ 미처리. → 2026-10-04 작업자(a14111d0) ③④⑤ 처리(변이 확인). ② 정상 close 뒤 send 직접 시험은 안 씀 — 열림 유지.
 
-### F-213 [처리됨-검증대기] (심각도: 중간) — 상한에 닿은 Map 의 '가장 오래된 것 축출'(`keys().next()`)이 상한 크기에 비례해 느려진다
+### F-213 [열림] (심각도: 중간) — 상한에 닿은 Map 의 '가장 오래된 것 축출'(`keys().next()`)이 상한 크기에 비례해 느려진다
 - 위치(제품 3de555f): server/scheduler/index.mjs:62(`sentLevel.delete(sentLevel.keys().next().value)`, PR #39 부터), server/ws/resume/index.mjs ackedQ 축출(`values().next()`, 이번 PR 의 Map 전환)·sessions 축출(:147·:154 근처)
 - 문제: V8 Map 은 앞쪽을 지운 자리를 재해시 전까지 남기고, `keys().next()` 가 그 빈자리를 매번 건너뛴다. 상한(기본 65536)에서 교체가 계속되는 정상 상태에서 축출 1회 비용이 상한 크기에 비례한다.
 - 실패 상황: 감독 직접 측정(scratchpad mapb.mjs, Node 22): 크기 1000 Map 에서 set+앞 삭제 0.53 µs/회, 크기 65536 에서 29.05 µs/회(약 55배). 축 6: 스케줄러 enqueue+nextBatch 한 쌍 maxSentGroups 1e7 3.4 µs → 기본 65536 26.9 µs, resume recordSent+ack 상한 65536 73.9 µs/건, maxSessions 가득 찬 뒤 open 78 µs/회.
@@ -2309,6 +2287,7 @@
 - 확인 기준: 상한 65536 에서 25만 회 이상 교체했을 때 회당 시간이 상한 1000 일 때의 2배 이내(같은 프로세스 비교).
 - 권장 모델: sonnet
 - 이력: 2026-10-04 03:45 감독 등록(축 6 보고 '높음' → 처리량 상한일 뿐 정확성·멈춤이 아니어서 중간으로 하향, 감독 직접 측정·scheduler:62 git blame 0a9bbaf3). 신규(scheduler 부분은 기존 코드, resume ackedQ 부분은 이번 PR). → 2026-10-04 작업자(a14111d0) 처리됨-검증대기: scheduler 링 큐(시간비 1.38~1.66), resume OrderedMap/AckedQueue. **미달 보고**: resume 시험 문턱은 2배가 아니라 sessions ≤ 12·ackedQ ≤ 8(상한 크기에 비례하는 다른 비용), 옛 구현 실패는 확인(ackedQ 12.65 vs 8, 얇음). → 2026-10-04 04:25 감독(PR #42 검토) 부분: scheduler 몫 충족(시험 :392 big ≤ 2·small, 축 6 sentLevel 1000→65536 1.61배, main 17배). resume 몫 미충족 — 시험 문턱 sessions ≤ 12·ackedQ ≤ 8(resume.test:667·:673)은 확인 기준 2배보다 느슨하고(축 6 실측 ackedQ 축출 1.57배, 세션 상한 축출 5.11배), 작업자가 미달로 보고함(은폐 아님). 문턱을 측정에 맞추지 말고 결정적 지표(축출 1회당 건너뛴 칸 수 등 카운터)로 바꾸거나, 2배 미달을 노트에 그대로 남긴다. 권장 모델: sonnet → 2026-10-04 작업자(제품 feat/t11i-followups f3396ae2) resume 몫: 결정적 걸음 수 카운터 시험(축출당 평균 ≤ 4)으로 교체, 벽시계 비율은 보조 로그. 처리됨-검증대기.
+- → 2026-10-04 05:15 감독(PR #42 검토 #2) 다시 엶(중간, 반려 사유 아님): scheduler 몫의 벽시계 시험(scheduler.test.mjs:384-390 `big <= 2 * small`)은 F-221 로 옮김. resume 몫 판정 시험(resume.test.mjs:664-687)은 구현이 스스로 올리는 work·ackedWork 카운터(resume/index.mjs:134·:143·:165·:173)만 본다 — 축 4b 변이 R1(OrderedMap 을 Map keys().next() 축출로)·R2(AckedQueue 같은 방식)에서 카운터가 0 이 되어 37/37 통과(R1 벽시계 46.75배). 보조 시험 :694 `ratio < 50` 은 옛 구현 범위(20~55배) 안이라 R1 을 못 거름. 감독은 resume.test:655-697 을 직접 읽음. 고칠 것: 시험 쪽에서 Map.prototype.keys/values/[Symbol.iterator] 를 감싸 축출 구간의 반복자 next() 수를 세는 등 구현 밖 계측으로 판정, :694 단언은 bench 로 옮기거나 출력만. 확인 기준: R1·R2 변이가 판정 시험 단언으로 실패, resume.test 10회 연속 0 실패. 권장 모델: sonnet.
 
 ### F-214 [처리됨-검증대기] (심각도: 중간) — F-210·F-211 수정의 남은 경계: close+FIN 에서 미전송 데이터·close 에코 유실, 성공 경로 'handshake' 오보, 하한·선할당
 - 위치(3de555f): ① server/ws/index.mjs:173(`socket.on('end', finish)`)이 :149(`socket.end(finish)`)·:148 주석과 겹침 ② :211 upgrade error 처리기가 101 뒤에도 남음 ③ :198 `checkInt('maxWriteBuffer', …, CLOSE_RESERVE + 1)` ④ server/ws/frame/index.mjs:129-131 꼬리 버퍼를 남은 need 전체로 선할당
@@ -2326,13 +2305,14 @@
 - 권장 모델: opus(②), haiku(③④), sonnet(①)
 - 이력: 2026-10-04 03:45 감독 등록(축 2·4b 보고, 감독 :1-40 직접 읽음). 신규 — 이번 PR 의 새 계약. T12.1 이후 구현 전에 고친다. → 2026-10-04 작업자(a14111d0) 처리됨-검증대기: 계약 재작성(두 형식·축별 K·dpr·픽셀 중심·key §11 점 표기), 서명 전체 비교·변이 확인. 상세 experiments/t11i.md. → 2026-10-04 04:25 감독(PR #42 검토) 확인 닫음: 축 1·2 — 형식 상수 contracts/asset·points 대조, 해상도·dpr 6가지 투영 차이 최대 0.165 장치 px, 변이 13개(서명 한 글자·cx·sy·dpr 누락 등) 모두 시험 실패. 남은 것은 F-222(가로세로비)·F-223 로.
 
-### F-216 [처리됨-검증대기] (심각도: 중간) — ASSET_FORMAT §3.2 규칙 번호를 밀어 바뀐 범위 밖 참조가 틀린 규칙을 가리킨다
+### F-216 [닫힘] (심각도: 중간) — ASSET_FORMAT §3.2 규칙 번호를 밀어 바뀐 범위 밖 참조가 틀린 규칙을 가리킨다
 - 위치(3de555f): format/ASSET_FORMAT.md:92(새 규칙 7 삽입)·:96(`parseHeader(계약)는 1·2·3·7 을 본다`)·:98(`규칙 4·11`); 옛 번호 참조 server/codec/chunk/index.mjs:51·:117, server/codec/chunk/masking.test.mjs:57, tools/asset_validate/index.mjs:87(감독 grep 으로 `§3.2-10` 세 곳 확인 — 지금 10 은 anchor 규칙), 그 밖 client/codec:226·client/asset:42·server/asset/header:8(축 2 보고, 미확인)
 - 실패 상황: 코드 주석 '§3.2-10(body_bytes >= 필수 합)' 을 따라가면 'anchor 세 값 유한' 이 나온다. 축 2 실행: parseHeader 는 codec=7·codec1+format2 를 그대로 받아 :96 문구와 다름. :98 은 원래 '3·11'.
 - 고칠 것: 새 규칙을 끝 번호(14)로 옮겨 기존 번호를 되돌리거나 참조를 모두 고친다. :96 을 '3 의 format 만' 등 사실대로.
 - 확인 기준: `grep -rn "§3.2-"` 의 번호가 모두 실제 규칙 내용과 맞음.
 - 권장 모델: haiku
 - 이력: 2026-10-04 03:45 감독 등록(축 2 보고, :86-99·grep 감독 직접 확인). 신규 — 이번 PR 의 F-209 ② 수정에서 생김. → 2026-10-04 작업자(a14111d0) 처리됨-검증대기: 규칙 번호 복원(chunk_index=13). → 2026-10-04 04:25 감독(PR #42 검토) 다시 엶: 코드 주석 §3.2 참조 9곳은 맞음(축 2). 그러나 format/ASSET_FORMAT.md:99 "헤더 필드 규칙 4·10" — 4 는 level/segment_id, codec 1 규칙은 3(:84) → "3·10"(감독 직접 읽음). :97 parseHeader 목록에 13(contracts/asset readChunkIndex 의 65536 거부) 누락, :95 규칙 14 는 검사 규칙이 아님(낮음, 미확인). 확인 기준: :97·:99 번호가 :84·:91·contracts/asset throw 지점과 일대일, 14 는 목록 밖으로. 권장 모델: haiku → 2026-10-04 작업자(제품 feat/t11i-followups f3396ae2) ASSET_FORMAT :97(13 추가)·:99(3·10)·규칙 14 목록 밖. 처리됨-검증대기.
+- → 2026-10-04 05:15 감독(PR #42 검토 #2) 닫음: ASSET_FORMAT.md:98 '3·10' 직접 읽음, 축 2 가 저장소의 `§3.2` 참조 전부를 규칙 내용과 대조해 모두 맞음(규칙 14 삭제는 §9 로 옮김).
 
 ### F-217 [처리됨-검증대기] (심각도: 중간) — PR #41 시험 판별력·시한 잔여
 - 위치·실패 상황(3de555f):
@@ -2378,8 +2358,7 @@
 - 권장 모델: sonnet(⑤ haiku)
 - 이력: 2026-10-04 03:50 감독 등록(03:10 감독 실행의 축 1·4a·7·9 보고, ① 감독 직접 읽음). 신규 — F-213~F-217 과 겹치지 않는 것만. → 2026-10-04 작업자(a14111d0) 처리됨-검증대기: ①~⑤ 처리.
 
-
-### F-221 [처리됨-검증대기] (심각도: 높음) — F-208 절대 시험이 감독 환경에서 재현 가능하게 실패한다(npm test 1 실패)
+### F-221 [열림] (심각도: 높음) — scheduler 시험의 벽시계 단언이 감독 환경에서 재현 가능하게 실패하고, 판정 시험은 구현이 스스로 센 값만 본다
 - 위치: server/scheduler/scheduler.test.mjs:359-364(`best(5, () => ascending(100000)[0])` → `assert.ok(ms <= 300)`), :295-298(`cpuNow` = process.cpuUsage 합) (제품 PR #42 머리 a14111d)
 - 문제: 문턱은 확인 기준대로 0.3 s 로 원복됐지만 이 구현은 감독 환경(Node 22.22.0, 4코어)에서 그 수치를 못 맞춘다. process.cpuUsage 는 프로세스 전체(GC 스레드 포함) CPU 시간이라 벽시계보다 크게 나온다. 축 6: 호출당 4~6 µs 고정비(keyId 문자열·Map)가 지배하고 힙 비교는 enqueue 당 14.7회로 정상 — 즉 남은 것은 상수항이다. PR 본문의 '165~200 ms 통과'는 작업자 환경의 값이다.
 - 실패 상황: 감독 전체 `npm test` → 3252 중 1 실패(`460.9 ms`). 부하가 낮은 상태(load 1.2)에서 단독 3회 → 363·411·441 ms, 3회 모두 not ok. 이 PR 을 병합하면 main 의 npm test 가 늘 빨갛게 된다.
@@ -2388,8 +2367,14 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-04 04:25 감독 등록(PR #42 검토, 감독 전체 실행·단독 3회 직접 재현, 축 6 실측 0.41~1.65 s). 신규 — F-208 scheduler 몫의 이어짐. 이번 PR 반려 사유.
 - 추가(04:35 감독, 축 4b 늦은 보고): 변이하지 않은 코드 7/7 실패(시험 안 CPU 364~465 ms), 단독 실행 CPU 시간이 벽시계의 1.2~1.6배(613/390 ms) — 벽시계 261~300 ms 인 실행도 실패. 또 "결정적" 비교 횟수 시험(:328·:336·:395)은 구현이 스스로 세는 steps 에 의존해 splice·memmove 비용을 세지 않는다: 옛 splice 구현·S5 변이는 연산 수 단언이 아니라 4 s CPU 가드(:301-303)로 떨어졌다. (a) 를 고르면 구현 밖에서 관측되는 지표(예: 힙 배열 이동 칸 수, enqueue 당 상각 비용을 n 2배 시간비로)로 판정하고 그 사실을 시험 이름·주석에 적는다. :356 `t100/t25 <= 8` 도 1회 실패(8.1) — 반복·gc 로 안정화. 확인 기준 추가: 같은 환경 10회 실행 중 실패 0, 가드를 끈 상태에서 splice 변이가 판정 시험에 실패. → 2026-10-04 작업자(제품 feat/t11i-followups f3396ae2) 절대 시험을 bench/scheduler 로 이동, 결정적 연산 수 시험이 판정. 이 환경(부하 약 19) 실측 100k 326.5 ms 미달·20k 31 ms 달성(미달 그대로 노트에). npm test 3260 중 0 실패. 처리됨-검증대기.
+- → 2026-10-04 05:15 감독(PR #42 검토 #2, 제품 f3396ae) 다시 엶 — 반려 사유(T11.I 반려 2회째). 절대 0.3 s·50 ms 시험을 bench/scheduler 로 옮긴 것은 받아들임(감독 bench 실행 211.9·23.5 ms MET, 축 6 3회 192.7~217.4·21.7~23.4 ms MET). 그러나 확인 기준 둘 다 미충족:
+  ① 10회 연속 0 실패 미충족(감독 재현): 감독 환경(Node 22.22.0, 4코어, 부하 0.8~0.95, 다른 작업 없음) `node --test server/scheduler/scheduler.test.mjs` 10회 중 4회 실패 — 모두 시험 25 'F-213: maxSentGroups 65536 …'(scheduler.test.mjs:384-390 `assert.ok(big <= 2 * small)`, 이번 PR 의 35b3441 에서 생김), 실측 x2.04·x2.23·x2.05·x2.65. 부하(약 5.8) 8회 중 1회는 시험 23(:357 `t100 / t25 <= 8`, growth 8.16) 실패. 축 4a 도 원본 6회 중 3회 실패 독립 관찰. 이 PR 을 병합하면 main 의 npm test 가 약 40% 확률로 빨개진다.
+  ② 판정 시험이 구현 밖 지표가 아님(축 4a 변이, 감독 :325·:328-345 직접 읽음): :325 `s.counters()` 는 구현이 스스로 세는 compares·steps 라 splice·shift 이동을 세지 않는다. 가드(:296-303)를 끈 상태에서 옛 splice 구현(M1)·S5 변이(M2) 모두 시험 21·22 통과(M1 ops 1,568,929 ≤ 3,321,928). 두 변이를 잡는 것은 주석에 '참고용'이라 적힌 :356-357 시간 시험뿐 — 주석과 실제 판정이 반대다(F-223 ⑥ 잔여).
+- 고칠 것(2회째): (가) npm test 안의 벽시계 비교 단언을 모두 없앤다 — scheduler.test.mjs:356-357·:389, resume.test.mjs:694. 값은 console.log 로 남기거나 bench/scheduler 로 옮긴다. (나) 판정 시험은 시험 쪽에서 관측한다 — 예: 시험이 주입하는 priority 비교 횟수, 또는 Array.prototype.splice/shift/copyWithin 을 시험 구간 동안 감싸 옮긴 원소 수를 세거나, 구현 내부 배열을 Proxy 로 감싸 접근 수를 센다. 그 출처를 시험 이름·주석에 적는다. 문턱 수치를 올리거나 상대 조항을 넣는 것은 받지 않는다.
+- 확인 기준: 감독 환경 scheduler.test·resume.test 각 10회 연속 0 실패, 전체 npm test 3회 연속 0 실패; /tmp 복사본에서 가드를 끈 M1(splice 삽입·shift 꺼냄)·M2(enqueue 마다 groups 전체 순회, steps 안 셈)가 판정 시험 단언으로 실패.
+- 권장 모델: opus(같은 항목 두 번째 반려)
 
-### F-222 [처리됨-검증대기] (심각도: 중간) — client_raster 계약: 가로세로비가 다른 화면으로 K_ref 를 옮기는 안내가 영상을 한 축으로 늘린다
+### F-222 [닫힘] (심각도: 중간) — client_raster 계약: 가로세로비가 다른 화면으로 K_ref 를 옮기는 안내가 영상을 한 축으로 늘린다
 - 위치: contracts/client_raster/index.mjs:29-31(`scaleIntrinsics(K_ref, refW, refH, width, height, 1)` 안내), client_raster.test.mjs:66-67(800×600 결과 fx 585.94 ≠ fy 781.25 를 정답으로 고정) (PR #42)
 - 문제: 축별 배율은 같은 영상을 다시 샘플링할 때만 맞다. 가로세로비가 다른 뷰포트에 쓰면 fy/fx 가 바뀌어 정사각 픽셀이 깨진다. 계약에 이 경우의 규칙(가로/세로 맞춤·여백·잘라내기)이 없다.
 - 실패 상황(축 1 계산): K0(2048×1152) 를 CSS 375×667@3 으로 옮기면 fx 883.9·fy 2793.9(fy/fx 3.16) — 장면이 세로로 3.16배 늘어난다. 800×600 은 1.33배.
@@ -2397,8 +2382,9 @@
 - 확인 기준: 2048×1152 → 375×667@3 시험에서 결과 fx/fy = K_ref.fx/K_ref.fy(1e-9 이내), 기준 영상 중심 (1024,576) 이 버퍼 중심으로 투영.
 - 권장 모델: opus
 - 이력: 2026-10-04 04:25 감독 등록(축 1 보고·손계산, 감독 :25-35·test :60-70 직접 읽음). 신규 — 이번 PR 의 계약 재작성. → 2026-10-04 작업자(제품 feat/t11i-followups f3396ae2) fitIntrinsics(균일 배율+중앙 정렬)·시험. 처리됨-검증대기.
+- → 2026-10-04 05:15 감독(PR #42 검토 #2) 닫음: 감독 직접 계산 — K(1609.22, 1608.21, 1010, 590) 2048×1152 → 375×667@3, contain fx/fy 차 0·cover 2.2e-16, 기준 중심 (1024,576) → (562.5, 1000.5) = 버퍼 1125×2001 중심. 축 1 손계산 일치. 남은 낮음(sx>sy 화면 시험 없음 등)은 F-228.
 
-### F-223 [처리됨-검증대기] (심각도: 낮음) — PR #42 잔여 세부
+### F-223 [닫힘] (심각도: 낮음) — PR #42 잔여 세부
 - 위치·문제(PR #42 머리 a14111d):
   ① (중간에 가까움, 축 3) server/adapter/core/index.mjs:224-233 skip 경로 — 실패한 시도에서 일부 PIECE 가 이미 나갔을 수 있는데 onRelease·해제 신호가 없다. 주석(:38-41)은 '받는 쪽은 완료 표시 없는 조각을 수준 도착으로 세지 않는다'고만 쓰고, contracts/client_raster 에는 LEVEL_ARRIVED 없는 조각을 그리지 않고 더 높은 수준 도착 때 버린다는 규칙이 없다(감독 직접 읽음). T12 수신 경로(F-209 ⑥)와 함께 계약·시험으로 고정.
   ② (축 1) contracts/client_raster/index.mjs:19-22 — contracts/raster 의 GL 규약 변환 diag(1,−1,−1)·d ≤ 0 점 버림·장치 픽셀→NDC 식(y 반전)이 옮겨지지 않음(미확인).
@@ -2412,8 +2398,9 @@
 - 확인 기준: ① 계약 문구 + skip 시나리오 시험(부분 송출 key 가 해제되거나 클라이언트가 버림) ② pixelToNdc 순수 함수 시험((0,0)→(−1,1), 카메라 뒤 점 거부) ③ 문구가 basis §7-1·§7-2 와 일치 ④ 버퍼 반올림 제거 변이에서 실패 ⑤ 두 절 순서 같음 ⑥ 주석 또는 제거 ⑦ 브랜치 diff 에 SPEC 되돌림 없음 ⑧ 주석 정정.
 - 권장 모델: sonnet(①②), haiku(③~⑧)
 - 이력: 2026-10-04 04:25 감독 등록(축 1·2·3·5 보고, ①⑤ 감독 직접 확인, 나머지 미확인). 신규 — 이번 PR 의 계약·시험·문서(⑦ 은 연구 브랜치). → 2026-10-04 작업자(제품 feat/t11i-followups f3396ae2) ①(abandoned 해제·순번 소비·계약 규칙·selectDrawable)②③④⑤⑥⑧ 처리, ⑦ 확인(문제 없음). 처리됨-검증대기.
+- → 2026-10-04 05:15 감독(PR #42 검토 #2) 닫음: ① skip 해제·순번 소비·selectDrawable(축 4b 변이 A1~A6 잡힘, 같은 수준 skip 잔여는 F-227) ② cvToGlExtrinsics·cameraPointToGl·pixelToNdc(축 1·4b M3·M4 잡힘) ③ 축 2 basis :440·:453 대조 일치(절 번호 잔여는 F-228) ④ 축 4b M6 에서 실패 ⑤ 감독 README 절 머리 직접 대조(한·영 같은 순서) ⑧ 정정. ⑥ 은 주석만 붙고 단언이 남아 F-221 ② 로 옮김. ⑦ 은 축 5 가 experiment/* 가 main 과 이력이 이어지지 않아 SPEC·FEEDBACK·TASKS·STATUS 가 옛 판이라고 보고 — 실험 노드는 main 으로 병합하지 않는 운영이라 낮음으로 F-228 에 남김.
 
-### F-224 [처리됨-검증대기] (심각도: 중간) — 번들 검사 시험의 60 s 시한이 동기 execSync 를 끊지 못하고 /tmp 고정 경로가 남았다(F-217 ⑦ 잔여)
+### F-224 [닫힘] (심각도: 중간) — 번들 검사 시험의 60 s 시한이 동기 execSync 를 끊지 못하고 /tmp 고정 경로가 남았다(F-217 ⑦ 잔여)
 - 위치: bench/client_bundle/bundle.test.mjs:16·:20·:38(`execSync(..., { stdio: 'ignore' })` — timeout 없음)·:62(`{ timeout: 60_000 }`), bench/client_bundle/index.mjs:19·:24·:41 같은 호출, index.mjs:38 `/tmp/bundle-…` 고정 경로 (PR #42 머리 a14111d)
 - 문제: execSync 가 도는 동안 이벤트 루프가 막혀 node:test 시한 타이머가 돌지 못한다. 감독이 execSync 호출에 timeout 이 없음을 직접 읽어 확인.
 - 실패 상황(축 4b 재현): PATH 앞에 90 s 자는 가짜 npx → 시한 60 s 인데 3분 0초 뒤에야 not ok. 네트워크에서 멈춘 npx 면 무기한.
@@ -2421,6 +2408,7 @@
 - 확인 기준: 같은 가짜 npx 로 60 s 안에 not ok 또는 skip.
 - 권장 모델: haiku
 - 이력: 2026-10-04 04:35 감독 등록(축 4b 늦은 보고, execSync 줄 감독 직접 읽음). 신규 — F-217 ⑦ 수정의 잔여. 반려 판정 뒤 도착해 반려 사유에는 넣지 않았다(중간). → 2026-10-04 작업자(제품 feat/t11i-followups f3396ae2) execSync 시한 20 s, mkdtemp. 처리됨-검증대기.
+- → 2026-10-04 05:15 감독(PR #42 검토 #2) 닫음: bundle.test.mjs:16·:20·:38, index.mjs:20·:25·:43 timeout 20000·mkdtemp 직접 읽음. 축 7 재현: PATH 앞 sleep 300 가짜 npx 로 20.08 s 에 시한 걸린 뒤 대체 경로로 종료.
 
 ### F-225 [열림] (심각도: 낮음) — PR #42 ws·resume 시험 판별력 잔여(축 4a 늦은 보고)
 - 위치·실패 상황(PR #42 머리 a14111d, 축 4a 변이, 감독 미재실행):
@@ -2444,3 +2432,30 @@
 - 권장 모델: haiku
 - 이력: 2026-10-04 04:45 감독 등록(축 7 늦은 보고, :133-139 감독 직접 읽음). 신규 — 이번 PR 의 계약 재작성.
 - 함께(낮음, 축 7, 미확인): ① server/ws/index.mjs:198-199 서버가 먼저 close 를 보낸 뒤 상대가 에코 없이 FIN 만 보내면 CLOSE_WAIT_MS(약 2 s)까지 기다림 — end 처리기에서 closeSent 면 socket.end(finish). ② :117-122 주입 시계가 계속 NaN 이면 ping 횟수가 리셋되지 않아 긴 연결이 1008 로 끊김 — now 계약에 명시하거나 대체. (축 7 의 FRAME_HEADER_BYTES 8 지적은 F-217 ⑥ 의 의도된 변경이라 기각.)
+
+### F-227 [열림] (심각도: 중간) — 같은 수준 skip 에서 abandoned 해제가 살아 있는 key 를 놓을 수 있다
+- 위치: server/adapter/core/index.mjs:228-243(`planned === ACTIONS.SKIP` 이고 unfinished 가 있으면 pieces 의 key 전부를 notifyRelease(…, {abandoned:true})), contracts/client_raster/index.mjs:57-62·:303-322(selectDrawable 은 key 의 (segmentId, level) 로만 판정) (제품 f3396ae)
+- 문제: skip 은 기계 수준 ≥ 이번 수준일 때 난다. 그 사이 같은 수준(L == M)이 공유 기계로 확정되면, 버리는 key 가 지금 그려지는 M 수준 조각과 같은 key 일 수 있다. 시험 core.test.mjs:587-626 은 L < M(1 → 3)만 본다. 감독이 :228-241 을 직접 읽어 같은 수준도 이 경로로 들어오는 것을 확인.
+- 실패 상황(축 7 재현 스크립트): level 1 시도가 두 번째 emit 에서 실패 → 공유 기계에 arrive(9, 1, 같은 key) 확정 → 재시도가 skip 이 되고 previousLevel === level === 1 인데 같은 key 2개가 onRelease(abandoned) 로 나감. 해제 쪽(resume 보관분·클라이언트 자원)이 지금 그려지는 조각을 지운다. 반대로 완료 집합에 없는 같은 수준 key 는 selectDrawable 에서 draw 로 분류될 수 있다(축 3).
+- 고칠 것: 같은 수준이면 기계의 현재 수준 조각과 같은 key 는 abandoned 에서 뺀다(또는 info 에 sameLevel 을 담고 받는 쪽 계약 ④ 에 '현재 M 의 완료 집합에 속하지 않는 abandoned key 만 해제'를 적는다). selectDrawable 이 수준별 완료 key 집합을 받게 할지 결정.
+- 확인 기준: L == M skip 시험 — 살아 있는 key 는 해제되지 않음, 완료 집합 밖 key 는 draw 에 들어가지 않음. 기존 L < M 시험 그대로 통과.
+- 권장 모델: sonnet
+- 이력: 2026-10-04 05:15 감독 등록(PR #42 검토 #2, 축 3·7 보고, :228-241 감독 직접 읽음). 신규 — 이번 PR 의 F-223 ① 수정에서 생김. 소비자(onRelease 실제 연결)가 아직 없어 중간.
+
+### F-228 [열림] (심각도: 낮음, 일부 중간) — PR #42 검토 #2 잔여 세부
+- 위치·문제(제품 f3396ae):
+  ① (중간, 축 4b 변이) contracts/client_raster/client_raster.test.mjs:69-95·:118·:128-139 — 가로세로비가 다른 시험이 모두 sx < sy 화면(375×667, 800×600, 333×222)이라 `s = mode==='contain' ? sx : sy`(M2d)·contain 에서 cx 항 0(M1d) 변이가 17/17 통과. 844×390@3 같은 sx > sy 화면을 두 mode 로 손계산 추가.
+  ② (축 1) contracts/client_raster/index.mjs:41·:85 'dpr 은 scaleIntrinsics 에서만' 과 fitIntrinsics 의 dpr 인자가 충돌 — 호출자가 dpr 을 넘기면 렌더러가 한 번 더 곱해 fx 1648·cx 1687.5(버퍼 밖). '호출자는 fitIntrinsics(…, 1)' 로 명시.
+  ③ (축 1) :43-46 — 반올림이 있으면 두 번째 단계(scaleIntrinsics)가 fy/fx 를 바꾼다(333×222@1.25 에서 fy 327.45 대 한 단계 326.67). 차이를 주석에 적거나 렌더러가 한 단계로 만든다.
+  ④ (축 1) :49·:265-273 cameraPointToGl 이 'contracts/raster project 와 같은 조건'이라 하지만 raster 는 K 곱한 뒤 유한성을 본다(xc=[1e300,0,1e-8], fx=1000 에서 판정 다름). 문구 정정.
+  ⑤ (축 2) :13-14 '최소 3장' 근거는 renderer_basis §7-3(:456, -number-views-fuse 설정값)이지 §7-2 가 아님.
+  ⑥ (축 4b) server/adapter/core/core.test.mjs — A7(notifyRelease 를 표시 해제보다 먼저)·A8(previousLevel 을 level 로) 변이 생존. 던지는 onRelease 뒤 unfinishedEvent()===null 단언, info 전체 deepEqual.
+  ⑦ (축 4b) client_raster.test.mjs:158-172 '변이 증명' 시험이 시험 안에서 정의한 변이체 출력만 단언 — 지우거나 이름 정정.
+  ⑧ (축 3) contracts/client_raster/index.mjs:308-309 arrived.segmentId 상한(SEGMENT_ID_LIMIT 2^30) 미검사. pending 조각(LEVEL_ARRIVED 가 끝내 안 오는 key)의 정리 규칙이 계약 ④ 에 없음.
+  ⑨ (축 12) bench/scheduler/index.mjs 출력에 측정 환경(코어 수·부하) 없음, README 에 bench/scheduler 미기재.
+  ⑩ (축 6, 정보) selectDrawable 키 1만 개 4.5 ms·10만 개 64 ms — 프레임마다 전체 재분류하면 예산 초과. T12 구현 때 증분 갱신.
+  ⑪ (축 5, F-223 ⑦ 잔여) 연구 experiment/* 브랜치는 main 과 공통 조상이 없고 SPEC·FEEDBACK·TASKS·STATUS 가 옛 판 — 실험 노드는 main 으로 병합하지 않으므로 낮음. 새 실험 노드에 이 네 문서를 두지 않거나 main 판과 맞춘다.
+- 고칠 것: 각 줄대로. ①⑥ 은 변이로 확인.
+- 확인 기준: ① M2d·M1d 실패 ⑥ A7·A8 실패 ⑦ 시험 정리 뒤 M6 계속 잡힘 ⑧ segmentId 2**30 에서 ClientRasterError ②~⑤⑨ 문구 ⑩ T12 호출처에서 재측정 ⑪ 다음 실험 노드 diff 에 네 문서 되돌림 없음.
+- 권장 모델: sonnet(①⑥⑧), haiku(②~⑤⑦⑨⑪), ⑩ 은 T12 와 함께
+- 이력: 2026-10-04 05:15 감독 등록(PR #42 검토 #2, 축 1·2·3·4b·5·6·12 보고, 미확인 — 감독은 ①⑥ 변이 결과를 재실행하지 않음). 신규 — 이번 PR 의 계약·시험·bench(⑪ 은 연구 브랜치 구조).
