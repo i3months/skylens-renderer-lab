@@ -2601,7 +2601,7 @@
 - → 2026-10-04 작업자: ①~⑧ (⑥ 변이 1개는 관측 불가 등가) 처리, 제품 7518ec99 (feat/t11l-followups). npm test 3321 중 0 실패.
 - → 2026-10-04 08:00 감독(PR #45 검토 #1, 제품 7518ec9) 확인 닫음(①~⑧): 축 5 시험 문턱 변경 목록(scheduler stored 하한 추가는 조이는 방향), 축 4a·4b 변이 결과. ⑦ 의 fuzz.test 메시지·중단 원인 표기는 F-239 ⑦.
 
-### F-238 [열림] (심각도: 중간) — 이어받기 저장소의 LEVEL_ARRIVED 기록이 배선되지 않았고, 재전송분 재기록·기록 상한·창 겹침에 빈틈이 있다
+### F-238 [처리됨-검증대기] (심각도: 중간) — 이어받기 저장소의 LEVEL_ARRIVED 기록이 배선되지 않았고, 재전송분 재기록·기록 상한·창 겹침에 빈틈이 있다
 - 위치: server/ws/resume/index.mjs:396-401(재기록 멱등 검사가 lastLevel 하나만 봄), :405(levels push 상한 없음), :416-419(resendPlan 창 순회), :432-437(stats 에 levels 없음), 머리 주석 :31-36 (제품 7518ec9). 호출처: server/adapter/core·server/ws 에 recordLevelArrived·resendPlan 호출 0건(축 2·6 grep)
 - 문제·실패 상황:
   ① (감독 직접 재현) LEVEL_ARRIVED 기록 2개(창 1, 창 2) → open(lastPieceSeq=0) → resendPlan 의 메시지를 PIECE 는 recordSent, LEVEL_ARRIVED 는 recordLevelArrived 로 다시 기록하면 첫 LEVEL_ARRIVED 에서 RangeError '창 끝 1 은 앞선 기록의 창 끝(2)보다 커야 한다'. :401 주석은 '이어받기 재전송 = 멱등' 이라 약속한다.
@@ -2621,6 +2621,8 @@
 
 - → 2026-10-04 08:36 감독(축 4a 늦은 보고, 병합 뒤 도착, 미재실행) 보강 ⑨ (낮음·일부 중간): 변이 21개 중 3개 생존. (a) index.mjs:443 `last >= s.nextSeq` → `>` 생존 — level-arrived.test.mjs:157·:159-162 가 RangeError 타입만 보고 앞 기록의 겹침 검사가 대신 던져 원인이 가려진다. 고칠 것: 앞 LEVEL_ARRIVED 없이 조각 1·2 만 기록한 상태에서 la(9,0,2,2) 를 `/이하여야 한다/` 정규식으로 단언. (b) :462 `last >= ackedUpTo` → `>` 생존 — ⑤ 와 같은 공백(ack(2) 뒤 창 1..2 첫 기록 → levels 1·resendPlan 포함 단언). (c) :376 `seq <= ackedUpTo` → `<` 는 unfinished.test 가 잡지만 resume.test 에 경계 시험 없음(낮음). 확인 기준: 세 변이 모두 resume 시험에서 실패. 권장 모델: sonnet. 판정 변화 없음.
 - → 2026-10-04 08:55 감독(PR #47 검토 #1, 제품 6941ccd) ⑤⑦⑧ 닫음, ⑥ 부분 닫음: 감독 재현 — ⑧ maxEntries=2 입력에서 resendPlan 에 LA9 포함(L9·P2·L10·P3·L11, levels 3), ⑥ A·B 재시도 모두 true, 살아 있는 기록과 다른 값 겹침 RangeError. ⑤ 축 5 단언 확인, ⑦ windowLive 에 추월 포함·stats().levels == resendPlan LA 수(축 1a·7 무작위 시험 위반 0). ⑥ 의 잔여(ack 진행 뒤 같은 값 재시도 RangeError, 기록 때 추월된 창 미보관)는 F-241 ①② 로 옮김. 남은 것: ④(ws 배선, T12 PR).
+- → 2026-10-04 작업자: ④ 처리됨-검증대기. 제품 feat/t12u(PR #54): server/ws/session/(emit·resume·connection). ws 경로 시험 ws_level_arrived_loss.test.mjs — LEVEL_ARRIVED 프레임만 유실 → HELLO 재개 → LEVEL_ARRIVED 재수신, 완료 key 3(대조군 기록 없음 0). 결정 0040 제안(기록은 send 전). 재전송 도중 라이브 emit 끼임은 대가로 기록. 노트 experiments/t12u.md.
+
 ### F-239 [닫힘] (심각도: 낮음) — PR #45 잔여 세부
 - 위치·문제(제품 7518ec9):
   ① (감독 확인) contracts/client_raster/index.mjs:73-75 ④ 와 arrival.mjs:3 이 아직 '선의 LEVEL_ARRIVED 는 {segmentId, level, pieceCount} 뿐', 창 = maxSeq 추정이라고 쓴다. arrival.mjs:103-106·contracts/proto :15-17 의 firstPieceSeq 명시 창과 어긋난다(축 1a·2). firstPieceSeq 창을 기본 규칙, maxSeq 추정을 대체 규칙으로.
@@ -2991,7 +2993,7 @@
 - 이력: → 2026-10-04 작업자(제품 PR #53 feat/t12t 93e97252): 처리됨-검증대기. ①②⑤④ 처리. ③ 은 부분: 16000 상주 0.173 ms 이나 보호 key 앞쪽 시나리오 1.517 ms(희생 탐색 O(M), 미달 그대로 보고).
 - 이력: 2026-10-04 감독 검토 #2(PR #53) 닫음. ① 축 1b 변이(set 앞으로·unbind try 안으로) 실패 확인 — 남은 누수 시험 공백은 F-267. ② 순서 이동 확인. ④ PR 본문 # tests 3678/pass 3666/fail 0/skipped 12 원문 줄과 사유별 5+2+2+2+1=12, 노트 t12t.md:26 정정(축 5). ⑤ 축 4b: dmid 변이 hook_gap 실패, 최솟값 단언, 한도 1<<20 변이 실패, worker.browser marksOk 변이 실패, 부하 10회 0 실패. ③ 은 미달 그대로 정직 보고됨 — 잔여는 F-269 로 옮김.
 
-### F-267 [열림] (심각도: 중간) — vao_wiring_throw 시험이 배선 실패 시 VAO 해제와 원래 오류 보존을 확인하지 않는다
+### F-267 [처리됨-검증대기] (심각도: 중간) — vao_wiring_throw 시험이 배선 실패 시 VAO 해제와 원래 오류 보존을 확인하지 않는다
 - 위치: client/raster/vao_wiring_throw.test.mjs:12-27(가짜 gl 에 deleteVertexArray 없음, Proxy 빈 함수로 넘어감)·:53, client/raster/index.mjs:635(catch 의 deletePieceVao)·:684-687(finally unbind try) (제품 93e9725)
 - 문제: 배선 중 예외 뒤 VAO 를 지우는 줄과 정리 호출의 예외 삼키기를 어떤 시험도 고정하지 않는다.
 - 실패 상황: (축 1b 변이) :635 deletePieceVao 제거 → vao_wiring_throw 와 client/raster 시험 103개 모두 통과(VAO 누수 미검출). 정리 호출 try/catch 제거 → 통과(deleteVertexArray·bindVertexArray(null) 이 던지면 원래 'vertexAttribPointer failed' 가 가려짐).
@@ -2999,8 +3001,9 @@
 - 확인 기준: :635 삭제 변이와 정리 try/catch 제거 변이에서 각각 새 단언 실패, 원본 npm test 0 실패.
 - 권장 모델: haiku
 - 이력: 2026-10-04 감독 등록(PR #53 검토 #2). 축 1b 보고, 감독이 시험 :12-27 가짜 gl 에 deleteVertexArray 가 없음을 직접 확인. 신규(이번 PR 의 F-266 ① 수정이 남긴 시험 공백).
+- → 2026-10-04 작업자: 처리됨-검증대기. 제품 feat/t12u(PR #54): vao_wiring_throw.test.mjs 에 deleteVertexArray 기록·정리 예외 시 원래 오류 보존 단언 추가. 작업자 변이(deletePieceVao 제거·정리 try/catch 제거)가 각각 새 단언을 실패시킴(서브에이전트 확인, 감독 재확인 필요). 커밋 9cb8d02a(병합 7e891d3). 노트 experiments/t12u.md.
 
-### F-268 [열림] (심각도: 낮음) — 결정 0036 의 error 서명 서술 잔여·주석 누락·연구 결정 색인 불일치
+### F-268 [처리됨-검증대기] (심각도: 낮음) — 결정 0036 의 error 서명 서술 잔여·주석 누락·연구 결정 색인 불일치
 - 위치: 연구 decisions/0036-t12s-contract-extensions.md:33(선택지 C '계약 서명 불변')·:57('서명에 올리지 않는 것은 testHooks 와 같은 이유'), 제품 client/raster/index.mjs:225 주석, 연구 decisions/README.md (experiment/t12t)
 - 문제: ① 0036:35·:43 과 계약 typedef(:157)는 error? 를 typedef 에 두는데 :57 은 '서명에 올리지 않는다' 고 쓴다(:33 선택지 표는 당시 선택지 서술이라 그대로 둬도 됨 — :57 만 :35 와 맞춘다). ② index.mjs:225 의 roomCache null 처리 지점 목록에 meta.clear(:223) 누락. ③ (미확인 영향, 감독 지시의 결과) 실험 계통 README 가 main 목록을 따라 계통에 없는 결정 파일(0010-ws-bytes·0011~0014·0017·0024~0026·0028·0035)을 가리키고, 계통에만 있는 0015(27 B 단일 포맷)·0016 은 행이 없다. main 에는 0015·0016 파일이 없다.
 - 실패 상황: 0036 을 읽는 사람이 error 인자가 typedef 에 있는지 두 답을 얻는다. 연구 계통에서 README 링크 11개가 깨진다.
@@ -3008,8 +3011,9 @@
 - 확인 기준: 0036 에서 '서명에 올리지 않' 0건, index.mjs:225 부근 meta.clear 언급, README 에 0015·0016 행.
 - 권장 모델: haiku
 - 이력: 2026-10-04 감독 등록(PR #53 검토 #2). 축 2 보고, ① 감독이 0036:57 직접 확인. ③ 은 감독 F-263 지시(main 판 그대로)에서 생긴 것 — 작업자 결함 아님.
+- → 2026-10-04 작업자: 처리됨-검증대기. ① 0036 :57 정정, ③ 계통 README 0015·0016 행·main 참조 안내(연구 experiment/t12u), ② 제품 index.mjs 주석 meta.clear 추가(F-269 커밋 e26ffe0e). 노트 experiments/t12u.md.
 
-### F-269 [열림] (심각도: 중간) — makeRoom 희생 탐색이 meta 앞쪽 보호 key 를 매번 건너뛴다(O(M), 16000 상주 1.58 ms)
+### F-269 [처리됨-검증대기] (심각도: 중간) — makeRoom 희생 탐색이 meta 앞쪽 보호 key 를 매번 건너뛴다(O(M), 16000 상주 1.58 ms)
 - 위치: client/raster/index.mjs:471-476 (제품 93e9725), bench/room_reject_bench.mjs f266 시나리오
 - 문제: F-266 ③ 잔여. 희생 탐색이 meta 를 처음부터 돌며 보호 key 를 건너뛰어, 보호 key 가 앞쪽에 몰리면 업로드마다 상주 수에 선형이다.
 - 실패 상황: (축 6 실측) 보호 key 앞쪽 시나리오 업로드당 4000 상주 0.343 ms, 16000 상주 1.577 ms(기준 0.5 ms). 이전 d9f5ad1 은 5.291 ms 라 회귀는 아니다.
@@ -3017,3 +3021,4 @@
 - 확인 기준: `node bench/room_reject_bench.mjs` f266 보호 key 앞쪽 16000 상주 업로드당 0.5 ms 미만(bench, npm test 밖), npm test 0 실패.
 - 권장 모델: sonnet
 - 이력: 2026-10-04 감독 등록(PR #53 검토 #2). F-266 ③ 에서 옮김. 축 6 실측, 근거 줄 :471-476 감독 직접 확인. 작업자가 미달로 정직 보고함.
+- → 2026-10-04 작업자: 처리됨-검증대기. 제품 feat/t12u(PR #54) e26ffe0e·9aae7a7f: 희생 후보 목록(meta 순서, 증분 갱신). bench f266 보호 key 앞쪽 16000 상주 업로드당 0.118~0.134 ms(부하 없을 때 5회, 기준 0.5 ms 미만; 전체 시험과 동시에 돌리면 0.195~1.246 ms 로 흔들림). room_victim_cursor.test.mjs 결정적 meta 읽기 79840 → 4000 미만. 첫 구현은 선택 기준 경로에서 같은 비용이 남아 보완함. npm test 3719 중 3707 통과·0 실패·12 건너뜀.
