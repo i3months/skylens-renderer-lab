@@ -10,7 +10,7 @@ T12 본체가 계약 밖 메서드(setArrived, residentKeys, isContextLost, onCo
 
 ## 결정
 1. 계약 Renderer typedef·CLIENT_RASTER_API 에 setArrived·residentKeys·isContextLost·onContext* 구독 해제 반환을 올리고 계약 메서드 전부를 구현이 갖는지 보는 시험(api.test.mjs)을 둔다. uploadBookkeeping 은 시험 관측용 확장으로 계약에 올리지 않는다.
-2. selectDrawable: 후보는 최상위 수준 M 의 완료 key 집합이면서 상주한 key 만. 타일마다 완료 조각이 전부 상주한 가장 세밀한 LOD 하나만 draw, 없으면 일부라도 상주한 가장 세밀한 LOD. 거친 LOD 는 discard. 더 세밀하지만 덜 도착한 LOD 는 discard 가 아니라 pending(discard 로 보내면 호출자가 해제해 영영 완성되지 못함). 도착하지 않은 것을 다른 LOD 로 메우지 않는다.
+2. selectDrawable: 후보는 최상위 수준 M 의 완료 key 집합이면서 상주한 key 만. 타일마다 완료 조각이 전부 상주한 가장 세밀한 LOD 하나만 draw, 없으면 일부라도 상주한 가장 세밀한 LOD. discard 는 '고른 LOD 가 완전할 때 그보다 성긴 LOD' 뿐이다. 완전한 LOD 가 없는 동안에는 고른 것보다 성긴 LOD 도 더 세밀한 LOD 도 pending(discard 하면 호출자가 해제해 영영 완성되지 못함, F-246 ①). 성긴 LOD 가 먼저 완전해지면 그것을 draw 하고 세밀한 일부 LOD 는 pending. 도착하지 않은 것을 다른 LOD 로 메우지 않는다. 시점 거리 기반 선택은 미룬다(F-247 ②).
 3. resume 저장소: 기억 중인 모든 기록(보관·묘비)을 창 순서 배열로 두고, 겹치는 가장 앞 기록이 있으면 값이 같을 때만 true, 다르면 지평과 무관하게 RangeError. 기억에 없고 창 끝 ≤ 지평일 때만 blind true.
 
 ## 선택지와 대가
