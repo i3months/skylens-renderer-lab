@@ -2264,3 +2264,34 @@
 - 확인 기준: ① 변이 시 1 이상 실패, ② grep 상한 일치·ids 65536 거부, ③ 오버헤드 제거 변이에 scenes.test 실패, ④ 접속→첫 프레임 실제 송출 합 ≤ 15,000,000 B 시험 또는 계약 문구, ⑤ RangeError 시험, ⑥ T12 시험, ⑦ ack 후 같은 key 재기록 100만 번에 ackedQ ≤ maxEntries.
 - 권장 모델: haiku(①②③), sonnet(④⑤⑥⑦)
 - 이력: 2026-10-04 02:35 감독 등록(축 2·5·6·7 보고, 미확인). 신규.
+
+### F-210 [열림] (심각도: 높음) — ws 핸드셰이크 400 거부 경로에 소켓 'error' 처리기가 없어 원격 클라이언트가 서버 프로세스를 죽일 수 있다
+- 위치: server/ws/index.mjs:163-166(`if (!ok) { socket.end('HTTP/1.1 400 …'); return; }`) (제품 main 8ed7a9f, PR #39 부터 있던 코드). 성공 경로는 :128 에서 `socket.on('error')` 를 다는데 거부 경로는 달지 않는다.
+- 문제: http 서버는 'upgrade' 를 넘긴 뒤 소켓 오류 처리기를 떼므로, 400 응답 중 상대가 연결을 끊으면 ECONNRESET/EPIPE 가 처리되지 않은 'error' 이벤트가 된다.
+- 실패 상황: 버전 12 로 업그레이드 요청을 보내고 바로 RST(`resetAndDestroy()`) → uncaughtException. 처리기가 없으면 서버 전체가 죽는다(누구나 원격으로 유발). 감독이 scratchpad 스크립트로 10회 시도 → uncaught 10건 직접 재현.
+- 고칠 것: 'upgrade' 처리기 첫 줄에서 `socket.on('error', …)`(onError 로 'handshake' where 보고)를 단다.
+- 확인 기준: ws.test 에 잘못된 핸드셰이크 + 즉시 RST 20회 시험 — uncaughtException 0, 그다음 정상 연결 수락. 처리기 줄 제거 변이에서 시험 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-04 02:40 감독 등록(중복 감독 실행 02:21 의 축 7 보고, 감독 직접 재현). 신규. 02:15 실행이 PR #40 을 이미 병합해 병합 뒤 main 결함으로 올림 — T11.H 맨 앞.
+
+### F-211 [열림] (심각도: 높음) — 상대가 close 프레임 없이 FIN 만 보내면 연결이 끝나지 않고 onClose 가 영영 불리지 않는다
+- 위치: server/ws/index.mjs:126-129(`data`·`error`·`close` 만 듣고 `end` 를 듣지 않음) (main 8ed7a9f)
+- 문제: http.Server 는 allowHalfOpen 이고 업그레이드 뒤 'end' 처리기를 뗀다. 반쯤 닫힌 소켓은 스스로 끝나지 않아 'close'·finish()·onClose 가 일어나지 않는다. 소비자가 연결별로 쥔 자원(이어받기 세션·스케줄러 상태)이 풀리지 않는다.
+- 실패 상황: 핸드셰이크 완료 뒤 클라이언트가 `socket.end()` → 1.5 s 기다려도 onClose 0회. 감독 직접 재현. 망 단절·프록시 종료에서 흔한 경로라 연결이 쌓인다.
+- 고칠 것: `socket.on('end', …)` 에서 소켓을 끝내고(결과 1006) finish 로 잇는다.
+- 확인 기준: FIN 만 보내는 시험에서 onClose 정확히 1회, code 1006, 2 s 안. 'end' 처리기 제거 변이에서 시험 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-04 02:40 감독 등록(축 7 보고, 감독 직접 재현). 신규 — F-210 과 같은 사정.
+
+### F-212 [열림] (심각도: 중간, 일부 미확인) — F-207·F-209 에 없는 시험 판별력·상한 공백(02:21 중복 감독 실행의 축 4a·4b·6)
+- 위치(8ed7a9f)·실패 상황(변이는 축 4a·4b 실행, 감독 미재실행):
+  ① server/ws/resume/index.mjs:241 recordSent 의 touch 제거·:201 미지 세션에 true·:246 shouldSend 가 TTL 무시 → resume·core 시험 생존(미지·닫힌·TTL 경계 세션 음성 시험 없음, TTL 갱신을 open 으로만 봄 resume.test:73-82).
+  ② server/ws/index.mjs:134 close 프레임 뒤에도 send() 쓰기 → 생존.
+  ③ server/adapter/core/core.test.mjs:537·:548·:549 `pieces: []` 라 빈 배열 검사(:149)가 먼저 던져, core:146·:147 범위 검사 제거 변이 생존(감독 :535-538 직접 읽음). :176 결정 일치 검사 끔 → 생존.
+  ④ bench/proto/measure.test.mjs:88-95 북쪽 [-50,50] 대칭이라 sceneToEnu 북쪽 부호 반전 생존(감독 직접 읽음); :59-68 제목의 '점 수 합 보존' 미단언 → 조각당 점 1개 누락 생존; :82 바이트 비교가 순환 → 위치 0 덮기 생존.
+  ⑤ server/scheduler/scheduler.test.mjs:103-110·:199-200 시드별 기대 수는 출력 스냅숏('손으로 적은' 이 아님), :140·:143·:149 순서를 s.pending() 과 비교·seq 미검사 → FIFO 동순위 뒤집기가 불변식 단언 전부 통과.
+  ⑥ server/ws/resume/index.mjs:155-160·:233 같은 key 대체 시 pendingQ 에 dead 가 남고 ack 전까지 무제한(F-209 ⑦ 은 ackedQ 만).
+- 고칠 것: ① 음성·TTL 갱신 시험 ② close 뒤 send false 시험 ③ 유효 조각 + 오류 문구 단언, stub 기계로 결정 불일치 시험 ④ 특정 점(z=-30 → tileY 0, 복호 y=+30)·pointCount 합·복호 위치 대조 ⑤ 모델에 enqueue 순서를 넣어 전체 순서 단언, 스냅숏은 '회귀 스냅숏' 으로 표기 ⑥ dead 가 절반 넘으면 큐 압축.
+- 확인 기준: 위 변이 각각 1 이상 실패; ⑥ ack 없이 같은 key 100만 회 재기록 뒤 내부 큐 길이 ≤ 2×maxEntries.
+- 권장 모델: sonnet
+- 이력: 2026-10-04 02:40 감독 등록(축 4a·4b·6 보고, ③④ 줄 감독 확인, 나머지 미확인). 신규.
