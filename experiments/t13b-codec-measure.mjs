@@ -1,11 +1,11 @@
-// T13b 압축 한도 측정(연구용 임시 스크립트, 제품 코드는 /home/user/wt/p8 에서 import 만 한다).
-// 사용: node /home/user/wt/lab/experiments/t13b-codec-measure.mjs <부분> [N=2500000] [시드=1]
+// T13b 압축 한도 측정(연구용 임시 스크립트, 제품 코드는 제품 작업 트리(환경변수 PRODUCT_DIR) 에서 import 만 한다).
+// 사용: node experiments/t13b-codec-measure.mjs <부분> [N=2500000] [시드=1]
 //   부분 = bytes  : 현재 codec 1(SKLC1) 필드별 바이트/점(수준 0~3)
 //          alt    : 최고 수준(N 점)에서 대안 부호기 비용(적응형 산술 부호 이상적 길이) + brotli 참고값
 //          ssim   : 손실 양자화별 8시점 SSIM(설정 A = 제품 화질 시험과 같은 320x180·0.75 m, 설정 B = 근접 640x360·0.08 m)
 // 장면: fixtures/scenes/levels 구간 0(50 m x 100 m 띠, 기복 ±2 m), 최고 수준 N 점, 낮은 수준은 N/2·N/4·N/8.
 // 좌표: 장면은 y-up(x, 높이, z). 조각화는 ENU(e = x, n = -z, u = y)로 바꿔서 한다(실자산과 같은 축 배치).
-const P = '/home/user/wt/p8/';
+const P = (process.env.PRODUCT_DIR ?? '.') + '/';
 const imp = (p) => import(P + p);
 const { generate, levelCloud } = await imp('fixtures/scenes/levels/index.mjs');
 const { groupByTile } = await imp('server/asset/tile_index/index.mjs');

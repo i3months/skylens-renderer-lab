@@ -1,7 +1,7 @@
 # T11 protocol — 웹소켓 메시지·송출 (+ T10.F)
 
 제품 브랜치 feat/protocol (기준 main dbb59e7). 연구 결정: [0030](../decisions/0030-protocol-wire-format.md).
-서브에이전트 14개(sonnet 11·haiku 2·opus 1, 승격 없음). 모두 푸시 전 로컬 브랜치에서 합쳤다. 하네스가 작업 트리를 연구 저장소에서 만들므로 각자 제품 작업 트리(/home/user/wt/<ID>)를 직접 만들게 했다(T10 과 같은 경위).
+서브에이전트 14개(sonnet 11·haiku 2·opus 1, 승격 없음). 모두 푸시 전 로컬 브랜치에서 합쳤다. 하네스가 작업 트리를 연구 저장소에서 만들므로 각자 제품 작업 트리(<작업 트리 디렉터리>/<ID>)를 직접 만들게 했다(T10 과 같은 경위).
 
 ## 구성
 - T11.0 contracts/proto: 메시지 9종, 머리 8 B, 본문 배치, 검사 순서(short→type→version→reserved→limit→length→direction→본문 length→field), 상한(본문 4 MiB, 요청 항목 256).
