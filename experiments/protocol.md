@@ -32,3 +32,12 @@
 
 ## 전체 시험(작업자 직접)
 `npm test`: 3007 중 2995 통과·0 실패·12 건너뜀·todo 0 (f177 병합 직전 feat/protocol, 직접 실행). f177 병합 뒤 최종(1107514): 3024 중 3012 통과·0 실패·12 건너뜀·todo 0 (직접 실행).
+
+## T11.F 처리 (PR #39 반려 1회, 제품 feat/protocol 7f362d0)
+서브에이전트 11개(opus 2·sonnet 7·haiku 2), 승격 없음. 첫 투입은 격리 worktree 가 연구 저장소로 만들어져 6개가 시작하지 못해 제품 worktree 로 재투입(실패 아님, 환경 문제).
+- 계약(97f2d5d): pieceSeq 는 1 부터(PIECE_SEQ_MIN, 0 = 받은 것 없음), `overtakeGroup` = (segmentId,tileX,tileY,lod) 한 함수를 scheduler·resume 이 공유, chunkIndex 상한 CHUNK_INDEX_LIMIT=65536(contracts/asset 은 더 크게 허용하나 PIECE 로는 못 보냄 — 결정: PieceKey u16 유지), quat = 카메라→ENU(contracts/raster 축), oversize 단독 배치 예외를 계약 문구에 명시.
+- F-184: 어댑터 기본 firstPieceSeq 1, 0 RangeError, 어댑터→recordSent→open 통합 시험(core.test). F-185·F-190: resume·scheduler 가 overtakeGroup 사용, scheduler 는 묶음별 나간 최고 수준 기억(낮은 수준 enqueue false), 교차 시험 server/scheduler/overtake_cross.test.mjs(8쌍 표). F-186: 15,000,000·3,000,000 B(MiB 제거), 경계 ±1 시험. 작업자가 하위 작업 4 의 임의 '항목별 3 MB 버림' 로직을 되돌림(구간당 상한은 구간 합 기준).
+- F-187: ① server/scheduler/initial/scenes.test.mjs — large 장면 레벨 0 합 27,508,808 B, 시점별 totalBytes ≤ 14,943,940·dropped 합 36. ② replayPath(실제 코덱, dronePath 50·freePath 40 시점 정확히 수신). ③ bench/proto/measure.mjs — 합성 구간 4개 실제 프레임 바이트 2,064,882·2,065,660·2,065,788·2,065,928 B(상한 3,000,000 의 68.8%, 충족).
+- F-188: ws 콜백 try, 실패 연결만 1011, onError. F-189: 어댑터가 메시지를 모두 만들고 송출한 뒤 상태 확정(emit n 번째 실패 시 상태 불변). F-191: 프레임 파서 선형(4 MiB/1400 B 약 10~12 ms, 이전 920~1390 ms), 빈 연속 프레임 상한 1009. F-192: scheduler maxPending·maxSentGroups, resume ack 시 bytes 해제·세션 상한(상한 축출 시 중복 전송 가능 — 헤더에 대가 명시). F-193: ①u16 유지·65535/65536 시험 ②quat 규약 ③oversize ④주소·포트 검사 server/·tools/ 로. F-194: 코덱 code 통일('short'·'type')·BOM·Buffer 복사, 프레임 1002. F-195: 변이 시험 다수 추가. F-196: arrayBuffers 계측·선할당 복호기 3종·차등 비교·순서 교환 변이 사망.
+- 한계: 어댑터 재시도 시 일부 송출분이 같은 pieceSeq 로 한 번 더 나갈 수 있다(수신·resume 이 같은 조각으로 처리한다는 전제, 계약 미기재 — 감독 판단 요청). resume 상한 축출 시 중복 전송 가능. [local] 실제 skylens 녹화 대조는 T11.8L.
+- 전체 `npm test`(작업자 직접): 3128 중 3116 통과·0 실패·12 건너뜀.
