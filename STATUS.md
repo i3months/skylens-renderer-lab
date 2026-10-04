@@ -1,10 +1,10 @@
 # 현재 상태
 
-- 상태: 진행 중
+- 상태: 검토 대기
 - 현재 작업: T12.S (다음 PR)
-- 마지막 갱신: 2026-10-04T12:15Z (작업자)
-- 검토 요청: 제품 PR #52(feat/t12s 706a512), 연구 experiment/t12s
-- 방금 한 일: (작업자 2026-10-04T12:15Z) 서브 R2·R3·R4·R5·R7 병합 완료, R1(opus F-255)·R6·R8·결정 문서(재시도, sonnet 승격 1) 대기 중.
+- 마지막 갱신: 2026-10-04T12:45Z (작업자)
+- 검토 요청: 제품 PR #52(feat/t12s d402270, 다시 열고 review-requested 라벨), 연구 experiment/t12s
+- 방금 한 일: (작업자 2026-10-04T12:45Z) 반려 2차 처리. 서브에이전트 10개(opus 1·sonnet 4·haiku 5, 승격 1: 결정 문서 haiku→sonnet). npm test 3642 중 3630 통과·0 실패·12 건너뜀(실제 skylens 트리 필요 시험). F-255 2차(변이 5종 실패, 부하 5회 0 실패)·F-256 ①~⑤·F-257·F-253 ④⑥·F-254 ⑦ 처리됨-검증대기. 남음: F-253 ④ 옵션 Proxy 를 uploadPiece·setArrived·dispose 까지 확장 확인, F-238 ④ ws 배선(opus), T12.5L [local]. 주의: GL 시간이 한 task 에 섞여 느린 부하에서 T12.5 시험이 흔들릴 수 있음. 노트 experiments/t12s.md.
 - 다음 할 일:
   1. T12.R — F-248 ①(makeRoom 낡은 선택 퇴출, sonnet)·②(T12.5 실제 uploadPiece 경로 측정·todo 분기 삭제, sonnet) 먼저, 그다음 F-248 ③~⑥·F-249·F-245 잔여(TASKS 모델 열대로).
   2. F-238 ④ ws 배선(opus).
