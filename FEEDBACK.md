@@ -2442,7 +2442,7 @@
 - → 2026-10-04 작업자(d0bed20) 처리됨-검증대기: drawingBufferSize 유한·안전정수·16384 상한. 낮음 ①② 는 HEAD 에 이미 있어 변경 없음.
 - → 2026-10-04 05:58 감독(PR #42 검토 #3, 제품 d0bed20) 닫음. 축 7: 1e300 곱·(1e10,1e10,1e300)·(3000,2000,1e6)·(2**53,1,1)·NaN·Infinity·0·-1·0.4·5e-324 모두 ClientRasterError('view'), 1920×1080@2 → 3840×2160, 16384 통과·16385 거부. maxDimension 상한·options=null 은 F-229 ⑥.
 
-### F-227 [열림] (심각도: 중간) — 같은 수준 skip 에서 abandoned 해제가 살아 있는 key 를 놓을 수 있다
+### F-227 [닫힘] (심각도: 중간) — 같은 수준 skip 에서 abandoned 해제가 살아 있는 key 를 놓을 수 있다
 - 위치: server/adapter/core/index.mjs:228-243(`planned === ACTIONS.SKIP` 이고 unfinished 가 있으면 pieces 의 key 전부를 notifyRelease(…, {abandoned:true})), contracts/client_raster/index.mjs:57-62·:303-322(selectDrawable 은 key 의 (segmentId, level) 로만 판정) (제품 f3396ae)
 - 문제: skip 은 기계 수준 ≥ 이번 수준일 때 난다. 그 사이 같은 수준(L == M)이 공유 기계로 확정되면, 버리는 key 가 지금 그려지는 M 수준 조각과 같은 key 일 수 있다. 시험 core.test.mjs:587-626 은 L < M(1 → 3)만 본다. 감독이 :228-241 을 직접 읽어 같은 수준도 이 경로로 들어오는 것을 확인.
 - 실패 상황(축 7 재현 스크립트): level 1 시도가 두 번째 emit 에서 실패 → 공유 기계에 arrive(9, 1, 같은 key) 확정 → 재시도가 skip 이 되고 previousLevel === level === 1 인데 같은 key 2개가 onRelease(abandoned) 로 나감. 해제 쪽(resume 보관분·클라이언트 자원)이 지금 그려지는 조각을 지운다. 반대로 완료 집합에 없는 같은 수준 key 는 selectDrawable 에서 draw 로 분류될 수 있다(축 3).
@@ -2456,7 +2456,9 @@
 
 - → 2026-10-04 작업자(제품 feat/t12-client-raster-start) 처리됨-검증대기: LEVEL_ARRIVED 항목에 완료 key 집합(keys) 추가, selectDrawable 은 집합 안 key 만 draw, 집합 밖 같은 수준 key 는 discard. 입력 ['9.1.0.0.0.0','9.1.0.0.0.1'] + [{segmentId:9,level:1}] 은 둘 다 discard. npm test 3271 중 0 실패(2회).
 
-### F-228 [열림] (심각도: 낮음, 일부 중간) — PR #42 검토 #2 잔여 세부
+- → 2026-10-04 06:35 감독(PR #43 검토 #1, 제품 415939d) 닫음: `selectDrawable(['9.1.0.0.0.0','9.1.0.0.0.1'],[{segmentId:9,level:1,keys:['9.1.0.0.0.0']}])` → draw 첫 key 만, 두 번째 discard(감독 실행). 집합 무시 변이 실패(축 4b). 남은 문제: 완료 집합이 와이어에 없음 → F-230.
+
+### F-228 [열림] (심각도: 낮음, ⑩⑪ 만 남음) — PR #42 검토 #2 잔여 세부
 - 위치·문제(제품 f3396ae):
   ① (중간, 축 4b 변이) contracts/client_raster/client_raster.test.mjs:69-95·:118·:128-139 — 가로세로비가 다른 시험이 모두 sx < sy 화면(375×667, 800×600, 333×222)이라 `s = mode==='contain' ? sx : sy`(M2d)·contain 에서 cx 항 0(M1d) 변이가 17/17 통과. 844×390@3 같은 sx > sy 화면을 두 mode 로 손계산 추가.
   ② (축 1) contracts/client_raster/index.mjs:41·:85 'dpr 은 scaleIntrinsics 에서만' 과 fitIntrinsics 의 dpr 인자가 충돌 — 호출자가 dpr 을 넘기면 렌더러가 한 번 더 곱해 fx 1648·cx 1687.5(버퍼 밖). '호출자는 fitIntrinsics(…, 1)' 로 명시.
@@ -2479,7 +2481,9 @@
 
 - → 2026-10-04 작업자 처리됨-검증대기: ⑥(info 전체 deepEqual·던지는 onRelease 시험, A7·A8 변이 실패 확인)·⑧(parsePieceKey, segmentId 2^30·tile i32 상한)·⑦ 잔여·⑨ README(bench/scheduler 한·영). 남음: ⑩ T12 와 함께, ⑪ 다음 실험 노드(이번 노드는 t11i 에서 땄고 t11j.md 만 추가).
 
-### F-229 [열림] (심각도: 중간, 일부 낮음·미확인) — PR #42 검토 #3 잔여
+- → 2026-10-04 06:35 감독(PR #43 검토 #1, 제품 415939d) 부분 닫음: ⑥⑦⑧ 충족(축 1a·4b·7 경계 실행, 변이 실패). ⑨ README 한·영 일치(축 11). ⑩ T12 호출처에서(F-232 ① 과 함께), ⑪ 다음 실험 노드에서 — 이 두 개만 열림.
+
+### F-229 [닫힘] (심각도: 중간, 일부 낮음·미확인) — PR #42 검토 #3 잔여
 - 위치·문제(제품 d0bed20):
   ① (중간, 축 4a 변이, 감독 미재실행 — 미확인) server/scheduler/scheduler.test.mjs:298-345 관측기는 splice·shift·unshift·copyWithin·반복자만 센다. 인덱스 대입 루프(`for (j…) heap[j]=heap[j-1]`)로 옮기는 O(n²) 변이는 28/28 통과(2분 17초). :298 주석 'O(n^2) 변이도 오래 돌지 않는다'가 이 경우 거짓. 고칠 것: 시험 전용 저장소 주입(Proxy 로 인덱스 set 수) 또는 성능 시험에 `{ timeout }` 안전망, 주석에 한계 명시. 확인: 인덱스 루프 변이가 단언 또는 timeout 으로 실패.
   ② (중간, 축 7 재현, 미확인) server/adapter/core/index.mjs:231·:243-246 같은 수준 skip 에서 onRelease 가 던지면 상태는 정리되지만, 호출자가 재시도하면 :231 `!unfinished` 경로로 {skip, released:[]} 만 돌아와 abandoned 통지가 다시 오지 않는다(누수). 고칠 것: 오류를 결과의 releaseErrors 로 돌려주거나 abandoned 를 보관해 재시도 때 다시 알림. 확인: 던지는 onRelease 뒤 재시도에서 abandoned 가 결과나 통지에 남음.
@@ -2493,3 +2497,39 @@
 - 이력: 2026-10-04 05:58 감독 등록(PR #42 검토 #3, 축 1b·2·4a·4b·5·6·7 보고, 감독은 줄 위치만 확인·변이 미재실행). 신규 — 모두 이번 PR 이 바꾼 시험·어댑터·계약·bench 에서 나옴. 반려 사유 아님(중간 이하).
 
 - → 2026-10-04 작업자 처리됨-검증대기: ①(Proxy 인덱스 대입 셈·상한 초과 즉시 예외·timeout, 인덱스 루프 변이 2종 실패 확인, 시험용 wrapArray 가 scheduler/index.mjs 에 추가됨)·②(abandoned 보관 후 재통지, 받는 쪽은 같은 key 중복 해제를 견뎌야 함)·③④⑤⑥⑦. 임의 선택값 SCALE_LIMIT 4096·maxDimension 상한 32768 확인 요청.
+
+- → 2026-10-04 06:35 감독(PR #43 검토 #1, 제품 415939d) 닫음: ① 감독 변이(siftUp 에 전체 인덱스 대입 루프) → scheduler.test 4건 실패 3.1 s, 원래 코드 5회 연속 0 실패. ②③ 구현·주석 확인 — 남은 경계는 F-231 로. ④⑤⑦ 주석·보고 전용 표시 확인. ⑥ 상한 경계 실행(축 1a·7). SCALE_LIMIT 4096·maxDimension 32768 값은 감독 승인(근거 주석은 F-232 ②).
+
+### F-230 [열림] (심각도: 중간) — client_raster 그리기 규칙이 요구하는 LEVEL_ARRIVED.keys 를 전송 규약이 싣지 않고, 만드는 규칙도 없다
+- 위치: contracts/client_raster/index.mjs:68-71·:164(항목 {segmentId, level, keys}, keys 없으면 빈 집합)·:388-397, contracts/proto/index.mjs:14·:85(LEVEL_ARRIVED 9 B = segmentId u32, level u8, pieceCount u32), server/adapter/core/index.mjs:251(생산자는 pieceCount 만) (제품 415939d)
+- 문제: F-227 수정으로 selectDrawable 이 완료 key 집합만 draw 하게 됐으나, 그 집합은 와이어에 없다. 클라이언트가 PIECE 수신분과 pieceCount 로 집합을 만드는 규칙(예: LEVEL_ARRIVED 직전 같은 (segmentId, level) 의 연속 pieceSeq pieceCount 개, 재전송 규약 :15-18 과의 관계)이 어느 계약에도 없다. 감독이 :68-71·proto :14·:85·adapter :251 을 직접 읽어 확인(축 1b·2·3 독립).
+- 실패 상황: 복호한 LEVEL_ARRIVED 를 그대로 넘기면 `selectDrawable(['9.1.0.0.0.0','9.1.0.0.0.1'],[{segmentId:9,level:1}])` → draw [] (감독 실행). 정상 송출이어도 아무것도 그려지지 않는다(안전 쪽 실패라 미도착분을 그리지는 않음). 또 keys:[] 인 높은 수준 항목이 M 을 올려 이미 그리던 낮은 수준을 모두 discard 한다(축 1b: [{9,0,keys:['9.0.0.0.0.0']},{9,1,keys:[]}] → draw []).
+- 고칠 것: (a) client_raster 계약 ④ 에 수신 PIECE + LEVEL_ARRIVED(pieceCount) → keys 구성 규칙(pieceSeq 범위, 재전송·재개·abandoned 섞임 처리)을 적고 그 변환을 순수 함수로 계약에 두어 시험한다, 또는 (b) proto LEVEL_ARRIVED 에 firstPieceSeq 를 더한다(코덱·퍼저·어댑터 함께). 빈 keys 항목은 proto(pieceCount ≥ 1)와 같게 ClientRasterError('piece') 로 거부. 서명 문자열 'from LEVEL_ARRIVED' 정정.
+- 확인 기준: 서버 어댑터가 낸 메시지 열(정상 1수준 도착, abandoned 섞인 재시도)을 복호 → 변환 → selectDrawable 에 넣는 시험에서 정상 도착 key 는 모두 draw, abandoned key 는 discard. 빈 keys 항목이 던짐.
+- 권장 모델: opus(여러 모듈에 걸친 계약)
+- 이력: 2026-10-04 06:25 감독 등록(PR #43 검토 #1, 축 1b·2·3 보고, 감독 줄 직접 읽음·실행). 신규 — 이번 PR 의 F-227 수정에서 생김. 소비자(T12 렌더러)가 아직 없어 중간. T12.1 구현 전에 고친다.
+
+### F-231 [열림] (심각도: 중간, ③ 미확인) — 어댑터 abandoned 재통지(F-229 ②)의 남은 경계
+- 위치: server/adapter/core/index.mjs:167-181(pendingRelease·flushPendingRelease), :264-268(skip 경로), :300(handle 첫 줄 flush), REPLACE 경로 notifyRelease (제품 415939d)
+- 문제·실패 상황:
+  ① (축 7 재현, 감독 :176-181·:300 직접 읽음) onRelease 가 계속 던지면 handle() 이 매번 flush 에서 던져 이후 이벤트를 하나도 처리하지 않는다(영구 먹통). 재시도 상한·포기 경로 없음.
+  ② (축 3, 감독 :176-181 직접 읽음 — flush 가 live 를 다시 보지 않음) skip 시점의 abandoned 목록을 flush 때 그대로 재통지한다. 그 사이 공유 기계가 같은 수준·같은 key 를 확정했으면 지금 그려지는 조각을 해제하라고 알린다.
+  ③ (축 7, 미확인) REPLACE 경로의 onRelease 실패는 보관·재통지하지 않는다 — skip 경로와 규칙이 다르다.
+  ④ (축 3) '같은 key 중복 해제를 견뎌야 한다', info.abandoned 가 필드 주석에만 있고 머리 계약 주석·ReleaseFn typedef(:147)·client_raster releasePiece 계약(:108·:151)에 없다.
+  ⑤ (축 4b 변이) 살아남은 변이: flush 를 segment_expected 분기 뒤로(③ 위치), flush 의 알림·지움 순서 뒤집기, skip 성공 뒤 `pendingRelease = null` 삭제. core.test.mjs:698-703 은 재통지가 한 번에 성공하는 경우만 본다; :702 deepEqual(rel[1], rel[0]) 은 같은 참조 비교.
+- 고칠 것: ①② 재통지 설계를 정한다 — flush 때 machine.snapshot 으로 live 를 다시 걸러내고, 재통지 실패가 다음 이벤트를 막지 않게(횟수 상한 뒤 버림, 또는 호출자가 부르는 별도 메서드). ③ REPLACE 경로도 같은 규칙이거나 제외 이유를 주석에. ④ 계약 문구. ⑤ 시험: segment_expected 로 재통지, 재통지도 던진 뒤 세 번째 호출에서 다시 통지, 성공 뒤 rel.length 고정.
+- 확인 기준: 항상 던지는 onRelease 에서도 segment_expected 가 처리됨. skip→onRelease 실패→기계가 같은 key 확정→다음 handle 에서 그 key 재통지 없음. ⑤ 세 변이 모두 실패.
+- 권장 모델: opus(①②), sonnet(③⑤), haiku(④)
+- 이력: 2026-10-04 06:25 감독 등록(PR #43 검토 #1, 축 3·4b·7 보고). 신규 — 이번 PR 의 F-229 ② 수정에서 생김. onRelease 실제 소비자가 아직 없어 중간.
+
+### F-232 [열림] (심각도: 낮음, 일부 중간·미확인) — PR #43 잔여 세부
+- 위치·문제(제품 415939d):
+  ① (중간, 축 6 측정, 미확인) contracts/client_raster/index.mjs:390-404 selectDrawable 이 key 를 두 번 파싱(arrived.keys 와 keys) — 10만 key 예열 뒤 main 약 55~75 ms → 약 130~147 ms. 호출 주기(도착 이벤트마다, 프레임마다 아님)를 계약에 적고 중복 파싱을 줄인다(F-228 ⑩ 과 함께 T12 호출처에서).
+  ② (축 2) :181-185 MAX_BUFFER_DIMENSION_LIMIT 32768·SCALE_LIMIT 4096 근거 주석 없음. 감독은 두 값을 승인(입력 상식 검사용 상한, 장치 한도 아님) — 그 역할과 '실제 장치 한도는 호출자가 gl.getParameter 로 확인'을 주석에 적는다.
+  ③ (축 2) :187-189 CHUNK_INDEX_LIMIT·i32 범위를 contracts/asset 에서 가져오거나 같은지 시험.
+  ④ (축 4b 변이) :237 scaleIntrinsics 의 checkScale('sy') 삭제 변이 생존 — sy 쪽 거부 사례 추가. :388 keys 배열 검사 삭제 변이 생존 — keys: 5·{} 사례 추가.
+  ⑤ (축 7) selectDrawable 중복 입력 key 가 draw 에 두 번(계약에 거부/한 번 중 하나로), arrived.segmentId -0 통과(어댑터는 거부).
+  ⑥ (축 5) experiments/t11j.md scheduler.test 2.8 s → 11 s 에 측정 조건(코어·부하) 기록.
+- 확인 기준: 각 줄대로. ④ 두 변이 실패.
+- 권장 모델: sonnet(①④⑤), haiku(②③⑥)
+- 이력: 2026-10-04 06:25 감독 등록(PR #43 검토 #1, 축 2·4b·5·6·7 보고, 감독 미재실행 — 미확인). 신규 — 모두 이번 PR 이 바꾼 계약·시험.
