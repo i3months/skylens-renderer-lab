@@ -2521,6 +2521,7 @@
 - 확인 기준: 항상 던지는 onRelease 에서도 segment_expected 가 처리됨. skip→onRelease 실패→기계가 같은 key 확정→다음 handle 에서 그 key 재통지 없음. ⑤ 세 변이 모두 실패.
 - 권장 모델: opus(①②), sonnet(③⑤), haiku(④)
 - 이력: 2026-10-04 06:25 감독 등록(PR #43 검토 #1, 축 3·4b·7 보고). 신규 — 이번 PR 의 F-229 ② 수정에서 생김. onRelease 실제 소비자가 아직 없어 중간.
+- → 2026-10-04 06:55 감독(예비 실행, 제품 415939d = main 7e95050 의 PR 쪽) 보강 ⑥ (감독 직접 재현): onRelease 가 같은 어댑터의 handle() 을 부르면(재진입) 무한 재귀. 재현: 공유 기계에서 seg 1 level 1 시도가 emit 실패로 unfinished → 기계가 level 2 도착 → handle(level_arrived seg1 lv1) 로 skip, onRelease = () => a.handle({kind:'segment_expected', segmentId:9}). 결과 PR 머리 `RangeError: Maximum call stack size exceeded`(onRelease 중첩 1897회), main 59b2311 은 같은 입력에서 skip 정상 반환·onRelease 1회 — 회귀. 원인 :265 에서 알림 전에 pendingRelease 를 세우고 :300 flush 가 알림 중에도 같은 보관분을 다시 알림. 고칠 것: flush 시작 때 보관분을 꺼내 비우고(실패 시 되돌림) 재진입 중에는 flush 하지 않는다. 확인 기준: 위 재현이 예외 없이 끝나고 key 당 알림 횟수 유한(시험으로 고정). 권장 모델: opus(①② 와 함께). 소비자 없음이라 중간 유지, T11.K 에서 ①② 와 같이 고친다.
 
 ### F-232 [열림] (심각도: 낮음, 일부 중간·미확인) — PR #43 잔여 세부
 - 위치·문제(제품 415939d):
