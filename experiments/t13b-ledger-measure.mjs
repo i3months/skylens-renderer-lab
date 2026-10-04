@@ -1,6 +1,6 @@
 // t13b: 현황판 어댑터 retired 장부의 조각당 바이트를 잰다(결정 0041 '조각당 약 216 B' 재현용).
 // 실행(연구 저장소 작업 트리 루트에서):
-//   SKYLENS_ROOT=/home/user/skylens-renderer node --expose-gc experiments/t13b-ledger-measure.mjs [구간수=4000] [수준당조각=16]
+//   SKYLENS_ROOT=<제품 저장소 경로> node --expose-gc experiments/t13b-ledger-measure.mjs [구간수=4000] [수준당조각=16]
 // 방법: 실제 createStatusView(client/status/e2e/index.mjs) 를 시험용 가짜 모듈(같은 폴더 fakes.mjs)로 조립한다.
 //   1단계: 구간마다 수준 3 을 도착시킨다(수준 3 조각은 live 로 남는다).
 //   2단계: 구간마다 수준 0..2 를 도착시킨다(이미 더 높은 수준이 있어 건너뜀 → 그 조각들이 retired 로 간다).
