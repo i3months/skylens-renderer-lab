@@ -2826,14 +2826,14 @@
 - → 2026-10-04 작업자(T12.S, 제품 feat/t12s): ①③④⑤⑥⑦⑧ 처리됨-검증대기. ② toMask 중복 검사는 제거했으나 호출 횟수 시험이 없어 열림.
 - → 2026-10-04 감독(PR #52 검토 #1, 제품 3583504): ①(죽은 코드 제거, 단 검사 범위 축소는 F-254 ③)·③(fresh 제거)·⑤·⑦(onerror 뒤 decode 가 'terminated' 로 reject, 축 1b 재현)·⑧ 닫음. ④ 다시 열림 → F-253 ④(정규식이 JSDoc 을 읽고 구조분해를 못 봄, 변이 3종 생존). ② 열림(호출 횟수 시험 없음). ⑥ 은 연구 저장소 몫, 검증대기.
 
-### F-252 [열림] (심각도: 높음) — makeRoom 의 추정 선택이 캐시되어, 실패한 업로드 뒤 도착·상주 조각이 그려지지 않는다(PR #52 회귀)
+### F-252 [닫힘] (심각도: 높음) — makeRoom 의 추정 선택이 캐시되어, 실패한 업로드 뒤 도착·상주 조각이 그려지지 않는다(PR #52 회귀)
 - 위치: client/raster/index.mjs:230-237(currentSelection(extraKey) 가 아직 상주하지 않는 key 를 넣은 결과를 selection 에 저장하고 selectionStale=false), :311(makeRoom 호출), :319-321('memory' 던짐)·:346 이후 pool.upload 실패 (제품 feat/t12s 3583504)
 - 문제: 지금 올리는 key 가 상주한다고 가정한 선택이 확정 선택으로 남는다. 그 업로드가 'memory' 로 거부되거나 pool.upload 가 던지면, 그 key 가 완성한다고 본 LOD 가 draw 로, 실제로 완전한 다른 LOD 가 discard 로 남은 채 다시 계산되지 않는다.
 - 실패 상황(감독 재현, origin/main 과 대조): 한도 51 B. c=3.1.0.0.1.0(2점) 업로드 → setArrived([c,a,b]) → a=3.1.0.0.0.0(1점) 업로드 → b(3점, 넘침) 업로드가 'memory' 로 거부 → draw() drawnPoints 1(불완전 lod0 의 a 만), origin/main 은 2(완전한 lod1 c). 축 7 재현(지연 setArrived 직후 finer LOD 업로드 실패) 에서는 draw 0 — 상주·도착한 조각이 있는 tile 이 다음 setArrived 까지 비어 보인다. 축 2·3·4a·7 독립 보고.
 - 고칠 것: extraKey 로 계산한 선택은 희생 고르기용 지역 변수로만 쓰고 selection·selectionStale·drawingCache 를 바꾸지 않는다(업로드 성공 뒤 :380-382 의 stale 로 정상 재계산). 또는 makeRoom·pool.upload 실패 시 selectionStale=true 로 되돌린다. 앞쪽이 단순하다.
 - 확인 기준: 위 순서 시험(index.test)에서 거부 뒤 draw().drawnPoints == 2, 지연 경로 판(축 7 r4 순서: maxResidentBytes 40, A=1.1.0.0.1.0 1점, B=1.1.0.0.0.0 3점)에서 drawnPieces 1. 두 시험 모두 3583504 에서 실패해야 한다. extraKey 를 선택에 저장하는 변이가 실패.
 - 권장 모델: sonnet
-- 이력: 2026-10-04 감독 등록(PR #52 검토 #1). 신규(이번 PR 의 F-250 ③ 수정이 만든 회귀). 감독이 축 4a probe 를 HEAD·origin/main 에서 직접 실행해 1 대 2 확인, 코드 :230-237·:311-321 직접 읽음.
+- 이력: 2026-10-04 감독 등록(PR #52 검토 #1). 신규(이번 PR 의 F-250 ③ 수정이 만든 회귀). 감독이 축 4a probe 를 HEAD·origin/main 에서 직접 실행해 1 대 2 확인, 코드 :230-237·:311-321 직접 읽음. → 작업자 처리(feat/t12s 4597b32) → 2026-10-04 12:0x 감독 확인 닫음: `node --test --test-name-pattern=F-25 client/raster/index.test.mjs` 5/5 통과(706a512), 축 1a 가 같은 시험을 3583504 코드에서 돌려 4건 실패 확인.
 
 ### F-253 [열림] (심각도: 중간) — PR #52 잔여: makeRoom 최신 선택 경로·지연 검사 비용·복호 큐·옵션 키 시험·T12.5
 - ① (축 1a 재현, 감독 재실행 — origin/main 과 같음, 기존 동작) client/raster/index.mjs:233 extraKey 는 selectionStale 일 때만 들어간다. draw 로 선택이 최신이 된 뒤에는 F-250 ③ 문제가 그대로: 한도 51 B, c 업로드 → setArrived([c,a,b],{deferResult:true}) → a 업로드 → draw() → x=4.1.0.0.0.0 업로드 → b 업로드 → onEvict [a], 상주 [c,x,b], drawnPieces 1(도착한 a 퇴출, 미도착 x 상주). 고칠 것: key ∈ arrivedKeys 이고 meta 에 없으면 stale 여부와 관계없이 [...meta.keys(), key] 로 희생 고르기용 지역 선택을 만든다(F-252 와 함께). 확인 기준: 위 순서와 즉시 setArrived 순서 모두 onEvict [c], 상주 [a,x,b], drawnPieces 2. 권장 sonnet.
@@ -2843,7 +2843,7 @@
 - ⑤ F-255 로 옮김(높음).
 - ⑥ (축 2, 감독 확인) 결정 0036: 항목 3(onContextRestored error 를 계약에 넣는다)이 계약 :157·:214(구현 확장, 계약 밖)·승인된 0035 ④ 와 어긋나고 근거('탭 전환 등 소실 원인')가 코드(:288 복구 실패 failure)와 다르다. 복호 시한 failAll·onerror terminated(0035 ③ 변경)와 makeRoom 업로드 key 포함 규칙이 기록되지 않았다. 0036:19 'fresh 그대로' 는 이번 PR 이 fresh 를 지웠다. decisions/README 목록에 0036 없음. 고칠 것: 항목 3 정정 또는 계약 반영 + 0035 ④ 대체됨 표시, 누락 결정 추가, 문구·목록 정정. 확인 기준: 0036 본문과 계약 :157·:214·코드 대조 일치. 권장 haiku.
 - 권장 모델: 위 번호별
-- 이력: 2026-10-04 감독 등록(PR #52 검토 #1). ① 감독 재현, ④ 감독 코드 확인, ②③⑥ 근거 줄 있는 서브에이전트 보고. ① 은 기존 동작(F-250 ③ 잔여), 나머지는 이번 PR 이 바꾼 범위.
+- 이력: 2026-10-04 감독 등록(PR #52 검토 #1). ① 감독 재현, ④ 감독 코드 확인, ②③⑥ 근거 줄 있는 서브에이전트 보고. ① 은 기존 동작(F-250 ③ 잔여), 나머지는 이번 PR 이 바꾼 범위. → PR #52 검토 #2(706a512): ① 닫음(감독 시험 실행 F-253 즉시·지연 2건 통과, 축 1a 3583504 에서 실패 확인). ② 닫음(축 6 bench 10만 key 지연/즉시 0.07~0.17, 근거 bench/arrived_check_bench.mjs; 축 7 checkArrived 와 selectDrawable 판정 불일치 난수 20000건 0). ③ 닫음(축 1b·7 재현: clearTimeoutFn 예외에도 settle, failAll errors 집계 항등식 성립, 시한 뒤 terminate). ④ 미해결(일부) — 축 4b 변이: 생성 시점 구조분해 새 옵션·now 무시는 잡히나 api.test.mjs:201-217 Proxy 가 createRenderer 호출 중 get 만 기록해 uploadPiece 안 `options.lateOpt` 지연 읽기·`...rest` 구조분해·`{...options}` 복사 뒤 읽기 3변이 생존. 고칠 것: 생성 뒤 setArrived·uploadPiece·draw·setView·dispose 까지 Proxy 옵션으로 돌리고 has·ownKeys 도 기록, 또는 첫머리에서 옵션을 한 번에 복사하고 options 가 클로저에 남지 않음을 단언. 확인 기준: 세 변이 실패. 권장 haiku. ⑥ 미해결 — 0036:35·:43·:51 이 계약 :157·:214·0035 ④ 와 여전히 어긋나고 :19 fresh 남음, 연구 브랜치 decisions/README 에 0035 줄 없음·0034 가 제안·0037 이 작업자 자기 승인, 시한 뒤 자체 terminate 결정(0035 ③ 대체)이 기록되지 않음(0037:26 은 "재생성은 호출자 몫" 이라 코드와 다름), checkArrived 분리 결정·계약 :176 testHooks 목록에 checkArrivedKey 없음(축 2 보고, 근거 줄 있음, 감독 미재실행). ⑥ 권장 haiku.
 
 ### F-254 [열림] (심각도: 낮음) — PR #52 잔여 세부
 - ① (축 7 재현) client/raster/loop/index.mjs:110 timeoutMs > 2^31−1 을 받아들이지만 타이머가 약 1 ms 로 잘려 모든 decode 가 즉시 timeout. 범위 검사 추가. 권장 haiku.
@@ -2853,13 +2853,33 @@
 - ⑤ (축 2) contracts/client_raster/index.mjs:158 typedef 의 setArrived 형이 :215 서명표(opts?, | undefined)와 다름. 권장 haiku.
 - ⑥ (축 1b 재현) loop/index.mjs:132-140 이미 보낸 요청의 arm 실패 시 그 요청을 거부해 JSDoc :104('그 요청만')와 다르고 다음 요청 시한이 처리 시작 기준을 잃는다. 권장 haiku.
 - ⑦ (축 4b 변이) missing/index.mjs:34-35 검사 2회 변이 생존(F-251 ② 확인), latency/index.test.mjs:246-268 measure 퇴출이 가장 오래된 것인지 구별 못 함(shift→pop 생존), nonEmptyValuesInEmpty 크기·index·깊이 검사 삭제 변이 생존(validate.test 음성 시험 추가), timeout_queue :105-121 settle 뒤 release 순서 미시험, inputs.test.mjs:49-56·:77-91 중복 단언. 권장 haiku.
-- 이력: 2026-10-04 감독 등록(PR #52 검토 #1). 모두 서브에이전트 보고(근거 줄 있음, 미재실행).
+- 이력: 2026-10-04 감독 등록(PR #52 검토 #1). 모두 서브에이전트 보고(근거 줄 있음, 미재실행). → PR #52 검토 #2(706a512): ①②③⑤⑥ 닫음(축 1b·7 재현: timeoutMs 2^31 RangeError, maxMarks/maxMeasurements 0·NaN·소수·문자열 RangeError, nonEmptyValuesInEmpty 가 assertRenderResult 경유, 계약 :158·:215 일치(축 2), arm 실패 시 그 요청만 거부). ④ 닫음(축 4b: arrivedKeys.has 조건 삭제 변이 실패, gpu_planes −Infinity 경우 추가). ⑦ 일부 닫음(missing 검사 삭제 변이 실패) — 남은 것: latency/index.test.mjs:257-274 모든 측정 duration 이 5 라 latency/index.mjs:86 shift→pop 변이 생존(16/16 통과, measurementIds 미사용). 측정마다 다른 duration 또는 id 로 가장 오래된 것이 지워졌음을 단언. 권장 haiku.
 
-### F-255 [열림] (심각도: 높음) — T12.5 시험의 start >= t0 필터가 실제 메인 스레드 long task 를 버려 거짓 통과할 수 있고, 기본 npm test 에서 흔들린다
+### F-255 [열림] (심각도: 높음) — T12.5 시험의 start >= t0 필터(2차: GL 단계 제외 범위가 비-GL 메인 작업까지 덮음)가 실제 메인 스레드 long task 를 버려 거짓 통과할 수 있고, 기본 npm test 에서 흔들린다
 - 위치: client/raster/loop/worker.browser.test.mjs:132(t0)·:133(uploadPiece)·:142(.filter((x) => x.start >= t0)) (제품 feat/t12s 3583504)
 - 문제: t0 는 sleep(100) 뒤 이어지는 같은 작업 안에서 잰다. uploadPiece 의 동기 부분(decode 호출 포함)은 그 작업에 속하므로 그 작업의 start 는 t0 보다 앞이고 필터에 걸려 빠진다. 성공 기준(T12.5 long task 0)을 판정하는 시험이 메인 스레드 동기 복호를 놓친다.
 - 실패 상황: (축 4b 변이) :127 decode 를 메인 동기 toGpuPlanes(decodeChunkClient(b)) 뒤 client.decode 로 바꾸면(약 800 ms) 필터가 있으면 3/3 통과·long task 0, 필터를 빼면 [800] 으로 실패. 감독이 :126-145 를 직접 읽어 t0 가 그 작업 안에서 잡히는 구조를 확인. 또 (감독 npm test 부하 중) 1회 실패 'long task 1 개 [93] ms', 축 4b 23회 중 3회 실패(52·61 ms, draw 45.9·55.9 ms — SwiftShader draw 가 같은 작업에 섞임). 감독 단독 10회는 10/10 통과.
 - 고칠 것: 필터를 지우거나 x.start + x.duration > t0(구간에 걸친 것 포함)로 바꾼다. 흔들림은 문턱을 올려 막지 말고, 실패 시 long task 가 어느 단계(복호 응답 처리·setArrived·draw)인지 out 에 남겨 판단 근거를 만든다. SwiftShader draw 가 원인이면 그 사실을 실험 노트에 [cloud] 로 적고, draw 를 별도 작업으로 나눠 업로드~첫 draw 직전과 draw 를 따로 보고하는 방식은 결정 기록 후 허용(성공 기준 수치 변경 금지).
 - 확인 기준: 위 메인 동기 복호 변이가 실패, npm test 전체와 병렬 부하 아래 10회 반복 0 실패(또는 미달을 미달로 보고).
 - 권장 모델: sonnet
-- 이력: 2026-10-04 감독 등록(PR #52 검토 #1). 신규(이번 PR 의 F-250 ④ 수정이 만든 필터). 축 4b 보고(변이 재현) + 감독 코드 확인, 흔들림은 감독 npm test 에서 직접 1회 관찰.
+- 이력: 2026-10-04 감독 등록(PR #52 검토 #1). 신규(이번 PR 의 F-250 ④ 수정이 만든 필터). 축 4b 보고(변이 재현) + 감독 코드 확인, 흔들림은 감독 npm test 에서 직접 1회 관찰. → 작업자 처리(a181943, 결정 0038 제안: GL 단계 glUpload·setArrived·draw 를 판정에서 뺌) → 2026-10-04 PR #52 검토 #2 감독 재열림(반려 2회째): 단계 귀속(worker.browser.test.mjs:150 stageOf)이 시작 시각만 보고, decode 래퍼(:128)의 afterYield 뒤 같은 task 에서 이어지는 checkGpuPlanes/toPlanes·헤더 검사·makeRoom 까지 모두 glUpload 로 분류해 제외한다. 감독 재현: 복사본에서 client/raster/index.mjs:355 앞에 메인 120 ms busy loop 를 넣은 변이가 시험 통과(pass 1·fail 0). 축 4a 재현: await decode 뒤 메인 동기 복호+toGpuPlanes(1123 ms)·Worker 가 gpu 없이 반환해 메인 toGpuPlanes(126 ms)·setArrived 에 CPU 300 ms 변이 모두 통과. 반면 uploadPiece 동기부·응답 처리 중 메인 복호 변이는 이제 실패(부분 해결). 감독 npm test(부하 중)에서 실제 경로 long task [71 glUpload→draw, 72 draw] — SwiftShader GL 은 실제로 메인을 50 ms 넘게 잡으므로 GL 호출 자체 제외는 받아들인다([local] 로 분리).
+- 고칠 것(2차): 제외 대상을 pool.upload 호출과 draw 호출 구간으로만 좁힌다 — 렌더러 testHooks(예: onGlUploadStart/End·onDrawStart/End) 또는 래핑으로 그 호출 직전·직후 시각을 찍고, 그 사이에 완전히 들어간 task 만 제외한다. setArrived 는 제외에서 뺀다. 계측용 await sleep(0)(:128·:136) 을 없애고 시각만 찍는다(측정 경로를 바꾸지 않게). marks 가 비면 즉시 실패. 결정 0038 을 그 범위로 정정하고 TASKS 에 [local] 하위 작업(실제 GPU 에서 GL 단계 포함 전체 구간 long task 0)을 둔다. 성공 기준 수치 0 은 그대로.
+- 확인 기준(2차): 위 120 ms busy loop 변이, Worker gpu 제거 변이, setArrived CPU 300 ms 변이, 메인 동기 복호 변이가 모두 long task 단언으로 실패하고, 변이 없는 시험은 npm test 전체에서 통과.
+- 권장 모델: opus(같은 항목 두 번째 반려)
+
+### F-256 [열림] (심각도: 중간) — PR #52 검토 #2 신규: makeRoom 지역 선택 비용·희생 선해제·messageerror 거짓 timeout·결정 기록·PR 수치
+- ① (축 6·7 독립 재현, 근거 줄 client/raster/index.mjs:311-313 감독 확인) 올리는 key 가 도착 집합에 들고 meta 에 없으면 한도에 걸린 업로드마다 select([...meta.keys(), key], arrived) 를 새로 돌리고 저장하지 않는다. 실패 상황: maxResidentBytes=17·N, 상주 N 개 모두 draw 중, 도착 집합의 새 key 300 개 업로드가 전부 'memory' 거부 — N=1000 583 ms, N=4000 2661 ms(거부 1건당 O(N)). 고칠 것: (meta 변경 세대, arrived 객체, key) 가 같으면 직전 지역 결과를 재사용하거나, 지역 선택에서 key 하나만 더한 증분 판정을 쓴다(F-252 의 '저장하지 않음' 은 유지). 확인 기준: select_calls.test 에 '같은 상태에서 연속 거부 N회에 select ≤ 1회' 단언, 3583504 대비 회귀 없음. 권장 sonnet.
+- ② (축 1a 재현, 근거 줄 index.mjs:323·:377, 감독 코드 확인) makeRoom 이 희생을 dropPiece·onEvict 한 뒤 pool.upload 가 createBuffer 실패('memory')로 던지면 희생은 이미 해제, 새 조각은 없음, selection 은 해제된 key 를 draw 로 가리킨 채 selectionStale=false — 다음 도착 key 업로드까지 그 세그먼트가 비어 보인다(probe: drawnPieces 0, 3583504 는 1). 고칠 것: pool 버퍼를 먼저 확보한 뒤 희생을 해제(2단계 upload)하거나, 최소한 pool.upload 실패 시 희생이 있었으면 selectionStale=true. 확인 기준: index.test 에 'createBuffer 실패 시 draw 가 남은 완전한 LOD 를 그림' 시험. 권장 sonnet.
+- ③ (축 1b 재현, client/raster/loop/index.mjs:208·:130-136·:220) onmessageerror 는 failAll 로 order 를 비우지만 terminated 로 바꾸지 않아, Worker 가 버려진 요청을 처리하는 동안 새 decode 의 시한이 즉시 걸리고 거짓 timeout 뒤 살아 있는 Worker 를 terminate 한다. 고칠 것: messageerror 도 onerror 처럼 terminated+terminate, 또는 버려진 id 응답 전에는 새 시한을 걸지 않는다. 확인 기준: timeoutMs=100, decode(1)·decode(2) → onmessageerror → decode(3) 가 즉시 'terminated' 거부되거나 거짓 timeout 이 없음을 시험으로 고정. 권장 sonnet.
+- ④ (축 5) PR #52 본문 '3065 통과' 와 실험 노트 '3611 중 3599' 가 다르고 건너뜀 12 의 사유가 없다(TASKS T12.S 완료 기준 client/raster skip 0). 노트의 '병렬 부하 10회 반복 0 실패(서브에이전트 보고)' 에 명령·출력이 없다. 고칠 것: 같은 실행의 수치로 통일, 건너뜀 목록·사유, 10회 반복 명령과 결과 줄을 노트에 붙인다. 권장 haiku.
+- ⑤ (축 2) 연구 브랜치 decisions/0037 이 '상태: 승인' 으로 작업자 자기 승인 — '제안' 으로 내린다(README:16-17). 권장 haiku.
+- 이력: 2026-10-04 감독 등록(PR #52 검토 #2). 신규. ①② 는 이번 반려 처리(F-252·F-253 ① 수정)가 만든 것, ③ 은 F-253 ③ 수정(시한 뒤 terminate)과 맞물려 드러난 것 — 범위 밖 끌어오기 아님. ①② 감독 코드 확인, 수치는 서브에이전트 재현(미재실행).
+
+### F-257 [열림] (심각도: 낮음) — PR #52 검토 #2 잔여 세부
+- ① (축 1b) client/raster/missing/index.mjs:83·:94-97 — assertRenderResult 가 먼저 돌아 '번호 −1 인데 깊이·색이 0 아님' 은 예외가 되고 :97 비교는 도달 불가. 설명·holes_client.test :141-151 사례 이름을 실제 동작(예외)에 맞추고 죽은 비교 삭제. 권장 haiku.
+- ② (축 2, 기존 동작) setArrived([], {deferResult:true}) 는 'piece' 거부, 즉시 setArrived([]) 는 수용 — 한쪽으로 맞추고 계약 :158·:215 에 명시. 권장 haiku.
+- ③ (축 5) worker.browser.test.mjs:24 LONG_TASK_LIMIT 주석에 판정 범위(F-255 2차 수정 뒤의 범위)를 같이 적는다. 권장 haiku.
+- ④ (축 4b 변이) client/raster/loop/timeout_queue.test.mjs:161-169 postMessage 실패 경로에서 stats 미검사 — loop/index.mjs:243 `st.errors++` 삭제 변이 생존. 항등식과 errors 수 단언. 권장 haiku.
+- ⑤ (축 4b 변이) loop/index.mjs:135 terminate try/catch 제거 변이 생존(timeout_queue.test.mjs:132 killed 미단언). terminate 가 던지는 Worker 로 시한 경로 시험. 권장 haiku.
+- 이력: 2026-10-04 감독 등록(PR #52 검토 #2). 서브에이전트 보고(근거 줄 있음, 미재실행).
+
