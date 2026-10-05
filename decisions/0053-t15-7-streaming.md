@@ -37,7 +37,7 @@
 - 기본값이 추정이다. 지형 실제 최고·최저 높이를 호출자가 zRangeM 으로 주면 줄어든다.
 - 우선순위가 카메라 지면점 거리뿐이라 시선 방향 앞쪽 타일을 먼저 요청하지 않는다.
 - 단일 LOD 라 먼 타일의 대역폭이 줄지 않는다(거리에 따른 해상도 변화 없음).
-- 좌표 상한 검사: 입구에서 |pos.x|, |pos.y| + maxDistM ≤ maxCoordM(6.4e7 m = tileIndexMax 1e6 × 64 m)를 확인해, 넘으면 RangeError 를 던진다(F-434 결정). 필요한 타일 수 needed 가 maxTilesPerUpdate(4096)를 넘으면 update 는 RangeError 를 던진다(maxDistM 상한 없을 때 원평면 1500 m 에서도 재현 maxDistM 6000 감독 측정). 이 검사들의 대가: float 큰 좌표에서 루프 비종료(누적 오차), TILE_INDEX_MAX 밖 타일 지수 오버플로우를 막는다.
+- 좌표 상한 검사: 입구에서 |pos.x|, |pos.y| + maxDistM ≤ maxCoordM(6.4e7 m = tileIndexMax 1e6 × 64 m)를 확인해, 넘으면 RangeError 를 던진다(F-434 결정). 필요한 타일 수 needed 가 maxTilesPerUpdate(4096)를 넘으면 update 는 RangeError 를 던진다(1500 m 에서 최악 경우 needed 1836, maxDistM 6000 에서만 던짐). 이 검사들의 대가: 던질 때 계획이 없고, maxDistM 검증이 update 까지 지연된다. TILE_INDEX_MAX 밖 타일 지수 오버플로우를 막는다.
 
 ## 다시 볼 조건
 
