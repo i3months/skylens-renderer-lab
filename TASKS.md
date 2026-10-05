@@ -456,7 +456,7 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 
 | 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
 |---|---|---|---|---|
-| T15.R | (2026-10-05 제품 PR #68(T14.R12) 검토 #1 에서 분리) T15 첫 PR 과 함께: F-391 ①②③⑤⑦⑧(haiku, 주석·0044·노트 문구) → ④⑥(sonnet, t===null 연결 시험·farOwn 0.6·잔차 1.0 문턱 변이 시험) → F-390 ⑨(haiku, 시험 강도 유지 조건에서만) | `server/terrain/drape/`, `server/buildings/lod/`, 연구 decisions/0044·experiments | F-391 항목별 확인 기준 | haiku |
+| T15.R | (2026-10-05 제품 PR #68(T14.R12) 검토 #1 에서 분리) T15 첫 PR 과 함께: F-391 ①②③⑤⑦⑧⑩⑪(haiku, 주석·0044·노트 문구·계수 단언·캐시 키) → ④⑥(sonnet, t===null 연결 시험·farOwn 0.6·잔차 1.0 문턱 변이 시험) → F-390 ⑨(haiku, 시험 강도 유지 조건에서만) | `server/terrain/drape/`, `server/buildings/lod/`, 연구 decisions/0044·experiments | F-391 항목별 확인 기준 | haiku |
 | T15.0 | 계약: 관제탑 화면 어댑터 인터페이스(기존 `towerViewer.ts` 공개 메서드 대응표) | `contracts/controlview/` | 대응표 전 메서드 포함 | haiku |
 | T15.1 | 지형 그리기 | `client/tower/terrain/` | 8시점 SSIM ≥ 0.95 | sonnet |
 | T15.2 | 드레이프 그리기(정합 판정은 unmeasuredLocalBlocks > 0 이면 통과로 세지 않음, F-391 ⑨) | `client/tower/drape/` | 정합 ≤ 1 px | opus |
