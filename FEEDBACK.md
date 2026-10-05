@@ -4599,7 +4599,7 @@
 - 이력: 2026-10-05 16:50 감독 등록(PR #74 검토 #1, 축 4a·5 보고 → 감독 재현으로 채택). 신규.
 - 이력(작업자): 2026-10-05 16:52 처리됨-검증대기 — 제품 feat/t15-3 0e6218e: layer_ref 분모를 덮인 화소로, black 선 화소는 정확히 lineRgb 이고 참조(lines:true) 선의 1 px 안일 때만 제외, 선 겹침 ≥ 0.9·선 화소 > 0 단언, points 는 묶음·화소 완전 일치. 변이 ①(rasterizeLines 삭제)·②(면 색 변경)·③(points 묶음 누락) 각각 layer_ref 실패(fail 1·1·2), 원본 SEEDS 1..6·7..12 통과. 일치율 하한은 aerial·points 0.99, black 0.95(선 폭 규칙이 층과 참조에서 달라 선 가장자리 화소가 갈림, 측정 최저 0.9642). u 화면 선형 변이는 F-408 ③ 과 함께 미처리.
 
-### F-408 [열림] (심각도: 중간) — PR #74 검토 #1 중간 묶음
+### F-408 [처리됨-검증대기 — ⑦ 는 미처리·열림] (심각도: 중간) — PR #74 검토 #1 중간 묶음
 - ① (축 4b·5, 감독 직접 읽음) perf.test.mjs:199-206 import·createBuildingsLayer 예외를 catch 해 로그만 찍고 return — 생성자가 던져도 통과(축 4b 변이 M2). no_network.test.mjs:130 처럼 assert.fail. 또 :9 렌더 문턱 1500 ms 는 측정(최대 약 112 ms)의 13배 이상이고 결과 화소 수를 보지 않아 빈 결과 변이(M8)도 통과, aerial 은 image:null(:159)로 영상 경로를 재지 않는다. 고칠 것: catch 삭제, 모드·카메라별 덮인 화소 > 0 단언, aerial 에 실제 영상. 문턱은 회귀 감시용임을 주석·노트에 명시(SPEC S1 33 ms 와 무관, 실기기 fps 는 T17 [local]). 확인 기준: M2·M8 변이에서 perf 실패. 권장 모델: sonnet
 - ② (축 4b, 감독 직접 읽음) no_network.test.mjs:115-118 감시자 원복이 동기 전환 루프 직후 — setTimeout 으로 미룬 fetch 는 원복된 진짜 fetch 로 나가 통과(변이 M4). 이름으로 가져온 node:dns lookup(변이 M3)도 syncBuiltinESMExports 없이 못 잡음. 현재 구현(mode.mjs·index.mjs)은 네트워크·비동기 호출이 없어 완료 기준 자체는 충족. 고칠 것: 원복 전 짧은 대기, syncBuiltinESMExports, dns.promises·http2 감시, 가짜 층 2종 추가. 확인 기준: M3·M4 가짜 층에서 실패. 권장 모델: sonnet
 - ③ (축 4a, 감독 미재실행) raster_tex.test.mjs:322-350 원근 보정 시험 영상이 1×H 라 u 가 결과에 영향 없음 — u 만 화면 선형 변이가 디렉터리 전체 통과(덮인 화소 일치율 최저 0.966). 고칠 것: W×1 동서 기울기 또는 2D 기울기 영상 + 요 회전 카메라. 확인 기준: u 만 화면 선형 변이에서 실패. 권장 모델: sonnet
@@ -4608,8 +4608,9 @@
 - ⑥ (축 2, 감독 직접 읽음 0049) uv 규약을 서버 aerial_uv(v=0 북)로 바꾼 결정이 experiments/t15-3.md 에만 있고 결정 0049 에 없음. 0049 다시 볼 조건이 15 MB 하나뿐(선 편향 0.05 m, any-vertex 벽 규칙 없음). 고칠 것: 0049 에 uv 규약 결정·기각한 대안(서버 변경)·확인 시험(uv 뒤집기 변이 0.9206 실패), 선택마다 다시 볼 조건. 확인 기준: 0049 에 'aerial_uv' 와 기각 대안 줄. 권장 모델: haiku
 - ⑦ (축 6, '높음' 보고를 강등 — T15.3 완료 기준에 fps 없음, 실기기 fps 는 [local], F-403 ③ 과 같은 판단) 3000동 1280×720 black 41~112 ms(축 6 측정)로 S1 33 ms 를 넘는 CPU 경로. index.mjs:107 매 프레임 결과 버퍼 약 10 MB 새 할당, 묶음 단위 절두체 컬링 없음, 정점마다 매 프레임 isFinite. 고칠 것: 결과 버퍼 재사용(render(camera, out?)), 묶음 경계상자 컬링, 유한성 검사는 accept 로. 노트에 S1 과의 관계를 명시. 확인 기준: 연속 render 사이 새 typed array 0, 도시 1/10 만 보는 카메라에서 black 시간 ≤ 전체의 1/3. 권장 모델: sonnet
 - 이력: 2026-10-05 16:50 감독 등록(PR #74 검토 #1). ⑤ 는 F-405 ① 잔여(이전 항목 이어받음), 나머지 신규.
+- 이력(작업자): 2026-10-05 처리됨-검증대기(⑦ 제외) — 제품 feat/t15-3 통합 푸시, 시험 117 통과. ① perf catch 삭제·모드×카메라 덮인 화소>0·aerial 실제 영상(변이 M2·M8 실패, 원본 통과). ② network_spies.mjs 분리(syncBuiltinESMExports·dns.promises·http2·원복 전 대기)·가짜 층 M3·M4 감지(원복 전 대기 코드 자체는 메타 시험으로 구별 불가 — 안전장치로 유지). ③ 요 회전 W×1 기울기 시험(u 화면 선형 변이에서 최대 차 57 로 실패; 변이 위치는 raster_flat.mjs:98). ④ 선끼리 bias 없이 d<old(같은 호출 안 선만 표시; 이전 호출 선은 RenderResult 에 표시가 없어 면과 같이 bias — 한계). ⑤ 결정 0048 정정(연구 40fe97e, 'renderer_basis 는 원래' 0건). ⑥ 결정 0049 보강(b80a6e1). ⑦ 성능은 감독이 미뤄도 된다고 해 미처리 — 결과 버퍼 재사용·컬링 서브에이전트가 시간 안에 결과를 내지 못함; 다음 작업자가 T15.2b 전에 처리.
 
-### F-409 [열림] (심각도: 낮음) — PR #74 검토 #1 낮음 묶음
+### F-409 [처리됨-검증대기] (심각도: 낮음) — PR #74 검토 #1 낮음 묶음
 - ① (축 1·2·3·4a, 감독 직접 읽음) raster_tex.mjs:3-4·raster_tex.test.mjs:2 주석이 옛 uv 규약('(0,0) 남서, v 북쪽 증가, row = (1−v)·H − 0.5') — 코드 :24 와 계약 buildings.mjs:12 는 v=0 북, row = v·H − 0.5. fixtures.mjs:47-48 serverUvToContract 이름·주석과 ref_trace.test.mjs:341 시험 이름도 반대 뜻. 고칠 것: 계약 문구로, 함수 이름 flipV 류. 확인 기준: raster_tex*.mjs 에 '1 − v' 0건.
 - ② (축 2·3) 계약 contracts/controlview/buildings.mjs:18 opts.lightDirEnu 를 index.mjs 가 읽지 않음(조용히 무시). 고칠 것: 계약에서 삭제하거나 받으면 던짐. 확인 기준: 계약 opts 키 = index.mjs 가 읽는 키.
 - ③ (축 2) 계약 buildings.mjs:31 'wallMask=1 이거나' → 'wallMask=1 정점이 하나라도 있는 삼각형'(raster_tex.mjs·0049 와 같게).
@@ -4621,3 +4622,4 @@
 - 권장 모델: ①②③⑧ haiku, ④⑤⑥⑦ sonnet
 - 이력: 2026-10-05 16:50 감독 등록(PR #74 검토 #1). 모두 신규.
 - 이력(작업자): 2026-10-05 16:52 부분 처리 — ① raster_tex.test 주석·fixtures flipV 이름·주석(제품 c16e54f 이후), ② 계약 create 에서 lightDirEnu 삭제, ③ 계약 wallMask 문구. 미처리: ④⑤⑥⑦⑧. (시간 한도로 종료, 다음 작업자가 이어 받음)
+- 이력(작업자): 2026-10-05 나머지 처리됨-검증대기 — ④ 시험 지원 파일을 client/tower/buildings/test_support/ 로 이동(계약 :6 이 시험의 server/ 참조를 이미 허용), ⑤ lines·points 깊이 Math.fround·비유한 값은 그리지 않음(lines_depth.test.mjs), ⑥ integration (d) r.index[px]===i·aerial 지붕 색이 makeAerialImage 기울기 ±8(변이 M1·M7 실패)·controlview 경로 독립 표, ⑦ lines 개수는 출력에서 센 값·점 정답 손계산(깊이 108, 열 40·행 21), ⑧ integration 에 감시자. 시험 117 통과.
