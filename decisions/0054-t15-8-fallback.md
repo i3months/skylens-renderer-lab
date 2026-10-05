@@ -19,7 +19,7 @@
 
 ## 결정
 
-(a) 자동 맞춤을 채택한다. 받은 모든 점(드론·탐지·경로 점)의 (e,n) 경계 상자에서 중심과 범위(span)를 구하고, 화면 크기에 맞춰 메터/픽셀 비(metersPerPx)를 계산한다. 받은 점이 없으면 지도를 표시하지 않는다(view = null, 자동 맞춤일 때). 화면 좌표는 공식 `x = width/2 + (e−centerE)/metersPerPx`, `y = height/2 − (n−centerN)/metersPerPx` 로 변환하며, 여백(marginPx) 안에는 모든 점을 담는다. 극단적으로 작은 화면(너비 또는 높이가 여백보다 작을 때)에는 여백을 줄여서 `m = min(marginPx, (min(width, height) − 1) / 2)` 로 계산한다(최소 1 픽셀 차단). 필요하면 호출자가 setView() 로 범위를 직접 정할 수 있고, null 을 넘기면 자동 맞춤으로 돌아간다.
+(a) 자동 맞춤을 채택한다. 받은 모든 점(드론·탐지·경로 점)의 (e,n) 경계 상자에서 중심과 범위(span)를 구하고, 화면 크기에 맞춰 메터/픽셀 비(metersPerPx)를 계산한다. 받은 점이 없으면 지도를 표시하지 않는다(view = null, 자동 맞춤일 때). 화면 좌표는 공식 `x = width/2 + (e−centerE)/metersPerPx`, `y = height/2 − (n−centerN)/metersPerPx` 로 변환하며, 여백(marginPx) 안에는 모든 점을 담는다. 극단적으로 작은 화면(너비 또는 높이가 여백보다 작을 때)에는 여백을 줄여서 `m = min(max(marginPx, 1), min(width, height) / 4)` 로 계산한다(구현 결정: marginPx 0 이어도 끝 점이 화면 안에 들도록 여백 하한 1 px, min(w,h) < 4m 이면 지도가 1 px 로 붕괴하지 않게 avail = min(w,h)/2; F-443). 필요하면 호출자가 setView() 로 범위를 직접 정할 수 있고, null 을 넘기면 자동 맞춤으로 돌아간다.
 
 ## 선택 2: live 모드와 fallback 모드에서 목록 표시
 
