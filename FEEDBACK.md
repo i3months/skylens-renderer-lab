@@ -4529,7 +4529,7 @@
 - 덧붙임(감독 중복 실행 14:21 시작 — 위와 겹치지 않는 것만): ⑨ (축 4a 사본 변이) raster.test.mjs:361-372 'ambient_checked' 가 I=1 화소만 단언해 normalizeLambert 반환 ambient 를 0.5 로 고정한 변이가 11/11 생존 — 광원 반대 법선에서 round(100·ambient) 단언 추가, 확인 기준: 그 변이에서 실패. normalizeLambert 의 ambient '0.2'(문자열 연결 → 검정)·true·null 통과, l 길이 4 통과(축 1b·7) — ① 과 함께. ⑩ (축 4b) mesh_lod.test.mjs:160-165 계단 DEM 간격 8 해석 대조가 시험이 직접 만든 타일과 비교하는 자기 비교로 약해짐 — 해석값 있는 DEM(경사 평면 등)의 제품 LOD3 간격 8 타일 첫 행 대조, 확인 기준: 표본 i*8 → i*8+1 변이가 해석 단언에서 실패. mesh.test.mjs:165-173 초과 입력 MAX_TX·1.01 은 경계를 찌르지 않음('-1' 무효) — F-400 ① 과 함께. ⑪ (축 4a) ssim_views.test.mjs:443-449 deepEqual 은 같은 제품 코드끼리의 경로 동일성 확인일 뿐이라고 주석. ⑫ (축 12, 감독 판단 낮음) 제품 README 두 절에 '실제 DEM 미측정([local] T14L)' 한 문장. 권장 모델: ⑨⑩ sonnet, ⑪⑫ haiku.
 - 이력(감독): 2026-10-05 15:22 PR #73 검토 #1 — 닫음: ① baseRgb 검증(축 4b 변이 4종 모두 raster.test 실패), ③ farOwn 문턱 변이 0.53/0.58/0.5827/0.6 각 1/3/4/5 실패·주석 일치(축 4b), ⑥ heights 복사 제거 변이 실패·예외 종류 시험 두 경로(축 4b), ⑦ 계약 주석 '결정 0046' 참조로 줄임(축 11). 남음: ②⑤ 미확인, ④ mesh_lod 부분 미처리(F-404 ⑤ 참고), ⑨ 미처리(F-404 ⑤), ⑧ 작업자가 열어 둠.
 
-### F-402 [열림] (심각도: 높음) — 드레이프 표본이 coverage.mask 0 화소 안을 이웃 위성 색으로 칠한다(메우기 금지 위반)
+### F-402 [닫힘] (심각도: 높음) — 드레이프 표본이 coverage.mask 0 화소 안을 이웃 위성 색으로 칠한다(메우기 금지 위반)
 - 위치: 제품 feat/t15-2 127715a — client/tower/drape/sample.mjs:3-4·:118-127(가중 재정규화), 계약 contracts/controlview/drape.mjs:5·:20, 시험 client/tower/drape/sample.test.mjs:64-87
 - 문제: 이중선형 4이웃 중 mask 0 인 것만 빼고 남은 가중으로 다시 정규화한다. 네 이웃이 모두 0 일 때만 null 이라, 표본점이 속한 화소의 mask 가 0 이어도 이웃 색이 100% 가중으로 그려진다. SPEC:17·RULES §1.2('구멍 메우기·보간으로 메우지 않는다', renderer_basis §7-3)와 계약 :5('mask 0 인 곳은 지형 색 그대로')를 어기고, 계약 :20 은 'mask 0 이 걸리면 null' 과 'mask>0 이웃만 가중' 을 한 문장에 적어 스스로 모순된다. sample.test.mjs:64-87 은 이 동작을 의도로 고정한다.
 - 실패 상황(감독 node 직접 재현): 8×8 타일(화소 8 m), (3,3) 화소 하나만 mask 0·rgb 0, 나머지 mask 1·rgb 200. 그 화소 칸 [24,32)×[32,40) 안 20×20 표본 400개 중 399개가 [200,200,200], null 은 1개(중심 근처)뿐 — 자료 없는 화소가 통째로 메워진다. 축 1a·2 도 4×4 타일 mask 0 열 안 x=8.1·12·15.9 에서 [200,200,200] 재현. 거친 밉일수록 메워지는 폭(최대 64/width m)이 커진다.
@@ -4538,8 +4538,9 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-05 15:22 감독 등록(PR #73 검토 #1, 축 1a·2·3, 감독 직접 재현). 신규(이번 diff). 반려 사유.
 - 이력(작업자): 2026-10-05 처리됨-검증대기 — 제품 f7d92e3(feat/t15-2). 표본점이 속한 칸 mask 0 이면 null, 계약 :5·:20 한 규칙으로. mask_zero.test.mjs: 8×8 칸 400 표본 null·layer.apply 해당 화소 지형 색 바이트 동일·옛 규칙 변이가 잡힘. 제품 전체 npm test 4521·pass 4504·fail 0·skipped 12·todo 5.
+- 이력(감독): 2026-10-05 16:10 PR #73 검토 #2 — 닫음. 감독 node 직접: 8×8 타일 (3,3) 칸 mask 0, 칸 안 400 표본 → sampleDrape null 400·sampleDrapeInto false 400. 축 1a: 세 경로(sampleDrape·sampleDrapeInto·sampleDrapePrepared) 50만 점·음수 타일·가장자리 불일치 0. 축 4b 사본 변이: sample_into.mjs:70 삭제 → mask_zero 1·index 6 실패, sample.mjs:48 삭제 → mask_zero 2·sample 2 실패.
 
-### F-403 [열림] (심각도: 중간) — PR #73 검토 #1 중간 묶음
+### F-403 [닫힘 — ⑦ 잔여는 F-406 ①] (심각도: 중간) — PR #73 검토 #1 중간 묶음
 - 위치: 제품 feat/t15-2 127715a, 연구 experiment/t15-2 f93138c
 - ① (축 7, 감독 node 재현) client/tower/drape/store.mjs:43 `tiles.forEach` 는 빈 칸을 건너뛴다 — `accept(0,[tile])` 뒤 `accept(1,new Array(5))` → 'replace', count 0, level 1(정상 타일이 오류 없이 사라짐), `[ ,tile]` 도 'first'. 계약 '잘못된 타일이면 던지고 상태는 그대로' 위반. 고칠 것: 인덱스 for 순회(빈 칸 = undefined → TypeError). 확인 기준: 두 입력이 TypeError, level·count 불변(시험).
 - ② (축 7) client/tower/drape/index.mjs:150 이 terrain 의 color·depth·index 길이를 검사하지 않음(contracts/raster assertRenderResult 미사용) — depth 길이 3 이면 나머지 화소 조용히 지형 색, shade 끔 + color 짧으면 조용히 잘린 결과. :158 `!(d>0)` 는 NaN 은 건너뛰고 Infinity 한 화소는 프레임 전체 RangeError(비대칭). baseRgb 는 타일이 걸릴 때만 검증(:151·:165). 고칠 것: apply 첫머리 assertRenderResult(또는 길이 검사)·baseRgb 1회 검증, 루프는 `Number.isFinite(d) && d > 0`. 확인 기준: 길이 어긋난 terrain·잘못된 baseRgb 가 타일 유무와 관계없이 즉시 RangeError, Infinity 한 화소가 섞여도 나머지 화소는 드레이프.
@@ -4552,8 +4553,9 @@
 - 권장 모델: ①② sonnet, ③ opus(화소 루프 재구성), ④ sonnet, ⑤ opus, ⑥ opus, ⑦ haiku, ⑧ sonnet
 - 이력: 2026-10-05 15:22 감독 등록(PR #73 검토 #1). ①~⑥⑧ 신규(이번 diff), ⑦ 은 F-400 ③ 다시 엶. ①·③ 일부 감독 직접 재현·⑦ 감독 직접 읽음, 나머지 근거 줄 있는 서브에이전트 보고.
 - 이력(작업자): 2026-10-05 ①~⑧ 처리됨-검증대기 — 제품 f7d92e3·연구 experiment/t15-2. ③ 벤치 참조 520~535 ms → 70 ms(1/7.3~7.7). ⑤ 측정기를 화면 (du,dv) 모형으로 바꾸며 JAC_CONSIST·가림 경계 제외 등 측정 보며 정한 값이 있음(노트에 적음). ⑥ (a) 택함: align_judgement.test.mjs, 클라이언트 코드는 isDrapeAligned 를 부르지 않음. 0047 은 이 시험을 가리키게 고침(승인은 감독). 실기기 fps 는 [local] T15.9/T17.
+- 이력(감독): 2026-10-05 16:10 PR #73 검토 #2 — 닫음: ① sparse 두 입력 TypeError·상태 불변(축 7 재현, 축 4b forEach 되돌림 변이 store.test 실패) ② terrain 길이·baseRgb 프레임당 검증, NaN·±Infinity 깊이 화소 건너뜀(축 7) ③ 1280×720 전 화소 옛 644 → 새 74 ms(1/8.7), 사선 625 타일 892 → 74 ms, 출력 바이트 동일(축 6·축 1b 무작위 1500 장면 불일치 0; CPU node 참조값, 실기기 fps 는 [local]) ④ cells 66·129 RangeError, 65 통과(축 7) ⑤ 사본 `u = i; v = j` 변이 → nadir 정밀도 단언 8건 실패(|d| 0.708), 48 시점 균일 0.707 px 측정 0.706~0.736(축 4a) ⑥ align_judgement.test.mjs 가 실제 isDrapeAligned 사용, 판정 변이 5건 중 3 실패(축 4a) — 결정 0047 승인 ⑧ terrain/index.mjs:54 colors[0] 변이 → 새 raster.test 실패(축 4b). ⑦ 대부분 해결(0044:28 취소선은 옛 값만, 0046:71 C1, 0046:90 T15.10), 0046:66 끝 문장 모순만 남아 F-406 ① 로.
 
-### F-404 [열림] (심각도: 낮음) — PR #73 검토 #1 낮음 묶음
+### F-404 [닫힘 — ①②④⑥⑦ 잔여는 F-405·F-406] (심각도: 낮음) — PR #73 검토 #1 낮음 묶음
 - ① (축 1a) sample.mjs:122 mask 1..254 를 255 와 같은 가중으로 셈 — 계약 tower_assets mask 정의(0~255 덮인 정도)와의 정책을 계약 :20 에 적거나 k·mask/255. (F-402 와 함께)
 - ② (축 2·3) store.mjs:10 TILE_SIZE_M = 64 하드코딩(sample.mjs 는 계약 TERRAIN_TILE_SIZE_M) — 계약 상수 import. 계약 drape.mjs:22 shade 항목에 applyRatio 누락, :26 '1 px 출처 SPEC S9' 는 틀림(TASKS T15.2), tower_assets ALIGN_TOLERANCE_PX 와 중복 상수.
 - ③ (축 3) 수준 판정이 묶음 전체 단위(store.mjs:58-66) — '한 수준 = 전체 묶음' 을 계약 문구로 명시. 보관 타일 무복사(:4-5)를 계약에도.
@@ -4565,4 +4567,24 @@
 - 권장 모델: ①③ sonnet, ②⑦⑧ haiku, ④⑤⑥ sonnet
 - 이력: 2026-10-05 15:22 감독 등록(PR #73 검토 #1). 모두 신규, ⑤ 의 F-401 ⑨·⑦ 의 F-400 ⑥⑦ 은 이전 항목 미처리.
 - 이력(작업자): 2026-10-05 ①②③④⑤⑥⑦⑧ 처리됨-검증대기 — 제품 f7d92e3·연구 experiment/t15-2. 미처리: F-401 ⑧(ssim 시간·mesh.mjs 문자열 키·shade 전역 캐시)·⑫ README 한 문장·⑤ 노트 수치 정정은 일부만(0046 2.31 등 확인 안 되는 수치는 지움 처리, 감독 확인 필요).
+- 이력(감독): 2026-10-05 16:10 PR #73 검토 #2 — 닫음: ① 정책을 계약 drape.mjs:5-7 에 한 규칙으로 적음(시험 약함은 F-406 ③), ② 계약 상수 import·applyRatio·출처 정정(state 문구 잔여는 F-406 ②), ③ 계약 문구, ⑤ shade 채널 평균 변이·ambient 0.5 고정 변이 모두 새 시험이 잡음(축 4b — F-401 ⑨ 도 닫음), ⑧ PR 본문에 경로별 근거. 남김: ⑦ 노트 이탈 근거가 엉뚱한 결정을 가리킴 → F-405 ①(중간), ④ oblique 사본 변이·음성 구성값 → F-405 ②·F-406 ⑥, ⑥ 노트 수치·제외 구역 정의는 감독 미확인 → F-406 ⑧.
 
+### F-405 [열림] (심각도: 중간) — PR #73 검토 #2 중간 묶음: 노트의 renderer_basis 이탈 근거 오참조, 비스듬 정합 시험의 시드 의존, 성능 시험 문턱과 노트 기준 불일치
+- 위치: 연구 experiment/t15-2 254d800 experiments/t15-2.md:22-24; 제품 feat/t15-2 f7d92e3 client/tower/drape/align_oblique.test.mjs:40·:59·:465·:474-475
+- ① (축 2, 감독 직접 읽음) t15-2.md:23 은 mask 규칙(칸 mask 0 → null, mask>0 이웃 재정규화, mask 1..254 동등 가중)의 기록 위치를 '0044 §5·0046 T15.1c' 로 적으나 두 절은 LOD 오차 상한 이야기이고 mask 규칙이 없다. :24 는 음영 비율 곱이 '0046 대가 절에 기록됨' 이라 하나 0046:64-66 은 지형 램버트뿐이다. 이유 '위성 영상에는 조명 정보가 없어' 는 사실과 다를 수 있다(위성 사진에는 태양 음영·그림자가 들어 있어 이중 음영이 된다). 실패 상황: 결정을 다시 볼 때 근거를 찾을 수 없음. 고칠 것: 결정(0047 부록 또는 새 0048)에 세 이탈마다 근거·대가 한 줄 — 재정규화가 메우기가 아닌 이유(표본점 칸 자체에 자료가 있을 때만), 동등 가중 근거(부분 화소 rgb 는 덮인 부분만의 평균, server/terrain/drape/index.mjs:79), 음영 곱의 이유와 대가(이중 음영, opts.shade false 로 끌 수 있음) — 그리고 노트 참조를 그 결정으로. 확인 기준: 노트가 가리키는 결정 파일에서 'mask'·'음영 비율' grep 일치, 세 이탈마다 근거·대가 줄. 권장 모델: haiku
+- ② (축 4a 사본, 감독 미재실행) 제품 코드 그대로 SEEDS 만 7..12 로 바꾸면 2건 실패: :465 시드 11 aerial_overview 화면 음성 '구성상 1.5 px' 전체 |s| 2.105(허용 0.15 초과), :475 시드 12 tower_mid 예상 화면 이동 1.569 > 1.5 로 고정 목록 MUST_CATCH_IMG 와 어긋남. 시드 1..6 의 tower_mid 예상값 1.29~1.43 — 목록·문턱이 측정 분포에 맞춰진 정황. 실패 상황: 지형 생성기·시점 조금만 바뀌어도 제품이 정상인데 시험이 깨짐. 고칠 것: 고정 이름 목록 대신 '예상 이동이 문턱보다 충분히 클 때(예: > 2 px)만 초과 단언', 화면 음성 구성값은 시드별 원인 진단 뒤 여유. 확인 기준: SEEDS [7..12]·[13..18] 에서 9/9 통과, 원 시드 결과 불변. 권장 모델: opus
+- ③ (축 5, 근거 줄 있음) 제품 client/tower/drape/perf.test.mjs:17 `MAX_RATIO = 1 / 3` 인데 노트 t15-2.md:33 은 '기준 1/5 이하' 라 적음. 현재 측정 0.12~0.14 로 1/5 는 만족(거짓 통과 아님)하나 0.33 까지 나빠져도 시험이 통과해 노트가 말하는 기준을 시험이 지키지 않는다. 고칠 것: 1/3 을 쓴 이유(CPU 잡음 여유)를 노트에 적고 '1/5' 는 F-403 ③ 확인 기준의 측정 기록이라고 구분하거나 MAX_RATIO 를 1/5 로(이때 부하 상태 10회 통과 확인). 확인 기준: 시험 상수와 노트 문구가 같은 값을 가리킴. 권장 모델: haiku
+- 이력: 2026-10-05 16:10 감독 등록(PR #73 검토 #2). ① 은 F-404 ⑦ 미충족(이전 항목 이어받음), ② 신규(이번 diff 의 측정기 개편).
+
+### F-406 [열림] (심각도: 낮음) — PR #73 검토 #2 낮음 묶음
+- ① (축 2, 감독 직접 읽음) 연구 decisions/0046:66 '(계약 … :18 은 이미 반영)' 뒤에 '따라서 … lambert 가 반영되어야 한다' 가 같은 줄에 남아 모순. 고칠 것: 끝 문장 삭제 또는 '반영됨(terrain.mjs:18)'. 확인 기준: :66 에 '반영되어야' 0건.
+- ② (축 2, 감독 직접 읽음) 제품 contracts/controlview/drape.mjs:16 state 문구 '(apply 는 terrain 사본을 그대로 돌려준다)' — :15·index.mjs:107 은 color 만 사본, depth·index 공유. 고칠 것: 'color 사본, depth·index 공유'. 확인 기준: :16 에 '사본을 그대로' 0건.
+- ③ (축 2) sample.test.mjs:77-80 '동등 가중' 시험은 mask 가 전부 1 이라 k·mask/255 변이도 재정규화로 같은 값. 고칠 것: 이웃 mask 1 과 255 섞은 사례에 손 계산 기댓값. 확인 기준: sample.mjs 가중을 `k*mask[o]/255` 로 바꾼 변이(sample_into 함께)에서 실패.
+- ④ (축 4b) index.test.mjs:4-5·:97-127 sampleNewRule 이 sample.mjs 복제본(주석 'F-402 로 바뀌는 중' 낡음) — sample.mjs 칸 검사 삭제 변이에서 index.test 27/27 통과. 고칠 것: :191·:244 참조를 sampleDrape 로, 복제본·주석 삭제. 확인 기준: 같은 변이에서 index.test 실패.
+- ⑤ (축 4b·4a) 항상 참인 단언: mask_zero.test.mjs:22-38·:48·:53·:64 oldSample 은 시험 파일 안 함수라 '변이를 잡는 증거' 가 아님(:2 주석); align_judgement.test.mjs:158 은 :64·:156 에서 이미 참인 두 값을 비교. 고칠 것: 지우거나 주석을 '옛 규칙 설명용' 으로.
+- ⑥ (축 4a) align_oblique.test.mjs:454 정상 경로 단언이 errPx ≤ 1 뿐 — 반 화소 변이에서 48 시점 errPx 0.48~0.76 이 통과(현재는 nadir :232·:242 와 부차 단언이 잡음). 고칠 것: 전체 화면 이동 성분 축마다 ≤ 0.25 px 단언. 확인 기준: 반 화소 변이에서 새 단언 48 시점 실패.
+- ⑦ (축 1b) client/tower/drape/index.mjs:55 타일 칸 캐시와 store.mjs:84 floor 가 |x| ≤ 1.6e-322 음수(x/64 → −0)에서 갈림 — 실사용 영향 없음. 고칠 것: 캐시 판정을 tx === Math.floor(x/64) 비교로. 확인 기준: 축 1b 입력(t=[1e-323,10,1])에서 옛 경로와 color 같음.
+- ⑧ (F-404 ④⑥ 잔여, 감독 미확인) oblique unprojectRef 왕복 검산·caught 하한, 노트 수치 0.0011·0.0899 px 와 단언 관계, EDGE/FOLD 제외 구역·errPx 정의 기재 여부.
+- ⑨ (축 6·4b, 참고 — 문턱 값 자체는 F-405 ③) perf.test.mjs:17 비율 문턱 1/3 — 측정 0.12~0.14, 8배 부하 0.023~0.126 로 여유 있음. CI 에서 흔들리면 문턱이 아니라 RUNS 를 늘린다.
+- 권장 모델: ①②⑤⑧ haiku, ③④⑥⑦ sonnet
+- 이력: 2026-10-05 16:10 감독 등록(PR #73 검토 #2). ① F-403 ⑦ 잔여, ⑧ F-404 ④⑥ 잔여, 나머지 신규.
