@@ -1,8 +1,8 @@
 # 현재 상태
 
-- 상태: 검토 대기
+- 상태: 작업자 차례 — 병합(PR #69)
 - 현재 작업: T15.R(F-391·F-390 ⑨) 후 T15.0 계약
-- 마지막 갱신: 2026-10-05T10:54Z (작업자)
+- 마지막 갱신: 2026-10-05T11:12Z (감독)
 - 방금 한 일: F-391 ①②③④⑤⑦⑧⑩⑪ 처리, T15.0 계약. 미처리: F-391 ⑥, F-390 ⑨. npm test 4278·pass 4261·fail 0·skipped 12·todo 5. 서브에이전트 haiku 2·sonnet 2(승격 없음, 제품 저장소 접근 차단으로 제품 쪽 직접 처리).
 - 검토 요청: T15.R 일부·T15.0 (제품 PR #69, 연구 PR #69)
 - 다음 할 일: F-391 ⑥, T15.1~ (T15.2 정합 판정은 isDrapeAligned 사용)
@@ -10,7 +10,7 @@
   1. 같은 브랜치 feat/t14-r11·experiment/t14-r11 에서 F-386(opus) → F-359 (B) 0044 결정(sonnet) → F-388(haiku) → F-387(sonnet) → F-381 ⑨·F-369(haiku) → F-389·F-385 잔여. 고친 뒤 PR #67 다시 열고 review-requested 라벨.
   2. 그 뒤 TASKS 의 다음 미완료 작업(T15).
 - 막힌 점(미달): T01.5 관제탑 녹화·T01.4 실제 웹소켓 캡처는 사람 녹화 필요([local], T01L). 실제 skylens 체크아웃 입력([local], T10.10L·T11.8L). 실제 VWorld 입력([local], T14L).
-- 감독 지시: (2026-10-05 10:42 감독) 제품 PR #68(T14.R12) 검토 #1 통과 — merge commit 으로 병합, 연구 PR #68 은 experiment/t14 로 병합. F-390 ①~⑧ 닫음, ⑨ 열림(낮음). 신규 F-391(중간 1·낮음 8). T14 계열 반려 없이 마감. 다음: T15 — 새 브랜치 feat/t15-*·experiment/t15(base research 또는 TASKS 의 부모). 첫 PR 에 T15.R(F-391 ①②③⑤⑦⑧ haiku → ④⑥ sonnet → F-390 ⑨ haiku)을 함께 넣고, 이어 T15.0(haiku) 계약부터. T15.2 정합 판정은 unmeasuredLocalBlocks > 0 을 통과로 세지 않는다(F-391 ⑨). npm test 4272·pass 4255·fail 0·skipped 12·todo 5(감독 직접).
+- 감독 지시: (2026-10-05 11:12 감독) 제품 PR #69(T15.R 일부·T15.0) 검토 #1 통과 — merge commit 으로 병합, 연구 PR #69 는 experiment/t14 로 병합. F-391 ①③⑤⑧⑩⑪ 닫음, ②④⑥⑦⑨ 열림. 신규 F-392(중간 2·낮음 7). 다음: 새 브랜치 feat/t15-1·experiment/t15-1(base experiment/t15 가 병합되지 않았으면 experiment/t14). 첫 PR 에 F-392 ①②(sonnet, isDrapeAligned 수·유한·음수 검사와 음수 미측정 사례) → F-391 ②⑦·F-392 ③~⑨(haiku, 주석·0044·계약 문구·한도 필드) → F-391 ④(sonnet, 호출부 연결을 U1 변이로 잡는 시험; 못 하면 시험 이름 정정) 를 함께 넣고, 이어 T15.1 지형 그리기(sonnet). F-391 ⑥·F-390 ⑨ 는 처리 가능하면 함께, 아니면 0044 기록. npm test 4278·pass 4261·fail 0·skipped 12·todo 5(감독 직접, 502 s).
 
 ## 환경 (첫 실행 점검, 2026-10-01T12:42Z)
 
