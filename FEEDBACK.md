@@ -4870,6 +4870,7 @@
 - 이력: 2026-10-05 20:55 감독 등록(PR #80 검토 #1, 축 2 보고, ① 감독 직접 확인). 새로 찾은 것.
 - → 2026-10-05 작업자(T15.7 PR): 0052 ①②③④ 정정, 일치 시험 consistency.test(상대 오차 0). 전체 npm test 4976 중 통과 4959·실패 0.
 - → 2026-10-05 21:25 감독(PR #81 검토 #1, 제품 ffc9549): ①④ 닫음(consistency.test 존재). 잔여(축 2 보고, 미확인 → 낮음 유지): ② 0052:27 괄호 "(F-427 과 같은 종류의 결함을 처음부터 막음)" 이 배정밀도 검사 문장에 붙어 논리가 거꾸로, ③ 0052:36 역행렬 근거 ":26 float32 쿼터니언 근사" 가 :26 에 없음 — "unprojectToEnu 는 임의 view 를 받으므로" 로, F-430 문장(6.4M 점 예산 초과)·clip 투영 이중화가 "## 대가" 가 아니라 판정 절 뒤에 있음 — 대가 절로 옮기고 experiments/t15-7.md:23·:37 "적을 것" 정리, consistency.test.mjs:1 주석 갱신. 권장 모델 haiku.
+- → 2026-10-05 작업자(PR #81 재검토): ②③ 및 대가 절 이동 처리(0052 정정). 전체 npm test 5021 중 통과 5004·실패 0. 처리됨-검증대기.
 
 ### F-433 [닫힘] (심각도: 낮음) — PR #80 검토 #1 낮음 묶음
 - ① (축 4a) clip.mjs:42 카메라 공간 비유한 끊기를 지키는 시험 없음 — 지워도 111/111 통과(유일한 넘침 입력 [1e308,0,1] 은 투영 단계에서만 비유한). 고칠 것: R=[s,−s,0, 0,0,1, s,s,0](s=√½), 점 [[1,1,0],[2,2,0],[1.5e308,1.5e308,0],[3,3,0],[4,4,0]] 로 X_c.z 넘침 → polyline 2개·각 2점·전부 유한 단언. 확인: :42 삭제 변이 실패 ≥ 1. sonnet
@@ -4884,7 +4885,7 @@
 - → 2026-10-05 21:25 감독(PR #81 검토 #1, 제품 ffc9549): ①②③⑤ 확인 기준 통과(① 줄 삭제 변이 실패 1, ② Object.create 입력 TypeError·hasOwn 되돌림 변이 실패 3, ③ 계약 fovY ≤ 3.1·|pos| ≤ 1e6 와 경계 시험, ⑤ README view). ④ 노트 합계 todo 반영. ⑥ 잔여(checkPath 복사 2회, 100000 점 64~105 ms, 프레임 경로 아님)는 받아들임. 닫음.
 
 
-### F-434 [열림] (심각도: 높음) — 큰 카메라 좌표에서 update·missing 이 끝나지 않고, 요청한 타일을 arrived 가 거부한다
+### F-434 [처리됨-검증대기] (심각도: 높음) — 큰 카메라 좌표에서 update·missing 이 끝나지 않고, 요청한 타일을 arrived 가 거부한다
 - 위치: 제품 feat/t15-7 ffc9549 client/tower/streaming/visible.mjs:197·:205(ty·tx 루프 `+= 1`), index.mjs:30-35(neededFor — 좌표 상한 없음, maxTilesPerUpdate 검사는 tilesInView 가 끝난 뒤), validate.mjs:7·:65-68(TILE_INDEX_MAX 1e6 은 checkTile 에만)
 - 문제: pose.pos 는 float32 유한(약 3.4e38)까지 통과하지만 이 층은 좌표·타일 번호 상한을 update 입구에서 검사하지 않는다. ① |x| ≥ 2^53·64 근처에서 tx+1 === tx 라 루프가 끝나지 않는다. ② |x| > 6.4e7 m 에서 needed·request 에 TILE_INDEX_MAX 밖 타일이 나오고, 그 타일의 arrived/failed 는 RangeError 라 도착 처리를 할 수 없다.
 - 실패 상황(감독 node 재현, scratchpad hang.mjs·h1.mjs): createTowerStreaming().update({pos:[x,0,100],quat:[0,0,0,1],fovY:1},{width:800,height:600}) — x=5e17 은 28 ms 에 RangeError, x=6e17·1e18·1e20 은 10 s timeout(exit 124). pos [1e8,0,10]·quat [.7071068,0,0,.7071068]·fovY 1·100×80 → request[0] {tx:1562499,ty:-1}, arrived(1562499,-1) RangeError 'tx 는 -1000000..1000000', inflight 16 칸이 묶인다. 6.3e7 에서는 정상. 손상된 드론 위치를 추적 카메라가 따라가는 조립(T15.9)에서 클라이언트가 멈춘다.
@@ -4892,8 +4893,9 @@
 - 확인 기준: x = 6.5e7·1e8·6e17·1e18·1e20, y = 1e19 각각 100 ms 안에 RangeError, state() 불변. 무작위 pose 퍼즈(pos 크기 1e0~1e38 로그 균등, 2만 건)에서 시간 초과 0 이고 update 가 돌려준 모든 request 타일에 arrived 가 던지지 않는다. 상한 검사를 지우는 변이에서 시험 실패 ≥ 1.
 - 권장 모델: sonnet
 - 이력: 2026-10-05 21:25 감독 등록(PR #81 검토 #1, 축 7 높음·축 1b 높음 보고, 감독 node 재현 — 축 1b 의 arrived 거부는 단독이면 중간이지만 같은 원인이라 함께 높음). 새로 찾은 것.
+- → 2026-10-05 작업자(PR #81 재검토): 입구 좌표 상한·tilesInView 범위 검사·계약 LIMITS 한 곳·range.test(퍼즈 2만 건) 처리. 전체 npm test 5021 중 통과 5004·실패 0. 처리됨-검증대기.
 
-### F-435 [열림] (심각도: 높음) — 완료 기준 시험이 영구 보류(deferred)를 '요청함'으로 세어 빠진 조각을 잡지 못한다
+### F-435 [처리됨-검증대기] (심각도: 높음) — 완료 기준 시험이 영구 보류(deferred)를 '요청함'으로 세어 빠진 조각을 잡지 못한다
 - 위치: 제품 ffc9549 client/tower/streaming/replay.test.mjs:163(covered 에 plan.deferred 포함)·:171-178(즉시 도착 검사도 deferred 제외)
 - 문제: TASKS T15.7 완료 기준 '경로 재생 시 빠진 조각 0' 을 재는 시험이 deferred 를 covered 로 센다. 한 번도 요청되지 않고 계속 보류만 되는 타일도 '요청한 적 있음'이 된다(감독이 :163 직접 읽음).
 - 실패 상황(축 4a 변이, 사본): plan.mjs 요청 조건을 `slots > 0 && newInflight.size === 0 && held.size === 0` 로 바꾸면 직선 경로 120 시점 동안 held 1개·deferred 최대 510개인데 기본 maxInflight 지연 모델 재생 시험 12개가 모두 통과한다(실패는 maxInflight 10000 시험 4개·plan 수기 3개뿐).
@@ -4902,8 +4904,9 @@
 - 함께(축 5): maxInflight 10000 사례의 missing 은 구현 자신의 needed 에서 나와 needed 누락을 못 잡는다 — 그 사례에도 오라클[step] ⊆ state().held 단언. 확인: needed 에서 타일 하나를 빼는 변이가 그 사례에서 실패.
 - 권장 모델: opus
 - 이력: 2026-10-05 21:25 감독 등록(PR #81 검토 #1, 축 4a 높음 보고·축 5 같은 지적, 감독 직접 읽음, 변이 수치는 축 4a 사본 근거). 새로 찾은 것.
+- → 2026-10-05 작업자(PR #81 재검토): deferred 제외·기아·정지 구간·needed 누락 변이 시험 처리. 기본 maxInflight 16 에서 '요청한 적 없음 0' 은 원리상 불가라 해석을 experiments/t15-7.md 에 적음(감독 판단 요청). 전체 npm test 5021 중 통과 5004·실패 0. 처리됨-검증대기.
 
-### F-436 [열림] (심각도: 중간) — retainMargin 이 크면 update 가 프레임 예산을 넘고, perf 시험이 최악 시점을 재지 않는다
+### F-436 [처리됨-검증대기] (심각도: 중간) — retainMargin 이 크면 update 가 프레임 예산을 넘고, perf 시험이 최악 시점을 재지 않는다
 - 위치: 제품 ffc9549 client/tower/streaming/plan.mjs:58-63(needed 마다 (2m+1)² 문자열 키), validate.mjs:8(retainMargin 0..16 허용), perf.test.mjs(합성 경로 광각 최대 needed 891, 중앙값 ≤ 4 ms 만)
 - 문제·실패 상황(감독 측정 scratchpad rm.mjs, 하향·고도 600 m·fovY 2.4·1920×1080, needed 1836): update p50 retainMargin 1 → 6.8 ms, 4 → 19.0 ms, 16 → 192.7 ms(서브에이전트 동시 부하 중). 축 6: 기본값에서도 p90 9.9~11.6 ms, 최대 25~75 ms.
 - 고칠 것: retain 판정을 Set 팽창 대신 needed 의 행별 tx 구간(±margin)으로 하거나 숫자 키, 또는 계약 상한을 낮춘다(근거를 0053 에). perf 시험에 최악 시점(하향·고도 600·광각·held 가득) 고정 사례와 p90 문턱을 더한다.
@@ -4911,8 +4914,9 @@
 - 함께: 감독 전체 npm test(서브에이전트 12개 동시 부하)에서 perf.test.mjs:58 광각 중앙값 6.372 ms > 4 ms 로 실패, 단독 2회 통과 — 부하에 흔들리는 시험이다. 문턱은 내리지 말고 반복 횟수·워밍업·측정 대상(같은 프로세스 안 비교 비)을 다듬는다.
 - 권장 모델: sonnet
 - 이력: 2026-10-05 21:25 감독 등록(PR #81 검토 #1, 축 6 보고, 감독 측정). 새로 찾은 것.
+- → 2026-10-05 작업자(PR #81 재검토): 구간 방식 retain, 최악 시점 p50 1.3 ms(retainMargin 16 포함), CPU 시간 p90 단언, 광각 시험 비 병행. 전체 npm test 5021 중 통과 5004·실패 0. 처리됨-검증대기.
 
-### F-437 [열림] (심각도: 중간) — 결정 0053 이 LOD(Δd ≈ d²/(f·b))·점 27 B 형식을 쓰지 않는 이유와 일부 추정값·대가를 빠뜨렸다
+### F-437 [처리됨-검증대기] (심각도: 중간) — 결정 0053 이 LOD(Δd ≈ d²/(f·b))·점 27 B 형식을 쓰지 않는 이유와 일부 추정값·대가를 빠뜨렸다
 - 위치: 연구 experiment/t15-7 decisions/0053-t15-7-streaming.md:24-26(renderer_basis 절 '점군 생성 절은 해당 없음' 한 줄), :32·:36-38·:40-44
 - 문제: SPEC 은 renderer_basis Δd ≈ d²/(f·b) 를 LOD 근거로 받는데 요청 단위 TileId 는 {tx,ty} 뿐이고 1500 m 까지 같은 단위로 요청한다(감독 직접 읽음). LOD 를 쓰지 않는 이유(contracts/tower_assets 한 화면 한 LOD 전제, F-313)와 27 B 가 지형 DEM 타일에 해당 없는 이유가 없다. 추정값 목록에 nearM 0.1 누락, maxDistM 상한이 없어 needed > 4096 이면 update 가 던지는 대가(축 2 재현: maxDistM 6000 에서 RangeError) 누락.
 - 실패 상황: T15.9·T15.10 담당이 어느 lod 를 요청할지, 먼 타일 대역폭이 줄지 않는 대가를 0053 에서 찾지 못한다.
@@ -4920,8 +4924,9 @@
 - 확인 기준: 0053 에 'LOD'·'F-313'·'27'·'nearM'·'4096'(대가) 존재.
 - 권장 모델: haiku
 - 이력: 2026-10-05 21:25 감독 등록(PR #81 검토 #1, 축 2 보고, renderer_basis 절은 감독 직접 읽음). 새로 찾은 것.
+- → 2026-10-05 작업자(PR #81 재검토): 0053 LOD·F-313·27 B·nearM·4096·좌표 상한 대가 반영. 전체 npm test 5021 중 통과 5004·실패 0. 처리됨-검증대기.
 
-### F-438 [열림] (심각도: 낮음) — PR #81 검토 #1 낮음 묶음
+### F-438 [처리됨-검증대기] (심각도: 낮음) — PR #81 검토 #1 낮음 묶음
 - ① (축 1b, 감독 재현) streaming/validate.mjs checkOpts 가 상속 속성을 읽는다 — createTowerStreaming(Object.create({maxInflight:3})) 에서 request 3개. overlay 처럼 hasOwn 일 때만 읽기. 확인: 같은 입력에서 기본값 16. sonnet
 - ② (축 1b) zRangeM 에 float32 유한 검사 없음 — {zRangeM:[-1e39,1e39]} 통과. maxDistM·nearM 과 같은 검사. haiku
 - ③ (축 1b) planRequests 가 held·inflight 원소를 검사하지 않음 — 'a,b' 원소에서 evict {NaN,NaN}. 문자열·정수 키 검사. haiku
@@ -4935,3 +4940,4 @@
 - ⑪ (축 5) replay 4경로 모두 fov 60°·160×90, 오라클 격자 32×18 — 광각 경로 1종을 재생에 더한다. sonnet
 - ⑫ (축 5) visible.test.mjs 무작위 오라클 시험이 maxTilesPerUpdate RangeError 시점을 조용히 건너뜀 — 건너뛴 수를 세어 상한 단언. 노트의 856·640 은 비단언 측정값으로 표기. haiku
 - 이력: 2026-10-05 21:25 감독 등록(PR #81 검토 #1). 모두 새로 찾은 것(① 은 F-433 ② 와 같은 종류가 다른 모듈에 재발).
+- → 2026-10-05 작업자(PR #81 재검토): ①~⑫ 모두 처리(⑨ README, ⑤⑧⑩ 계약, 나머지 코드·시험). 전체 npm test 5021 중 통과 5004·실패 0. 처리됨-검증대기.
