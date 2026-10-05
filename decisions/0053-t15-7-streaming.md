@@ -23,22 +23,26 @@
 
 ## renderer_basis
 
-점군 생성 절은 해당 없음(타일 단위 계획 계산). 투영 규약은 contracts/controlview 의 poseToView(X_c = R·X_w + t, OpenCV 축)를 재사용한다. 좌표 단위 GeoAnchor ENU 1 unit = 1 m 는 RULES §1.3.
+점군 생성 절은 해당 없음. 투영 규약은 §2-1 에서 X_c = R·X_w + t 를 따른다(contracts/controlview 의 poseToView, OpenCV 축). 좌표 단위 GeoAnchor ENU 1 unit = 1 m 는 RULES §1.3. renderer_basis 의 깊이 해상도 Δd ≈ d²/(f·b)·LOD 단계는 이 층에서 쓰지 않는다: 요청 단위 TileId 는 {tx,ty} 뿐이고 maxDistM 1500 m 까지 같은 64 m 단위로 요청하며, contracts/tower_assets 의 전제(F-313, "한 화면은 한 LOD") 때문에 lod 는 호출자가 고정한다. 점 27 B 형식(compact XYZ)은 점군 자산 필터 전용이며 지형 DEM 타일에 해당 없다.
 
 ## 근거
 
 - 측정값과 시험 수치는 실험 노트 experiments/t15-7.md. 오라클(구현과 독립, 화소 격자 광선이 지나는 타일 전부 ⊆ 결과): 경로 4종 × 도착 모델 3종 에서 요청한 적 없는 보이는 타일 0, 광각 needed 최댓값 898(상한 4096).
 - 원평면: 처음 깊이로 정의했으나 광각에서 needed 가 4096 을 넘어 update 가 던져 카메라로부터의 유클리드 거리로 바꿨다(과포함이 줄어든다).
-- zRange [-100, 600] m, maxDistM 1500 m, maxInflight 16, retainMargin 1, maxHeld 4096 은 추정 기본값이다(실제 관제탑 지형 높이·가시 거리 미확인).
+- zRange [-100, 600] m, maxDistM 1500 m, maxInflight 16, retainMargin 1, maxHeld 4096, nearM 0.1 m 은 추정 기본값이다(실제 관제탑 지형 높이·가시 거리 미확인).
 
 ## 대가
 
 - 보수적 판정이라 시야 가장자리의 타일을 더 요청한다(과포함). 직육면체가 높이 범위 전체를 덮어 낮은 지형에서는 실제로 안 보이는 타일도 포함될 수 있다.
 - 기본값이 추정이다. 지형 실제 최고·최저 높이를 호출자가 zRangeM 으로 주면 줄어든다.
 - 우선순위가 카메라 지면점 거리뿐이라 시선 방향 앞쪽 타일을 먼저 요청하지 않는다.
+- 단일 LOD 라 먼 타일의 대역폭이 줄지 않는다(거리에 따른 해상도 변화 없음).
+- 좌표 상한 검사: 입구에서 |pos.x|, |pos.y| + maxDistM ≤ maxCoordM(6.4e7 m = tileIndexMax 1e6 × 64 m)를 확인해, 넘으면 RangeError 를 던진다(F-434 결정). 필요한 타일 수 needed 가 maxTilesPerUpdate(4096)를 넘으면 update 는 RangeError 를 던진다(maxDistM 상한 없을 때 원평면 1500 m 에서도 재현 maxDistM 6000 감독 측정). 이 검사들의 대가: float 큰 좌표에서 루프 비종료(누적 오차), TILE_INDEX_MAX 밖 타일 지수 오버플로우를 막는다.
 
 ## 다시 볼 조건
 
-- T15.0L 에서 원본 스트리밍 메서드·요청 단위가 다를 때.
+- F-313 처리: 다른 LOD 이웃 봉합이 완료되면 "한 화면은 한 LOD" 전제를 확인.
+- T15.0L 에서 원본 스트리밍 메서드·요청 단위·nearM 설정이 다를 때.
 - 실제 DEM 의 높이 범위가 zRange 를 벗어나거나 요청 대역폭이 S6 구간당 문턱에 가까울 때.
+- retainMargin 상한: 현재 16 타일일 때 update 성능 p50 ≤ 16 ms 를 보장(F-436 성능 결정).
 - T15.10 에서 번들·대역폭 측정이 나왔을 때.
