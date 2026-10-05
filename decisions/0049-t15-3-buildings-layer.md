@@ -20,7 +20,7 @@
 
 ### 데이터 받기와 전환 (선택지 a)
 
-(a). 번들(BuildingBundle) 하나에 groups[{ids, mesh, edgeLines, uv, wallMask, points}] 와 image(null 가능)를 담는다. aerial 에서 wallMask=1 인 정점이 있는 삼각형과 image 가 null 인 경우는 검정으로 그린다(없는 영상을 메우지 않는다, 결정 0044 §6). 모서리 선은 black 에서만 그린다. 선 깊이 시험은 앞으로 0.05 m 당긴다(면과 같은 깊이에서 선이 깜빡이지 않게). 수준은 교체이고 추월당한 수준은 건너뛴다(같은 수준 재도착도 skip).
+(a). 번들(BuildingBundle) 하나에 groups[{ids, mesh, edgeLines, uv, wallMask, points}] 와 image(null 가능)를 담는다. aerial 에서 wallMask=1 인 정점이 있는 삼각형과 image 가 null 인 경우는 검정으로 그린다(없는 영상을 메우지 않는다, 결정 0044 §6). 모서리 선은 black 에서만 그린다. 선 깊이 편향 0.05 m: 같은 rasterizeLines 호출 안의 선끼리는 편향이 없고(선 깊이 < out.depth), 면과의 비교만 편향을 적용하여(선 깊이 − 편향 < out.depth) 면과 겹치는 깊이에서 선이 깜빡이지 않게 한다. 수준은 교체이고 추월당한 수준은 건너뛴다(같은 수준 재도착도 skip).
 
 ### UV 규약 (서버 aerial_uv 에 맞춤)
 
@@ -28,18 +28,18 @@
 
 ## 근거
 
-제품 client/tower/buildings/no_network.test.mjs(전역 fetch·WebSocket·XHR·http·net·dns 감시, 200 회 전환 요청 0, accept 1 회, 변이 가짜 층 2종은 실패)와 perf.test.mjs(3000동 1280×720 중앙값 ≤ 70 ms, setMode 0.000 ms).
+제품 client/tower/buildings/no_network.test.mjs(전역 fetch·WebSocket·XHR·http·net·dns 감시, 200 회 전환 요청 0, accept 1 회, 변이 가짜 층 2종은 실패)와 perf.test.mjs(RENDER_THRESHOLD_MS 1500 ms, 실제 측정 3000동 1280×720 black 40~98 ms, setMode 평균 ≤ 1 ms).
 
 **UV 규약 확인**: 층 대 참조 비교(layer_ref.test.mjs)에서 uv 를 뒤집는 변이는 일치율 0.9206 으로 실패(하한 0.99), 서버 규약 준수 확인.
 
-선 깊이 편향 0.05 m 는 이 작업의 선택이며 실제 관제탑 영상과의 시각 비교는 [local] 이다. any-vertex 벽 규칙(wallMask=1 인 정점이 있는 삼각형 = 검정)은 contracts/tower_assets DISPLAY_MODES 와 결정 0044 §6 에 따른다. renderer_basis 이탈 없음.
+선 깊이 편향 0.05 m 는 이 작업의 선택이며 실제 관제탑 영상과의 시각 비교는 [local] 이다. any-vertex 벽 규칙(wallMask=1 인 정점이 있는 삼각형 = 검정)은 contracts/tower_assets DISPLAY_MODES 와 결정 0044 §6 에 따른다. points 는 mesh 표본(표본점 xyz 3개 float32 = 12 B)이므로 renderer_basis.md 7-4 의 27 B 형식(밀집 점군 x y z + 법선 + 색)과 무관하다. renderer_basis 이탈 없음.
 
 ## 대가·다시 볼 조건
 
 각 선택의 제약과 재검토 기준:
 
-- **UV 규약 (서버 aerial_uv v=0 북)**: 안내 렌더러(ref_trace)와 일치하며, 서버 변경은 비용이 크다. 항공영상 정렬이 실패하면(픽셀 차이 > 1%) 재검토한다.
-- **선 깊이 편향 0.05 m**: 실제 관제탑 영상에서 선이 깜빡이거나 겹침이 있으면 재검토한다. 이 값은 정성 비교([local])로만 확인했다.
+- **UV 규약 (서버 aerial_uv v=0 북)**: layer_ref.test.mjs(광선 추적 참조 대 층 비교, 54 조합 화소 일치율 ≥ 0.99)로 확인했고, 서버 변경은 비용이 크다. 항공영상 정렬이 실패하면(layer_ref 일치율 < 0.99) 재검토한다.
+- **선 깊이 편향 0.05 m**: 같은 rasterizeLines 호출 안의 선끼리는 편향이 없고, 면과의 비교만 편향을 적용한다. 실제 관제탑 영상에서 선이 깜빡이거나 겹침이 있으면 재검토한다. 시각 비교는 [local]이다(미확인).
 - **Any-vertex 벽 규칙**: 계약 정의이며, wallMask 처리가 시각적 결함을 일으키면(검정 누락/오염) 재검토한다.
 - **초기 바이트 (15 MB)**: 세 옵션 자료를 모두 보내므로 초기 바이트가 증가한다. T15.10 번들·대역폭 측정에서 초기 묶음이 15 MB 를 초과하면 옵션 지연 로딩 또는 서버 캐시 전략 재검토한다.
 
