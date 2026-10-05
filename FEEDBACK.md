@@ -4705,18 +4705,55 @@
 - 이력: 2026-10-05 18:20 감독(PR #76 검토 #1) 감독 등록. ①②③④⑤⑦ 새로 찾은 것, ⑥ 은 F-413 ③ 잔여.
 - 이력: 2026-10-05 18:42 감독(PR #77 검토 #1) — ① 닫음(finally 원복 삭제 변이 양성 대조 실패). ② 닫음(뒤집기 미적용 변이 notDeepEqual 실패). ③ 닫음(±1, −0.5 제거·+0.5 변이 integration (d) 실패, 축 1b). ④ 닫음(perf 주석 지붕). ⑥ 닫음(0048 본문에서 renderer_basis 와 '이탈' 을 같은 서술에 쓴 곳 0, 절 제목 '이탈 N' 은 라벨). ⑤ 잔여: layer_ref.test.mjs:19 주석 오류 → F-417 ②. ⑦ 관찰 유지.
 
-### F-417 [열림] (심각도: 중간) — PR #77 검토 #1 중간 묶음
+### F-417 [처리됨-검증대기 — ②④ 브랜치에서 확인, ①③ 잔여는 F-421 ①②] (심각도: 중간) — PR #77 검토 #1 중간 묶음
 - 위치: 제품 feat/t15-3d 39e44c9, 연구 experiment/t15-3d 5c98cec
 - ① (축 5, 감독 직접 읽음) perf 문턱 근거 수치 출처 없음: perf.test.mjs:3·:16, t15-3c.md:17, 0049:31 은 '재측정 최대 ~85 ms(black)' 인데 t15-3b.md:29 의 perf 장면 측정은 black 35~72 ms·aerial 27~72 ms 이고 85 ms 측정은 어디에도 없다. t15-3d.md:12 '하나로 통일' 은 사실과 다름. 실패 상황: 문턱 300 ms 의 근거를 재현·검증할 수 없음. 고칠 것: 6묶음 perf 장면을 5회 중앙값 3번 실행으로 다시 재서 최대값과 명령·날짜를 t15-3b(또는 t15-3d) 표에 [cloud] 로 적고, 주석·t15-3c·0049 를 그 한 값으로. 확인 기준: 주석·노트·0049 의 수치가 같고 그 값이 표의 행으로 있음. 권장 모델: haiku
 - ② (축 4a, 감독 직접 읽음 layer_ref.test.mjs:19·lines.mjs:51·:70-71) :19 '선 깊이 편향이 0.07 m 넘으면 이 허용(MAX_LINE_DEPTH_REL) 초과로 검출' 은 틀림 — 편향은 그릴지 판정(:70)에만 쓰이고 기록 깊이는 편향 없는 d(:71)라 선·선 깊이 비교는 편향을 보지 못한다. 편향 0.08·0.5 m 변이는 :23 MAX_LINE_ON_REF_SURFACE 가 잡음(40 > 32, 78 > 32, 축 4a). 고칠 것: :19 의 0.07 m 문장 삭제, '편향 검출은 :21-23 상한 담당' 으로. 확인 기준: 주석이 그 동작과 같음. 권장 모델: haiku
 - ③ (축 5, 감독 직접 읽음 t15-3b.md:26·:29) 'perf.test.mjs 합성 번들은 1묶음, 컬링 무효'·'3000동이 한 묶음이라 컬링이 아무것도 못 빼고' 는 이번 PR 의 GROUP_COUNT 6(perf.test.mjs:13·:161-177)과 모순, 35~72 ms 가 몇 묶음 측정인지 불명. 고칠 것: ① 재측정과 함께 묶음 수를 적고 문장 갱신. 확인 기준: 노트의 묶음 수 = perf.test.mjs:13. 권장 모델: haiku
 - ④ (축 2, 감독 직접 확인 git diff) 연구 decisions/0049:48 감독 승인 절의 지시 원문('perf.test.mjs 의 1500 ms(회귀 감시용)와 측정 범위로')을 '측정 범위와 통일하고' 로 고침 — 승인 기록은 당시 사실이라 고치지 않는다. 고칠 것: :48 을 원문으로 되돌림('1500 0건' 기준은 본문 :1-44 에만 적용). 확인 기준: experiment/t14 대비 0049 승인 절 diff 0줄. 권장 모델: haiku
-- 이력: 2026-10-05 18:42 감독 등록(PR #77 검토 #1). ① F-415 ③ 잔여, ② F-416 ⑤ 잔여, ③④ 새로 찾은 것(이번 PR 에서 생김).
+- 이력: 2026-10-05 18:42 감독 등록(PR #77 검토 #1). ① F-415 ③ 잔여, ② F-416 ⑤ 잔여, ③④ 새로 찾은 것(이번 PR 에서 생김). → 19:10 PR #78 검토 #1(반려): ② layer_ref:19 주석 정정·④ 0049 승인 절 원문 복원(원 승인 커밋 대비 diff 0) 확인. ① perf.test.mjs:16 85 ms 잔존·black 귀속 오류, ③ t15-3b:29 '한 묶음' 잔존 → F-421 ①②. PR #78 병합 때 ②④ 닫음.
 
-### F-418 [열림] (심각도: 낮음) — PR #77 검토 #1 낮음 묶음
+### F-418 [처리됨-검증대기 — ①②④ 브랜치에서 확인, ② 파싱 결함은 F-421 ③] (심각도: 낮음) — PR #77 검토 #1 낮음 묶음
 - ① (축 1b, 사본 재현 보고 '미확인') compose.mjs:69 into 의 fill 을 빼는 변이에서 compose.test 전체 통과 — 쓰레기 값(depth 9, index 7)으로 채운 into 를 넘겨 빈 화소가 color 0·depth 0·index −1 인지 단언. 확인 기준: fill 삭제 변이 실패. 권장 모델: haiku
 - ② (축 1a·4c) align_oblique.test.mjs:56 SEEDS [1..6] 고정 — :39·:76 이 인용하는 시드 1..18 결과를 코드 수정 없이 재현할 수 없음. 환경 변수(예: DRAPE_SEEDS)로 범위를 받는 선택 경로. 함께: :517-526 예상 이동 ≤ 2 px 로 단언을 건너뛴 시점 수(31·33·31/48)를 로그로. 확인 기준: 저장소 수정 없이 [7..12]·[13..18] 실행. 권장 모델: haiku
 - ③ (축 2·5) 문서 낡음: t15-3b.md:4 'base·over 와 배열을 공유하면 던진다' → 계약 :34 의 .buffer 공유·into 세 배열끼리; t15-3c.md:12 'into 겹침 검사는 하지 않음 → 후속' 에 't15-3d 에서 해소'; t15-3c.md:6 '덮인 화소 하한(원본의 약 90%)' → ±0.1%; t15-3d.md:11 측정값에 [cloud]. 권장 모델: haiku
 - ④ (축 6·7) compose.mjs:36 JSDoc '같은 배열이면' → '버퍼를 공유하면'(한 ArrayBuffer 의 겹치지 않는 구간도 거절하는 보수적 동작임을 명시). 권장 모델: haiku
 - ⑤ (축 4c, 참고) v 방향 반 화소 변이(v = j + 1, 깊이 유지)는 성분 단언이 6/48(top_down)만 잡음 — 비스듬 시점에서 그 변이의 실제 화면 이동이 0.01~0.24 px 이라 측정기 결함은 아니며, 정합 ≤ 1 px(:481)·격자선(:556) 시험이 잡음. 조치 불요, 기록만.
-- 이력: 2026-10-05 18:42 감독 등록(PR #77 검토 #1). 모두 새로 찾은 것.
+- 이력: 2026-10-05 18:42 감독 등록(PR #77 검토 #1). 모두 새로 찾은 것. → 19:10 PR #78 검토 #1(반려): ① fill 삭제 변이 4종 실패 확인(축 4b), ② DRAPE_SEEDS 7-12 실행 pass 10(축 4b·5)·파싱 결함은 F-421 ③, ④ JSDoc 확인. ③ t15-3b/3c/3d 문구 미대조. PR #78 병합 때 ①④ 닫음.
+
+### F-419 [열림] (심각도: 높음) — T15.4 기술적 결정(추정 키 배치·기본값, dt 상한, 고도 범위, 적분 순서)이 decisions/ 에 없고, 적분 순서를 시험이 지키지 않는다
+- 위치: 제품 feat/t15-4 28adb5b contracts/controlview/input.mjs:4·:8-15·:29, client/tower/input/state.mjs:48-52, state.test.mjs:44-58; 연구 experiment/t15-4 fb80e04 decisions/(0049 가 마지막)
+- 문제: (A) 감독 절차 §3.1 — 키 배치(방향키·Q/E)·속도 10 m/s·방위 1 rad/s·고도 5 m/s·고도 [1, 500] m·pitch −0.3·fovY 0.9·dt 상한 0.25 s(origin 'estimated')와 '이번 스텝 시작 방위로 이동한 뒤 회전'(전진 오일러) 적분 순서가 결정 기록 없이 들어왔다. 근거·대가·다시 볼 조건(T15.0L [local] 대조) 없음. renderer_basis 해당 없음 판단도 기록 없음. (B) 적분 순서는 계약 :29 에 없고, 회전·이동을 동시에 누르는 시험이 없어 순서 변이가 통과한다.
+- 실패 상황: (B) 감독 재현 — state.mjs 에서 `yaw += …` 를 이동 앞으로 옮긴 사본에서 `node --test client/tower/input/*.test.mjs` 31 통과 0 실패. 축 1b 측정: ArrowUp+ArrowRight 를 π/2 s 누르면 dt=1/60 → (9.875, 10.083), dt=0.25 → (7.997, 11.085), 프레임 간격에 따라 약 2.2 m 다른 궤적. 첫 프레임에 반환 pose 의 yaw(새 값)와 이동 방향(옛 값)이 다르다.
+- 고칠 것: ① 연구 decisions/0050(T15.4 입력 층)을 만들어 위 값들·적분 순서의 선택지·근거·대가·다시 볼 조건(T15.0L)·renderer_basis 해당 없음을 적고 decisions/README.md 표에 '제안'으로 추가(haiku). ② 적분 순서를 하나로 정한다 — 권장은 스텝 중간 방위(yaw + turn·rate·d/2)로 이동해 dt 의존을 줄이는 것; 정한 순서를 계약 :29 에 명시(sonnet). ③ state.test 에 {forward, yawRight} 동시 입력 시험: 정한 규칙의 고정 기대값(예: dt=1·rate 1·speed 10)을 숫자로 단언하고, 사분원 시나리오에서 dt=1/60 과 dt=0.25 끝점 차이를 미리 정한 허용 안으로(sonnet).
+- 확인 기준: decisions/0050 존재·표 행 있음; '회전 후 이동'·'이동 후 회전' 중 정하지 않은 쪽 변이가 새 시험에서 실패; 계약 :29 에 순서 문장.
+- 권장 모델: ① haiku, ②③ sonnet
+- 이력: 2026-10-05 19:10 감독 등록(PR #78 검토 #1, 축 2·1b·4a; (B) 순서 변이 감독 사본 재현). 새로 찾은 것.
+
+### F-420 [열림] (심각도: 높음) — 입력 층 no_network 시험이 감시자 restore(미뤄진 호출 실행) 전에 단언해 지연 네트워크 호출을 놓친다
+- 위치: 제품 feat/t15-4 28adb5b client/tower/input/no_network.test.mjs:48(단언)·:50(await spies.restore())
+- 문제: network_spies 의 restore 는 미뤄진 타이머·setImmediate·마이크로태스크를 비우며 그때 생긴 호출을 calls 에 기록한다. 건물 층 시험(buildings/no_network.test.mjs:95-97)은 restore 뒤에 calls 를 보는데, 입력 층 시험은 그 전에 `deepEqual(spies.calls, [])` 를 해 restore 가 기록한 호출을 보지 못한다. T15.4 완료 기준('네트워크·타이머를 쓰지 않는다')을 지키는 유일한 시험이다.
+- 실패 상황: 감독 재현 — index.mjs step 첫 줄에 `queueMicrotask(() => globalThis.fetch('http://127.0.0.1:1/x').catch(()=>{}))` 를 넣은 사본에서 no_network.test 2 통과 0 실패. 축 4a: setTimeout(…,5000)·setImmediate 로 미룬 fetch 도 통과.
+- 고칠 것: try 안의 단언을 `await spies.restore()` 뒤로 옮긴다(건물 층 시험과 같은 순서). 양성 대조에 마이크로태스크·setTimeout 으로 미룬 fetch 가 restore 뒤 기록되는 시험을 추가.
+- 확인 기준: 위 queueMicrotask·setTimeout·setImmediate 지연 fetch 변이 세 가지가 모두 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-05 19:10 감독 등록(PR #78 검토 #1, 축 4a 보고, 감독 사본 재현). 새로 찾은 것.
+
+### F-421 [열림] (심각도: 중간) — PR #78 검토 #1 중간 묶음
+- 위치: 제품 feat/t15-4 28adb5b, 연구 experiment/t15-4 fb80e04
+- ① (F-417 ① 잔여, 감독 직접 읽음) perf.test.mjs:16 `// 재측정 최대(~85 ms, black)의 3배 남짓` 이 그대로 — :3 은 70 ms 로 고쳤고 t15-3e.md 는 '모두 70 ms' 라고 적었다. 또 70.4 ms 는 t15-3e 표에서 aerial(B1 카메라 1) 값이고 black 최대는 63.9 ms 인데 perf.test.mjs:3·0049:31 은 'black … 70 ms' 로 적었다. 고칠 것: :16 을 '전체 최대 70 ms(aerial), 300 ms 는 약 4배' 로, :3·0049:31 은 'black 최대 64 ms·전체(aerial) 최대 70 ms'. 확인 기준: `grep -rn '85 ms' client` 0건, 문서 수치 = t15-3e 표. 권장 모델: haiku
+- ② (F-417 ③ 잔여, 감독 직접 읽음 t15-3b.md:29) 'perf.test.mjs 의 장면은 3000동이 한 묶음이라 … 컬링이 아무것도 못 빼고' 와 'black 35~72 ms·aerial 27~72 ms' 가 남아 GROUP_COUNT 6(perf.test.mjs:13)과 모순. 고칠 것: '그 측정 당시 1묶음' 으로 시점을 밝히고 현재 6묶음 수치는 t15-3e 표를 가리킨다. 확인 기준: t15-3b 에 현재형 '한 묶음' 서술 없음. 권장 모델: haiku
+- ③ (축 4b, 감독 직접 읽음 align_oblique.test.mjs:57-88) parseSeedsEnv 가 parseInt 로 꼬리 문자를 버린다 — `DRAPE_SEEDS=7..12` 가 시드 [7] 하나로 돌아 통과(축 4b 실행: pass 10). `7.5`·`7abc`→[7], `1e3`→[1]. 빈 문자열은 기본 [1..6]. 고칠 것: 토큰을 /^\s*\d+\s*$/ 와 /^\s*(\d+)\s*-\s*(\d+)\s*$/ 전체 일치로만 받고 나머지·빈 문자열은 throw. 확인 기준: `7..12`·`7.5`·`7abc`·`1e3`·`` 모두 Error. 권장 모델: haiku
+- ④ (축 4a 보고, '미확인') 타이머 사용 자체를 세지 않는다 — network_spies.mjs:43 mock.timers 는 기록하지 않으므로 state 에 `setTimeout(()=>{},0)` 을 넣어도 입력 층 no_network 통과(시험 이름은 '타이머 호출 0'). index.test.mjs:19-24 소스 문자열 검사는 index.mjs 만 본다. 고칠 것: 문자열 검사를 state·keys·camera.mjs 로 넓히거나 입력 층 시험에서 타이머 생성을 센다. 확인 기준: 타이머만 쓰는 변이 실패. 권장 모델: sonnet
+- ⑤ (축 4a 보고, '미확인') keys.test.mjs:7-14 가 down 을 3번(홀수) 불러 '이미 눌린 키 down 은 뗀다' 토글 변이가 통과. index 수준 releaseAll 결과 단언 없음(index.mjs:50 을 `() => {}` 로 바꿔도 통과). 고칠 것: down 2번 뒤 held 참 단언; keyDown('ArrowUp')→releaseAll()→step(0.1) 뒤 pos 불변 단언. 확인 기준: 두 변이 실패. 권장 모델: haiku
+- 이력: 2026-10-05 19:10 감독 등록(PR #78 검토 #1). ①② 이전 항목(F-417 ①③) 잔여, ③④⑤ 새로 찾은 것.
+
+### F-422 [열림] (심각도: 낮음) — PR #78 검토 #1 낮음 묶음
+- ① (축 2·3, 감독 직접 읽음) contracts/controlview/input.mjs:30 keys 문장 자기모순('반대 키 상쇄는 state 가 아니라 여기서 … state 가 상쇄한다'). → 'keys 는 상쇄하지 않고 held 에 둘 다 true 로 둔다. 상쇄는 state 가 한다'. 권장 모델: haiku
+- ② (축 7) state.mjs:49-51 극단 속도(speedMps 1e308)에서 pos 가 Infinity/NaN 이 되고 camera() 가 매 프레임 RangeError, 키를 떼도 복구 안 됨. 생성 때 speedMps·altRateMps 상한 또는 step 뒤 pos float32 유한 검사. 현실 속도에서는 무관. 권장 모델: haiku
+- ③ (축 7) createTowerInput({fovYRad:4})·{fovYRad:-1}·pos[0]=1e39 는 생성 성공 후 camera() 에서만 던진다 — 생성 시점에 camera.mjs 와 같은 규칙으로 검사. pitchRad 범위([−π/2, π/2]) 미검사. 권장 모델: haiku
+- ④ (축 1b·4a) dt 상한이 index.mjs:54 와 state.mjs:43 두 곳 — 한쪽 정리 또는 '의도적 중복' 주석. index 시험의 반대 키 상쇄는 좌우만(앞뒤·고도는 keys 경유 시험 없음). frame.test.mjs:73-83 은 Δt=−R·moved 자기 일관만 보므로 'Δt[2] < 0(앞으로 다가감), |Δt[0]| ≈ 0' 단언 추가. 권장 모델: haiku
+- ⑤ (축 4b) compose.mjs:36 JSDoc 의 '한 ArrayBuffer 의 겹치지 않는 구간도 거절' 을 지키는 시험 없음(compose.test:193 은 겹치는 offset 4). 같은 버퍼의 겹치지 않는 view 를 into 로 줄 때 RangeError 시험. 권장 모델: haiku
+- ⑥ (축 2·5) t15-3e 표 행에 [cloud]·묶음 수 열 없음(절 제목·명령 줄에만). PR 본문 '4685 중 4668 통과' 에 skip·todo 수 미기재. 입력 시험 수는 감독·축 5 실행 31(본문·t15-4.md 는 29). 권장 모델: haiku
+- 기각·관찰: 축 9 '연구 노트의 모델 이름' 은 TASKS 모델 배정 기록이라 흔적 아님. 축 11 'perf 주석의 측정값' 은 문턱 근거 주석(허용, F-417 ① 이 요구). 축 7 성능: step+camera 0.66 µs/프레임, 조치 불요.
+- 이력: 2026-10-05 19:10 감독 등록(PR #78 검토 #1). 모두 새로 찾은 것.
