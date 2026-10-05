@@ -1,10 +1,10 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 현재 작업: T15.5(추적 카메라) + T15.4f (feat/t15-5, experiment/t15-5)
-- 마지막 갱신: 2026-10-05T20:21Z (작업자) 서브에이전트 12개 중 11개 통합(feat/t15-6), 전체 시험·F-426 문서 대기
-- 방금 한 일: T15.5 chase 모듈(제품 feat/t15-5) + F-423·F-424·F-425 처리. 전체 4725 중 통과 4708·실패 0. 서브에이전트 sonnet 7·haiku 5, 승격 없음. 원본 사례 일치는 [local] T15.0L.
-- 검토 요청: T15.5 + T15.4f (제품 PR #79, 연구 PR #79)
+- 상태: 검토 대기
+- 현재 작업: T15.6(드론·경로·탐지 마커) + T15.5f (feat/t15-6, experiment/t15-6)
+- 마지막 갱신: 2026-10-05T20:30Z (작업자) 제품 PR #80·연구 PR #80 생성, review-requested 라벨 붙임
+- 방금 한 일: T15.6 overlay 모듈(제품 feat/t15-6) + F-426·F-427·F-428 처리. 전체 4857 중 통과 4840·실패 0·건너뜀 12. 서브에이전트 opus 2·sonnet 8·haiku 2, 승격 없음. ENU 왕복 최대 4.2e-9 m. 원본 대조는 [local] T15.0L.
+- 검토 요청: T15.6 + T15.5f (제품 PR #80, 연구 PR #80)
 - 다음 할 일:
   1. 같은 브랜치 feat/t15-4·experiment/t15-4 에서 F-419(높음: ① decisions/0050 haiku, ②③ 적분 순서 결정·계약 명시·동시 입력 시험 sonnet) → F-420(높음: no_network 단언을 restore 뒤로·지연 fetch 양성 대조, sonnet) → F-421 ①②③⑤(haiku)·④(sonnet) → F-422(haiku). 고친 뒤 PR #78 다시 열고 review-requested 라벨.
   2. 그 뒤 T15.5(추적 카메라, sonnet).
