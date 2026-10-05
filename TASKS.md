@@ -461,7 +461,7 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T15.R2 | [x] 2026-10-05 제품 e181ff7(PR #70 검토 #1 통과, merge commit; 연구 experiment/t14 e363af9) — F-392 ①~⑨·F-391 ⑥ 닫음, 남은 F-391 ②④⑦ 은 T15.R3. (2026-10-05 제품 PR #69 검토 #1 에서 분리) T15.1 첫 PR 과 함께: F-392 ①②(sonnet, isDrapeAligned 수·유한·음수 검사, 음수 미측정 사례) → F-391 ②⑦·F-392 ③~⑨(haiku, 주석·0044·계약 문구·한도 필드) → F-391 ④(sonnet, U1 변이를 잡는 호출부 연결 시험) → F-391 ⑥·F-390 ⑨(sonnet, 못 하면 0044 기록) | `contracts/controlview/`, `server/terrain/drape/`, `server/buildings/lod/`, 연구 decisions/0044 | F-391·F-392 항목별 확인 기준 | sonnet |
 | T15.R3 | (2026-10-05 제품 PR #70 검토 #1 에서 분리) T15.1 PR 과 함께: F-391 ②④⑦·F-393 ③~⑦(haiku, 0044 표기·괄호·시험 이름·주석 −1·tolPx 유한·계약 음성 단언) | `contracts/controlview/`, `server/terrain/drape/`, `server/buildings/lod/`, 연구 decisions/0044 | F-391·F-393 항목별 확인 기준 | haiku |
 | T15.0L | [local] skylens 체크아웃 towerViewer.ts 공개 메서드와 대응표 한 줄씩 대조, origin 'estimated' → 'checked' | `contracts/controlview/` | 대응표 = 원본 공개 메서드 | haiku |
-| T15.1 | 지형 그리기 | `client/tower/terrain/` | 8시점 SSIM ≥ 0.95 | sonnet |
+| T15.1 | (2026-10-05 제품 PR #71 검토 #1 반려 1회 — F-394·F-395 높음) 지형 그리기. 남은 일: F-394 accept 원자성(sonnet), F-395 정점 법선 보간·다중 시드·잡음 장면 판정(opus), F-396·F-397 | `client/tower/terrain/` | 8시점 SSIM ≥ 0.95(시드 1~12 × 잡음 {0, 0.015} 최소값) | opus |
 | T15.2 | 드레이프 그리기(정합 판정은 unmeasuredLocalBlocks > 0 이면 통과로 세지 않음, F-391 ⑨). 먼저 F-393 ①②(opus): :745·:779 경로 local 블록(unexcludedPx 미설정)을 미측정으로 셀지 정하고 0044 결정 보강 — 정하지 않고 T15.2 정합 판정을 올리면 높음으로 반려 | `client/tower/drape/` | 정합 ≤ 1 px | opus |
 | T15.3 | 건물 그리기(3옵션 전환, 재요청 없음) | `client/tower/buildings/` | 전환 시 네트워크 요청 0 | sonnet |
 | T15.4 | 방향키 조향·Q/E 고도 로컬 처리 | `client/tower/input/` | 입력→카메라 갱신이 같은 프레임 안 | sonnet |
