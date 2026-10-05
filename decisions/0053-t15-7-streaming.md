@@ -19,11 +19,11 @@
 
 ## 결정
 
-(a) 를 채택한다. 필요 타일은 타일 직육면체(64 m × zRange)와 시야 사각뿔·근평면·원평면의 보수적 교차(과포함 허용, 누락 불허)로 구하고, 카메라 지면점에서 가까운 순으로 요청한다. 보이지 않게 된 타일은 retainMargin 타일만큼 유지해 시점이 되돌아올 때 재요청을 줄인다. 동시 요청은 maxInflight 로 제한하고 넘친 것은 deferred 로 남겨 다음 update 가 다시 요청 후보로 삼는다(버리지 않는다). 도착하지 않은 타일은 메우지 않는다.
+(a) 를 채택한다. 필요 타일은 타일 직육면체(64 m × zRange)와 시야 사각뿔·근평면·거리 구의 보수적 교차(과포함 허용, 누락 불허)로 구하고, 카메라 지면점에서 가까운 순으로 요청한다. 보이지 않게 된 타일은 retainMargin 타일만큼 유지해 시점이 되돌아올 때 재요청을 줄인다. 동시 요청은 maxInflight 로 제한하고 넘친 것은 deferred 로 남겨 다음 update 가 다시 요청 후보로 삼는다(버리지 않는다). 도착하지 않은 타일은 메우지 않는다.
 
 ## renderer_basis
 
-점군 생성 절은 해당 없음. 투영 규약은 §2-1 에서 X_c = R·X_w + t 를 따른다(contracts/controlview 의 poseToView, OpenCV 축). 좌표 단위 GeoAnchor ENU 1 unit = 1 m 는 RULES §1.3. renderer_basis 의 깊이 해상도 Δd ≈ d²/(f·b)·LOD 단계는 이 층에서 쓰지 않는다: 요청 단위 TileId 는 {tx,ty} 뿐이고 maxDistM 1500 m 까지 같은 64 m 단위로 요청하며, contracts/tower_assets 의 전제(F-313, "한 화면은 한 LOD") 때문에 lod 는 호출자가 고정한다. 점 27 B 형식(compact XYZ)은 점군 자산 필터 전용이며 지형 DEM 타일에 해당 없다.
+점군 생성 절은 해당 없음. 투영 규약은 §2-1 에서 X_c = R·X_w + t 를 따른다(contracts/controlview 의 poseToView, OpenCV 축). 좌표 단위 GeoAnchor ENU 1 unit = 1 m 는 RULES §1.3. renderer_basis 의 깊이 해상도 Δd ≈ d²/(f·b)·LOD 단계는 이 층에서 쓰지 않는다: 요청 단위 TileId 는 {tx,ty} 뿐이고 maxDistM 1500 m 까지 같은 64 m 단위로 요청하며, contracts/tower_assets 의 전제(F-313, "한 화면은 한 LOD") 때문에 lod 는 호출자가 고정한다. 점 27 B 형식은 xyz f32×3 + 법선 f32×3 + rgb u8×3 이며 자산 필터와 부호화기가 함께 사용한다.
 
 ## 근거
 
