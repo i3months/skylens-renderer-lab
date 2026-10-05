@@ -63,7 +63,7 @@ T15.1 완료 기준은 '8시점 SSIM ≥ 0.95'(SPEC S9, contracts/controlview TE
 
 ## 대가
 - 래스터는 화소마다 법선 3성분 보간·정규화·램버트를 한다(160×90, LOD 0 3.3만 삼각형, 같은 조건 연속 측정에서 면 음영 35 ms 대 정점 법선 34 ms/시점 — 차이가 측정 잡음 안). 정점 법선은 메시를 만들 때(accept) 한 번 계산한다.
-- 음영 매개변수는 client/tower/terrain/index.mjs:31·:54 가 opts.lambert 를 통해 래스터에 전달한다(계약 contracts/controlview/terrain.mjs:18 은 이미 반영). 래스터는 이를 읽어 화소마다 정점 법선 보간 램버트를 계산한다. 따라서 contracts/controlview/terrain.mjs 의 mesh·raster·shade 서명 문구에는 normals(선택)·opts·lambert 가 반영되어야 한다.
+- 음영 매개변수는 client/tower/terrain/index.mjs:31·:54 가 opts.lambert 를 통해 래스터에 전달한다(계약 contracts/controlview/terrain.mjs:18 은 이미 반영). 래스터는 이를 읽어 화소마다 정점 법선 보간 램버트를 계산한다. 반영됨(terrain.mjs:18).
 - 높이 오차 상한만으로는 SSIM 0.95 가 보장되지 않는다(LOD 3, 160×90). 실제 DEM 에서의 값은 [local] 입력 없이는 모른다.
 
 ## 다시 볼 조건
