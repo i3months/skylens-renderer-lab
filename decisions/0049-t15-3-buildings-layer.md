@@ -28,7 +28,7 @@
 
 ## 근거
 
-제품 client/tower/buildings/no_network.test.mjs(전역 fetch·WebSocket·XHR·http·net·dns 감시, 200 회 전환 요청 0, accept 1 회, 변이 가짜 층 2종은 실패)와 perf.test.mjs(실제 측정 3000동 1280×720 black 40~98 ms, setMode 평균 ≤ 1 ms).
+제품 client/tower/buildings/no_network.test.mjs(전역 fetch·WebSocket·XHR·http·net·dns 감시, 200 회 전환 요청 0, accept 1 회, 변이 가짜 층 2종은 실패)와 perf.test.mjs(실제 측정 3000동 1280×720 black 재측정 최대 약 85 ms, setMode 평균 ≤ 1 ms).
 
 **UV 규약 확인**: 층 대 참조 비교에서 uv 를 뒤집는 변이는 실패한다. 세부 검사는 client/tower/buildings/ref_trace.test.mjs:342-349(m.bad > m.checked·0.5)·fixtures.test.mjs:67-77(v = 1−북쪽 비율 검증)에 기록됐고, 서버 규약 준수를 확인했다.
 
