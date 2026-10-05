@@ -27,17 +27,22 @@
 
 ## 근거
 
-- 측정값과 시험 수치는 실험 노트 experiments/t15-7.md. 오라클(구현과 독립, 화소 격자 광선이 지나는 타일 전부 ⊆ 결과): 경로 4종 × 도착 모델 3종 에서 요청한 적 없는 보이는 타일 0, 광각 needed 최댓값 898(상한 4096).
+- 측정값과 시험 수치는 실험 노트 experiments/t15-7.md. 오라클(구현과 독립, 화소 격자 광선이 지나는 타일 전부 ⊆ 결과)을 이용해 무제한 maxInflight 에서는 빠진 조각 0, 기본값 maxInflight 16 에서는 놓친 타일 0·자리 낭비 0·정지 뒤 오라클 ∩ missing = ∅ 를 단언한다. 광각 needed 최댓값 898(상한 4096).
 - 원평면: 처음 깊이로 정의했으나 광각에서 needed 가 4096 을 넘어 update 가 던져 카메라로부터의 유클리드 거리로 바꿨다(과포함이 줄어든다).
 - zRange [-100, 600] m, maxDistM 1500 m, maxInflight 16, retainMargin 1, maxHeld 4096, nearM 0.1 m 은 추정 기본값이다(실제 관제탑 지형 높이·가시 거리 미확인).
 
-## 대가
+## 대가 (한계와 설계 선택)
 
 - 보수적 판정이라 시야 가장자리의 타일을 더 요청한다(과포함). 직육면체가 높이 범위 전체를 덮어 낮은 지형에서는 실제로 안 보이는 타일도 포함될 수 있다.
 - 기본값이 추정이다. 지형 실제 최고·최저 높이를 호출자가 zRangeM 으로 주면 줄어든다.
 - 우선순위가 카메라 지면점 거리뿐이라 시선 방향 앞쪽 타일을 먼저 요청하지 않는다.
 - 단일 LOD 라 먼 타일의 대역폭이 줄지 않는다(거리에 따른 해상도 변화 없음).
-- 좌표 상한 검사: 입구에서 |pos.x|, |pos.y| + maxDistM ≤ maxCoordM(6.4e7 m = tileIndexMax 1e6 × 64 m)를 확인해, 넘으면 RangeError 를 던진다(F-434 결정). 필요한 타일 수 needed 가 maxTilesPerUpdate(4096)를 넘으면 update 는 RangeError 를 던진다(1500 m 에서 최악 경우 needed 1836, maxDistM 6000 에서만 던짐). 이 검사들의 대가: 던질 때 계획이 없고, maxDistM 검증이 update 까지 지연된다. TILE_INDEX_MAX 밖 타일 지수 오버플로우를 막는다.
+
+근거(좌표 상한 검사의 대가):
+
+- 입구에서 |pos.x|, |pos.y| + maxDistM ≤ maxCoordM(6.4e7 m = tileIndexMax 1e6 × 64 m)를 확인해, 넘으면 RangeError 를 던진다(F-434 결정).
+- 필요한 타일 수 needed 가 maxTilesPerUpdate(4096)를 넘으면 update 는 RangeError 를 던진다(1500 m 에서 최악 경우 needed 1836, maxDistM 6000 m 이상에서 던짐).
+- 이 검사들의 대가: 던질 때 계획이 없고, maxDistM 검증이 update 까지 지연되며, TILE_INDEX_MAX 밖 타일 지수 오버플로우를 막기 위해 사전 검사가 필요하다.
 
 ## 다시 볼 조건
 
@@ -45,6 +50,7 @@
 - T15.0L 에서 원본 스트리밍 메서드·요청 단위·nearM 설정이 다를 때.
 - 실제 DEM 의 높이 범위가 zRange 를 벗어나거나 요청 대역폭이 S6 구간당 문턱에 가까울 때.
 - retainMargin 상한: 현재 16 타일일 때 update 성능 p50 ≤ 16 ms 를 보장(F-436 성능 결정).
+- 이동 중 held 팽창 상태 p90 한계(현재 10 ms).
 - T15.10 에서 번들·대역폭 측정이 나왔을 때.
 
 ## 감독 판정 (2026-10-05 22:40, PR #81 검토 #3)
