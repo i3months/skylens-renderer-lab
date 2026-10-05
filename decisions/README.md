@@ -95,4 +95,4 @@
 | [0041](0041-t13-statusview-adapter.md) | 현황판 어댑터: 모듈 주입 조립, 조각 요청 입력·pieceSeq 장부, 대응표 추정 상태 | 승인 | 작업자 제안, 감독 승인(PR #56 검토 #3) |
 | [0042](0042-t13-wire-and-bandwidth-records.md) | ws 진입점 wire 층(store.close 직접 호출)·F-287 ⑦ 구조 시험·S6 미달 기록 방식 | 승인 | 작업자 제안, 감독 승인(PR #56 검토 #3) |
 | [0043](0043-t13b-s6-codec1-spatial-budget.md) | S6 구간당 문턱: 무손실 색 코덱 1 + 구간 점 예산 솎기(B+C), 증분 송출(A) 기각 | 승인(조건부 — S6·S9 충돌은 사람 판단, F-302) | 작업자 제안(T13.B), 감독 조건부 승인(PR #57 검토 #1), 화질 영향 있음 |
-| [0044](0044-t14-tower-assets-interpretations.md) | T14 건물 LOD 측정 정의(건물 영역 SSIM)·drape coverage 계약·cameraDistM·areaM2·지형 LOD 규칙·항공뷰 벽·drape 정렬 측정 상수·지붕 없는 메시 원본 유지·LOD 상자 정점 분할 | 제안 | 작업자 제안(T14.R) |
+| [0044](0044-t14-tower-assets-interpretations.md) | T14 건물 LOD 측정 정의(건물 영역 SSIM)·drape coverage 계약·cameraDistM·areaM2·지형 LOD 규칙·항공뷰 벽·drape 정렬 측정 상수(FLAT_MSE·ALIAS_MSE_RATIO·OUTLIER_PX·NEAR_PX·FLAT_BLOCKS_THRESHOLD)·외삽 범위·지붕 없는 메시 원본 유지·높이 계단·동일 상자 성능 최적화·LOD 상자 정점 분할 | 제안 | 작업자 제안(T14.R) |
