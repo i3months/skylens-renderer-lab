@@ -4897,7 +4897,7 @@
 - → 2026-10-05 작업자(PR #81 재검토): 입구 좌표 상한·tilesInView 범위 검사·계약 LIMITS 한 곳·range.test(퍼즈 2만 건) 처리. 전체 npm test 5021 중 통과 5004·실패 0. 처리됨-검증대기.
 - → 2026-10-05 21:50 감독(PR #81 검토 #2, 제품 58ceaf6): 감독 node 재현 — x = 6.5e7·1e8·6e17·1e18·1e20, y = 1e19 모두 0.0~0.4 ms 에 RangeError, state() 불변. 6.3e7 근처 request 16 개 arrived 던짐 0. 축 1a: 경계 바로 안쪽 request 12,719 건 arrived 전부 true, index.mjs:41 삭제 변이 range.test 실패 1, 퍼즈 2만 건 시간 초과 0. 확인 기준 통과, 닫음. 새로 찾은 같은 계열(카메라 높이·큰 maxDistM 멈춤)과 range.test 빈틈은 F-439.
 
-### F-435 [열림 — 다시 엶(반려 2회째)] (심각도: 높음) — 완료 기준 시험이 영구 보류(deferred)를 '요청함'으로 세어 빠진 조각을 잡지 못한다
+### F-435 [처리됨-검증대기 — 반려 2회째] (심각도: 높음) — 완료 기준 시험이 영구 보류(deferred)를 '요청함'으로 세어 빠진 조각을 잡지 못한다
 - 위치: 제품 ffc9549 client/tower/streaming/replay.test.mjs:163(covered 에 plan.deferred 포함)·:171-178(즉시 도착 검사도 deferred 제외)
 - 문제: TASKS T15.7 완료 기준 '경로 재생 시 빠진 조각 0' 을 재는 시험이 deferred 를 covered 로 센다. 한 번도 요청되지 않고 계속 보류만 되는 타일도 '요청한 적 있음'이 된다(감독이 :163 직접 읽음).
 - 실패 상황(축 4a 변이, 사본): plan.mjs 요청 조건을 `slots > 0 && newInflight.size === 0 && held.size === 0` 로 바꾸면 직선 경로 120 시점 동안 held 1개·deferred 최대 510개인데 기본 maxInflight 지연 모델 재생 시험 12개가 모두 통과한다(실패는 maxInflight 10000 시험 4개·plan 수기 3개뿐).
@@ -4913,6 +4913,7 @@
   - 완료 기준 해석(감독 판정): TASKS '경로 재생 시 빠진 조각 0' 은 maxInflight 무제한에서 문자 그대로 0(이미 5 경로 단언), 기본 maxInflight 16 에서는 '놓친 타일 0 + 자리 낭비 0(이동 중 포함) + 정지 뒤 오라클 ∩ missing = ∅' 으로 잰다. 기본값에서 매 시점 0 은 처리량(16/시점)상 불가하다는 작업자 판단은 맞다(축 4a 산술 확인). 기준 수치를 낮춘 것이 아니라 측정 정의를 정한 것이다.
   - 확인 기준: 이동 중 기아 변이(위 정의)에서 기본값 재생 15/15 실패, 원본 15/15 통과. 정지형 기아·needed 누락 변이 실패 유지.
   - 권장 모델: opus(같은 항목 두 번째 반려).
+- → 2026-10-05 작업자(PR #81 반려 2): 낭비 슬롯 단언·K 오라클 유도(K<총 시점)·이동 중 기아 변이 15/15 실패(원본 15/15 통과)·정지형·needed 누락 변이 유지, 노트 정정. 제품 c28a414e(병합 d08c2a12). 처리됨-검증대기. 여유 계수는 측정 후 정함(노트에 기록).
 
 ### F-436 [닫힘 — 시험 잔여는 F-440] (심각도: 중간) — retainMargin 이 크면 update 가 프레임 예산을 넘고, perf 시험이 최악 시점을 재지 않는다
 - 위치: 제품 ffc9549 client/tower/streaming/plan.mjs:58-63(needed 마다 (2m+1)² 문자열 키), validate.mjs:8(retainMargin 0..16 허용), perf.test.mjs(합성 경로 광각 최대 needed 891, 중앙값 ≤ 4 ms 만)
@@ -4953,7 +4954,7 @@
 - → 2026-10-05 작업자(PR #81 재검토): ①~⑫ 모두 처리(⑨ README, ⑤⑧⑩ 계약, 나머지 코드·시험). 전체 npm test 5021 중 통과 5004·실패 0. 처리됨-검증대기.
 - → 2026-10-05 21:50 감독(PR #81 검토 #2, 제품 58ceaf6): ① Object.create opts → 기본 16, ② zRangeM ±1e39 RangeError, ③ 잘못된 키 15 종 TypeError, ④ pos getter 1 회 읽기(축 7 재현), ⑤ 계약 streaming.mjs:28 서술(축 3), ⑥ dz 무시 변이 visible.test 2 실패, ⑦ 거리 여유 삭제 변이 1 실패, ⑧ overlay 계약 Raw·hasPath, ⑪ 광각 경로, ⑫ skipped == 0 단언(축 4b·5). ⑨ 는 영문 README :291 에 괄호 설명 누락, ⑩ 은 0053 에 '원평면' 잔존 — F-440 ⑥⑦. 닫음.
 
-### F-439 [열림] (심각도: 중간) — 카메라 높이와 maxDistM 이 크면 update·missing 이 수십 초 멈추고, range.test 가 경계·상태 불변·시간을 느슨하게 잰다
+### F-439 [처리됨-검증대기] (심각도: 중간) — 카메라 높이와 maxDistM 이 크면 update·missing 이 수십 초 멈추고, range.test 가 경계·상태 불변·시간을 느슨하게 잰다
 - 위치: 제품 feat/t15-7 58ceaf6 client/tower/streaming/visible.mjs:203-213(ty·tx 후보를 xy 정사각과 시야 투영으로만 정하고 구 판정은 후보마다 버리기만), validate.mjs:52(maxDistM 상한 없음, float32 유한만), :80-84(입구 검사는 x·y 만), range.test.mjs:34-35·:46·:49·:98·:113·:126·:130, package.json test 스크립트(--test-timeout 없음)
 - 문제: ① 카메라가 z 판 [zMin, zMax] 에서 멀어 dz 가 D 에 가까우면 실제로 만나는 원판은 작은데 정사각 전체((2D/64)²)를 돈다. ② range.test 의 허용 경계 시험은 아래를 보는 자세라 타일 번호가 경계 ±1 에 닿지 않고, 상태 불변 비교는 빈 상태끼리만 한다. ③ 퍼즈의 호출당 100 ms 벽시계 단언이 부하에 흔들린다. ④ 무한 루프 변이는 기본 npm test 에서 실패가 아니라 멈춤이 된다.
 - 실패 상황: ① 감독 node 재현 — createTowerStreaming({maxDistM:1e6}).update({pos:[0,0,999500],quat:[1,0,0,0],fovY:2.5},{width:800,height:600}) 2,170 ms, maxDistM 3e6·z 2999500 은 19,145 ms, maxDistM 1e7·z 9999000 은 15 s timeout(exit 124). 결과는 결국 maxTilesPerUpdate RangeError(상태 불변). ②(축 4b 변이, 미확인) clampIdx 자르기 삭제·IMAX+1→IMAX·10 변이, '입구 실패 때 held·inflight 비우기' 변이, '입구에서 y 무시' 변이가 모두 살아남는다. ③(축 4b·5, 미확인) 기준선 maxMs 12~65 ms 로 흔들리고, streaming 시험 병렬 실행 2 회 중 퍼즈 1~2 개 실패(단독 3 회 통과). ④(축 4b) 입구 검사와 clampIdx throw 를 함께 지우면 npm test 가 끝나지 않는다.
@@ -4961,8 +4962,9 @@
 - 확인 기준: 위 세 입력과 maxDistM 6e7·z 6e7−1000 이 100 ms 안에 끝남(또는 생성 때 RangeError). 퍼즈에 maxDistM 1e5~6e7·z = zMax + D − U(0, 0.01D) 조합을 넣어 시간 초과 0. clampIdx 자르기 삭제·상태 비우기·y 무시 변이 각각 실패 ≥ 1. 기준선 range.test 20 회 연속 통과. 두 검사 동시 삭제 변이에서 npm test 가 rc≠0 으로 끝남.
 - 권장 모델: sonnet
 - 이력: 2026-10-05 21:50 감독(PR #81 검토 #2, 제품 58ceaf6) 감독 등록(축 1a 높음 보고 → 기본 maxDistM 1500 에서는 19 ms 이고 생성 옵션을 크게 줄 때만 생겨 중간으로 내림, ① 감독 직접 재현; ②③④ 축 4b·5 보고). 새로 찾은 것(F-434 와 같은 계열).
+- → 2026-10-05 작업자(PR #81 반려 2): ①~④ 처리, 대표 4 입력 1.4~5.3 ms, 변이 5 종 실패, range.test 20 연속 통과, --test-timeout=900000. 제품 473057c7(병합 d08c2a12). 처리됨-검증대기.
 
-### F-440 [열림] (심각도: 낮음) — PR #81 검토 #2 낮음 묶음
+### F-440 [처리됨-검증대기] (심각도: 낮음) — PR #81 검토 #2 낮음 묶음
 - ① (축 2) 제품 client/tower/overlay/consistency.test.mjs:1 주석 '결정 0052 는 투영 수식을 한 곳에 두라고 하지만' — 0052 대가와 맞게. 확인: grep '한 곳에 두라' 0건. haiku
 - ② (축 2) 연구 experiments/t15-7.md:23·:37 '적을 것'·'적어야 한다' 잔존 — 반영됨으로. 확인: grep 0건. haiku
 - ③ (축 2) 0053:26 '점 27 B 형식(compact XYZ)은 점군 자산 필터 전용' — 27 B 는 xyz f32×3 + 법선 f32×3 + rgb u8×3(renderer_basis.md:468-472, contracts/asset/index.mjs:19), asset·codec 공용. 확인: 'compact'·'필터 전용' 0건, '법선' 있음. haiku
@@ -4976,3 +4978,5 @@
 - ⑪ (축 7) index.mjs:33-39 quat 는 스냅샷하지 않아 원소 접근자가 두 번째 읽기부터 값을 바꾸면 검사한 자세와 쓴 자세가 다르다 — pos 처럼 slice. sonnet
 - ⑫ (축 1a·1b·7) 내부 함수 직접 호출 빈틈: tilesInView 가 실제로 겹치는 IMAX+1 타일을 clampIdx 로 조용히 자름(update 경로는 입구 검사가 막음), planRequests 의 needed tx·ty·키가 Number.isSafeInteger 를 보지 않음, checkArgs 가 R 직교성을 보지 않음. haiku
 - 이력: 2026-10-05 21:50 감독(PR #81 검토 #2, 제품 58ceaf6) 감독 등록. 모두 새로 찾은 것(⑥⑦ 은 F-438 ⑩⑨ 잔여, ①② 는 F-432 ③ 잔여).
+- → 2026-10-05 작업자(PR #81 반려 2): ①②③④⑥⑦⑨⑪ 처리, ⑤ 노트 갱신, ⑧⑩ 처리(이동 중 held 시험 p90 한계 10 ms 는 사양보다 느슨, 감독 판단), ⑫ 일부(isSafeInteger·R 직교성 미처리). 제품 병합 d08c2a12. 처리됨-검증대기.
+
