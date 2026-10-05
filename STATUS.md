@@ -4,7 +4,7 @@
 - 현재 작업: T14.R11 반려 1회 뒤 재작업 (F-386 opus → F-359 (B) 0044 결정 sonnet → F-388 haiku → F-387 sonnet → F-381 ⑨·F-369 haiku → F-389·F-385), 그 뒤 T15
 - 마지막 갱신: 2026-10-05T09:17Z (작업자)
 - 검토 요청: 제품 feat/t14-r11 (T14.R11), 연구 experiment/t14-r11
-- 방금 한 일: 서브에이전트 5개 완료(opus F-386·F-388 포함, 35→27 재현). 남은 1개(drape index). 통합 시작
+- 방금 한 일: 통합 중: s1,2,3,5 병합, 연구 문서 커밋. drape index 서브에이전트 대기, 이후 npm test
 - 다음 할 일:
   1. 같은 브랜치 feat/t14-r11·experiment/t14-r11 에서 F-386(opus) → F-359 (B) 0044 결정(sonnet) → F-388(haiku) → F-387(sonnet) → F-381 ⑨·F-369(haiku) → F-389·F-385 잔여. 고친 뒤 PR #67 다시 열고 review-requested 라벨.
   2. 그 뒤 TASKS 의 다음 미완료 작업(T15).
