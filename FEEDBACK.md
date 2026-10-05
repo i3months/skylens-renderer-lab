@@ -4644,3 +4644,15 @@
 - ④ (축 5) 연구 experiments/t15-3.md 측정 절 '54 조합 화소 일치율 ≥ 0.99' — 시험은 black 0.95(최저 0.9642). uv 뒤집기 0.9206 은 옛 분모 기준 수치. 확인 기준: 노트 수치 = layer_ref.test.mjs:14·실측.
 - 권장 모델: ①②④ haiku, ③ sonnet
 - 이력: 2026-10-05 17:20 감독 등록(PR #74 검토 #2). 모두 신규.
+
+### F-412 [열림] (심각도: 중간) — PR #74 병합 뒤 중복 예비 검토(17:21)에서 F-410·F-411 에 없던 시험·문서 보강 묶음
+- ① (축 4a, 미확인 — 감독 미재실행) 제품 client/tower/buildings/perf.test.mjs:230 덮인 화소 단언이 `covered > 0` 뿐이고 :13 문턱 1500 ms 는 실측 최대 약 86 ms 의 17배. 실패 상황: 3000동 중 1동만 그리는 변이에서 perf 단독은 통과(감독 확인: 같은 변이를 index.mjs:48-49 에 넣으면 디렉터리 전체에서는 integration (d)·layer_ref 가 실패 — 그래서 정확성 구멍이 아니라 perf 시험 자체의 판별력 문제, 중간). 고칠 것: 모드·카메라별 덮인 화소 하한(원본의 90% 등), 문턱은 실측 3~5배. 확인 기준: 1동만 그리는 변이에서 perf.test.mjs 단독 실패. 권장 모델: sonnet
+- ② (축 4a, 미확인) perf·no_network 가 aerial 결과의 영상 표본 여부를 보지 않음 — rasterizeTextured 에 1×1 단색 영상을 넘기는 변이가 두 시험을 통과. 고칠 것: aerial 결과 서로 다른 색 수 하한 또는 화소 색 기대값. 확인 기준: 위 변이에서 실패. 권장 모델: sonnet
+- ③ (축 4a, 미확인) network_spies.mjs:207-208 dns 는 lookup·resolve 만 가로챔 — setMode 에서 dns.resolve4 호출 변이가 no_network 통과. 고칠 것: resolve*·reverse·lookupService·dns.Resolver.prototype. 확인 기준: resolve4 변이 실패. (F-410 ④ 와 같은 파일, 함께 처리) 권장 모델: sonnet
+- ④ (축 4b, 미확인) integration.test.mjs:204-205 aerial 지붕 색 허용 ±8 — 실측 최대 오차 2.41. raster_tex 에서 u + 0.04(텍셀 약 2.5개) 어긋남 변이가 9/9 통과. 고칠 것: 기대값을 makeAerialImage 공식+이중선형으로 계산, 허용 ±3. 확인 기준: u+0.04 변이 실패. 권장 모델: sonnet
+- ⑤ (축 4b, 낮음) integration.test.mjs:197·203 변수 `north = (maxY − y)/Δy` 와 주석 'g = 북쪽 비율' 이 실제(남쪽 비율, integration_bundle.mjs:69)와 반대 — 이름 south 로. ref_trace.test.mjs:322 notDeepEqual(flipA, A) 는 구성상 항상 참 — o0·o1 정수 단언으로 교체. lines.test.mjs:82-84 는 :81 deepEqual 에 함축된 중복 단언. 권장 모델: haiku
+- ⑥ (축 2, 낮음) 연구 decisions/0049:33 uv 확인 시험을 layer_ref.test.mjs·0.9206 으로 인용 — 실제 검사는 ref_trace.test.mjs:342-349(m.bad > m.checked·0.5)·fixtures.test.mjs:67-77. :27 서버 변경 기각 이유가 '비용이 크다' 뿐, :41 '픽셀 차이 > 1%' 지표 정의 없음. 0048:27 'menus' 오타, :78 '(line 52-56)' → 53-56. 확인 기준: 인용 파일:줄에 적은 수치가 실제로 있음. 권장 모델: haiku
+- ⑦ (축 6, 낮음) lines.mjs:60 rasterizeLines 호출마다 lineMark = new Uint8Array(W·H) — 1080p 약 2 MB/프레임 추가 할당. F-408 ⑦ 버퍼 재사용과 함께. 확인 기준: 연속 render 200회 arrayBuffers 증가 ≈ 0. 권장 모델: sonnet
+- ⑧ (축 1b, 낮음) layer_ref.test.mjs:14-15 층이 rasterizeLines 에 depthBias 0.5 를 넘겨도 117 통과(선이 앞 면 0.5 m 안쪽에서 비침). F-410 ③ 과 함께 '참조 면·층 선' 화소 수 상한 또는 가림 고정 장면. 확인 기준: depthBias 0.5 주입 시 실패. 권장 모델: sonnet
+- 이력: 2026-10-05 17:30 감독 등록(:20 예비 실행 — 라벨 실행이 이미 17:23 병합한 뒤 같은 머리 f99bcd3 를 중복 검토한 결과 중 F-410·F-411 에 없는 것만). 모두 신규. 치명·높음 0(축 4a '높음' 1건은 감독 재현으로 중간 강등, ①).
+
