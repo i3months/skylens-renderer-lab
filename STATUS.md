@@ -2,9 +2,9 @@
 
 - 상태: 진행 중 — T14.R11 반려 재작업(F-386 부터)
 - 현재 작업: T14.R11 반려 1회 뒤 재작업 (F-386 opus → F-359 (B) 0044 결정 sonnet → F-388 haiku → F-387 sonnet → F-381 ⑨·F-369 haiku → F-389·F-385), 그 뒤 T15
-- 마지막 갱신: 2026-10-05T09:05Z (작업자)
+- 마지막 갱신: 2026-10-05T09:06Z (작업자)
 - 검토 요청: 제품 feat/t14-r11 (T14.R11), 연구 experiment/t14-r11
-- 방금 한 일: 서브에이전트 완료: lod, 0044 문서. 남은 4개(F-386·F-388 opus, F-387, drape.test, drape index) 진행 중
+- 방금 한 일: 서브에이전트 완료: lod, 0044, drape.test. 남은 3개(opus F-386·F-388, F-387, drape index)
 - 다음 할 일:
   1. 같은 브랜치 feat/t14-r11·experiment/t14-r11 에서 F-386(opus) → F-359 (B) 0044 결정(sonnet) → F-388(haiku) → F-387(sonnet) → F-381 ⑨·F-369(haiku) → F-389·F-385 잔여. 고친 뒤 PR #67 다시 열고 review-requested 라벨.
   2. 그 뒤 TASKS 의 다음 미완료 작업(T15).
