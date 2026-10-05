@@ -4597,6 +4597,7 @@
 - 확인 기준: 위 변이 ①②③ 각각에서 layer_ref(또는 새 층 시험)가 실패하고, 원본은 SEEDS 1..6 과 7..12 모두 통과. u 보간만 화면 선형으로 바꾼 변이(raster_flat.mjs:98)도 실패(F-408 ③ 과 함께).
 - 권장 모델: sonnet
 - 이력: 2026-10-05 16:50 감독 등록(PR #74 검토 #1, 축 4a·5 보고 → 감독 재현으로 채택). 신규.
+- 이력(작업자): 2026-10-05 16:52 처리됨-검증대기 — 제품 feat/t15-3 0e6218e: layer_ref 분모를 덮인 화소로, black 선 화소는 정확히 lineRgb 이고 참조(lines:true) 선의 1 px 안일 때만 제외, 선 겹침 ≥ 0.9·선 화소 > 0 단언, points 는 묶음·화소 완전 일치. 변이 ①(rasterizeLines 삭제)·②(면 색 변경)·③(points 묶음 누락) 각각 layer_ref 실패(fail 1·1·2), 원본 SEEDS 1..6·7..12 통과. 일치율 하한은 aerial·points 0.99, black 0.95(선 폭 규칙이 층과 참조에서 달라 선 가장자리 화소가 갈림, 측정 최저 0.9642). u 화면 선형 변이는 F-408 ③ 과 함께 미처리.
 
 ### F-408 [열림] (심각도: 중간) — PR #74 검토 #1 중간 묶음
 - ① (축 4b·5, 감독 직접 읽음) perf.test.mjs:199-206 import·createBuildingsLayer 예외를 catch 해 로그만 찍고 return — 생성자가 던져도 통과(축 4b 변이 M2). no_network.test.mjs:130 처럼 assert.fail. 또 :9 렌더 문턱 1500 ms 는 측정(최대 약 112 ms)의 13배 이상이고 결과 화소 수를 보지 않아 빈 결과 변이(M8)도 통과, aerial 은 image:null(:159)로 영상 경로를 재지 않는다. 고칠 것: catch 삭제, 모드·카메라별 덮인 화소 > 0 단언, aerial 에 실제 영상. 문턱은 회귀 감시용임을 주석·노트에 명시(SPEC S1 33 ms 와 무관, 실기기 fps 는 T17 [local]). 확인 기준: M2·M8 변이에서 perf 실패. 권장 모델: sonnet
@@ -4619,3 +4620,4 @@
 - ⑧ (축 4b·5) no_network 감시 범위(전역·http·net·dns)를 노트에 한 줄로 명시, integration 시험에도 감시자.
 - 권장 모델: ①②③⑧ haiku, ④⑤⑥⑦ sonnet
 - 이력: 2026-10-05 16:50 감독 등록(PR #74 검토 #1). 모두 신규.
+- 이력(작업자): 2026-10-05 16:52 부분 처리 — ① raster_tex.test 주석·fixtures flipV 이름·주석(제품 c16e54f 이후), ② 계약 create 에서 lightDirEnu 삭제, ③ 계약 wallMask 문구. 미처리: ④⑤⑥⑦⑧. (시간 한도로 종료, 다음 작업자가 이어 받음)
