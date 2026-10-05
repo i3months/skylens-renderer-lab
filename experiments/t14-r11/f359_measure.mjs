@@ -4,9 +4,11 @@
 //   거짓 통과 = 'measured 이면서 maxMisalignPx ≤ ALIGN_TOLERANCE_PX'.
 // 귀무: 사인 1.5·2·2.5 DN × ±2·±3 DN × 시드 60(같은 생성식), 이동 0. 거짓 local = local 블록이 있는 타일, 거짓 불확정 = 불확정 블록이 있는 타일.
 //   귀무 분모는 measured 회차만이다(F-389 ⑧): measured·unmeasurable 수를 따로 출력한다.
-// 사용: node experiments/t14-r11/f359_measure.mjs --repo <제품 저장소 루트> [--no-farown] [--seeds N] [--list]
+// 사용: node experiments/t14-r11/f359_measure.mjs --repo <제품 저장소 루트> [--no-farown] [--candidate] [--seeds N] [--list]
 //   --repo 가 없으면 SKYLENS_RENDERER_DIR. --no-farown 은 제품 drape 디렉터리를 임시 디렉터리로 복사해 `const farOwn = false;` 로 바꾼
 //   사본을 import 한다(helpers.mjs loadDrape). --seeds N 은 양성 시드 N·귀무 시드 2N 으로 줄인 시험 실행. --list 는 거짓 통과 [잡음, 진폭, g, seed].
+//   --candidate 는 F-359 (B) 후보 규칙(저대비 inlier 블록, 자기 최소 예측 거리 ≥ 0.35 px 이고 unexcludedPx > 1.25 px 이면 불확정)을 같은 방식으로
+//   사본에 넣어 잰다(helpers.mjs candidateCode, F-390 ③ 재구현).
 // 소요 시간: 전체(900회) 한 번 [cloud] CPU 한 코어로 약 7~8분 추정(회당 약 0.45~0.5초, R11 노트 기록은 약 9.5분).
 // 도우미(makeImage·boxMean·warpedTile·HASH·TEX_A·LOW·lowContrastImage)는 helpers.mjs 에 있고, 제품
 // server/terrain/drape/drape_noise.test.mjs(feat/t14-r11 0f672c7)에서 그대로 복사했다.
@@ -15,10 +17,11 @@ import { repoArg, loadDrape, makeHelpers, G_E, AMPS, seeds, posWarp } from './he
 const argv = process.argv.slice(2);
 const repo = repoArg(argv);
 const noFarOwn = argv.includes('--no-farown');
+const candidate = argv.includes('--candidate');
 const listFails = argv.includes('--list');
 const si = argv.indexOf('--seeds');
 const nPos = si >= 0 ? Number(argv[si + 1]) : 30, nNull = si >= 0 ? 2 * Number(argv[si + 1]) : 60;
-const D = await loadDrape(repo, { farOwn: !noFarOwn });
+const D = await loadDrape(repo, { farOwn: !noFarOwn, candidate: candidate ? {} : null });
 const { ALIGN_TOLERANCE_PX, measureDrapeAlignment } = D;
 const H = makeHelpers(D);
 const images = new Map(AMPS.map((a) => [a, H.lowContrastImage(H.LOW.sine(a))]));
@@ -55,7 +58,7 @@ for (const amp of AMPS) {
 }
 const nPosRuns = G_E.length * AMPS.length * 2 * nPos;
 console.log(`repo ${repo}`);
-console.log(`drape ${D.variant}${noFarOwn ? ` (사본 ${D.tmp})` : ''}, 양성 시드 ${nPos}·귀무 시드 ${nNull}`);
+console.log(`drape ${D.variant}${D.tmp ? ` (사본 ${D.tmp})` : ''}, 양성 시드 ${nPos}·귀무 시드 ${nNull}`);
 console.log(`| g / e | 거짓 정합 통과(/${nPosRuns / G_E.length}) |`);
 console.log('|---|---|');
 for (const [g, e, p] of rows) console.log(`| ${g} / ${e} | ${p} |`);

@@ -21,10 +21,33 @@ export function repoArg(argv = process.argv.slice(2)) {
 }
 
 const FAROWN_RE = /const farOwn = [^;]+;/;
-export async function loadDrape(repo, { farOwn = true, instrument = false } = {}) {
+// 후보 규칙(F-359 (B), 0044 T14.R11 결정; 제품에는 적용하지 않은 규칙): 재적합 뒤 inlier 이면서 두 축을 잰 블록(ix && iy, local·불확정 아님) 중
+// 표본 픽셀(xs × ys, mask 255 만)의 표준편차가 세 채널 모두 lowStd(기본 4 DN) 이하인 저대비 블록이, 자기 다듬은 최소가 예측에서 minOwn(0.35 px)
+// 이상 떨어져 있고 unexcludedPx > minUnex(1.25 px) 이면 markUndecided. 위치: 한 축만 평평한 블록 루프 바로 앞.
+// 원 측정 스크립트(제품 09393d31)는 저장소에 남지 않아 0044·t14-r11.md 의 규칙 서술로 다시 구현했다(F-390 ③). 원 구현과 같은지는 확인할 수 없다.
+const CAND_ANCHOR = '    for (const b of blocks) {\n      if (b.local || b.undecided || (b.ix && b.iy)) continue;';
+const candidateCode = ({ lowStd, minOwn, minUnex }) => `    for (const b of blocks) {
+      if (b.local || b.undecided || !(b.ix && b.iy) || !fit.inlier.has(b)) continue;
+      const cm = [0, 0, 0], cs2 = [0, 0, 0]; let cn = 0;
+      for (const j of b.ys) for (const i of b.xs) {
+        const o = j * TW + i;
+        if (mask && mask[o] !== 255) continue;
+        cn++;
+        for (let k = 0; k < 3; k++) { const v = trgb[o * 3 + k]; cm[k] += v; cs2[k] += v * v; }
+      }
+      if (cn < 2) continue;
+      let low = true;
+      for (let k = 0; k < 3; k++) { const m = cm[k] / cn; if (Math.sqrt(Math.max(0, cs2[k] / cn - m * m)) > ${lowStd}) low = false; }
+      if (!low) continue;
+      const [cpx, cpy] = fit.at(b.di, b.dj);
+      const co = ownFine(b);
+      if (Math.hypot(co.dx - cpx, co.dy - cpy) >= ${minOwn} && unexcludedPx(b, [cpx, cpy]) > ${minUnex}) markUndecided(b, [cpx, cpy]);
+    }
+`;
+export async function loadDrape(repo, { farOwn = true, instrument = false, candidate = null } = {}) {
   const contracts = await import(pathToFileURL(path.join(repo, 'contracts/tower_assets/index.mjs')).href);
   const src = path.join(repo, 'server/terrain/drape');
-  if (farOwn && !instrument) return { ...contracts, ...(await import(pathToFileURL(path.join(src, 'index.mjs')).href)), variant: 'product' };
+  if (farOwn && !instrument && !candidate) return { ...contracts, ...(await import(pathToFileURL(path.join(src, 'index.mjs')).href)), variant: 'product' };
   const text = fs.readFileSync(path.join(src, 'index.mjs'), 'utf8');
   const hits = text.match(new RegExp(FAROWN_RE.source, 'g')) || [];
   if (hits.length !== 1) throw new Error(`farOwn 선언을 정확히 하나 찾지 못함(${hits.length})`);
@@ -38,9 +61,15 @@ export async function loadDrape(repo, { farOwn = true, instrument = false } = {}
       + (farOwn ? 'farOwn' : `(${hits[0].replace(/^const farOwn = |;$/g, '')})`)
       + ', out, windowResidual: residual(b, fit.at), own: [of0.dx, of0.dy], window: [b.dx, b.dy], pred: [px0, py0] });';
   }
-  fs.writeFileSync(path.join(tmp, 'server/terrain/drape/index.mjs'), text.replace(FAROWN_RE, decl));
+  let out2 = text.replace(FAROWN_RE, decl);
+  if (candidate) {
+    if (out2.split(CAND_ANCHOR).length !== 2) throw new Error('후보 규칙 삽입 위치를 정확히 하나 찾지 못함');
+    const c = { lowStd: 4, minOwn: 0.35, minUnex: 1.25, ...candidate };
+    out2 = out2.replace(CAND_ANCHOR, () => candidateCode(c) + CAND_ANCHOR);
+  }
+  fs.writeFileSync(path.join(tmp, 'server/terrain/drape/index.mjs'), out2);
   const mod = await import(pathToFileURL(path.join(tmp, 'server/terrain/drape/index.mjs')).href);
-  return { ...contracts, ...mod, variant: `${farOwn ? 'farOwn' : 'no-farown'}${instrument ? '+instrument' : ''}`, tmp };
+  return { ...contracts, ...mod, variant: `${farOwn ? 'farOwn' : 'no-farown'}${instrument ? '+instrument' : ''}${candidate ? '+candidate' : ''}`, tmp };
 }
 
 export function makeHelpers({ drapeTileSize, tileBounds, TERRAIN_TILE_SIZE_M }) {
