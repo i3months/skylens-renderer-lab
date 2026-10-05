@@ -4794,7 +4794,7 @@
 - 이력: 2026-10-05 19:33 감독 등록(PR #78 검토 #2). 모두 새로 찾은 것.
   → 2026-10-05 20:15 감독 확인 닫음(PR #79 검토 #1): ① state.test.mjs:167 이름 정정·:180-181 유한 단언, ② state.mjs:28·:33 주석이 camera.mjs:70-71 과 일치(축 4b).
 
-### F-426 [열림] (심각도: 중간) — 결정 0051 의 renderer_basis·dt 상한 서술이 사실과 다르고, 0050 에 F-423 문구 잔여
+### F-426 [열림] (심각도: 중간, ① 닫음·계약 chase.mjs:13 닫음, ②③④ 잔여) — 결정 0051 의 renderer_basis·dt 상한 서술이 사실과 다르고, 0050 에 F-423 문구 잔여
 - 위치: 연구 experiment/t15-5 472f04a decisions/0051-t15-5-chase-camera.md:17·:18·:41·:53-58·:69·:71-77, decisions/0050-t15-4-input-layer.md:17·:18·:39-45·:49·:63·:64·:67·:77·:101
 - 문제: ① 0051:55-58 '렌더링 기준선(좌표, 카메라, 정점 법선)을 따른다'·'기준선과 같음' — renderer_basis.md 는 고밀도 점군 생성 설명이고 렌더링 기준선 절이 없다(감독 직접 읽음, F-423 ④ 재발). ② 0051:41·:73-77 dt 상한 근거 '과도한·극단적인 변화 방지' — 지수 감쇠는 a ≤ 1 이라 넘침이 없다. 상한은 긴 정지 뒤 따라잡기를 늦추고(dt 1 s 에서 a 0.943 → 0.510), :17·:73 및 계약 chase.mjs:13 의 '프레임 길이 무관' 은 dt ≤ maxDtSec 에서만 성립. ③ 0051:69 '(decisions/0051 검증 조건)' 자기 참조, 근거 절에 시험 수치(0.6321, 3.4823 m, 0.2832, 1e-9) 인용 없음. :18 (c) 기각 사유 '원본 의미와 맞지 않음(미확인)' 은 (b) 와 같은 가정 — 파라미터 2개·속도 상태 필요로. ④ 0050 잔여(감독 grep 확인): :17·:18·:64 '게인·구르기·극대', :63·:67 '사각형'(시험은 사분원), :101 '편차 2.2 m 확인'(기각된 (a) 값), :45 'WebGL 셰이더 호환성' 출처 없음, :49·:77 '적분 수치 안정성 보조', MAX_RATE 절(:39-45)에 선택지·대가·다시 볼 조건 없음, :43 pitch 'float32 유한 검사'(실제는 범위 검사만)와 줄 번호 오기.
 - 실패 상황: T15.0L 담당이 0051 을 근거로 renderer_basis 에 없는 규약을 찾거나, dt 상한을 넘침 방지 장치로 알고 바꾼다. 0050 의 2.2 m 를 채택 방법 편차로 재확인한다.
@@ -4802,8 +4802,9 @@
 - 확인 기준: 0051 에 '정점 법선'·'기준선과 같음'·'과도한 변화'·'극단적인 변화' 0건, 'dt ≤ maxDtSec' ≥ 1건(0051·계약). 0050 에 '게인|구르기'·'사각형'·'편차 2.2 m 확인'·'WebGL'·'안정성을 보조' 0건, MAX_RATE 절에 '대가'·'다시 볼'.
 - 권장 모델: haiku (계약 chase.mjs:13 한 줄 포함)
 - 이력: 2026-10-05 20:15 감독 등록(PR #79 검토 #1, 축 2 보고, 감독이 0051:1-103·0050 grep 직접 확인). ①②③ 새로 찾은 것(① 은 F-423 ④ 재발), ④ 는 F-423 ①②⑤ 잔여. 0051 은 '승인(조건부 — F-426 정정)'.
+- → 2026-10-05 20:55 감독(PR #80 검토 #1, 연구 experiment/t15-6): ① 닫음(0051:55 지시 문구 그대로), 계약 chase.mjs:13 dt ≤ maxDtSec 조건 닫음. 잔여(감독이 0051 grep 직접 확인): ② 0051:70 'dt = 0.25 s 이상에서는 한 스텝의 움직임이 과도해질 수 있다' — 기각된 근거가 다른 말로 재등장(a ≤ 1, 상한 효과는 따라잡기 지연: dt 1 s 에서 a 0.943 → 0.510), 같은 줄 '계약 chase.mjs:13 에도 명시되어야 한다' 는 이미 반영돼 낡음. 0051:17·:74 '프레임 길이 무관' 에 dt ≤ maxDtSec 조건 없음. ③ 0051:18 (c) 근거 칸 '원본 의미 불명 → 기각'(채택 (b) 도 같은 가정) → '파라미터 2개·속도 상태 필요 → 기각'. ④ 0050:43 줄 번호(피치 state.mjs:33-34, pos·고도 :40-46), 0050:41-45 MAX_RATE 절 선택지 한 줄 없음·:41 'dt 상한과 달리' 가 state.mjs:25 의 maxDtSec 적용과 어긋남(축 2 보고, ④ 미확인). 확인 기준 추가: 0051 에 '과도' 0건(:100 감독 기록 인용 제외), '프레임 길이 무관' 이 나오는 줄마다 'maxDtSec'(:62·:85·:100 제외 — 또는 같은 절 안에 조건). 권장 모델: haiku.
 
-### F-427 [열림] (심각도: 중간) — 추적 카메라 입력 검사가 float32·차이 넘침을 막지 않아 통과한 입력에서 camera() 가 매 프레임 던진다
+### F-427 [닫힘] (심각도: 중간) — 추적 카메라 입력 검사가 float32·차이 넘침을 막지 않아 통과한 입력에서 camera() 가 매 프레임 던진다
 - 위치: 제품 26ba1df client/tower/chase/index.mjs:26-27·:53, client/tower/chase/state.mjs:35-41·:47, client/tower/chase/damp.mjs:38, contracts/controlview/chase.mjs:23-24
 - 문제: setTarget·생성 검사가 배정밀도 유한만 본다. camera() 가 부르는 input/camera.mjs:69 는 float32 범위를 검사하므로 통과한 값이 뒤에서 던진다. 입력 층 state.mjs:37-46 은 float32 로 검사한다(F-424 ③ 와 같은 종류). 또 setTarget([1.7e308,0,0]) 뒤 setTarget([-1.7e308,0,0]), step(0.016) 이면 dampScalar 의 (target − cur) 가 넘쳐 cur 가 −Infinity 가 되고, 이후 정상 목표로 바꿔도 step 이 계속 RangeError(snap 해야 복구).
 - 실패 상황(감독 직접 재현): createChaseCamera().setTarget([4e38,0,0],0) 통과 → camera() RangeError. createChaseCamera({distM:1e39}) 통과 → camera() RangeError. 큰 목표 한 번이 cur 를 오염시켜 정상 목표로 돌아와도 감쇠가 끝날 때까지 여러 프레임 던진다.
@@ -4811,8 +4812,9 @@
 - 확인 기준: setTarget([4e38,0,0],0)·createChaseCamera({distM:1e39})·setTarget([1.7e308,0,0],0) 가 그 자리에서 RangeError, 통과한 입력 무작위 퍼즈에서 camera() 가 던지지 않음.
 - 권장 모델: sonnet
 - 이력: 2026-10-05 20:15 감독 등록(PR #79 검토 #1, 축 1b·6+7·2 보고, 감독 node 로 앞 두 경우 RangeError 재현). 새로 찾은 것.
+- → 2026-10-05 20:55 감독(PR #80 검토 #1, 제품 14f0c5c) 닫음: 감독 node 직접 재현 — setTarget([4e38,0,0],0)·createChaseCamera({distM:1e39})·setTarget([1.7e308,0,0],0) 모두 그 자리에서 RangeError, step('1') TypeError. robust.test.mjs:43 통과 입력 퍼즈 시험, 축 4b 변이(setTarget float32 검사 제거) 2 실패. 계약 chase.mjs:23-25 float32 조건 명시.
 
-### F-428 [열림] (심각도: 낮음) — PR #79 검토 #1 낮음 묶음
+### F-428 [닫힘] (심각도: 낮음) — PR #79 검토 #1 낮음 묶음
 - ① (축 1a) damp.mjs:29-30 wrapPi 가 |rad| ≳ 5.7e16 에서 (−π, π] 를 벗어남(wrapPi(1e18) → 128). setTarget(pos, 1e18) 이면 state().yaw 범위 밖. 고칠 것: atan2(sin, cos) 대체 또는 큰 |yaw| RangeError. 확인: |x| ≤ 1e20 퍼즈 전부 범위 안. haiku
 - ② (축 1a·4a) 살아남은 변이: state.mjs:38 wrapPi 제거(setTarget([0,0,0],3π) 직후 state().yaw 9.42), state.mjs:39 입력 배열 복사 제거(M24). 고칠 것: 'setTarget 직후 yaw ∈ (−π, π]'·'setTarget 뒤 입력 배열 변경이 목표에 영향 없음' 시험. 확인: 두 변이 각 fail ≥ 1. haiku
 - ③ (축 4a) 상수끼리 비교하는 단언: frame.test.mjs:91·:92, state.test.mjs:41·:73·:78 — 구현 출력과 비교로 바꾸거나 상수 정의로 옮김. rig.test.mjs:63-65 yaw 2.3·−2.9 기대값이 rig.mjs 와 같은 식(순환) → 숫자로 박기. haiku
@@ -4822,3 +4824,49 @@
 - ⑦ 관찰: rig.mjs:40 lookAheadM 은 기본 0 이라 예측 아님. 0 이 아닌 값은 조준 오프셋이라고 계약에 적기(축 3). 입력 층 → 추적 층 연결 시험은 연결 지점이 생길 때(T15.9)(축 1b).
 - 기각: 축 12 '높음 T15.0L 원본 대조 미완료'·'중간 기본값 추정'(사람 몫 [local], T15.0L 로 이미 분리, 반려 사유 아님). 축 4a M18(index 상한 제거)은 state 상한과 동치라 결함 아님.
 - 이력: 2026-10-05 20:15 감독 등록(PR #79 검토 #1). 모두 새로 찾은 것(⑥ 은 F-424 ① 의 범위 밖 잔여).
+- → 2026-10-05 20:55 감독(PR #80 검토 #1, 제품 14f0c5c) 닫음: ① 감독 퍼즈 |x| ≤ 1e20 1e5회 범위 밖 0(damp.mjs:30 atan2 경로). ② robust.test.mjs:80·:97 시험. ③ frame.test·state.test 상수 단언을 구현 출력 비교로, rig.test 기대값 숫자 박음(감독 diff 확인). ④ clearTarget(계약 chase.mjs:26, robust.test.mjs:106). ⑤ step('1') TypeError(감독 재현). ⑥ input no_network 가 timers/promises·scheduler 계수(축 4b: 제품 호출 추가 변이 1 실패) — 다만 양성 대조가 본 감시를 재사용하지 않는 문제는 F-431 ③. ⑦ 관찰(lookAheadM 조준 오프셋 계약 명시됨).
+
+### F-429 [열림] (심각도: 중간) — 오버레이 경로 개수 한도 maxPaths 가 지켜지지 않는다
+- 위치: 제품 feat/t15-6 14f0c5c contracts/controlview/overlay.mjs:11(maxPaths: 64), client/tower/overlay/index.mjs:15(setPath), client/tower/overlay/store.mjs:40-43(pathsMap.set), validate.mjs:131-143(checkPath 는 점 개수만)
+- 문제: maxPaths 를 계약에 선언했지만 비시험 코드 어디에서도 참조하지 않는다(감독 grep 확인). 드론·탐지는 교체라 상한이 지켜지지만 경로는 id 별로 계속 쌓인다.
+- 실패 상황(감독 node 재현): createTowerOverlay() 에 서로 다른 id 로 setPath 70번 → counts().paths = 70, 던지지 않음. 경로당 최대 100000 점이라 project() 비용·메모리가 상한 없이 커진다(F-430).
+- 고칠 것: index.setPath 에서 새 id 이고 이미 maxPaths 개면 RangeError(상태 불변), 같은 id 교체는 허용. 계약 TOWER_OVERLAY_API.paths 에 이 규칙을 적는다.
+- 확인 기준: 서로 다른 id 64개 통과, 65번째 RangeError 이고 counts().paths 64 그대로, 64개 상태에서 기존 id 교체 통과. 한도 검사를 지우는 변이에서 시험 실패 ≥ 1.
+- 권장 모델: sonnet
+- 이력: 2026-10-05 20:55 감독 등록(PR #80 검토 #1, 축 3·1b 보고, 감독 node 재현). 새로 찾은 것.
+
+### F-430 [열림] (심각도: 중간) — project() 가 매 프레임 저장된 드론·탐지·경로 전체를 깊은 복사한다
+- 위치: 제품 14f0c5c client/tower/overlay/index.mjs:104-105·:113(store.drones()·detections()·paths() 를 프레임마다 호출), store.mjs:6-13(재귀 deepCopy)·:68·:73·:78-79
+- 문제: clip·projectPoints 는 입력을 읽기만 하는데, 프레임 경로에서 공개 접근자(깊은 복사)를 써서 점마다 배열을 새로 만든다. 복사 비용이 자르기·투영 비용보다 크다.
+- 실패 상황(감독 직접 측정, scratchpad m80.mjs, Node 22): 경로 4개 × 100000 점에서 project() 평균 120.0 ms, 같은 자료의 clipPolyline 만 10.8 ms. 경로 64 × 1000 점에서 project() 12.5 ms, clip 만 4.5 ms. 축 6 보고: 64 × 100000(계약 상한)에서 프레임당 5~12 초, 힙 4 GB(미확인). perf.test.mjs 는 64 × 1000 만 재서 이 규모를 못 잡는다.
+- 고칠 것: store 에 복사 없는 내부 읽기(동결 저장 또는 *Raw())를 두고 project 는 그것을 쓴다. 공개 접근자의 깊은 복사·불변성은 유지. 상한 규모(경로당 100000 점) perf 시험 추가. 계약 상한 6.4M 점이 한 프레임 예산에 맞는지(점 수 상한 또는 조밀 출력)는 결정 0052 에 대가로 적는다.
+- 확인 기준: 같은 측정에서 4 × 100000 의 project() 가 clip 만의 2배 이하. store·index 불변성 시험(밖에서 고쳐도 상태 불변) 통과 유지.
+- 권장 모델: sonnet
+- 이력: 2026-10-05 20:55 감독 등록(PR #80 검토 #1, 축 6 높음 보고 → 감독 측정으로 확인했으나 현실 규모(64 × 1000)는 프레임 안이고 상한 규모는 복사를 빼도 clip 만으로 예산을 넘어 계약 판단 문제라 중간으로 강등). 새로 찾은 것.
+
+### F-431 [열림] (심각도: 중간) — 오버레이·입력 층 타이머 감시에 빈틈(scheduler 미계수, 지연 타이머 놓침, 양성 대조가 본 감시를 쓰지 않음)
+- 위치: 제품 14f0c5c client/tower/overlay/no_network.test.mjs:10·:16-29(TIMER_NAMES 3개, timersPromises.scheduler 미감쌈)·:77-79(timers.restore() 가 await spies.restore() 보다 먼저), client/tower/input/no_network.test.mjs:95-97(같은 순서)·:126-148(양성 대조가 본 감시 :31-46 대신 자체 래퍼)
+- 문제: ① overlay 감시가 scheduler.wait·yield 를 세지 않는다(input 시험은 셈 — 두 시험 불일치). ② 타이머 계수기를 먼저 풀고 지연 작업을 비워서, queueMicrotask 로 미룬 타이머 생성이 기록되지 않는다(F-420 에서 네트워크 쪽은 고쳤으나 타이머 쪽 같은 종류). ③ input 양성 대조가 본 감시 코드를 재사용하지 않아 본 감시에서 timers/promises 계수를 지워도 잡히지 않는다.
+- 실패 상황(축 4b 변이, 사본): overlay project 에 scheduler.wait(0) → 7/0 통과. project·createTowerInput 에 queueMicrotask(() => setTimeout(...)) → 각 0 실패. input 본 감시에서 timers/promises 계수 제거 + 제품 timers/promises.setTimeout(0) → 10/0 통과. 감독은 overlay :10·:16-29·:77-79 순서를 직접 읽어 확인(변이 수치는 미확인).
+- 고칠 것: overlay 에 scheduler 래퍼·양성 대조. 두 시험 모두 마이크로태스크·setImmediate 한 바퀴를 비운 뒤 타이머 계수기를 풀고, 미룬 타이머 양성 대조 추가. input 감시 설치를 함수로 빼서 양성 대조가 그것을 쓰게 한다(overlay installTimerCounters 처럼).
+- 확인 기준: 위 세 변이 각각 실패 ≥ 1, 원본 통과.
+- 권장 모델: sonnet
+- 이력: 2026-10-05 20:55 감독 등록(PR #80 검토 #1, 축 4b 보고). 새로 찾은 것(② 는 F-420 과 같은 종류의 타이머 쪽 잔여).
+
+### F-432 [열림] (심각도: 낮음) — 결정 0052 서술이 코드와 어긋난다
+- 위치: 연구 experiment/t15-6 decisions/0052-t15-6-overlay.md:18·:22·:27·:36·:40
+- 문제: ① :18·:22 '투영 수식을 한 곳에만 둔다' — 경로는 clip.mjs:5-12·:70-71 에서 같은 투영을 다시 구현한다(감독 clip.mjs 직접 읽음). ② :27 '입력은 float32 로도 유한' — drone.yaw 는 배정밀도 유한만 검사(validate.mjs:105-107, yaw 1e39 통과·축 2 재현, 미확인), unproject 의 u·v·depth 도 배정밀도 검사. ③ :36 renderer_basis 절 — 'GeoAnchor ENU, 1 unit = 1 m' 출처는 RULES §1.3, 이 층은 §2-1 투영 규약을 따르고 §2-2 Rᵀ 대신 실제 역행렬을 쓴다(벗어남을 적어야 함). ④ :40 다시 볼 조건에 근평면 0.1 m 추정값 대조가 없다.
+- 고칠 것: ① '경로 자르기는 근평면 교점 때문에 카메라 공간 투영을 따로 둔다(대가)' 를 적거나 clip 투영을 projectMarkers 로 감싸고, 같은 점을 projectPoints·clip 으로 투영해 일치하는 시험. ② yaw 에 float32 검사 또는 문구를 'enu·경로 점·nearM' 으로 좁힘. ③ '점군 생성 절 해당 없음, §2-1 따름, §2-2 Rᵀ 대신 역행렬(근거 :26), 좌표 단위 RULES §1.3'. ④ 다시 볼 조건에 nearM 추가.
+- 확인 기준: 0052 문구가 위 코드 위치와 일치, ① 의 일치 시험 존재.
+- 권장 모델: haiku(① 시험은 sonnet)
+- 이력: 2026-10-05 20:55 감독 등록(PR #80 검토 #1, 축 2 보고, ① 감독 직접 확인). 새로 찾은 것.
+
+### F-433 [열림] (심각도: 낮음) — PR #80 검토 #1 낮음 묶음
+- ① (축 4a) clip.mjs:42 카메라 공간 비유한 끊기를 지키는 시험 없음 — 지워도 111/111 통과(유일한 넘침 입력 [1e308,0,1] 은 투영 단계에서만 비유한). 고칠 것: R=[s,−s,0, 0,0,1, s,s,0](s=√½), 점 [[1,1,0],[2,2,0],[1.5e308,1.5e308,0],[3,3,0],[4,4,0]] 로 X_c.z 넘침 → polyline 2개·각 2점·전부 유한 단언. 확인: :42 삭제 변이 실패 ≥ 1. sonnet
+- ② (축 1b) validate.mjs:40-44 snap 이 상속 속성을 읽음 — setDrones([Object.create({id:'z',enu:[0,0,0]})]) 통과. own 속성만 읽기. 확인: 같은 입력 TypeError. haiku
+- ③ (축 1a) 계약 overlay.mjs:22 enuMatch 조건이 넓다 — fovY ≈ π·width 65535 에서 왕복 0.17 m, pos z = −1e15 에서 0.038 m(축 1a 보고, 미확인). 조건에 fovY ≤ 3.1·|pos| ≤ 1e6 m 등 상한을 적고 그 경계 시험. sonnet
+- ④ (축 5) 연구 experiments/t15-6.md:9 '4857 중 통과 4840·실패 0·건너뜀 12' 합이 4852 — todo 5 를 적는다. haiku
+- ⑤ (축 11) README :142·영문 :284 모듈 목록에 view 누락(계약 TOWER_OVERLAY_MODULES.view). haiku
+- ⑥ (축 6) setPath 가 점마다 배열을 여러 번 복사(경로 100000 점당 약 245 ms, 축 6 보고, 미확인). 프레임 경로 아님. sonnet
+- 관찰: 드론·탐지는 d > 0 이면 투영, 경로는 nearM 에서 자른다(깊이 0.05 드론 visible, 같은 깊이 경로 점 버림) — 계약대로, 결함 아님.
+- 이력: 2026-10-05 20:55 감독 등록(PR #80 검토 #1). 모두 새로 찾은 것.
