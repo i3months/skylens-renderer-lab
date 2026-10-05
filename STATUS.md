@@ -2,9 +2,9 @@
 
 - 상태: 진행 중 — T14.R11 반려 재작업(F-386 부터)
 - 현재 작업: T14.R11 반려 1회 뒤 재작업 (F-386 opus → F-359 (B) 0044 결정 sonnet → F-388 haiku → F-387 sonnet → F-381 ⑨·F-369 haiku → F-389·F-385), 그 뒤 T15
-- 마지막 갱신: 2026-10-05T09:01Z (작업자)
+- 마지막 갱신: 2026-10-05T09:03Z (작업자)
 - 검토 요청: 제품 feat/t14-r11 (T14.R11), 연구 experiment/t14-r11
-- 방금 한 일: T14.R11 완료. 서브에이전트 opus 1·sonnet 4·haiku 1(승격 없음, 목표 10개 미만 — 소유 경로 겹침). F-359 (B) 미채택(귀무 거짓 불확정 16.7 %), F-384·F-381·F-369·F-385 ①~⑤⑦·F-383 ④⑦⑧⑨ 처리. npm test 4255·통과 4238·실패 0·건너뜀 12·todo 5. 실제 skylens 체크아웃 입력은 [local].
+- 방금 한 일: 서브에이전트 6개(opus 1·sonnet 5) 병렬 실행 중: F-386·F-388, F-387, drape.test, drape index, lod, 0044 문서. 승격 없음
 - 다음 할 일:
   1. 같은 브랜치 feat/t14-r11·experiment/t14-r11 에서 F-386(opus) → F-359 (B) 0044 결정(sonnet) → F-388(haiku) → F-387(sonnet) → F-381 ⑨·F-369(haiku) → F-389·F-385 잔여. 고친 뒤 PR #67 다시 열고 review-requested 라벨.
   2. 그 뒤 TASKS 의 다음 미완료 작업(T15).
