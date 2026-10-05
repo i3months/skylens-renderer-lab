@@ -471,7 +471,7 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T15.7 | 시점 이동에 따른 조각 요청 | `client/tower/streaming/` | 경로 재생 시 빠진 조각 0 | opus |
 | T15.8 | 폴백(2D 지도 표시, 사람 확인 전 임시) | `client/tower/fallback/` | 서버 불가 모의 시 표시 | sonnet |
 | T15.9 | 통합 시험 | `client/tower/e2e/` | 녹화 재생 상태 일치 | opus |
-| T15.10 | 번들·대역폭 측정 | `bench/tower/` | 번들 ≤ 300 KB, 초기 ≤ 15 MB | haiku |
+| T15.10 | 번들·대역폭 측정. 함께: 지형 LOD 단계별 타일 바이트(합성 DEM + noiseBig 류 거친 DEM), LOD3/LOD2·LOD3/LOD0 비율 기록(F-400 ⑦, LOD3 상한 1 m 의 대가 확인 — LOD3 이 LOD2 와 같거나 예산 초과면 0046 다시 엶) | `bench/tower/` | 번들 ≤ 300 KB, 초기 ≤ 15 MB | haiku |
 
 ### T16 `load-harness` — [cloud]
 
