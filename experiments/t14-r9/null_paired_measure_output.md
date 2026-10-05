@@ -3,7 +3,7 @@
 ## 측정 정보
 
 - **제품 저장소 커밋 해시**: 4cc379cb (Merge T14.R9 drape undecided blocks and gap index (#65))
-- **측정 명령**: `node null_paired_measure.mjs --repo /home/user/skylens-renderer --seeds 20`
+- **측정 명령**: `node null_paired_measure.mjs --repo <product repository path> --seeds 20`
 - **참고**: 원래 --seeds 60 으로 시작했으나 10분을 초과하여 --seeds 20 으로 줄여서 재측정. 첫 번째 실행은 10분 10초 소요 후 중단. 두 번째 실행(--seeds 20)은 약 6분 52초 소요.
 
 ## 측정 결과
