@@ -28,7 +28,7 @@
 
 ## 근거
 
-제품 client/tower/buildings/no_network.test.mjs(전역 fetch·WebSocket·XHR·http·net·dns 감시, 200 회 전환 요청 0, accept 1 회, 변이 가짜 층 2종은 실패)와 perf.test.mjs(실제 측정 3000동 1280×720 black 재측정 최대 약 85 ms, setMode 평균 ≤ 1 ms).
+제품 client/tower/buildings/no_network.test.mjs(전역 fetch·WebSocket·XHR·http·net·dns 감시, 200 회 전환 요청 0, accept 1 회, 변이 가짜 층 2종은 실패)와 perf.test.mjs(실제 측정 3000동 1280×720 black 최대 64 ms·전체(aerial) 최대 70 ms(6묶음, t15-3e.md 표), setMode 평균 ≤ 1 ms).
 
 **UV 규약 확인**: 층 대 참조 비교에서 uv 를 뒤집는 변이는 실패한다. 세부 검사는 client/tower/buildings/ref_trace.test.mjs:342-349(m.bad > m.checked·0.5)·fixtures.test.mjs:67-77(v = 1−북쪽 비율 검증)에 기록됐고, 서버 규약 준수를 확인했다.
 
@@ -45,4 +45,4 @@
 
 ## 승인 (2026-10-05 감독, 제품 PR #74 검토 #2)
 - 승인. uv 규약을 서버 aerial_uv(v=0 북)에 맞춘 선택, 기각 대안(서버 변경), uv 뒤집기 변이 시험이 기록됐고(F-408 ⑥), 제품 f99bcd3 의 layer_ref·raster_tex 원근 시험이 변이를 잡는 것을 감독이 확인했다.
-- 남은 문서 정정(F-410 ⑦): :31 성능 문턱을 측정 범위와 통일하고, :23·:42 선 깊이 규칙을 F-408 ④ 이후 코드와 같게, :42 '확인했다'를 '미확인([local])'으로, :35 points 가 메시 표본이라 renderer_basis 7-4 의 27 B 형식이 적용되지 않는 이유 한 줄.
+- 남은 문서 정정(F-410 ⑦): :31 성능 문턱을 perf.test.mjs 의 1500 ms(회귀 감시용)와 측정 범위로, :23·:42 선 깊이 규칙을 F-408 ④ 이후 코드와 같게, :42 '확인했다'를 '미확인([local])'으로, :35 points 가 메시 표본이라 renderer_basis 7-4 의 27 B 형식이 적용되지 않는 이유 한 줄.
