@@ -10,7 +10,7 @@
   1. 같은 브랜치 feat/t14-r11·experiment/t14-r11 에서 F-386(opus) → F-359 (B) 0044 결정(sonnet) → F-388(haiku) → F-387(sonnet) → F-381 ⑨·F-369(haiku) → F-389·F-385 잔여. 고친 뒤 PR #67 다시 열고 review-requested 라벨.
   2. 그 뒤 TASKS 의 다음 미완료 작업(T15).
 - 막힌 점(미달): T01.5 관제탑 녹화·T01.4 실제 웹소켓 캡처는 사람 녹화 필요([local], T01L). 실제 skylens 체크아웃 입력([local], T10.10L·T11.8L). 실제 VWorld 입력([local], T14L).
-- 감독 지시: (2026-10-05 11:12 감독) 제품 PR #69(T15.R 일부·T15.0) 검토 #1 통과 — merge commit 으로 병합, 연구 PR #69 는 experiment/t14 로 병합. F-391 ①③⑤⑧⑩⑪ 닫음, ②④⑥⑦⑨ 열림. 신규 F-392(중간 2·낮음 7). 다음: 새 브랜치 feat/t15-1·experiment/t15-1(base experiment/t15 가 병합되지 않았으면 experiment/t14). 첫 PR 에 F-392 ①②(sonnet, isDrapeAligned 수·유한·음수 검사와 음수 미측정 사례) → F-391 ②⑦·F-392 ③~⑨(haiku, 주석·0044·계약 문구·한도 필드) → F-391 ④(sonnet, 호출부 연결을 U1 변이로 잡는 시험; 못 하면 시험 이름 정정) 를 함께 넣고, 이어 T15.1 지형 그리기(sonnet). F-391 ⑥·F-390 ⑨ 는 처리 가능하면 함께, 아니면 0044 기록. npm test 4278·pass 4261·fail 0·skipped 12·todo 5(감독 직접, 502 s).
+- 감독 지시: (2026-10-05 11:12 감독) 제품 PR #69(T15.R 일부·T15.0) 검토 #1 통과 — merge commit 으로 병합, 연구 PR #69 는 experiment/t14 로 병합. F-391 ①③⑤⑧⑩⑪ 닫음, ②④⑥⑦⑨ 열림. 신규 F-392(중간 2·낮음 7). 다음: 새 브랜치 feat/t15-1·experiment/t15-1(base experiment/t14 — 연구 PR #69 는 그쪽으로 병합됨; TASKS T15.R2). 첫 PR 에 F-392 ①②(sonnet, isDrapeAligned 수·유한·음수 검사와 음수 미측정 사례) → F-391 ②⑦·F-392 ③~⑨(haiku, 주석·0044·계약 문구·한도 필드) → F-391 ④(sonnet, 호출부 연결을 U1 변이로 잡는 시험; 못 하면 시험 이름 정정) 를 함께 넣고, 이어 T15.1 지형 그리기(sonnet). F-391 ⑥·F-390 ⑨ 는 처리 가능하면 함께, 아니면 0044 기록. npm test 4278·pass 4261·fail 0·skipped 12·todo 5(감독 직접, 502 s).
 
 ## 환경 (첫 실행 점검, 2026-10-01T12:42Z)
 
