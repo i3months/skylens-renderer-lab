@@ -7,7 +7,7 @@
 
 ## 맥락
 
-T15.2 드레이프 그리기(위성 영상을 지형 타일 위에 입힌다)는 renderer_basis.md 에 명시되지 않은 세 가지 이탈을 가진다.
+T15.2 드레이프 그리기(위성 영상을 지형 타일 위에 입힌다)는 renderer_basis.md 에 명시되지 않은 세 가지 렌더링 선택을 가진다.
 
 1. 표본점이 속한 화소의 mask = 0 일 때 처리(mask 0 칸 → null, mask>0 이웃 재정규화가 메우기가 아닌 이유)
 2. mask 1..254 의 가중치 처리(동등 가중, mask/255 를 곱하지 않는 근거)
@@ -24,7 +24,7 @@ T15.2 드레이프 그리기(위성 영상을 지형 타일 위에 입힌다)는
 **근거(renderer_basis 가 정하지 않는 규약)**:
 renderer_basis 는 위성 영상 표본을 명시하지 않는다. 이 규칙의 (a) 는 위성 영상에 데이터가 없는 화소(mask = 0, 즉 영상 밖)를 메우지 않고 지형 색을 그대로 둔다. (b) 는 부분 피복 화소(mask < 255)에서 데이터 있는 이웃으로만 보간하여, 실제 데이터만 기여하게 한다.
 
-**대가(menus·비용)**:
+**대가(비용)**:
 - (a) mask = 0 화소 위의 이웃이 모두 mask > 0 이어도 지형 색을 그대로 두므로, 영상 경계 근처에서 시각적 불연속이 생길 수 있다.
 - (b) 이웃 재정규화로 인해 이웃 가중의 합이 입력한 가중(보간 계수)과 달라질 수 있지만, 실제 데이터가 있는 이웃만 보간하므로 외삽을 피한다.
 
@@ -63,7 +63,7 @@ mask 1..254 는 255 와 같은 가중으로 처리한다. 즉, 부분 피복(mas
 
 ## 결정
 
-위 세 이탈을 renderer_basis 로부터의 편차로 명시하고, 각각의 근거와 대가를 기록한다. 구현은 contracts/controlview/drape.mjs, client/tower/drape/sample.mjs, client/tower/drape/shade.mjs, server/terrain/drape/index.mjs 에 이미 반영되어 있다. T15.2 의 선행 조건으로 이 이탈들이 정당화됨을 확인한다.
+위 세 선택을 renderer_basis 가 정하지 않는 렌더링 선택(근거 0046·계약)으로 명시하고, 각각의 근거와 대가를 기록한다. 구현은 contracts/controlview/drape.mjs, client/tower/drape/sample.mjs, client/tower/drape/shade.mjs, server/terrain/drape/index.mjs 에 이미 반영되어 있다. T15.2 의 선행 조건으로 이 선택들이 정당화됨을 확인한다.
 
 ---
 
@@ -74,7 +74,7 @@ mask 1..254 는 255 와 같은 가중으로 처리한다. 즉, 부분 피복(mas
 - **이탈 1 (a)**: client/tower/drape/sample.mjs:48 에서 표본점이 속한 화소 칸의 mask 가 0 이면 null 을 반환한다. drape.mjs:5 계약에 "타일이 없거나 표본점이 속한 화소 칸의 coverage.mask 가 0 인 곳은 지형 색을 그대로 둔다(이웃 색으로 메우지·꾸미지 않는다)"고 명시된다.
 - **이탈 1 (b)**: sample.mjs:54-65 에서 mask > 0 이웃만 가중해 재정규화한다. 표본점이 속한 화소 칸의 mask 가 0 이면 null 을 반환하여 메우지 않는다(sample.mjs:48).
 - **이탈 2**: sample.mjs:5-6 주석에 "mask 1..254 는 255 와 같은 가중(색 동등 가중, mask/255 를 곱하지 않는다)"고 명시한다. server/terrain/drape/index.mjs:127 에서 mask 를 계산할 때 이미 덮인 부분만 평균하므로(121-127), 색에 다시 mask/255 를 곱하면 중복이다.
-- **이탈 3**: contracts/controlview/drape.mjs:13 에서 opts.shade 기본값은 true 다(지형 음영 비율을 곱함). client/tower/drape/shade.mjs:1-2·16-47 에서 음영 비율을 정의하고(terrainRgb 채널 평균 ÷ baseRgb 채널 평균), index.mjs:78·111 에서 useShade 옵션을 확인해 프레임당 한 번 음영 표(shadeLut)를 만든 뒤 화소 루프에서 적용한다. 이탈 이유는 위성 영상이 지형의 정점 법선을 직접 반영하지 않기 때문에, 지형 렌더링의 Lambert 음영(결정 0046)을 보정하려면 음영 비율을 추가로 곱해야 한다는 것이다(line 53-56).
+- **이탈 3**: contracts/controlview/drape.mjs:13 에서 opts.shade 기본값은 true 다(지형 음영 비율을 곱함). client/tower/drape/shade.mjs:1-2·16-47 에서 음영 비율을 정의하고(terrainRgb 채널 평균 ÷ baseRgb 채널 평균), index.mjs:78·111 에서 useShade 옵션을 확인해 프레임당 한 번 음영 표(shadeLut)를 만든 뒤 화소 루프에서 적용한다. 이탈 이유는 위성 영상이 지형의 정점 법선을 직접 반영하지 않기 때문에, 지형 렌더링의 Lambert 음영(결정 0046)을 보정하려면 음영 비율을 추가로 곱해야 한다는 것이다(53-56).
 
 ---
 
