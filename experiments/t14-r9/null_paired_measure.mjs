@@ -1,8 +1,16 @@
-// F-369: 귀무(이동 0) 짝 검정 t 분포 측정. 사용: node null_paired_measure.mjs [--seeds N] [--mode independent|correlated|both]
+// F-369: 귀무(이동 0) 짝 검정 t 분포 측정.
+// 사용: node null_paired_measure.mjs --repo /path/to/skylens-renderer [--seeds N] [--mode independent|correlated|both]
+// 또는: SKYLENS_RENDERER_DIR=/path/to/skylens-renderer node null_paired_measure.mjs [--seeds N] [--mode independent|correlated|both]
 // 도우미는 제품 drape_noise.test.mjs 에서 복사(채널 상관 모드만 추가).
-import { measureDrapeAlignment, drapeTileSize, DRAPE_PAIRED_K } from '/home/user/skylens-renderer/server/terrain/drape/index.mjs';
-import { ALIGN_TOLERANCE_PX, TERRAIN_TILE_SIZE_M, tileBounds } from '/home/user/skylens-renderer/contracts/tower_assets/index.mjs';
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
+const SKYLENS_RENDERER_DIR = arg('--repo', process.env.SKYLENS_RENDERER_DIR);
+if (!SKYLENS_RENDERER_DIR) {
+  console.error('사용법: node null_paired_measure.mjs --repo /path/to/skylens-renderer [--seeds N] [--mode independent|correlated|both]');
+  console.error('     또는: SKYLENS_RENDERER_DIR=/path/to/skylens-renderer node null_paired_measure.mjs [--seeds N] [--mode independent|correlated|both]');
+  process.exit(1);
+}
+const { measureDrapeAlignment, drapeTileSize, DRAPE_PAIRED_K } = await import(SKYLENS_RENDERER_DIR + '/server/terrain/drape/index.mjs');
+const { ALIGN_TOLERANCE_PX, TERRAIN_TILE_SIZE_M, tileBounds } = await import(SKYLENS_RENDERER_DIR + '/contracts/tower_assets/index.mjs');
 const NSEED = Number(arg('--seeds', 60)), MODE = arg('--mode', 'both');
 function makeImage(bounds, width, height, colorAt) {
   const rgb = new Uint8Array(width * height * 3);
