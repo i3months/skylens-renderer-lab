@@ -4600,7 +4600,7 @@
 - 이력(작업자): 2026-10-05 16:52 처리됨-검증대기 — 제품 feat/t15-3 0e6218e: layer_ref 분모를 덮인 화소로, black 선 화소는 정확히 lineRgb 이고 참조(lines:true) 선의 1 px 안일 때만 제외, 선 겹침 ≥ 0.9·선 화소 > 0 단언, points 는 묶음·화소 완전 일치. 변이 ①(rasterizeLines 삭제)·②(면 색 변경)·③(points 묶음 누락) 각각 layer_ref 실패(fail 1·1·2), 원본 SEEDS 1..6·7..12 통과. 일치율 하한은 aerial·points 0.99, black 0.95(선 폭 규칙이 층과 참조에서 달라 선 가장자리 화소가 갈림, 측정 최저 0.9642). u 화면 선형 변이는 F-408 ③ 과 함께 미처리.
 - 이력: 2026-10-05 17:20 감독 확인 닫음 — 제품 f99bcd3 사본에서 직접 변이: ① rasterizeLines 호출 삭제 → 116 pass·1 fail, ② 홀수 면 흰색 → 116·1, ③ points groups.slice(0,-1) → 114·3, 원본 117·0. u 화면 선형 변이(raster_flat.mjs:98)는 축 4a·1b 가 각각 재현(raster_tex 요 회전 시험 최대 차 57 실패). 남은 판별력 문제는 F-410 ②③ 으로 분리.
 
-### F-408 [열림 — ①~⑥ 닫음, ⑦ 열림] (심각도: 중간) — PR #74 검토 #1 중간 묶음
+### F-408 [닫힘] (심각도: 중간) — PR #74 검토 #1 중간 묶음
 - ① (축 4b·5, 감독 직접 읽음) perf.test.mjs:199-206 import·createBuildingsLayer 예외를 catch 해 로그만 찍고 return — 생성자가 던져도 통과(축 4b 변이 M2). no_network.test.mjs:130 처럼 assert.fail. 또 :9 렌더 문턱 1500 ms 는 측정(최대 약 112 ms)의 13배 이상이고 결과 화소 수를 보지 않아 빈 결과 변이(M8)도 통과, aerial 은 image:null(:159)로 영상 경로를 재지 않는다. 고칠 것: catch 삭제, 모드·카메라별 덮인 화소 > 0 단언, aerial 에 실제 영상. 문턱은 회귀 감시용임을 주석·노트에 명시(SPEC S1 33 ms 와 무관, 실기기 fps 는 T17 [local]). 확인 기준: M2·M8 변이에서 perf 실패. 권장 모델: sonnet
 - ② (축 4b, 감독 직접 읽음) no_network.test.mjs:115-118 감시자 원복이 동기 전환 루프 직후 — setTimeout 으로 미룬 fetch 는 원복된 진짜 fetch 로 나가 통과(변이 M4). 이름으로 가져온 node:dns lookup(변이 M3)도 syncBuiltinESMExports 없이 못 잡음. 현재 구현(mode.mjs·index.mjs)은 네트워크·비동기 호출이 없어 완료 기준 자체는 충족. 고칠 것: 원복 전 짧은 대기, syncBuiltinESMExports, dns.promises·http2 감시, 가짜 층 2종 추가. 확인 기준: M3·M4 가짜 층에서 실패. 권장 모델: sonnet
 - ③ (축 4a, 감독 미재실행) raster_tex.test.mjs:322-350 원근 보정 시험 영상이 1×H 라 u 가 결과에 영향 없음 — u 만 화면 선형 변이가 디렉터리 전체 통과(덮인 화소 일치율 최저 0.966). 고칠 것: W×1 동서 기울기 또는 2D 기울기 영상 + 요 회전 카메라. 확인 기준: u 만 화면 선형 변이에서 실패. 권장 모델: sonnet
@@ -4611,8 +4611,9 @@
 - 이력: 2026-10-05 16:50 감독 등록(PR #74 검토 #1). ⑤ 는 F-405 ① 잔여(이전 항목 이어받음), 나머지 신규.
 - 이력(작업자): 2026-10-05 처리됨-검증대기(⑦ 제외) — 제품 feat/t15-3 통합 푸시, 시험 117 통과. ① perf catch 삭제·모드×카메라 덮인 화소>0·aerial 실제 영상(변이 M2·M8 실패, 원본 통과). ② network_spies.mjs 분리(syncBuiltinESMExports·dns.promises·http2·원복 전 대기)·가짜 층 M3·M4 감지(원복 전 대기 코드 자체는 메타 시험으로 구별 불가 — 안전장치로 유지). ③ 요 회전 W×1 기울기 시험(u 화면 선형 변이에서 최대 차 57 로 실패; 변이 위치는 raster_flat.mjs:98). ④ 선끼리 bias 없이 d<old(같은 호출 안 선만 표시; 이전 호출 선은 RenderResult 에 표시가 없어 면과 같이 bias — 한계). ⑤ 결정 0048 정정(연구 40fe97e, 'renderer_basis 는 원래' 0건). ⑥ 결정 0049 보강(b80a6e1). ⑦ (T15.3b 에서 처리됨-검증대기: 제품 feat/t15-3b, render(camera,out?)·묶음 경계상자 컬링·lineMark 재사용, 1/10 시점 black 3.5 ms 대 25.1 ms, reuse_cull.test.mjs 7개; 합성 장면은 41~112 ms 재현 안 됨 — 노트 t15-3b.md) 성능은 감독이 미뤄도 된다고 해 미처리 — 결과 버퍼 재사용·컬링 서브에이전트가 시간 안에 결과를 내지 못함; 다음 작업자가 T15.2b 전에 처리.
 - 이력: 2026-10-05 17:20 감독(PR #74 검토 #2) — ①~⑥ 닫음: ① M2·M8 perf 실패(축 4b 재현), ② M3·M4(지연 0) 실패(축 4b 재현; 30 ms 넘는 지연은 F-410 ④ 로 분리), ③ u 화면 선형 변이 실패(축 4a·1b), ④ lines_depth.test F-408 시험 존재·bias 재부착 변이 실패(축 4a), ⑤⑥ 연구 0048 'renderer_basis 는 원래' 0건·0049 aerial_uv·기각 대안 존재(축 2; 남은 문서 오류는 F-410 ⑥⑦). ⑦ 열림 — 다음 작업과 함께(sonnet).
+- 이력: 2026-10-05 17:55 감독(PR #75 검토 #1) — ⑦ 닫음: 제품 1658672 연속 render 200회(black·aerial·points, out 재사용) arrayBuffers 증가 0(축 6 측정), 1/10 시점 black 3.2~3.9 ms 대 전체 32~35 ms, 묶음 12/100(reuse_cull ③ 통과, 감독 npm test 통과). 컬링 on/off 화소 동일 무작위 1200+9000건 차이 0(축 1b·7). 유한성 검사는 래스터 단독 호출 방어로 남김 — 노트에 명시할 것은 F-414 ④.
 
-### F-409 [열림 — ②~⑧ 닫음, ① 처리됨-검증대기] (심각도: 낮음) — PR #74 검토 #1 낮음 묶음
+### F-409 [닫힘] (심각도: 낮음) — PR #74 검토 #1 낮음 묶음
 - ① (축 1·2·3·4a, 감독 직접 읽음) raster_tex.mjs:3-4·raster_tex.test.mjs:2 주석이 옛 uv 규약('(0,0) 남서, v 북쪽 증가, row = (1−v)·H − 0.5') — 코드 :24 와 계약 buildings.mjs:12 는 v=0 북, row = v·H − 0.5. fixtures.mjs:47-48 serverUvToContract 이름·주석과 ref_trace.test.mjs:341 시험 이름도 반대 뜻. 고칠 것: 계약 문구로, 함수 이름 flipV 류. 확인 기준: raster_tex*.mjs 에 '1 − v' 0건.
 - ② (축 2·3) 계약 contracts/controlview/buildings.mjs:18 opts.lightDirEnu 를 index.mjs 가 읽지 않음(조용히 무시). 고칠 것: 계약에서 삭제하거나 받으면 던짐. 확인 기준: 계약 opts 키 = index.mjs 가 읽는 키.
 - ③ (축 2) 계약 buildings.mjs:31 'wallMask=1 이거나' → 'wallMask=1 정점이 하나라도 있는 삼각형'(raster_tex.mjs·0049 와 같게).
@@ -4626,8 +4627,9 @@
 - 이력(작업자): 2026-10-05 16:52 부분 처리 — ① raster_tex.test 주석·fixtures flipV 이름·주석(제품 c16e54f 이후), ② 계약 create 에서 lightDirEnu 삭제, ③ 계약 wallMask 문구. 미처리: ④⑤⑥⑦⑧. (시간 한도로 종료, 다음 작업자가 이어 받음)
 - 이력(작업자): 2026-10-05 나머지 처리됨-검증대기 — ④ 시험 지원 파일을 client/tower/buildings/test_support/ 로 이동(계약 :6 이 시험의 server/ 참조를 이미 허용), ⑤ lines·points 깊이 Math.fround·비유한 값은 그리지 않음(lines_depth.test.mjs), ⑥ integration (d) r.index[px]===i·aerial 지붕 색이 makeAerialImage 기울기 ±8(변이 M1·M7 실패)·controlview 경로 독립 표, ⑦ lines 개수는 출력에서 센 값·점 정답 손계산(깊이 108, 열 40·행 21), ⑧ integration 에 감시자. 시험 117 통과.
 - 이력: 2026-10-05 17:20 감독(PR #74 검토 #2) — ②③④⑤⑥⑦⑧ 닫음(축 1·4a·4b·7 재현, 계약 opts 키 = index.mjs 키). ① 다시 엶: 구현 파일 client/tower/buildings/raster_tex.mjs:3-4 주석이 여전히 '(0,0) = 왼쪽 아래(남서) … row = (1 − v)·height − 0.5' — 감독 직접 읽음, 코드 :24 는 row = v·H − 0.5. 확인 기준 'raster_tex*.mjs 에 1 − v 0건' 미충족. 권장 모델: haiku
+- 이력: 2026-10-05 17:55 감독(PR #75 검토 #1) — ① 닫음: raster_tex*.mjs 에 '1 − v' 0건 감독 직접 grep, raster_tex.mjs:3-4 주석 = 코드 :24 row = v·H − 0.5.
 
-### F-410 [열림] (심각도: 중간) — PR #74 검토 #2 중간 묶음
+### F-410 [닫힘] (심각도: 중간) — PR #74 검토 #2 중간 묶음
 - ① (축 1, 감독 직접 읽음 points.mjs:38·42-43) 화면 좌표를 Math.fround 한 깊이 d 로 나눈다 — 규약 u = fx·X_c.x/d + cx(d 는 double)와 lines.mjs(double az)에서 벗어남. 실패 상황(축 1 재현): W=2000·H=4, K fx=fy=1000·cx=0·cy=2, R=I, t=[0,0,0.1], 점 (1,0,1.5) → 정답 열 625 인데 624 를 칠함. 고칠 것: 투영 분모는 d0(double), fround 한 d 는 깊이 시험·기록에만. 확인 기준: 위 입력에서 out.index[2*2000+625]===0, [2*2000+624]===-1. 권장 모델: sonnet
 - ② (축 4a, 미확인 — 감독 미재실행) layer_ref.test.mjs:27-39 층 선 화소는 1 px 안에 참조 선이 있으면 index·깊이 대조 없이 일치로 센다. 실패 상황: index.mjs 에서 rasterizeLines 에 groups 를 뒤집어 넘기면(선 화소 묶음 번호가 틀림) 117 pass·0 fail. 고칠 것: 층·참조 둘 다 선인 화소에서 index 일치·깊이 차 단언. 확인 기준: 그 변이와 lines.mjs index 0 고정 변이에서 layer_ref 실패. 권장 모델: sonnet
 - ③ (축 4a, 미확인) layer_ref.test.mjs:12-14 black 일치 하한 0.95 는 유도된 근거가 없고 측정 최저 0.9642 와 여유 1.4%p. 불일치 64 화소는 모두 참조만 선(참조 0.5 px 선 폭)인 화소. depthBias 1 m 변이가 일치율로는 통과(0.9653)하고 선 겹침 0.888 < 0.9 로만 근소하게 잡힘. 고칠 것: 참조 선 화소도 1 px 안 층 선이면 일치로 세는 대칭 허용 뒤 하한 0.99(축 4a 사본 계산 최저 0.9989). 확인 기준: 원본 0.99 통과, depthBias 0·1 m 변이가 일치율 단언에서 실패. 권장 모델: sonnet
@@ -4637,8 +4639,9 @@
 - ⑦ (축 2, 연구 0049) :31 perf 기준 '중앙값 ≤ 70 ms' — 실제 문턱 perf.test.mjs:13 1500 ms, 노트 측정 black 40~98 ms. :23·:42 선 깊이 규칙이 F-408 ④ 이전 문구. :42 '정성 비교([local])로만 확인했다' 는 :35 '[local]'(미실시)와 모순. :35 points 는 메시 표본이라 renderer_basis 7-4 27 B 형식과 관계를 한 줄. :41 기각 이유·다시 볼 조건을 시험 이름·수치에 연결. 확인 기준: :31 수치 = perf.test.mjs:13·t15-3.md 측정. 권장 모델: haiku
 - 이력: 2026-10-05 17:20 감독 등록(PR #74 검토 #2). 모두 신규(①⑤ 는 이번 수정과 별개로 원래 있던 코드, ① 은 이번 diff 의 fround 도입으로 생긴 회귀).
 - 이력(작업자): 2026-10-05 처리됨-검증대기 — 제품 feat/t15-3b. ① points 투영 분모 double(원본 실패·수정 통과), ②③ layer_ref: 선·선 화소 index·깊이 1 % 단언, 대칭 허용·하한 0.99(측정 최저 0.9973, 변이 4종 실패: groups 뒤집기 0.7498·index 0 고정 0.7987·bias 0 0.9681·bias 1 m 0.9886), ④ network_spies mock.timers·runAll(1000 ms·100 ms 지연 변이 실패), ⑤ integration (c2) withImage:false aerial(변이 실패), ⑥ 0048 sample.mjs:48 인용·'벗어남' 제거, ⑦ 0049 수치·규칙 정정.
+- 이력: 2026-10-05 17:55 감독(PR #75 검토 #1) — ①~⑦ 닫음. ① points.mjs:43-44 분모 d0 감독 직접 읽음, points.test.mjs:96-97 단언(축 1a 실행: index 625=0·624=−1, fround 분모 변이 5/1 실패). ②③ layer_ref 변이 groups 뒤집기 0.7498·index 0 고정 0.7987·bias 0 0.9681·bias 1 m 0.9886 모두 실패, 원본 시드 7~60 최저 0.993(축 4a — 사후 하한 아님). ④ setTimeout 1000·100 ms 변이 no_network 실패·양성 대조 영향 없음(축 4b). ⑤ image null 변이 3종 integration (c2) 실패(축 4b). ⑥ 0048 sample.mjs:48 인용·:63 0건·'벗어' 0건(축 2; 남은 :66 '편차' 틀은 F-413 ③). ⑦ 0049:31 = perf.test.mjs:13 1500 ms(축 2).
 
-### F-411 [열림] (심각도: 낮음) — PR #74 검토 #2 낮음 묶음
+### F-411 [닫힘] (심각도: 낮음) — PR #74 검토 #2 낮음 묶음
 - ① (축 1, 감독 직접 읽음 contracts/controlview/buildings.mjs:32) lines.fn 설명 '깊이 시험은 opts.depthBias 만큼 앞으로 당긴다' — F-408 ④ 뒤 규칙(같은 호출 선끼리는 bias 없음, 면과만 bias, fround·비유한 미기록)과 다름. 확인 기준: 계약 문자열 = lines.mjs:12-13 주석.
 - ② (축 1b·4a) ref_trace.test.mjs:342 시험 이름 '서버 관례 uv(v = 0 이 북)를 그대로 넣으면 … 잡는다' 가 본문(:345 uv:'flipped')과 반대. :83 주석 화소 중심 (40.5, 22.5)·0.78 m → (40.5, 21.5)·약 1.7 m.
 - ③ (축 4b) no_network.test.mjs:115-139 감시자 자체 시험에 try/finally·t.after 원복 없음. perf.test.mjs:217 첫 accept 결과를 ['first','replace','skip'] 로 허용 → 'first' 단언. integration.test.mjs:162 index 단언이 g ≥ 0 미확인(points·lines 묶음 번호 변이 통과 — 단위 시험이 잡음).
@@ -4646,8 +4649,9 @@
 - 권장 모델: ①②④ haiku, ③ sonnet
 - 이력: 2026-10-05 17:20 감독 등록(PR #74 검토 #2). 모두 신규.
 - 이력(작업자): 2026-10-05 처리됨-검증대기 — ① 계약 lines 문구, ② ref_trace 시험 이름·주석, ③ no_network try/after·perf 'first'·integration g≥0, ④ 노트 수치 0.99/0.9973.
+- 이력: 2026-10-05 17:55 감독(PR #75 검토 #1) — ①~④ 닫음. ① 계약 buildings.mjs:32 = lines.mjs:12-14 감독 직접 대조. ② ref_trace 시험 이름·:83 주석 재계산 1.74 m(축 4a). ③ no_network t.after·perf 'first'·integration g≥0 줄 확인(축 4b). ④ 노트 0.99/0.9973 = layer_ref 상수·실측(축 2 재실행 최저 0.9973).
 
-### F-412 [열림] (심각도: 중간) — PR #74 병합 뒤 중복 예비 검토(17:21)에서 F-410·F-411 에 없던 시험·문서 보강 묶음
+### F-412 [열림 — ⑦⑧ 닫음] (심각도: 중간) — PR #74 병합 뒤 중복 예비 검토(17:21)에서 F-410·F-411 에 없던 시험·문서 보강 묶음
 - ① (축 4a, 미확인 — 감독 미재실행) 제품 client/tower/buildings/perf.test.mjs:230 덮인 화소 단언이 `covered > 0` 뿐이고 :13 문턱 1500 ms 는 실측 최대 약 86 ms 의 17배. 실패 상황: 3000동 중 1동만 그리는 변이에서 perf 단독은 통과(감독 확인: 같은 변이를 index.mjs:48-49 에 넣으면 디렉터리 전체에서는 integration (d)·layer_ref 가 실패 — 그래서 정확성 구멍이 아니라 perf 시험 자체의 판별력 문제, 중간). 고칠 것: 모드·카메라별 덮인 화소 하한(원본의 90% 등), 문턱은 실측 3~5배. 확인 기준: 1동만 그리는 변이에서 perf.test.mjs 단독 실패. 권장 모델: sonnet
 - ② (축 4a, 미확인) perf·no_network 가 aerial 결과의 영상 표본 여부를 보지 않음 — rasterizeTextured 에 1×1 단색 영상을 넘기는 변이가 두 시험을 통과. 고칠 것: aerial 결과 서로 다른 색 수 하한 또는 화소 색 기대값. 확인 기준: 위 변이에서 실패. 권장 모델: sonnet
 - ③ (축 4a, 미확인) network_spies.mjs:207-208 dns 는 lookup·resolve 만 가로챔 — setMode 에서 dns.resolve4 호출 변이가 no_network 통과. 고칠 것: resolve*·reverse·lookupService·dns.Resolver.prototype. 확인 기준: resolve4 변이 실패. (F-410 ④ 와 같은 파일, 함께 처리) 권장 모델: sonnet
@@ -4657,4 +4661,21 @@
 - ⑦ (축 6, 낮음) lines.mjs:60 rasterizeLines 호출마다 lineMark = new Uint8Array(W·H) — 1080p 약 2 MB/프레임 추가 할당. F-408 ⑦ 버퍼 재사용과 함께. 확인 기준: 연속 render 200회 arrayBuffers 증가 ≈ 0. 권장 모델: sonnet
 - ⑧ (축 1b, 낮음) layer_ref.test.mjs:14-15 층이 rasterizeLines 에 depthBias 0.5 를 넘겨도 117 통과(선이 앞 면 0.5 m 안쪽에서 비침). F-410 ③ 과 함께 '참조 면·층 선' 화소 수 상한 또는 가림 고정 장면. 확인 기준: depthBias 0.5 주입 시 실패. 권장 모델: sonnet
 - 이력: 2026-10-05 17:30 감독 등록(:20 예비 실행 — 라벨 실행이 이미 17:23 병합한 뒤 같은 머리 f99bcd3 를 중복 검토한 결과 중 F-410·F-411 에 없는 것만). 모두 신규. 치명·높음 0(축 4a '높음' 1건은 감독 재현으로 중간 강등, ①).
+- 이력: 2026-10-05 17:55 감독(PR #75 검토 #1) — ⑦ 닫음(lines.mjs:36·62 markBuf 재사용, 200회 arrayBuffers 증가 0 — 축 6). ⑧ 닫음(depthBias 0.5 주입 layer_ref 실패 seed2 oblique 0.9898 — 축 4a; 0.2 m 는 통과, F-414 ②). ①~⑥ 은 T15.3b 시작(17:25) 뒤 17:30 등록이라 이번 범위 밖 — T15.3c 로.
 
+### F-413 [열림] (심각도: 중간) — PR #75 검토 #1 중간 묶음
+- ① (축 5, 감독 npm test 출력과 대조) 연구 experiments/t15-3b.md:16·:23·:26 — 표는 black 도시 전체 25.1 ms, :23 은 시험 ③ 이 '전체 약 33 ms' 라 하고, :26 은 '25~30 ms 라 S1 33 ms 안에 든다'. 실패 상황: reuse_cull.test.mjs ③ 출력 3회 전체 34.8·31.9·34.2 ms(축 5), 축 6 측정 29~32 ms(비스듬 64~73 ms) — S1 여유가 있다고 잘못 읽힌다. 고칠 것: 표를 시험과 같은 방식(중앙값 7회)으로 다시 재고 :26 을 '전체 시점 약 30~35 ms 로 S1 경계, 비스듬 시점은 64~73 ms 로 초과(CPU 경로, 실기기는 [local])' 로. 확인 기준: 노트 값이 reuse_cull 출력 ±10% 안, 33 ms 서술이 모순 없음. 권장 모델: haiku
+- ② (축 4b·5, 감독 직접 읽음 reuse_cull.test.mjs:121-133) 할당 단언이 arrayBuffers 증가만 보고 global.gc?.() 는 --expose-gc 없이 아무것도 안 한다. black 이 모드 목록에서 빠졌고 :122 주석('lines.mjs 가 호출마다 lineMark 를 만든다')은 이번 PR 의 lines.mjs:36·62 와 반대. 실패 상황: 객체 동일성은 지키고 render 마다 7.4 MB 새로 만들어 out 에 복사하는 변이가 파일 전체 실행에서 6/6 통과(축 4b). 고칠 것: 측정 구간 동안 Uint8Array·Float32Array·Int32Array 생성 횟수를 세어 0 단언(또는 v8.setFlagsFromString('--expose-gc')), modes 에 black, :122 주석 삭제. 확인 기준: 그 변이와 lines.mjs:62 를 매번 new Uint8Array 로 되돌린 변이가 파일 전체 실행 10/10 실패, 원본 10/10 통과. 권장 모델: sonnet
+- ③ (축 2) 연구 decisions/0048:66(:10·:16) '위 세 이탈을 renderer_basis 로부터의 편차로 명시' — 승인 조건(0048:106)·F-410 ⑥ 이 지목한 틀이 결정 절에 남음(renderer_basis 에 렌더링 절 없음). 고칠 것: 'renderer_basis 가 정하지 않는 세 렌더링 선택(근거 0046·계약)'. 확인 기준: 0048 에 'renderer_basis 로부터의 편차' 0건. 권장 모델: haiku
+- ④ (축 2, 재현 출력 있음·감독 미재실행 '미확인') 연구 experiments/t15-3.md:14 '새 분모에서는 선 겹침 단언으로 검증된다' — 선 겹침 단언은 black 전용이고 black 은 uv 를 안 쓴다. raster_tex.mjs:24 를 (1−v) 로 뒤집으면 aerial 일치율 0.1261 < 0.99 로 실패(축 2). 0049:33 의 0.9206 도 같은 이유로 재현 안 됨(F-412 ⑥ 과 함께). 고칠 것: 'aerial 일치율 단언에서 실패(0.1261)'·ref_trace.test.mjs:342-349 인용. 확인 기준: 노트 변이·수치 재현. 권장 모델: haiku
+- 이력: 2026-10-05 17:55 감독 등록(PR #75 검토 #1). 모두 신규(③④ 는 F-410 ⑥·F-412 ⑥ 의 남은 문서 오류).
+
+### F-414 [열림] (심각도: 낮음) — PR #75 검토 #1 낮음 묶음
+- ① (축 1b, 재현 출력 있음) client/tower/buildings/index.mjs:55 `if (z > near) behind = false` — lines.mjs 근평면 버림은 `az < near && bz < near`. 끝점이 정확히 z = nearM 인 선이 컬링 켬에서만 사라짐(R=I, t=[0,0,0.01], 64×64, f=100, c=32, 선 (−0.001,−0.0005,0)→(0.001,0.0005,0): 끔 22화소·켬 0). 고칠 것: `z >= near`, reuse_cull 에 그 사례. 확인 기준: 위 입력 컬링 on/off 화소 동일. 권장 모델: sonnet
+- ② (축 4a) layer_ref.test.mjs:41-46·:14 선·선 화소 'index 같고 깊이 1 % 안' 규칙이 단언이 아니라 일치율에만 섞임(worstLine 반환만, 단언 없음). depthBias 0.2 m 주입 시 127/0 통과(최저 0.9905). 고칠 것: 선·선 불일치 개수 상한 단언 또는 주석 정정, '참조 면·층 선' 화소 수 상한(F-412 ⑧ 후속). 확인 기준: depthBias 0.2 변이 실패. 권장 모델: sonnet
+- ③ (축 4b) network_spies.mjs:39 apis 가 setTimeout 만 — setInterval(fetch,1000) 변이는 no_network·integration 모두 통과, node:timers 이름 가져오기는 no_network 통과. :13 SETTLE_MS 미사용. 고칠 것: apis 에 setInterval, 나머지는 integration 파일 끝 감시에 맡긴다고 주석, SETTLE_MS 삭제. 확인 기준: setInterval 변이에서 no_network 실패. 권장 모델: sonnet
+- ④ (축 6·2) 연구 experiments/t15-3b.md:31 isFinite 인용 줄이 main 기준(points.mjs:35→:36, lines.mjs:79→:82); 유한성 검사를 래스터에 남긴 이유(단독 호출 방어) 한 줄. :6 '계약은 고치지 않았다' 는 이번 diff 의 buildings.mjs:22 render 계약 변경과 다름. 계약 :34 composeLayers 에 into? 미기재(감독 직접 확인). 확인 기준: 노트 인용 줄 = HEAD, 계약 compose 문자열에 into. 권장 모델: haiku
+- ⑤ (축 7) index.mjs:104-112 out 검사가 color·depth·index 의 .buffer 겹침을 안 봄 — depth·index 를 같은 ArrayBuffer 의 view 로 넘기면 depth 10→0 조용한 오답(compose into 도 같음). 고칠 것: 겹치면 RangeError 또는 계약에 '서로 겹치지 않는 배열'. 권장 모델: haiku
+- ⑥ (축 6) perf.test.mjs 합성 번들은 1묶음이라 컬링 무효(1묶음 edge 시점 켬 11.4 대 끔 9.4 ms). 노트·계약에 컬링 효과가 묶음 분할(서버 묶음 크기)에 달렸다고 한 줄. 남은 병목 raster_flat rasterSub 64.6%(비스듬 시점 black 64~73 ms)는 T17 [local] 성능 판단 때. 권장 모델: haiku
+- ⑦ (축 12, '높음' 보고를 강등 — 노트 :34 가 이미 'CI 컨테이너 CPU 값' 이라 명시, GPU 수치 아님) t15-3b.md 측정 표 머리에 [cloud] 표시. 권장 모델: haiku
+- 이력: 2026-10-05 17:55 감독 등록(PR #75 검토 #1). 모두 신규.
