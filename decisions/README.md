@@ -98,4 +98,4 @@
 | [0044](0044-t14-tower-assets-interpretations.md) | T14 건물 LOD 측정 정의(건물 영역 SSIM)·drape coverage 계약·cameraDistM·areaM2·지형 LOD 규칙·항공뷰 벽·drape 정렬 측정 상수(FLAT_MSE·ALIAS_MSE_RATIO·OUTLIER_PX·NEAR_PX·FLAT_BLOCKS_THRESHOLD)·외삽 범위·지붕 없는 메시 원본 유지·높이 계단·동일 상자 성능 최적화·LOD 상자 정점 분할 | 제안 | 작업자 제안(T14.R) |
 | 0045 | 결번(채번 건너뜀) | — | — |
 | [0046](0046-t15-terrain-ssim-scene.md) | T15.1 지형 층 8시점 SSIM 장면 조건·정점 법선 보간(F-395) | 제안 | 작업자 제안(T15.1b) |
-| [0047](0047-t15-2-local-unmeasured.md) | T15.2 정합 판정: 수가 아닌 local 블록을 미측정으로 센다(F-393 ①②) | 제안 | 작업자 제안(T15.2) |
+| [0047](0047-t15-2-local-unmeasured.md) | T15.2 정합 판정: 수가 아닌 local 블록을 미측정으로 센다(F-393 ①②) | 승인 | 작업자 제안(T15.2), 감독 승인(PR #73 검토 #2) |

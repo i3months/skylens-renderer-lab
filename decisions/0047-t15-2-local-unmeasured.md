@@ -1,6 +1,6 @@
 # 0047 T15.2 드레이프 정합 판정 전: 배제 못 한 이동량을 재지 않은 local 블록은 미측정으로 센다
 
-- 상태: 제안
+- 상태: 승인(감독, 2026-10-05 제품 PR #73 검토 #2)
 - 날짜: 2026-10-05
 - 결정한 사람: 작업자(제안)
 - 관련: TASKS T15.2(드레이프 정합 판정, 선행 조건), FEEDBACK F-393 ①②, F-391 ④, F-397 ②④, F-390 ⑥, F-359; 결정 0044 의 'T15.1 결정: F-391 ④ 호출부 t === null 은 도달 불가' 절과 'T15.R3 결정' 절; 제품 server/terrain/drape/index.mjs unexcludedSummary, server/terrain/drape/drape_unmeasured_summary.test.mjs·drape_unmeasured_link.test.mjs·drape_unmeasured.test.mjs, contracts/controlview/index.mjs isDrapeAligned
@@ -71,3 +71,7 @@ T15.2 정합 판정은 isDrapeAligned 를 그대로 쓴다. 클라이언트 드�
 - T15.2 에서 경로 1·4 에도 걷기를 넣을 때(선택지 (c)). 또는 F-385 ⑨ 양방향 걷기나 search 시작 비용 수정(0044 T15.1 안 3)으로 local 경로가 바뀌어 호출부 t === null 이 도달 가능해질 때. 그때 공개 API 사례와 U1 변이를 다시 잰다.
 - 실영상(T14L)에서 '보고 이동량 1 px 이하 local 로만 isDrapeAligned 가 거짓' 인 타일 비율을 잴 수 있을 때. 보수 실패가 과하면 (c)를 앞당긴다.
 - T15.2 정합 판정이 unmeasuredLocalBlocks 를 쓰는 방식(현재 `=== 0`)을 바꿀 때, 또는 pairedT 의 null 조건이나 minN 을 바꿀 때.
+
+## 감독 승인(2026-10-05, 제품 PR #73 검토 #2)
+- 승인: 수가 아닌 local 블록을 미측정으로 세고, 미측정 local 이 1 이상이면 정합 판정을 통과로 세지 않는다. 근거: 검토 #1 에서 보류한 전제(정합 판정 경로)가 이제 제품 client/tower/drape/align_judgement.test.mjs 로 코드에 있다 — 서버 측정 출력을 contracts isDrapeAligned 에 넣어 미측정 local 1 이면 거짓, 0 이면 참을 단언하고, 판정 줄을 `maxMisalignPx <= tol` 로 바꾼 변이에서 5건 중 3건이 실패한다(감독 검증 서브에이전트 재현). 클라이언트 그리기 코드는 isDrapeAligned 를 부르지 않는다(판정은 서버 측정 쪽).
+- 대가: 보수 실패(정합인데 미측정 때문에 거짓)는 실영상(T14L)에서 재야 한다. 위 '다시 볼 조건' 유지.
