@@ -24,13 +24,13 @@
 
 ### UV 규약 (서버 aerial_uv 에 맞춤)
 
-계약과 래스터를 서버 `aerial_uv` 규약에 맞춘다: v = 0 이 북쪽, 영상 행 0 = 북, 래스터 행 = v · height − 0.5. 초안은 '(0,0) 남서, v 북쪽 증가' 였다. 대안(서버 변경)은 기각했다.
+계약과 래스터를 서버 `aerial_uv` 규약에 맞춘다: v = 0 이 북쪽, 영상 행 0 = 북, 래스터 행 = v · height − 0.5. 초안은 '(0,0) 남서, v 북쪽 증가' 였다. 대안(서버 변경)은 기각했다: 서버 buildAerialUv 가 모든 건물 번들의 UV 를 생성하므로, 서버가 규약을 바꾸면 저장된 모든 건물 데이터의 UV 를 재생성해야 한다(server/buildings/aerial_uv/index.mjs:85-86 변경 시 전역 영향).
 
 ## 근거
 
 제품 client/tower/buildings/no_network.test.mjs(전역 fetch·WebSocket·XHR·http·net·dns 감시, 200 회 전환 요청 0, accept 1 회, 변이 가짜 층 2종은 실패)와 perf.test.mjs(RENDER_THRESHOLD_MS 1500 ms, 실제 측정 3000동 1280×720 black 40~98 ms, setMode 평균 ≤ 1 ms).
 
-**UV 규약 확인**: 층 대 참조 비교(layer_ref.test.mjs)에서 uv 를 뒤집는 변이는 일치율 0.9206 으로 실패(하한 0.99), 서버 규약 준수 확인.
+**UV 규약 확인**: 층 대 참조 비교에서 uv 를 뒤집는 변이는 실패한다. 세부 검사는 client/tower/buildings/ref_trace.test.mjs:342-349(m.bad > m.checked·0.5)·fixtures.test.mjs:67-77(v = 1−북쪽 비율 검증)에 기록됐고, 서버 규약 준수를 확인했다.
 
 선 깊이 편향 0.05 m 는 이 작업의 선택이며 실제 관제탑 영상과의 시각 비교는 [local] 이다. any-vertex 벽 규칙(wallMask=1 인 정점이 있는 삼각형 = 검정)은 contracts/tower_assets DISPLAY_MODES 와 결정 0044 §6 에 따른다. points 는 mesh 표본(표본점 xyz 3개 float32 = 12 B)이므로 renderer_basis.md 7-4 의 27 B 형식(밀집 점군 x y z + 법선 + 색)과 무관하다. renderer_basis 이탈 없음.
 
@@ -38,7 +38,7 @@
 
 각 선택의 제약과 재검토 기준:
 
-- **UV 규약 (서버 aerial_uv v=0 북)**: layer_ref.test.mjs(광선 추적 참조 대 층 비교, 54 조합 화소 일치율 ≥ 0.99)로 확인했고, 서버 변경은 비용이 크다. 항공영상 정렬이 실패하면(layer_ref 일치율 < 0.99) 재검토한다.
+- **UV 규약 (서버 aerial_uv v=0 북)**: client/tower/buildings/layer_ref.test.mjs(광선 추적 참조 대 층 비교, 54 조합 화소 일치율 ≥ 0.99, 픽셀 색상 차이 허용 RGB 채널당 3/255)로 확인했고, 서버 변경은 비용이 크다. 항공영상 정렬이 실패하면(layer_ref 일치율 < 0.99) 재검토한다.
 - **선 깊이 편향 0.05 m**: 같은 rasterizeLines 호출 안의 선끼리는 편향이 없고, 면과의 비교만 편향을 적용한다. 실제 관제탑 영상에서 선이 깜빡이거나 겹침이 있으면 재검토한다. 시각 비교는 [local]이다(미확인).
 - **Any-vertex 벽 규칙**: 계약 정의이며, wallMask 처리가 시각적 결함을 일으키면(검정 누락/오염) 재검토한다.
 - **초기 바이트 (15 MB)**: 세 옵션 자료를 모두 보내므로 초기 바이트가 증가한다. T15.10 번들·대역폭 측정에서 초기 묶음이 15 MB 를 초과하면 옵션 지연 로딩 또는 서버 캐시 전략 재검토한다.
