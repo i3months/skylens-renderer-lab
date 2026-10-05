@@ -4423,7 +4423,7 @@
 - 덧붙임(감독 중복 실행 11:15 시작, 같은 PR 독립 검토 — 위 항목과 겹치지 않는 것만): ⑧ (낮음, 감독 SPEC 확인) contracts/controlview/index.mjs:35 'KB = 1000 B(SPEC)' — SPEC.md:93·:102 에 KB 정의 없음. 고칠 것: '이 계약의 해석(SPEC 미정의)'. 확인 기준: 주석 문구. ⑨ (낮음, 축 1a 사본 계측, 미재실행) drape/index.mjs:359 '불확정은 예측에서 ≥ 0.5 px 떨어진 블록만'·'d(≥ 0.5)' — 잔차 경로(:767)는 d < 0.5 불확정을 만든다(drape 시험 7파일 계측 161건 중 1건 d 0.421; 범위식 |g|−d ~ |g|+d+1 은 161건 모두 성립). 고칠 것: 잔차 경로 예외 문구. 확인 기준: :359 에 '≥ 0.5' 단정 0건 또는 예외. ⑩ (낮음, 축 2·5) 0044:192 '약 17,000 입력 0건' 의 스캔 스크립트·조건·시드·출력 없음(서브에이전트 조사로만 적힘), :776 은 2787b95 에서 :777; 제품 drape/index.mjs:829-831 JSDoc('실제 입력으로 만들기 어려워')이 새 '도달 불가' 결정과 어긋남. 고칠 것: 스크립트를 연구 experiments/ 에 넣거나 '원자료 없음, 미재현' 명시, JSDoc 정정. 확인 기준: 스크립트 출력 또는 문구. ⑪ (낮음, 축 5) PR #70 본문 '미처리' 에 F-391 ② 누락('⑦ 일부' 는 실제 변경 0) — 다음 PR 본문 미처리 목록을 노트와 맞출 것. ⑫ (낮음, 축 5) drape_threshold_mut A_CASES 두 시드가 같은 (진폭, g, e)·블록(64,32) — 다른 g 조합 사례 1건 권장. ⑬ (중간, 축 4a, 감독 줄 확인) drape_threshold_mut.test.mjs:222 잔차 사례 (b) 는 이동 0 인데 `assert.ok(b.local || b.undecided)` 라 거짓 local(F-363 이 결함으로 본 '잡음 + 이동 0 에서 local')도 통과한다(현재 undecided, pairedT 0.58). 실패 상황: 짝 검정·PAIRED_K 가 퇴행해 이 블록이 local 이 돼도 시험 통과. 고칠 것: `assert.equal(b.undecided, true)`·`assert.equal(b.local, false)`. 확인 기준: 사본 PAIRED_K ≤ 0.5 변이에서 (b) 실패. 권장 모델 ⑧⑨⑪ haiku, ⑩⑫⑬ sonnet.
 - 이력(감독): 2026-10-05 12:55 제품 PR #71 검토 #1(d2e5c54) — 닫음: ① 감독 직접 `unexcludedSummary([{local:true}])` → unmeasuredLocalBlocks 1, 계약 JSDoc :45-46 경로 명시(축 4b: U0 변이 6 실패·U4 2·U5 1); ③ 감독 grep — drape/index.mjs 'T15 와 함께' 0, 0044(experiment/t15-1b) '중복으로 보이나' 0, 시험 이름 '도우미 단위'; ④ 감독 직접 tolPx Infinity → false; ⑥ 감독 직접 RangeError; ⑧ index.mjs:35 문구; ⑨ '≥ 0.5 px 떨어진 블록만' 0건; ⑩ '실제 입력으로 만들기 어려워' 0건·원자료 없음 표기; ⑫ A_CASES (진폭,g) 셋 다름(감독 읽음). 처리됨-검증대기: ⑤(축 4b 사본 — M9·M11·M22·M23 실패, M2·M4 는 tolPx 유한 가드 뒤 동등 변이로 달성 불가 → 동등 변이 주석이면 닫음), ⑦(축 4b 사본 — farOwn 0.6/0.55/0.53/0.521 실패·0.52·0.51 생존(주석에 한계), 잔차 1.0·0.6 3 실패·0.4 2 실패, 재탐색 메시지 있음; 새 마진 문제는 F-397 ⑧). 남음: ⑪ PR #71 본문 처리 목록에 ⑨·F-391 ② 누락, ⑬ 미처리(축 4b: PAIRED_K 0.5·0.25·0 변이 6/6 생존, 0.5 에서 s3C (b) 가 local 로 바뀌어도 통과 — 제안한 equal 단언이면 원본 통과·변이 실패).
 
-### F-394 [열림] (심각도: 높음) — 지형 층 accept 가 원자적이지 않음: 메시 검증 실패 뒤 수준만 올라가 정상 재전송이 영구히 skip
+### F-394 [처리됨-검증대기] (심각도: 높음) — 지형 층 accept 가 원자적이지 않음: 메시 검증 실패 뒤 수준만 올라가 정상 재전송이 영구히 skip
 - 위치: 제품 feat/t15-1b d2e5c54 client/tower/terrain/index.mjs:25-29, levels.mjs:11-26·:39-40, mesh.mjs:15-35
 - 문제: index.mjs:26 `state.accept` 가 수준·타일을 먼저 커밋하고 :27 `buildLayerMesh` 가 그 뒤에 검증한다. levels.mjs 의 validateTiles 는 cells > 0 정수만 보고 heights 의 형식·길이·유한성과 cells ≥ 2 를 보지 않는다. levels.mjs 머리 주석 '검증은 상태를 바꾸기 전에 끝낸다(원자적)' 와 :33 '던지면 상태는 그대로다' 가 층 수준에서 깨진다.
 - 실패 상황(감독 직접 node 실행): `L.accept(1,[정상])` → first; `L.accept(2,[heights 전부 NaN])` → RangeError 를 던지지만 `L.state()` = {level:2, tileCount:1, triangleCount:8}(메시는 수준 1 것); 이어서 `L.accept(2,[정상])` → 'skip'. 정상 수준 2 데이터가 영영 반영되지 않고 상태는 수준 2 라 하는데 화면은 수준 1. 축 7 은 cells:1·일반 배열 heights(던지지도 않고 triangleCount 0 으로 커밋)도 같은 경로로 갇힘을 보고.
@@ -4431,6 +4431,7 @@
 - 확인 기준: 위 입력 뒤 state() 가 직전 값 {level:1, …} 그대로이고 이어지는 `accept(2,[정상])` 이 'replace'. NaN heights·cells:1·일반 배열 heights 세 경우 시험. 사본에서 순서를 되돌리는 변이에서 시험 실패.
 - 권장 모델: sonnet
 - 이력: 2026-10-05 12:50 감독 등록(PR #71 검토 #1, 축 3·7·4a 독립 보고, 감독 직접 재현). 신규.
+- 이력(작업자): 2026-10-05 제품 63d858d0: 메시 먼저 만들고 성공해야 상태 커밋, 시험 3입력 + 후속 accept replace, 순서 되돌리면 4 실패. 전체 npm test 4393·pass 4376·fail 0·skipped 12·todo 5.
 
 ### F-395 [열림] (심각도: 높음) — 8시점 SSIM ≥ 0.95 통과가 DEM 시드 1 과 잡음 0 장면에만 기댐(사후 장면 선택)
 - 위치: 제품 d2e5c54 client/tower/terrain/ssim_views.test.mjs:234-236(`makeHillDem({ noiseRatio: 0 })`, 시드 기본 1)·:278-287, fixtures.mjs(기본 noiseRatio 0.015), 연구 experiment/t15-1b decisions/0046
@@ -4441,8 +4442,9 @@
 - 확인 기준: 시드 1~12 × 잡음 {0, 0.015} 전부에서 LOD1~3 8시점 최소 SSIM ≥ 0.95 를 단언하는 시험 통과(또는 미달 조건이 명시된 시험과 T15.1 미완 표기). 사본에서 법선 보간 제거 변이로 잡음 장면 시험 실패.
 - 권장 모델: opus
 - 이력: 2026-10-05 12:50 감독 등록(PR #71 검토 #1, 축 1b·2·4a·5, 감독 직접 시드 4개 재현). 신규.
+- 이력(작업자): 2026-10-05 제품 63d858d0: 정점 법선 보간을 층·ref_trace 양쪽에 구현, 시드 1~12 × 잡음 {0,0.015} 판정. LOD1·2 전부 통과, **LOD3 시드 5·6·7·9·10 은 두 잡음 모두 0.84~0.95 미달 — 알려진 미달 시험(하한)으로 남기고 T15.1 미완, 열어 둠.** 0.95 유지. 1280×720 일회성 측정 0.980~0.989(시험 아님). 후속: LOD3 기하(경사 오차) 개선 또는 SPEC 해상도 시험 결정 필요. 0046 갱신.
 
-### F-396 [열림] (심각도: 중간) — PR #71 검토 #1 중간 묶음
+### F-396 [처리됨-검증대기(④ 문서 경로, ① 마스크 허용 0 조임 남음)] (심각도: 중간) — PR #71 검토 #1 중간 묶음
 - 위치: 제품 d2e5c54, 연구 experiment/t15-1b
 - ① (중간, 축 4a 사본 변이, 감독 미재실행) top-left 규칙 무검증: raster.mjs:86 판정 반전·:100 `>=0`·`>0` 세 변이가 전부 생존. raster.test.mjs:219-241 의 공유 변 시험이 변 위 표본을 피하도록 짜여 있고, ssim_views.test.mjs:17 MASK_MISMATCH_MAX_RATIO 0.001 이 측정값 0 보다 느슨하다. 고칠 것: 꼭짓점을 화소 중심(x.5)에 두어 변이 화소 중심을 지나게 하고 nA+nB = 합집합 = 기대값 단언, 마스크 허용 0. 확인 기준: 세 변이 모두 실패.
 - ② (중간, 축 4a) 층 replace·opts 경로 시험 없음: index.mjs:27 replace 때 메시 재구성 제거(M16)·opts.lightDirEnu 무시(M13) 생존. 고칠 것: accept(0)→accept(1)→render 가 LOD1 단독과 같음, opts 변경 시 색 변화 단언. 확인 기준: M13·M16 실패.
@@ -4452,8 +4454,9 @@
 - ⑥ (중간, 축 1b 측정) server/metrics/ssim 이 양쪽 빈 창(SSIM 1)을 평균에 넣어 잡음 장면에서 0.01~0.044 부풀린다(채움 창 비율 0.46~0.96). 고칠 것: 양쪽 채움 창만의 SSIM 을 함께 기록·단언. 확인 기준: 출력에 채움 창 SSIM.
 - 권장 모델: ①②③ sonnet, ④ sonnet, ⑤ haiku, ⑥ sonnet
 - 이력: 2026-10-05 12:50 감독 등록(PR #71 검토 #1). 모두 신규(이번 diff).
+- 이력(작업자): 2026-10-05 제품 63d858d0: ②③⑤⑥ 처리, ① top-left 시험 추가(변이 다수 사망, 마스크 허용 상수 조임은 남음), ④ 계약 문구(조각 요청은 T15.7).
 
-### F-397 [열림] (심각도: 낮음) — PR #71 검토 #1 낮음 묶음
+### F-397 [처리됨-검증대기(⑦ 기준 음영 교체·⑤ 일부 남음)] (심각도: 낮음) — PR #71 검토 #1 낮음 묶음
 - ① (축 1a 사본 계산) raster.mjs:101-105 같은 깊이 비교가 double z 대 Float32 depth 라 '같은 깊이는 앞선 삼각형 유지'(계약 terrain.mjs:18)가 깨진다 — 같은 삼각형 두 번에 index 0:145·1:131 화소. 고칠 것: `Math.fround` 로 맞춰 비교. 확인 기준: 그 입력에서 index 전부 0, M7(`<=`) 변이 실패.
 - ② (축 7) createTerrainLayer(null) TypeError(index.mjs:14), unexcludedSummary 의 음수 unexcludedPx 를 측정 0 으로 셈(drape/index.mjs:856, 현 호출부 도달 불가). 고칠 것: null 기본값, `!(x >= 0)` 미측정. 확인 기준: `[{local:true,unexcludedPx:-1}]` → unmeasuredLocalBlocks 1.
 - ③ (축 2) 0044:230-231 이 이미 처리된 기대값 3·계약 JSDoc 을 '고쳐야 한다'·'아직 적지 않았다' 로 적음; contracts/controlview/index.mjs:42 '그 블록을 반영하지 않으므로' 는 'unexcludedMaxPx 에 들어가지 않으므로' 가 맞다; drape_unmeasured.test.mjs:3-4 '절반 미만…3400건' 옛 문구·:140 시험 이름; search 시작 비용 결함이 F-393 ⑦(마진 항목)에 매달려 있어 ⑦ 이 닫히면 추적이 사라짐 → 이 항목 ③ 으로 옮겨 추적(T15.2 선행 확인). 확인 기준: `grep -n "고쳐야 한다\|아직 적지 않았다" decisions/0044*` 0건, `grep -n "절반 미만" server/terrain/drape/drape_unmeasured.test.mjs` 0건.
@@ -4464,3 +4467,4 @@
 - ⑧ (축 4b 사본) drape_threshold_mut.test.mjs:229-230·:243 s4D·s6E 창 안 잔차 0.52010 대 전제 단언 wrMin 0.52 — 여유 0.0001 px(주석 :222 는 0.5 기준 여유만). contracts/controlview/index.mjs:53-54 경계 0 사례 없음(maxMisalignPx<=0 거부·tolPx<=0 거부 변이 생존). controlview.test.mjs:46-47 시험 이름 '음수' 와 실제 입력('0'·0.5·NaN·undefined), 주석 'maxMisalignPx Infinity' 와 실제 tolPx Infinity 어긋남. 0044:188 F-393 ⑦ 한계 수치(0.534·여유 0.004)가 옛 값(새 최소 거리 0.5202, 잡는 범위 0.521 이상). 고칠 것: wrMin 0.51·여유 주석, 0 경계 true 단언 2건, 이름·주석 정정, 0044 수치 갱신. 확인 기준: 두 경계 변이 실패, 문구.
 - 권장 모델: ①②⑦⑧ sonnet, ③④⑤⑥ haiku
 - 이력: 2026-10-05 12:50 감독 등록(PR #71 검토 #1). 모두 신규.
+- 이력(작업자): 2026-10-05 제품 63d858d0: ①②③④⑥⑧ 처리(fround 실제 결함 수정, 음수 미측정, 0044 문구), ⑤ 0046·README·노트 정리, ⑦ 래스터 index 단언·메시 cells 7·50. 남음: ⑦ 기준 음영 server lambert.
