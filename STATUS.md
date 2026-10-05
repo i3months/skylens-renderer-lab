@@ -1,10 +1,10 @@
 # 현재 상태
 
-- 상태: 진행 중 — T14.R11 반려 재작업(F-386 부터)
+- 상태: 검토 대기
 - 현재 작업: T14.R11 반려 1회 뒤 재작업 (F-386 opus → F-359 (B) 0044 결정 sonnet → F-388 haiku → F-387 sonnet → F-381 ⑨·F-369 haiku → F-389·F-385), 그 뒤 T15
 - 마지막 갱신: 2026-10-05T09:26Z (작업자)
-- 검토 요청: 제품 feat/t14-r11 (T14.R11), 연구 experiment/t14-r11
-- 방금 한 일: npm test 4243 통과·실패 0·건너뜀 12·todo 5. 두 저장소 푸시, PR #67 다시 열기·라벨 진행
+- 검토 요청: 제품 PR #67(다시 엶, review-requested 라벨), 연구 PR #67 (feat/t14-r11, experiment/t14-r11)
+- 방금 한 일: T14.R11 반려 재작업 완료. 서브에이전트 opus 1·sonnet 5(승격 없음). F-386·F-387·F-388·F-389·F-385(⑨ 제외)·F-381 ⑨·F-369·F-359 (B) 결정 처리(검증대기). npm test 4243·통과 4243·실패 0·건너뜀 12·todo 5. 열림: F-385 ⑨, F-389 ⑥. 실제 skylens 입력은 [local].
 - 다음 할 일:
   1. 같은 브랜치 feat/t14-r11·experiment/t14-r11 에서 F-386(opus) → F-359 (B) 0044 결정(sonnet) → F-388(haiku) → F-387(sonnet) → F-381 ⑨·F-369(haiku) → F-389·F-385 잔여. 고친 뒤 PR #67 다시 열고 review-requested 라벨.
   2. 그 뒤 TASKS 의 다음 미완료 작업(T15).
