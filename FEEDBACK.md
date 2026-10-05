@@ -4721,7 +4721,7 @@
 - ⑤ (축 4c, 참고) v 방향 반 화소 변이(v = j + 1, 깊이 유지)는 성분 단언이 6/48(top_down)만 잡음 — 비스듬 시점에서 그 변이의 실제 화면 이동이 0.01~0.24 px 이라 측정기 결함은 아니며, 정합 ≤ 1 px(:481)·격자선(:556) 시험이 잡음. 조치 불요, 기록만.
 - 이력: 2026-10-05 18:42 감독 등록(PR #77 검토 #1). 모두 새로 찾은 것. → 19:10 PR #78 검토 #1(반려): ① fill 삭제 변이 4종 실패 확인(축 4b), ② DRAPE_SEEDS 7-12 실행 pass 10(축 4b·5)·파싱 결함은 F-421 ③, ④ JSDoc 확인. ③ t15-3b/3c/3d 문구 미대조. PR #78 병합 때 ①④ 닫음.
 
-### F-419 [열림] (심각도: 높음) — T15.4 기술적 결정(추정 키 배치·기본값, dt 상한, 고도 범위, 적분 순서)이 decisions/ 에 없고, 적분 순서를 시험이 지키지 않는다
+### F-419 [처리됨-검증대기] (심각도: 높음) — T15.4 기술적 결정(추정 키 배치·기본값, dt 상한, 고도 범위, 적분 순서)이 decisions/ 에 없고, 적분 순서를 시험이 지키지 않는다
 - 위치: 제품 feat/t15-4 28adb5b contracts/controlview/input.mjs:4·:8-15·:29, client/tower/input/state.mjs:48-52, state.test.mjs:44-58; 연구 experiment/t15-4 fb80e04 decisions/(0049 가 마지막)
 - 문제: (A) 감독 절차 §3.1 — 키 배치(방향키·Q/E)·속도 10 m/s·방위 1 rad/s·고도 5 m/s·고도 [1, 500] m·pitch −0.3·fovY 0.9·dt 상한 0.25 s(origin 'estimated')와 '이번 스텝 시작 방위로 이동한 뒤 회전'(전진 오일러) 적분 순서가 결정 기록 없이 들어왔다. 근거·대가·다시 볼 조건(T15.0L [local] 대조) 없음. renderer_basis 해당 없음 판단도 기록 없음. (B) 적분 순서는 계약 :29 에 없고, 회전·이동을 동시에 누르는 시험이 없어 순서 변이가 통과한다.
 - 실패 상황: (B) 감독 재현 — state.mjs 에서 `yaw += …` 를 이동 앞으로 옮긴 사본에서 `node --test client/tower/input/*.test.mjs` 31 통과 0 실패. 축 1b 측정: ArrowUp+ArrowRight 를 π/2 s 누르면 dt=1/60 → (9.875, 10.083), dt=0.25 → (7.997, 11.085), 프레임 간격에 따라 약 2.2 m 다른 궤적. 첫 프레임에 반환 pose 의 yaw(새 값)와 이동 방향(옛 값)이 다르다.
@@ -4729,8 +4729,9 @@
 - 확인 기준: decisions/0050 존재·표 행 있음; '회전 후 이동'·'이동 후 회전' 중 정하지 않은 쪽 변이가 새 시험에서 실패; 계약 :29 에 순서 문장.
 - 권장 모델: ① haiku, ②③ sonnet
 - 이력: 2026-10-05 19:10 감독 등록(PR #78 검토 #1, 축 2·1b·4a; (B) 순서 변이 감독 사본 재현). 새로 찾은 것.
+  2026-10-05 작업자 처리(제품 a3e717e0, 노트 t15-4.md 반려 절). 확인 기준 직접 실행: 입력 시험 41 통과 0 실패, 전체 npm test 4680 통과 0 실패.
 
-### F-420 [열림] (심각도: 높음) — 입력 층 no_network 시험이 감시자 restore(미뤄진 호출 실행) 전에 단언해 지연 네트워크 호출을 놓친다
+### F-420 [처리됨-검증대기] (심각도: 높음) — 입력 층 no_network 시험이 감시자 restore(미뤄진 호출 실행) 전에 단언해 지연 네트워크 호출을 놓친다
 - 위치: 제품 feat/t15-4 28adb5b client/tower/input/no_network.test.mjs:48(단언)·:50(await spies.restore())
 - 문제: network_spies 의 restore 는 미뤄진 타이머·setImmediate·마이크로태스크를 비우며 그때 생긴 호출을 calls 에 기록한다. 건물 층 시험(buildings/no_network.test.mjs:95-97)은 restore 뒤에 calls 를 보는데, 입력 층 시험은 그 전에 `deepEqual(spies.calls, [])` 를 해 restore 가 기록한 호출을 보지 못한다. T15.4 완료 기준('네트워크·타이머를 쓰지 않는다')을 지키는 유일한 시험이다.
 - 실패 상황: 감독 재현 — index.mjs step 첫 줄에 `queueMicrotask(() => globalThis.fetch('http://127.0.0.1:1/x').catch(()=>{}))` 를 넣은 사본에서 no_network.test 2 통과 0 실패. 축 4a: setTimeout(…,5000)·setImmediate 로 미룬 fetch 도 통과.
@@ -4738,8 +4739,9 @@
 - 확인 기준: 위 queueMicrotask·setTimeout·setImmediate 지연 fetch 변이 세 가지가 모두 실패.
 - 권장 모델: sonnet
 - 이력: 2026-10-05 19:10 감독 등록(PR #78 검토 #1, 축 4a 보고, 감독 사본 재현). 새로 찾은 것.
+  2026-10-05 작업자 처리(제품 a3e717e0, 노트 t15-4.md 반려 절). 확인 기준 직접 실행: 입력 시험 41 통과 0 실패, 전체 npm test 4680 통과 0 실패.
 
-### F-421 [열림] (심각도: 중간) — PR #78 검토 #1 중간 묶음
+### F-421 [처리됨-검증대기] (심각도: 중간) — PR #78 검토 #1 중간 묶음
 - 위치: 제품 feat/t15-4 28adb5b, 연구 experiment/t15-4 fb80e04
 - ① (F-417 ① 잔여, 감독 직접 읽음) perf.test.mjs:16 `// 재측정 최대(~85 ms, black)의 3배 남짓` 이 그대로 — :3 은 70 ms 로 고쳤고 t15-3e.md 는 '모두 70 ms' 라고 적었다. 또 70.4 ms 는 t15-3e 표에서 aerial(B1 카메라 1) 값이고 black 최대는 63.9 ms 인데 perf.test.mjs:3·0049:31 은 'black … 70 ms' 로 적었다. 고칠 것: :16 을 '전체 최대 70 ms(aerial), 300 ms 는 약 4배' 로, :3·0049:31 은 'black 최대 64 ms·전체(aerial) 최대 70 ms'. 확인 기준: `grep -rn '85 ms' client` 0건, 문서 수치 = t15-3e 표. 권장 모델: haiku
 - ② (F-417 ③ 잔여, 감독 직접 읽음 t15-3b.md:29) 'perf.test.mjs 의 장면은 3000동이 한 묶음이라 … 컬링이 아무것도 못 빼고' 와 'black 35~72 ms·aerial 27~72 ms' 가 남아 GROUP_COUNT 6(perf.test.mjs:13)과 모순. 고칠 것: '그 측정 당시 1묶음' 으로 시점을 밝히고 현재 6묶음 수치는 t15-3e 표를 가리킨다. 확인 기준: t15-3b 에 현재형 '한 묶음' 서술 없음. 권장 모델: haiku
@@ -4747,8 +4749,9 @@
 - ④ (축 4a 보고, '미확인') 타이머 사용 자체를 세지 않는다 — network_spies.mjs:43 mock.timers 는 기록하지 않으므로 state 에 `setTimeout(()=>{},0)` 을 넣어도 입력 층 no_network 통과(시험 이름은 '타이머 호출 0'). index.test.mjs:19-24 소스 문자열 검사는 index.mjs 만 본다. 고칠 것: 문자열 검사를 state·keys·camera.mjs 로 넓히거나 입력 층 시험에서 타이머 생성을 센다. 확인 기준: 타이머만 쓰는 변이 실패. 권장 모델: sonnet
 - ⑤ (축 4a 보고, '미확인') keys.test.mjs:7-14 가 down 을 3번(홀수) 불러 '이미 눌린 키 down 은 뗀다' 토글 변이가 통과. index 수준 releaseAll 결과 단언 없음(index.mjs:50 을 `() => {}` 로 바꿔도 통과). 고칠 것: down 2번 뒤 held 참 단언; keyDown('ArrowUp')→releaseAll()→step(0.1) 뒤 pos 불변 단언. 확인 기준: 두 변이 실패. 권장 모델: haiku
 - 이력: 2026-10-05 19:10 감독 등록(PR #78 검토 #1). ①② 이전 항목(F-417 ①③) 잔여, ③④⑤ 새로 찾은 것.
+  2026-10-05 작업자 처리(제품 a3e717e0, 노트 t15-4.md 반려 절). 확인 기준 직접 실행: 입력 시험 41 통과 0 실패, 전체 npm test 4680 통과 0 실패.
 
-### F-422 [열림] (심각도: 낮음) — PR #78 검토 #1 낮음 묶음
+### F-422 [처리됨-검증대기] (심각도: 낮음) — PR #78 검토 #1 낮음 묶음
 - ① (축 2·3, 감독 직접 읽음) contracts/controlview/input.mjs:30 keys 문장 자기모순('반대 키 상쇄는 state 가 아니라 여기서 … state 가 상쇄한다'). → 'keys 는 상쇄하지 않고 held 에 둘 다 true 로 둔다. 상쇄는 state 가 한다'. 권장 모델: haiku
 - ② (축 7) state.mjs:49-51 극단 속도(speedMps 1e308)에서 pos 가 Infinity/NaN 이 되고 camera() 가 매 프레임 RangeError, 키를 떼도 복구 안 됨. 생성 때 speedMps·altRateMps 상한 또는 step 뒤 pos float32 유한 검사. 현실 속도에서는 무관. 권장 모델: haiku
 - ③ (축 7) createTowerInput({fovYRad:4})·{fovYRad:-1}·pos[0]=1e39 는 생성 성공 후 camera() 에서만 던진다 — 생성 시점에 camera.mjs 와 같은 규칙으로 검사. pitchRad 범위([−π/2, π/2]) 미검사. 권장 모델: haiku
@@ -4757,3 +4760,4 @@
 - ⑥ (축 2·5) t15-3e 표 행에 [cloud]·묶음 수 열 없음(절 제목·명령 줄에만). PR 본문 '4685 중 4668 통과' 에 skip·todo 수 미기재. 입력 시험 수는 감독·축 5 실행 31(본문·t15-4.md 는 29). 권장 모델: haiku
 - 기각·관찰: 축 9 '연구 노트의 모델 이름' 은 TASKS 모델 배정 기록이라 흔적 아님. 축 11 'perf 주석의 측정값' 은 문턱 근거 주석(허용, F-417 ① 이 요구). 축 7 성능: step+camera 0.66 µs/프레임, 조치 불요.
 - 이력: 2026-10-05 19:10 감독 등록(PR #78 검토 #1). 모두 새로 찾은 것.
+  2026-10-05 작업자 처리(제품 a3e717e0, 노트 t15-4.md 반려 절). 확인 기준 직접 실행: 입력 시험 41 통과 0 실패, 전체 npm test 4680 통과 0 실패.

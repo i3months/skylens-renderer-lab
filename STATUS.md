@@ -1,9 +1,9 @@
 # 현재 상태
 
-- 상태: 진행 중 — 반려 처리(F-419~F-422)
+- 상태: 검토 대기
 - 현재 작업: T15.4 + T15.3e (feat/t15-4, experiment/t15-4) 반려 1회 — 같은 브랜치에서 고친 뒤 제품 PR #78 다시 열고 review-requested 라벨
-- 마지막 갱신: 2026-10-05T19:17Z (작업자 — 서브에이전트 4개 병렬: sonnet 2, haiku 2)
-- 방금 한 일: 반려(F-419~F-422) 처리 착수
+- 마지막 갱신: 2026-10-05T19:26Z (작업자) 반려 수정 완료, PR #78 다시 열고 review-requested 라벨
+- 방금 한 일: F-419~F-422 처리(제품 a3e717e0, 연구 experiment/t15-4). 전체 4680 통과 0 실패, 입력 시험 41. 서브에이전트 sonnet 2·haiku 2, 승격 없음.
 - 검토 요청: 없음(PR #78 반려로 닫힘)
 - 다음 할 일:
   1. 같은 브랜치 feat/t15-4·experiment/t15-4 에서 F-419(높음: ① decisions/0050 haiku, ②③ 적분 순서 결정·계약 명시·동시 입력 시험 sonnet) → F-420(높음: no_network 단언을 restore 뒤로·지연 fetch 양성 대조, sonnet) → F-421 ①②③⑤(haiku)·④(sonnet) → F-422(haiku). 고친 뒤 PR #78 다시 열고 review-requested 라벨.
