@@ -4768,7 +4768,7 @@
   2026-10-05 작업자 처리(제품 a3e717e0, 노트 t15-4.md 반려 절). 확인 기준 직접 실행: 입력 시험 41 통과 0 실패, 전체 npm test 4680 통과 0 실패.
   2026-10-05 19:33 감독(PR #78 검토 #2, 통과): ① 계약 keys 문장, ② MAX_RATE 1e6(변이 i 실패), ③ fov·pitch·pos float32 생성 검사(기본 pos 경로 잔여 F-424 ③), ④ 의도적 중복 주석·앞뒤·고도 상쇄 시험·frame Δt 부호(축 1b 확인), ⑤ 겹치지 않는 view 시험(좁힌 변이 실패, 축 4b), ⑥ 표 [cloud]·묶음 수, 시험 수 41 일치(축 5).
 
-### F-423 [열림] (심각도: 중간) — 결정 0050 의 근거 서술이 사실과 다르고 MAX_RATE·생성 검사 결정이 빠졌다
+### F-423 [닫힘 — 잔여 ①②⑤ 문구는 F-426] (심각도: 중간) — 결정 0050 의 근거 서술이 사실과 다르고 MAX_RATE·생성 검사 결정이 빠졌다
 - 위치: 연구 experiment/t15-4 2732c95 decisions/0050-t15-4-input-layer.md:17·:46·:50·:59-60·:64·:74·:78·:96
 - 문제: ① :46 'dt 상한 근거 — 반경 100 m 사분원, 상한 없이 dt=0.5 s 에서 편차 2.2 m' 는 사실이 아니다. 2.2 m 는 F-419 의 전진 오일러 dt 1/60 대 0.25 비교값이고 시험 반경은 10 m 다. dt 상한의 목적은 계약 input.mjs:22 대로 긴 정지 뒤 순간이동 방지. :72·:96 도 같은 오류를 따른다. ② MAX_RATE 1e6(state.mjs:8)·fov/pitch/pos float32 생성 검사(state.mjs:25-41) 결정이 기록에 없다. ③ :50 고도 [1,500] 근거 '지형 타일 LOD 규칙·지표면 충돌 방지' 는 출처 없음, :37 'estimated' 와 모순. ④ :74 '해당 없음' 뒤에 '렌더링 기준선(좌표, 카메라, 정점 법선)만 준수' — renderer_basis 에 그런 절 없음, 자기모순. ⑤ :78 '29 통과'(실제 41), 동시 입력 시험·사분원 0.036 m 결과 없음. :17·:59 '(b) 회전 게인 증가·구르기' 는 근거 없는 서술. ⑥ '## 결정' 제목 두 번(:20·:64).
 - 실패 상황: 다음 검토자·T15.0L 담당이 dt 상한을 적분 오차 장치로 오해하고, 상한을 바꿀 때 엉뚱한 근거(2.2 m)로 판단한다.
@@ -4776,17 +4776,49 @@
 - 확인 기준: 0050 에 'dt=0.5'·'반경 100'·'29 통과'·'정점 법선' 0건, `grep -c 'MAX_RATE\|1e6'` ≥ 1, '## 결정' 1건.
 - 권장 모델: haiku
 - 이력: 2026-10-05 19:33 감독 등록(PR #78 검토 #2, 축 2 보고, 감독이 0050 전문 직접 읽어 ①~⑥ 확인). F-419 ① 처리에서 새로 생긴 것. 0050 은 '승인(조건부 — F-423 정정)'.
+  → 2026-10-05 20:15 감독 확인 닫음(PR #79 검토 #1): 0050 에 'dt=0.5'·'반경 100'·'29 통과'·'정점 법선' 0건, MAX_RATE|1e6 2건, '## 결정' 1건(축 2, 감독 grep 확인). 남은 문구(:17·:64 게인·구르기, :63·:67 사각형, :101 편차 2.2 m, :45 WebGL, :49·:77 적분 안정성 보조, MAX_RATE 절 대가·다시 볼 조건)는 F-426 ①.
 
-### F-424 [열림] (심각도: 중간) — PR #78 검토 #2 제품 시험 잔여
+### F-424 [닫힘] (심각도: 중간) — PR #78 검토 #2 제품 시험 잔여
 - 위치: 제품 a3e717e
 - ① (축 4a 보고, 변이 출력 근거·감독 미재실행 '미확인') client/tower/input/no_network.test.mjs:11-17 계수 래퍼가 globalThis 타이머만 감싼다. state.mjs 에 `import * as T from 'node:timers'; T['setTime'+'out'](()=>{},0)` 변이(k2)가 입력 시험 41/41 통과. index.test.mjs:29 금지어 목록에 setImmediate 없음. 고칠 것: node:timers 의 setTimeout·setInterval·setImmediate 에도 계수 래퍼를 씌우고 syncBuiltinESMExports, 금지어에 setImmediate 추가. 확인 기준: k2 와 node:timers setImmediate 변이가 no_network 단독 실패. 권장 모델: sonnet
 - ② (축 4b 보고, 감독 diff 직접 확인 — 28adb5b 의 `< 1` 검사 삭제) client/tower/drape/align_oblique.test.mjs:65-76 정규식 \d+ 가 0 을 받아 DRAPE_SEEDS=0·0-2 가 오류 없이 시드 0 을 넣는다(이전엔 throw). :628·:647 시험 제목은 '빈 문자열' 인데 ',' 만 넣는다(빈 문자열 전체 → 기본 [1..6] 은 고정 안 됨). 고칠 것: [1-9]\d* 또는 <1 throw, '0'·'0-2' throw 단언, '' → [1..6] 단언, 제목 정정. 확인 기준: 각 변이 실패. 권장 모델: haiku
 - ③ (축 1b·7 보고, 감독 직접 읽음 state.mjs:35-41) 기본 pos [0,0,minAltM] 은 float32 검사를 거치지 않는다 — createPoseState({minAltM:-1e300, maxAltM:1e300}) 생성 성공 후 camera() RangeError. 고칠 것: 기본 pos 에도 같은 검사(또는 minAltM·maxAltM fround 유한 검사). 확인 기준: 위 입력 생성 시 RangeError. 권장 모델: haiku
 - 이력: 2026-10-05 19:33 감독 등록(PR #78 검토 #2). ①③ 이전 항목(F-421 ④·F-422 ③) 잔여, ② 이번 수정에서 새로 생긴 회귀.
+  → 2026-10-05 20:15 감독 확인 닫음(PR #79 검토 #1, 26ba1df): ① node:timers setTimeout·setImmediate 변이(최상위·step 안·이름 가져오기·default) 각 no_network 4/1 실패, ② 0 허용 변이 1/1 실패·'' → [1..6] 단언, ③ createPoseState({minAltM:-1e300, maxAltM:1e300}) RangeError — 축 4b 사본 재현, ③ 은 축 1b 도 확인. 잔여 node:timers/promises 는 F-428 ⑥.
 
-### F-425 [열림] (심각도: 낮음) — PR #78 검토 #2 낮음 묶음
+### F-425 [닫힘 — ③ 관찰] (심각도: 낮음) — PR #78 검토 #2 낮음 묶음
 - ① state.test.mjs:157-169 시험 이름 '1e308 속도에서 camera() 가 던지지 않는다' 인데 1e6 으로 돌리고 camera() 결과 단언 없음 → 이름 정정, pos·quat 유한 단언(축 4a). 권장 모델: haiku
 - ② state.mjs:28·33 주석 'camera.mjs 와 같은 규칙' — pitch 범위는 camera.mjs:72 에 없다(유한만). 주석 정정 또는 계약에 pitch 범위 명시(축 1b). 권장 모델: haiku
 - ③ state.mjs:62-64 held 값 truthy 판정('yes' 도 전진). keys.held() 는 불리언이라 실경로 무관, 관찰(축 7).
 - 기각: 축 12 'T15.4 npm test [cloud] 완료가 [local] 위반'(npm test 는 클라우드 검증 대상, 추정 기본값은 T15.0L [local] 로 이미 분리), 'T15.3e perf [cloud] 표'(노트가 S1 판정은 [local] 이라고 명시, CPU 수치 표기 정상).
 - 이력: 2026-10-05 19:33 감독 등록(PR #78 검토 #2). 모두 새로 찾은 것.
+  → 2026-10-05 20:15 감독 확인 닫음(PR #79 검토 #1): ① state.test.mjs:167 이름 정정·:180-181 유한 단언, ② state.mjs:28·:33 주석이 camera.mjs:70-71 과 일치(축 4b).
+
+### F-426 [열림] (심각도: 중간) — 결정 0051 의 renderer_basis·dt 상한 서술이 사실과 다르고, 0050 에 F-423 문구 잔여
+- 위치: 연구 experiment/t15-5 472f04a decisions/0051-t15-5-chase-camera.md:17·:18·:41·:53-58·:69·:71-77, decisions/0050-t15-4-input-layer.md:17·:18·:39-45·:49·:63·:64·:67·:77·:101
+- 문제: ① 0051:55-58 '렌더링 기준선(좌표, 카메라, 정점 법선)을 따른다'·'기준선과 같음' — renderer_basis.md 는 고밀도 점군 생성 설명이고 렌더링 기준선 절이 없다(감독 직접 읽음, F-423 ④ 재발). ② 0051:41·:73-77 dt 상한 근거 '과도한·극단적인 변화 방지' — 지수 감쇠는 a ≤ 1 이라 넘침이 없다. 상한은 긴 정지 뒤 따라잡기를 늦추고(dt 1 s 에서 a 0.943 → 0.510), :17·:73 및 계약 chase.mjs:13 의 '프레임 길이 무관' 은 dt ≤ maxDtSec 에서만 성립. ③ 0051:69 '(decisions/0051 검증 조건)' 자기 참조, 근거 절에 시험 수치(0.6321, 3.4823 m, 0.2832, 1e-9) 인용 없음. :18 (c) 기각 사유 '원본 의미와 맞지 않음(미확인)' 은 (b) 와 같은 가정 — 파라미터 2개·속도 상태 필요로. ④ 0050 잔여(감독 grep 확인): :17·:18·:64 '게인·구르기·극대', :63·:67 '사각형'(시험은 사분원), :101 '편차 2.2 m 확인'(기각된 (a) 값), :45 'WebGL 셰이더 호환성' 출처 없음, :49·:77 '적분 수치 안정성 보조', MAX_RATE 절(:39-45)에 선택지·대가·다시 볼 조건 없음, :43 pitch 'float32 유한 검사'(실제는 범위 검사만)와 줄 번호 오기.
+- 실패 상황: T15.0L 담당이 0051 을 근거로 renderer_basis 에 없는 규약을 찾거나, dt 상한을 넘침 방지 장치로 알고 바꾼다. 0050 의 2.2 m 를 채택 방법 편차로 재확인한다.
+- 고칠 것: ① 0051 renderer_basis 절은 '해당 없음 — 로컬 감쇠 단계라 점군 생성과 무관' 만. ② dt 상한 근거를 '긴 정지 뒤 순간 따라잡기 완화(입력 층 0050 과 같은 목적)', 프레임 길이 무관 문구에 'dt ≤ maxDtSec' 조건(0051:17·:73, 제품 계약 chase.mjs:13). ③ 근거 절에 chase 시험 수치 인용, 자기 참조 정정, (c) 기각 사유 정정. ④ 0050: 게인·구르기 서술을 '새 방위로 이동해 O(dt) 오차' 로, 사각형 → 사분원, :101 을 '(c) 0.036 m' 로, :45 삭제, :49·:77 순간이동 방지만, MAX_RATE 절 선택지·대가·다시 볼 조건, :43 pitch·줄 번호 정정.
+- 확인 기준: 0051 에 '정점 법선'·'기준선과 같음'·'과도한 변화'·'극단적인 변화' 0건, 'dt ≤ maxDtSec' ≥ 1건(0051·계약). 0050 에 '게인|구르기'·'사각형'·'편차 2.2 m 확인'·'WebGL'·'안정성을 보조' 0건, MAX_RATE 절에 '대가'·'다시 볼'.
+- 권장 모델: haiku (계약 chase.mjs:13 한 줄 포함)
+- 이력: 2026-10-05 20:15 감독 등록(PR #79 검토 #1, 축 2 보고, 감독이 0051:1-103·0050 grep 직접 확인). ①②③ 새로 찾은 것(① 은 F-423 ④ 재발), ④ 는 F-423 ①②⑤ 잔여. 0051 은 '승인(조건부 — F-426 정정)'.
+
+### F-427 [열림] (심각도: 중간) — 추적 카메라 입력 검사가 float32·차이 넘침을 막지 않아 통과한 입력에서 camera() 가 매 프레임 던진다
+- 위치: 제품 26ba1df client/tower/chase/index.mjs:26-27·:53, client/tower/chase/state.mjs:35-41·:47, client/tower/chase/damp.mjs:38, contracts/controlview/chase.mjs:23-24
+- 문제: setTarget·생성 검사가 배정밀도 유한만 본다. camera() 가 부르는 input/camera.mjs:69 는 float32 범위를 검사하므로 통과한 값이 뒤에서 던진다. 입력 층 state.mjs:37-46 은 float32 로 검사한다(F-424 ③ 와 같은 종류). 또 setTarget([1.7e308,0,0]) 뒤 setTarget([-1.7e308,0,0]), step(0.016) 이면 dampScalar 의 (target − cur) 가 넘쳐 cur 가 −Infinity 가 되고, 이후 정상 목표로 바꿔도 step 이 계속 RangeError(snap 해야 복구).
+- 실패 상황(감독 직접 재현): createChaseCamera().setTarget([4e38,0,0],0) 통과 → camera() RangeError. createChaseCamera({distM:1e39}) 통과 → camera() RangeError. 큰 목표 한 번이 cur 를 오염시켜 정상 목표로 돌아와도 감쇠가 끝날 때까지 여러 프레임 던진다.
+- 고칠 것: setTarget 에 pos 성분 Math.fround 유한 검사(RangeError), 생성 시 distM·heightM·lookAheadM 도 float32 유한(또는 eye 가 float32 범위 안임을 보장). 계약 :23-24 에 float32 조건 명시. 넘침 경로는 이 검사로 막히는지 시험.
+- 확인 기준: setTarget([4e38,0,0],0)·createChaseCamera({distM:1e39})·setTarget([1.7e308,0,0],0) 가 그 자리에서 RangeError, 통과한 입력 무작위 퍼즈에서 camera() 가 던지지 않음.
+- 권장 모델: sonnet
+- 이력: 2026-10-05 20:15 감독 등록(PR #79 검토 #1, 축 1b·6+7·2 보고, 감독 node 로 앞 두 경우 RangeError 재현). 새로 찾은 것.
+
+### F-428 [열림] (심각도: 낮음) — PR #79 검토 #1 낮음 묶음
+- ① (축 1a) damp.mjs:29-30 wrapPi 가 |rad| ≳ 5.7e16 에서 (−π, π] 를 벗어남(wrapPi(1e18) → 128). setTarget(pos, 1e18) 이면 state().yaw 범위 밖. 고칠 것: atan2(sin, cos) 대체 또는 큰 |yaw| RangeError. 확인: |x| ≤ 1e20 퍼즈 전부 범위 안. haiku
+- ② (축 1a·4a) 살아남은 변이: state.mjs:38 wrapPi 제거(setTarget([0,0,0],3π) 직후 state().yaw 9.42), state.mjs:39 입력 배열 복사 제거(M24). 고칠 것: 'setTarget 직후 yaw ∈ (−π, π]'·'setTarget 뒤 입력 배열 변경이 목표에 영향 없음' 시험. 확인: 두 변이 각 fail ≥ 1. haiku
+- ③ (축 4a) 상수끼리 비교하는 단언: frame.test.mjs:91·:92, state.test.mjs:41·:73·:78 — 구현 출력과 비교로 바꾸거나 상수 정의로 옮김. rig.test.mjs:63-65 yaw 2.3·−2.9 기대값이 rig.mjs 와 같은 식(순환) → 숫자로 박기. haiku
+- ④ (축 3·1b) 목표 상실·재등장 규약 없음: hasTarget(index.mjs:46·:55) 이 되돌아가지 않아 목표가 사라져도 camera() 가 마지막 자세. 계약 :24-27 에 '목표 상실 시 호출자 처리·재등장 컷은 snap()' 을 적거나 clearTarget() → camera() null 추가. sonnet
+- ⑤ (축 1b) index.mjs:58 step('1') 이 RangeError — 형식 위반은 TypeError(state.mjs:43·input/state.mjs:60 과 같게). 확인: assert.throws(()=>c.step('1'), TypeError). haiku
+- ⑥ (축 4b) input/no_network.test.mjs:20-29 가 node:timers/promises 를 감싸지 않음 — state.mjs 에 TP['setTime'+'out'](0) 변이 5/0 통과. 고칠 것: timers/promises 도 계수. 확인: 같은 변이 4/1. sonnet
+- ⑦ 관찰: rig.mjs:40 lookAheadM 은 기본 0 이라 예측 아님. 0 이 아닌 값은 조준 오프셋이라고 계약에 적기(축 3). 입력 층 → 추적 층 연결 시험은 연결 지점이 생길 때(T15.9)(축 1b).
+- 기각: 축 12 '높음 T15.0L 원본 대조 미완료'·'중간 기본값 추정'(사람 몫 [local], T15.0L 로 이미 분리, 반려 사유 아님). 축 4a M18(index 상한 제거)은 state 상한과 동치라 결함 아님.
+- 이력: 2026-10-05 20:15 감독 등록(PR #79 검토 #1). 모두 새로 찾은 것(⑥ 은 F-424 ① 의 범위 밖 잔여).
