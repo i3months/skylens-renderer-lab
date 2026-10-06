@@ -481,6 +481,7 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T15.8 | [x] 2026-10-05 제품 병합 커밋 256b653(PR #82 검토 #1 통과·merge commit, 연구 experiment/t14 07abad6), 반려 0회. 합성 장면 [cloud] 검증. 폴백(2D 지도 표시, 사람 확인 전 임시) | `client/tower/fallback/` | 서버 불가 모의 시 표시 | sonnet |
 | T15.8f | (2026-10-05 PR #82 검토 #1 에서 분리) T15.9 PR 과 함께: F-443 퇴화 입력(marginPx 0 경계 visible, 여백 > 크기, minSpanM·metersPerPx 하한) 계약·시험(sonnet), F-446 폴백 시험 빈틈(M19·M09·M26·M30·N05·N08·N09 변이가 실패하게, sonnet), F-444 ① 자동 맞춤 무할당·② 한도 규모 perf 또는 총 점 상한(sonnet)·③ visible 2D 클리핑(opus), F-445 ①~⑩(haiku 중심, ⑥⑧⑨ sonnet), F-442 ①②④⑤⑨·F-426 문구(haiku) | `client/tower/fallback/`, `client/tower/streaming/`, 연구 decisions·experiments | F-443~F-446·F-442·F-426 각 확인 기준 | sonnet |
 | T15.9 | 통합 시험 | `client/tower/e2e/` | 녹화 재생 상태 일치 | opus |
+| T15.9f | (2026-10-06 PR #83 검토 #2 에서 분리) T15.10 PR 과 함께: F-452 no_network 옛 시험 안 조립 삭제·held 정확 단언(sonnet), F-453 공허한 오버레이 되돌리기 시험·determinism :65·:122-139(sonnet), F-454 폴백 성능 문턱(frame 호출 1 회 단언·16 ms·p90, sonnet) + F-451(sonnet), F-455 0055 fitView 하한 고정·도달 불가 되돌리기(sonnet)·F-450 잔여 문구(haiku), F-456 낮음 묶음(haiku, ④⑤ sonnet) | `client/tower/e2e/`, `client/tower/fallback/`, `contracts/controlview/`, 연구 decisions·experiments | F-451~F-456 각 확인 기준 | sonnet |
 | T15.10 | 번들·대역폭 측정. 함께: 지형 LOD 단계별 타일 바이트(합성 DEM + noiseBig 류 거친 DEM), LOD3/LOD2·LOD3/LOD0 비율 기록(F-400 ⑦, LOD3 상한 1 m 의 대가 확인 — LOD3 이 LOD2 와 같거나 예산 초과면 0046 다시 엶) | `bench/tower/` | 번들 ≤ 300 KB, 초기 ≤ 15 MB | haiku |
 
 ### T16 `load-harness` — [cloud]
