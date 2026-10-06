@@ -23,11 +23,11 @@
 
 ## renderer_basis
 
-점군 생성 절은 해당 없음. 투영 규약은 §2-1 에서 X_c = R·X_w + t 를 따른다(contracts/controlview 의 poseToView, OpenCV 축). 좌표 단위 GeoAnchor ENU 1 unit = 1 m 는 RULES §1.3. renderer_basis 의 깊이 해상도 Δd ≈ d²/(f·b)·LOD 단계는 이 층에서 쓰지 않는다: 요청 단위 TileId 는 {tx,ty} 뿐이고 maxDistM 1500 m 까지 같은 64 m 단위로 요청하며, contracts/tower_assets 의 전제(F-313, "한 화면은 한 LOD") 때문에 lod 는 호출자가 고정한다. 점 27 B 형식은 xyz f32×3 + 법선 f32×3 + rgb u8×3 이며 자산 필터와 부호화기가 함께 사용한다.
+점군 생성 절은 해당 없음. 투영 규약은 §2-1 에서 X_c = R·X_w + t 를 따른다(contracts/controlview 의 poseToView, OpenCV 축). 좌표 단위 GeoAnchor ENU 1 unit = 1 m 는 RULES §1.3. 깊이 해상도 Δd(§3-7 MVS 깊이 정밀도 Δd ≈ d²/(f·b))는 이 층에서 쓰지 않는다: 요청 단위 TileId 는 {tx,ty} 뿐이고 maxDistM 1500 m 까지 같은 64 m 단위로 요청한다. LOD 단계도 이 층에서 선택하지 않으며, contracts/tower_assets 의 전제(F-313, "한 화면은 한 LOD") 때문에 lod 는 호출자가 고정한다. 점 27 B 형식은 xyz f32×3 + 법선 f32×3 + rgb u8×3 이며 자산 필터와 부호화기가 함께 사용한다.
 
 ## 근거
 
-- 측정값과 시험 수치는 실험 노트 experiments/t15-7.md. 오라클(구현과 독립, 화소 격자 광선이 지나는 타일 전부 ⊆ 결과)을 이용해 무제한 maxInflight 에서는 빠진 조각 0, 기본값 maxInflight 16 에서는 놓친 타일 0·자리 낭비 0·정지 뒤 오라클 ∩ missing = ∅ 를 단언한다. 광각 needed 최댓값 898(상한 4096).
+- 측정값과 시험 수치는 실험 노트 experiments/t15-7.md. 오라클(구현과 독립, 화소 격자 광선이 지나는 타일 전부 ⊆ 결과)을 이용해 무제한 maxInflight 에서는 빠진 조각 0, 기본값 maxInflight 16 에서는 놓친 타일 0·자리 낭비 0·정지 뒤 오라클 ∩ missing = ∅ 를 단언한다. 자리 낭비는 매 update 직후 오라클 − (held ∪ inflight) 가 비지 않은데 inflight ≠ maxInflight 인 상태 — 보이는 타일이 아직 요청되지 않았는데 자리가 비어 있으면 낭비다(구현과 독립, 움직이는 동안의 기아도 여기서 걸린다). 광각 needed 최댓값 898(상한 4096).
 - 원평면: 처음 깊이로 정의했으나 광각에서 needed 가 4096 을 넘어 update 가 던져 카메라로부터의 유클리드 거리로 바꿨다(과포함이 줄어든다).
 - zRange [-100, 600] m, maxDistM 1500 m, maxInflight 16, retainMargin 1, maxHeld 4096, nearM 0.1 m 은 추정 기본값이다(실제 관제탑 지형 높이·가시 거리 미확인).
 
@@ -37,11 +37,12 @@
 - 기본값이 추정이다. 지형 실제 최고·최저 높이를 호출자가 zRangeM 으로 주면 줄어든다.
 - 우선순위가 카메라 지면점 거리뿐이라 시선 방향 앞쪽 타일을 먼저 요청하지 않는다.
 - 단일 LOD 라 먼 타일의 대역폭이 줄지 않는다(거리에 따른 해상도 변화 없음).
+- LOD 와 Δd 를 이 층에서 고려하지 않는다: LOD 는 타일 기반 요청이라 서브샘플 단계는 화소 해상도(카메라·스크린)가 아니라 타일 인덱스에만 의존하며, 호출자가 타일 해상도를 결정해야 한다. Δd 는 MVS 깊이 해상도(§3-7 MVS 깊이 정밀도 Δd ≈ d²/(f·b))이므로 TileId 선택과 무관하다.
 
 근거(좌표 상한 검사의 대가):
 
 - 입구에서 |pos.x|, |pos.y| + maxDistM ≤ maxCoordM(6.4e7 m = tileIndexMax 1e6 × 64 m)를 확인해, 넘으면 RangeError 를 던진다(F-434 결정).
-- 필요한 타일 수 needed 가 maxTilesPerUpdate(4096)를 넘으면 update 는 RangeError 를 던진다(1500 m 에서 최악 경우 needed 1836, maxDistM 6000 m 이상에서 던짐).
+- 필요한 타일 수 needed 가 maxTilesPerUpdate(4096)를 넘으면 update 는 RangeError 를 던진다(1500 m 에서 최악 경우 needed 1836, 광각 등 입력에서 2611 m 같은 더 낮은 거리에서도 던질 수 있음).
 - 이 검사들의 대가: 던질 때 계획이 없고, maxDistM 검증이 update 까지 지연되며, TILE_INDEX_MAX 밖 타일 지수 오버플로우를 막기 위해 사전 검사가 필요하다.
 
 ## 다시 볼 조건
