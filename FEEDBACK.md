@@ -5179,6 +5179,7 @@
 - 확인 기준: 0046 에 T15.10 결과 절과 예산 정의, 비교 표(4안 × 바이트·SSIM). 채택안에서 noiseBig 초기 지형 raw 가 남은 예산(15 MB − 건물 − 드레이프 − 환영) 이내이거나, 이내가 불가능하면 그 근거와 사람 판단 요청.
 - 권장 모델: opus
 - 이력: 2026-10-06 01:40 감독 등록(PR #84 검토 #1). 감독 판정: 0046 다시 엶(T15.10b). 이 PR 이 만든 결함이 아니라 T15.1 결정의 측정 결과라 PR #84 병합은 막지 않는다.
+- 이력 추가: 2026-10-06 03:45 감독 — PR #85 검토 #1: 비교표 (i)(ii)(iii) 바이트·SSIM 은 축 1a 재실행과 일치. 그러나 결론 1 의 lowNoise 해석이 측정과 어긋나 F-470 으로 반려, F-458 열림 유지.
 
 ### F-459 [닫힘] (심각도: 중간) — e2e 시험 빈틈: 던지는 프레임이 감쇠 중 추적을 보지 못하고, step 반환값·F11 단언이 동작에 반응하지 않으며, 0055 '유일한 방어' 문구가 실제 시험과 다르다
 - 위치: 제품 c3ba5db client/tower/e2e/determinism.test.mjs:174-205·:65, index.mjs:112-119(rebuildChase), no_network.test.mjs:83·:109-110·:123, recording.mjs:92·:99(step 반환값 버림), state_match.test.mjs:479-487; 연구 decisions/0055-t15-9-assembly.md:22·:24, contracts/controlview/e2e.mjs:22(replay 비원자)
@@ -5250,7 +5251,7 @@
 - 이력 추가: 2026-10-06 작업자 — 제품 fb3401c 에서 처리(확인 기준 직접 실행: 변이 실패·시간·grep), 전체 npm test 실패 0. 감독이 확인.
 - 이력 추가: 2026-10-06 02:55 감독 확인 닫음 — 축 4c: ① Math.random 변이에서 결정성 시험 실패, ② 단독 6.73~6.78 s, ⑧ '300 * 1024' 0건, ④⑤⑥⑦⑨ 확인. ⑫ 잔여(주석이 :163 의 능력을 부풀림)는 F-468 ⑥.
 
-### F-466 [열림] (심각도: 중간) — 번들 시험이 공유 chunk 일부만 빠뜨린 측정을 잡지 못하고, client_bundle 시험은 음성 단언이 없다
+### F-466 [닫힘] (심각도: 중간) — 번들 시험이 공유 chunk 일부만 빠뜨린 측정을 잡지 못하고, client_bundle 시험은 음성 단언이 없다
 - 위치: 제품 fb3401c bench/tower/bundle.test.mjs:18-24(MIN_TOTAL_GZIP 32,000 주석 'shared chunks dropped ~16,280 B')·:58-61(chunks.length ≥ 1, totalGzip > entriesOnly); bench/client_bundle/bundle.test.mjs:13-17(totalGzip > 0, ≤ 300,000 만); bench/client_bundle/index.mjs:16-34·:84-86(npx·concatenateSources 폴백)
 - 문제: ① chunk 전부 버림 측정은 35,132 B 로 하한 32,000 위라 하한이 chunk 누락을 잡지 못한다(주석의 16,280 B 는 bundle:false 값). chunk 13개 중 121 B 하나만 남기면 공유 코드 약 32.8 KB 가 빠진 채 2/0 통과(축 4a 사본, 미확인 수치). ② client_bundle 시험은 bundle:false·external 변이에서도 통과(실측 12,411 B, 한도의 4%). ③ client_bundle/index.mjs main() 에 npx·진입 파일만 잇는 폴백이 남아 시험과 CLI 측정이 갈라질 수 있다.
 - 실패 상황: 측정 도구가 공유 chunk 일부를 빠뜨리거나 client_bundle 측정이 import 를 안 따라가도 S4 번들 판정이 통과한다.
@@ -5258,8 +5259,9 @@
 - 확인 기준: chunk 하나만 남기는 변이에서 tower 시험 실패; bundle:false·external 변이에서 client_bundle 시험 실패; grep -n "npx\|concatenate" bench/client_bundle/index.mjs 0건; 원본 통과.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 02:55 감독 등록(PR #84 검토 #3, 축 4a·5; 감독이 bundle.test.mjs diff 읽음, 수치는 사본). 새로 찾은 것(F-463 잔여).
+- 이력 추가: 2026-10-06 03:45 감독 확인 닫음 — cdd3771 축 4a 사본: chunk 하나만 남김 1/1 실패(emit 수 11≠23), outputs 위조 병행도 chunk 하한에서 실패, client_bundle bundle:false·external·splitting:false 각 0/1, 원본 3/0. 감독 grep "npx\|concatenate" 0건. 잔여(가드 시험 없음·client 합계 하한 주석·chunk 수 하한)는 F-473.
 
-### F-467 [열림] (심각도: 중간) — Pfit10 변이 주석이 실측과 다르고, 결정 0054 p90 절에 다시 볼 조건이 없고, 노트 번들 수치가 재현과 다르다
+### F-467 [닫힘] (심각도: 중간) — Pfit10 변이 주석이 실측과 다르고, 결정 0054 p90 절에 다시 볼 조건이 없고, 노트 번들 수치가 재현과 다르다
 - 위치: 제품 fb3401c client/tower/fallback/perf.test.mjs:247-248·:252(Pfit10 = refTraverse 9회 추가, '몫 ≈ 9×0.8 ≫ 3×0.8')·:28(균일 느려짐은 못 잡는다)·:117(오탐 확률 p^3); bench/tower/bundle.test.mjs:20(68,057 B); 연구 experiment/t15-10 decisions/0054-t15-8-fallback.md:88-90; experiments/t15-10.md:6
 - 문제: ① refTraverse 는 제품 순회(몫 약 0.43 ms)의 약 2배 비용(0.80 ms)이라 시험 안 Pfit10 은 제품 순회 약 17배 회귀다. 제품 코드 루프를 10번 도는 실제 변이는 몫 3.8~5.1 ms 로 문턱 2.4 ms 대비 여유 1.6~2.1배뿐(축 1a·4b, 미확인 수치). ② :28 '여기서 못 잡는다' 는 비율 단언만 해당 — p90 ≤ 16 ms 는 약 3.6배 이상이면 잡는다. ③ :117 p^3 은 시도 독립 가정. ④ 0054:88-90 에 p90 ≤ 16 ms·2.5·묶음당 10회·BIG_RATIO 5 의 다시 볼 조건이 없고, '한가할 때도 … 간헐 실패가 났다' 는 실패가 부하에서 났다는 perf.test.mjs:24 와 어긋난다. ⑤ 노트 :6 합계 68,057 B·streaming 0.134·e2e 1.911 KB 는 fb3401c 재현 68,062 B·0.132·1.909 KB 와 다르다(감독 재현 68,062 B).
 - 실패 상황: 다음 작업자가 Pfit10 시험을 '제품 10배 회귀를 잡는다' 로 읽고 FIT_SHARE_RATIO 를 늘리거나, 기기가 바뀌어도 p90 문턱을 다시 보지 않는다.
@@ -5267,14 +5269,16 @@
 - 확인 기준: 노트·주석 수치 = 명령 출력; 0054 p90 절에 근거·대가·다시 볼 조건 모두; 제품 Pfit10(index.mjs 순회 10회) 변이에서 perf.test 실패 유지.
 - 권장 모델: sonnet(④⑤ haiku)
 - 이력: 2026-10-06 02:55 감독 등록(PR #84 검토 #3, 축 1a·2·4b; ⑤ 감독 재현 68,062 B, 나머지 감독 diff 읽음·수치 사본). 새로 찾은 것.
+- 이력 추가: 2026-10-06 03:45 감독 확인 닫음 — 감독이 perf.test.mjs:250-256 주석 읽음(기준·제품 순회 비 0.99, 실제 변이 몫 3.7~6.4 ms 명시), 0054 p90 절 다시 볼 조건·대가 읽음, 번들 68,062 B(축 4a 재현). 제품 index.mjs 순회 10회 변이(축 4b 사본 m1)를 감독이 6회 돌려 6/6 실패. 축 4b 는 13회 중 2회 생존 보고 — 미확인, F-472 로.
 
-### F-468 [열림] (심각도: 낮음) — PR #84 검토 #3 낮음 묶음
+### F-468 [닫힘] (심각도: 낮음) — PR #84 검토 #3 낮음 묶음
 - 위치·고칠 것: ① bench/tower/bundle.mjs reachableInputs — entry 키가 metafile 에 없으면 조용히 0(시험 :inputs > 1 이 잡지만 main() 은 inputs 를 출력하지 않음): metafile.outputs[].entryPoint 로 키를 얻고 없으면 throw(sonnet). ② measureBundle([]) 이 0 B 로 끝남 — 빈 목록 throw(haiku). ③ bench/tower/lod_bytes.mjs measureLodBytes tilesPerSide 0·음수·홀수·NaN 검증 없음(0 이면 NaN 비율·reopen 참) — RangeError(haiku). ④ perf.test.mjs 중앙값 0 이면 ok(q ≤ 2.5m)와 단언(q/m ≤ 2.5, NaN)이 어긋남 — tail 을 한 번 정의해 둘 다 쓰기(haiku). ⑤ lod_bytes 캐시가 같은 객체를 돌려줘 호출자 변경이 캐시를 오염 — Object.freeze(haiku). ⑥ client/tower/fallback/view.test.mjs:161 주석이 :163 이 '방향 규약 어긋남을 잡는다' 고 하나 buildMarkers 는 yaw 를 그대로 내므로 :163 은 표 자체 검증 — 주석 정정(F-465 ⑫ 잔여, haiku). ⑦ experiments/t15-10.md:12 '무관다' → '무관하다'(haiku).
 - 확인 기준: ① 없는 키로 reachableInputs throw. ② measureBundle([]) reject. ③ tilesPerSide 0·3·NaN throw. ④ [0,0,0]·[0,0,1] 에서 판정 일치. ⑥ 주장 문구 0건. ⑦ grep '무관다' 0건.
 - 권장 모델: haiku(① sonnet)
 - 이력: 2026-10-06 02:55 감독 등록(PR #84 검토 #3, 축 1b·4c·7·2; ⑦ 감독 읽음, 나머지 축 근거).
+- 이력 추가: 2026-10-06 03:45 감독 확인 닫음 — 축 4a: 없는 키 reachableInputs throw, measureBundle([]) reject. 축 4b: tilesPerSide 0·3·NaN RangeError, tail [0,0,0]·[0,0,1] 판정 일치, deepFreeze 변이 잡힘. ⑥ 주석 정정·⑦ 오타는 lab diff 감독 읽음. 가드를 지키는 시험이 없는 잔여는 F-473.
 
-### F-469 [열림] (심각도: 중간) — reuse_cull ③ 시간 비율 단언이 부하에서 흔들려 전체 npm test 를 간헐 실패시킨다(이 PR 무관, 이전부터)
+### F-469 [닫힘] (심각도: 중간) — reuse_cull ③ 시간 비율 단언이 부하에서 흔들려 전체 npm test 를 간헐 실패시킨다(이 PR 무관, 이전부터)
 - 위치: 제품 fb3401c client/tower/buildings/reuse_cull.test.mjs '③ 도시 1/10 만 보면 래스터에 넘어간 묶음 수 ≤ 1/3, black 시간 ≤ 1/3(중앙값)'
 - 문제: 시간 비율 단언이 동시 부하에서 실패한다. PR #84 는 이 디렉터리를 바꾸지 않았다(감독 git diff 0).
 - 실패 상황: 감독 전체 npm test(서브에이전트 12개 동시, 4코어) 에서 '1/10 61.7 ms > 전체 80.0 ms / 3' 로 실패 1. 같은 파일 단독 3회는 10/0.
@@ -5282,3 +5286,37 @@
 - 확인 기준: CPU 소모 프로세스 4개와 함께 reuse_cull.test.mjs 10회 연속 실패 0; 컬링을 끄는 변이에서 실패.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 02:55 감독 등록(PR #84 검토 #3, 감독 전체 실행에서 실패·단독 재실행 3회 통과 직접 확인). 새로 찾은 것, 이 PR 범위 밖(반려 사유 아님).
+- 이력 추가: 2026-10-06 03:45 감독 확인 닫음 — 감독 전체 npm test(서브에이전트 동시 부하) 실패 0, 축 4b: CPU 소모 4개와 reuse_cull 10회 실패 0, 컬링 끔 3/3 실패, 전체 일 수행 변이 13/13 실패. 감독이 reuse_cull.test.mjs diff 읽음(threadCpuUsage, Node 22.22.0 에 있음).
+
+### F-470 [열림] (심각도: 높음) — 결정 0046 T15.10b 결론 1 이 lowNoise 측정을 거꾸로 해석한다: 현행 상한표 (i) 가 ±0.15 m 잡음에서 SSIM 0.95 를 20/36 조건 어기는데 'LOD 와 무관한 지표 한계' 로 적었다
+- 위치: 연구 experiment/t15-10b decisions/0046-t15-terrain-ssim-scene.md:115(결론 1 마지막 문장)·:117(제안 (2) 상한표 유지), experiments/t15-10b.md:7(요지); 제품 cdd3771 bench/tower/terrain_options/b1_measure.mjs:196(lod1to3SsimPass)·:300(LOD0 SSIM)
+- 문제: b1_measure 출력에서 lowNoise:1~12 의 LOD0 SSIM 은 모두 1.0000 이고, 안 (i) 의 LOD1~3 은 36 조건 중 20 이 0.95 미만(최소 0.9467, 예: lowNoise:5 LOD2 0.9478, lowNoise:4 LOD3 0.9496)이다(감독이 축 1a 재실행 출력 v1a_b1.txt 를 직접 집계: FAIL 20·PASS 16). 하락의 원인은 간격 2 이상 솎아내기(최대 높이 오차 0.297 m)이지 160×90 지표가 아니다. 그런데 결론 1 은 이를 'LOD 와 무관하게 0.95 경계 … 지표의 한계(미검증 추정)' 로 적고 안 (i) 을 'SSIM 을 지키는 안' 으로 분류한다. F-458 이 지정한 '잡음 진폭 < Δd 장면' 에서 현행 상한표가 기준을 어긴 결과가 결정 기록에서 사라졌다(측정 미달을 통과처럼 보고).
+- 실패 상황: 감독·사람이 0046 을 읽고 '상한표 [0,0.5,1,1] 유지' 를 승인하면, 1 m 셀 DEM 에 ssim_views 와 같은 진폭(±0.15 m) 잡음이 있는 지형에서 LOD1~3 화면이 S9(8시점 SSIM ≥ 0.95)를 어기는 채로 남는다. 0046 다시 볼 조건 (3) 도 걸리지 않는다.
+- 고칠 것: ① 결론 1·표에 lowNoise 행 추가: 안 (i)·(ii) LOD1~3 최소 SSIM, 0.95 미만 조건 수(20/36), LOD0 = 1.0000. '지표 한계'·'LOD 와 무관' 문장 삭제. ② 원인(1 m 셀에서 간격 2 의 높이 오차 약 0.30 m 가 0.5 m 상한 안이지만 SSIM 을 떨어뜨림)을 적고, ssim_views(2 m 셀) 통과와 1 m 셀 미달이 어떻게 함께 성립하는지 밝힌다. ③ 그 위에서 제안 (2) '상한표 유지' 근거를 다시 쓰거나, 상한을 조이는 안(예: LOD1 0.25 m)을 같은 스크립트로 재서 바이트·SSIM 을 표에 더한다. 성공 기준 0.95 는 낮추지 않는다. ④ experiments/t15-10b.md 요지에 '현 메시 형식에서 noiseBig 초기 지형은 15 MB 미충족, 높이만 형식은 제안·미구현이고 0.5 m 셀이면 H32 는 몫 초과' 를 쓴다(축 5).
+- 확인 기준: `node bench/tower/terrain_options/b1_measure.mjs` 의 lowNoise 행(LOD0 1.0000, FAIL 20) 과 0046 문장이 모순되지 않는다; grep '지표의 한계' 0건; 요지에 '미충족'·'미구현' 이 있다.
+- 권장 모델: opus
+- 이력: 2026-10-06 03:45 감독 등록(PR #85 검토 #1, 축 1a 보고, 축 5 같은 지점을 높음으로 보고. 감독이 0046:115 와 재실행 출력 lowNoise 행을 직접 읽고 FAIL 20/36 집계). 새로 찾은 것.
+
+### F-471 [열림] (심각도: 중간) — 0046(상태 승인) 안에 '제안' 절을 덧붙여 다시 볼 조건·예산 정의를 바꾸고, T15.10d 제안이 TASKS 에 없다
+- 위치: 연구 experiment/t15-10b decisions/0046-t15-terrain-ssim-scene.md:98-118, decisions/README.md, RULES.md 결정 규칙, TASKS.md(T15.10d 없음)
+- 문제: 승인된 0046 의 다시 볼 조건(:90 '같거나')을 '정정·바꾼다'(:102)고 하고 예산 정의·형식 제안을 새로 내지만 파일 머리 상태는 '승인' 이고 절만 '제안' 이다. 한 파일에 상태가 둘이다. '예산 정의(새로 정함)' 는 SPEC §4 측정 방법(웹소켓 프레임 바이트 합)과 같은 내용이라 '새로 정함' 이 아니라 SPEC 인용이어야 한다. 결론 2 '2.5 배' 는 분모(15 MB 전체)가 표 '몫의 3.5 배' 와 다르고, 0.5 m 셀 u16 '약 8.5 MB' 는 2,179,072×4 = 8.72 MB 다. Δd 0.33 m 를 촬영 조건이 없는 합성 DEM 잡음 문턱으로 쓴다(SPEC 의 Δd 쓰임과 다름).
+- 실패 상황: 0046 을 인용하는 쪽이 어느 다시 볼 조건이 유효한지 알 수 없고, T15.10d 가 소유 경로·완료 기준 없이 떠 있다.
+- 고칠 것: T15.10b 절을 새 결정 파일(상태: 제안)로 옮기고 0046 에는 승인 시 '대체됨(→NNNN)' 표시만; README 표 갱신. 예산 정의는 'SPEC §4 정의를 따름'. 배수마다 분모 명시, 8.7 MB 정정, Δd 는 '참고: 이 촬영 조건의 Δd' 로 낮추거나 삭제. 노트에 'renderer_basis 에서 벗어난 점(지형은 합성 DEM, 27 B 점·법선·신뢰도 해당 없음)' 한 줄. T15.10d 는 감독이 F-470 처리 뒤 판단해 TASKS 에 넣는다(작업자는 제안만).
+- 확인 기준: 새 결정 파일 하나에 상태 하나; grep '새로 정함' 0건; '8.5 MB' 0건; 노트에 'renderer_basis' 이탈 줄.
+- 권장 모델: sonnet(문구는 haiku)
+- 이력: 2026-10-06 03:45 감독 등록(PR #85 검토 #1, 축 2·5; 감독이 0046:98-118 읽음).
+
+### F-472 [열림] (심각도: 중간, 미확인) — 제품 맞춤 순회 10회 변이가 perf.test 에서 가끔 살아남는다(축 4b 13회 중 2회)
+- 위치: 제품 cdd3771 client/tower/fallback/perf.test.mjs:124-127(untilOk 3회 중 1회 통과)·:135-138(문턱 3×refTraverse 중앙값)
+- 문제: 축 4b 보고: refTraverse 중앙값이 실행마다 0.80~1.99 ms 로 흔들려 문턱(3×ref)이 4.7 ms 까지 올라가고, index.mjs 순회 10회 변이(몫 3.7~8 ms)가 13회 중 2회 통과. 감독은 같은 변이 사본(m1)을 6회 돌려 6/6 실패라 재현 못 함. 축 2: 노트 experiments/t15-10b.md:12 '몫 7.0~9.3 ms ≫ 문턱' 은 시험 주석(:254-255 실제 변이 3.7~6.4 ms, 문턱 1.5~2.7배)과 다르다.
+- 실패 상황: 맞춤 순회가 10배 느려지는 회귀가 약 15% 확률로 시험을 통과한다(보고 수치).
+- 고칠 것: 기준을 제품 순회 복사본 또는 최솟값 기반으로 하거나, 결정적 계수(frame 당 points 순회 횟수 = 1)를 단언에 더한다. 노트 수치를 시험 주석과 같게.
+- 확인 기준: 같은 제품 변이 20회 실행 20/20 실패; 정상 제품 CPU 소모 4개와 10회 실패 0; 노트의 ms·배수가 perf.test.mjs 주석에 그대로 있다.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 03:45 감독 등록(PR #85 검토 #1, 축 4b·2; 감독 재현 6/6 실패로 생존 미확인 → 높음 보고를 중간으로 낮춤).
+
+### F-473 [열림] (심각도: 낮음) — PR #85 검토 #1 낮음 묶음
+- 위치·고칠 것: ① bench/tower/bundle.mjs:40·:65 가드(없는 키 throw, 빈 목록 reject)를 지키는 시험이 없어 가드 제거 변이가 2/2 통과(축 4a) — bundle.test.mjs 에 assert.throws·assert.rejects 추가(sonnet). ② bench/client_bundle/bundle.test.mjs:23-27 MIN_TOTAL_GZIP 6,000 주석 'import 를 안 따라가면 아래로 떨어진다' 는 틀림(bundle:false 10,812 B) — 하한 또는 주석 정정(haiku). ③ bench/tower/bundle.test.mjs MIN_CHUNK_GZIP 16,000: 큰 chunk 4개만 남기고 outputs 도 맞추면 통과 — chunk 수 하한 추가(haiku). ④ client_bundle MIN_INPUTS 가 측정값과 같음(리팩터링 한 줄에 실패), cull 하한 1 은 항상 참 — 여유 있게(haiku). ⑤ bench/tower/terrain_options/b4_formats.mjs:37-52 quantize: NaN 이 섞이면 조용히 0 으로, step 0·음수·NaN 검사 없음, :140-146 heights.length ≠ cells² 검사 없음 — 유한성·step·길이 검사(sonnet). ⑥ b2_measure.mjs:151-153 은 b1 과 달리 수직 이동이 없어 smooth SSIM 이 다른 장면을 잰 값 — 이동하거나 '참고 불가' 표시(haiku). ⑦ client/tower/buildings/reuse_cull.test.mjs:73-74 '컬링을 끄면 비율 약 1' — 전체 일 변이 실측 0.41~0.56, 주석 정정(haiku). ⑧ b3_lod.mjs perTileSnap 은 이웃 타일 높이에 의존 — 0046 '보류' 행에 '이웃 미도착이면 스냅 안 함' 한계 한 줄, SSIM 은 전 타일 도착 뒤 정상 상태 값이라는 한계 한 줄(haiku). ⑨ 0046 T15.10b 절·노트 인라인 수치에 [cloud] 표기(haiku). ⑩ lod_bytes 캐시 키가 DEM 내용을 보지 않음 — 키 계약 주석(haiku).
+- 확인 기준: ① 가드 제거 변이에서 각각 실패 ≥ 1. ③ 큰 chunk 4개만 남기는 변이 실패. ⑤ quantize([1,NaN,3],1) throw. ⑦ 주석 수치 = 실측. 나머지 문구 grep.
+- 권장 모델: haiku(①⑤ sonnet)
+- 이력: 2026-10-06 03:45 감독 등록(PR #85 검토 #1, 축 4a·7·1a·4b·3·12; ① 축 4a 변이 수치 사본, ⑤ 축 7 실행 수치 사본, 나머지 축 근거).
