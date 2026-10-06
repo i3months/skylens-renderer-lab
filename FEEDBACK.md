@@ -6446,7 +6446,7 @@
 - 이력: 2026-10-06 19:25 감독 등록. 원격 feat/t16-19 삭제는 사람이 한다.
 - 이력: 2026-10-06 19:55 감독 확인 닫음(PR #102 검토 #1 — 작업자가 깨끗한 feat/t16-19c 로 옮김. 감독 `git log --format='%an <%ae>%n%B' origin/main..origin/feat/t16-19c` 16커밋 모두 i3months, 흔적 0(축 9 도 같음). 원격 feat/t16-19 삭제는 사람 몫으로 남음)
 
-### F-579 [열림] (심각도: 중간) — runScenario 의 method·notes 와 클라우드 강등 규칙이 계약에 없고, 강등이 첫 프레임 지표 밖으로 넓다
+### F-579 [닫힘] (심각도: 중간) — runScenario 의 method·notes 와 클라우드 강등 규칙이 계약에 없고, 강등이 첫 프레임 지표 밖으로 넓다
 - 위치: 제품 contracts/load/harness.mjs:45('runScenario returns { result, violations, serverSamples }', opts.method 없음), bench/load/socket/contract.mjs:20('createProcSampler({ pid, now })' — t0 없음)·:21(runSocketLoad 반환에 notes 없음), bench/load/run_all/run.mjs:139-142(`if (cloud) appendAll(notes, thresholdResults, referenceOnly)` — checkThresholds 결과 전체) (feat/t16-19c 3f76edd)
 - 문제: 이 PR 이 runScenario 에 opts.method 와 반환 notes 를 더하고, 클라우드 근사 방식이면 3 s 임계 결과를 위반에서 notes 로 옮겼는데 계약은 그대로다. 또 강등이 load.first_frame_p95 만이 아니라 모든 임계 결과에 걸린다(결정 0064 감독 추가 (가) 는 첫 프레임 한 지표만 허용).
 - 실패 상황: (1) 계약대로 짠 소비자는 notes 를 읽지 않아 method 'loopback-socket' 실행의 임계 초과가 아무 표시 없이 사라진다. (2) thresholds.json 에 대역폭 임계를 더하면 소켓 실행에서 대역폭 초과도 위반이 아니라 참고로 강등된다(지금은 thresholds.json 이 load.first_frame_p95 하나라 드러나지 않음).
@@ -6455,7 +6455,9 @@
 - 권장 모델: sonnet(run.mjs·시험), haiku(계약 문구)
 - 이력: 2026-10-06 19:55 감독 등록(PR #102 검토 #1, 축 2 — 감독 harness.mjs:40-48·run_all/run.mjs:123-143 diff 읽음. 새로 찾은 것 — 이번 diff 가 만든 계약 공백)
 
-### F-580 [열림] (심각도: 낮음) — PR #102 검토 #1 낮음 묶음
+- 이력: 2026-10-06 20:45 감독 확인 닫음(PR #103 검토 #1 — 감독 run_all/run.mjs:137-151 읽음(cloud 이면 load.first_frame_p95 만 notes, 나머지 violations). `grep -c notes` harness.mjs 2·socket/contract.mjs 1, t0 1. 축 4a 변이(필터 제거·isFirstFrame 항상 참/거짓·rest 를 notes) 모두 F-579 시험 단독 실패. 남은 계약 공백 socket/contract.mjs:24 는 F-582 ①)
+
+### F-580 [닫힘] (심각도: 낮음) — PR #102 검토 #1 낮음 묶음
 - 위치·문제·확인 기준:
   ① bench/load/socket/run.test.mjs:141 늦은 쪽 상한 0.1 s — 두 t0 사이에 100 ms 미만 어긋남이 생기는 변이가 살아남는다(축 1: 200 ms 어긋남 변이는 잡힘, 실제 지터 최대 +3.6 ms). 감독 :139-141 읽음. 확인: 상한 0.02 s, 전체 npm test 와 동시 10회 통과, t0 30 ms 어긋남 변이 사망.
   ② clients.test.mjs:242-253 가짜 시계가 now() 호출마다 +7 ms 라 폴링 횟수만큼 handshakeMs 가 부풀어(40 ms 지연에 66 ms) 하한 HANDSHAKE_MS−5 가 실제로 약 20 ms 느슨하다(축 1). 확인: 부풀림을 빼고 40 ± 5, connect 기록을 15 ms 앞당기는 변이 사망.
@@ -6470,4 +6472,21 @@
   ⑪ server_proc.test.mjs:163-171 — 옵션 검증을 spawn 뒤로 옮기고 자식을 SIGKILL 하는 변이가 생존(pid 파일을 쓰기 전에 죽음, 축 4b). 확인: deps.spawn 주입 후 호출 0회 단언, 그 변이 사망.
 - 권장 모델: sonnet(①~⑥·⑩⑪), haiku(⑦~⑨)
 - 이력: 2026-10-06 19:55 감독 등록(PR #102 검토 #1, 축 1·2·4a·4b·5·7 — ① 감독 run.test.mjs:139-141 읽음, 나머지는 축 보고 근거 줄. ②~⑥ 미확인(축 재현 보고))
+- 이력: 2026-10-06 20:45 감독 확인 닫음(PR #103 검토 #1 — ① 상한 0.02 s 로 좁힘(그러나 부하에서 흔들림 → F-581), ② 고정 +7 오프셋으로 부풀림 제거·40 ± 5(상한 쪽 여유 → F-581), ③ tMs 비감소·동률 id 단언(clients.test.mjs:291-294 감독 읽음), ④ server_proc.mjs:15 2^31−1 초과 RangeError(축 7 재현 2**31−1 허용·2**31 거부), ⑤ run.mjs:56 비유한 durationS RangeError(축 7), ⑥ main() NOTE stderr(run_notes.test.mjs), ⑦ 연구 t16-19.md:6 정정, ⑧ 시험 제목, ⑨ experiments/t16-18/socket30*.json 커밋(축 5 수치 일치), ⑩⑪ server_proc.test.mjs:178·:195 Timeout 개수·spawn 전 검증 시험. 감독 전체 npm test fail 0)
 
+### F-581 [열림] (심각도: 중간) — 좁힌 실시간 상한 두 개가 CPU 경합에서 거짓 실패한다
+- 위치: 제품 bench/load/socket/run.test.mjs:139-141(`d < 0.02`), bench/load/socket/clients.test.mjs:252-254(`Math.abs(handshakeMs - HANDSHAKE_MS) <= 5`) (feat/t16-20 90294ac)
+- 문제: F-580 ①② 로 늦은 쪽 상한을 실제 타이머 지연 크기 이하로 좁혔다. 이른 쪽(−2 ms, 35 ms 하한)이 t0 어긋남·기준 혼동을 잡는 핵심인데, 늦은 쪽은 OS 스케줄링 지연이 그대로 들어간다. 주석의 근거 '2.7 ms seen' 은 한 번의 관측이다.
+- 실패 상황: 축 6 재현 — socket 시험 3개 병렬 + CPU 부하 2개에서 run.test.mjs 5회 중 2회 실패(tS[1] = 2.0371875 → +37.2 ms, tS[0] = 1.0433109 → +43.3 ms, 둘 다 :141). handshake ±5 상한은 같은 유형(축 1 보고, 미확인 — 감독 전체 npm test 1회에서는 통과).
+- 고칠 것: 늦은 쪽은 t0 어긋남을 이른 쪽과 표본 간격으로 잡게 바꾼다 — 예: 늦은 쪽 상한 0.1 s 로 되돌리고 `tS[1] − tS[0]` 이 1 ± 0.02 s 인지(같은 t0 를 쓰는지)를 단언하거나, 30 ms t0 어긋남 변이를 이른 쪽에서 잡는 시험을 따로 둔다. handshake 는 하한 HANDSHAKE_MS − 5 유지, 상한 HANDSHAKE_MS + 50. 주석 근거를 반복 측정값으로 갱신.
+- 확인 기준: 같은 부하 조건(socket/*.test.mjs 3개 병렬 + `yes` 2개)에서 run.test.mjs·clients.test.mjs 각 10회 0 실패, 그리고 t0 30 ms 어긋남 변이·connect 기록 15 ms 앞당김 변이는 여전히 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 20:45 감독 등록(PR #103 검토 #1, 축 6·1 — 감독 run.test.mjs:139-141·clients.test.mjs:236-256 diff 읽음. 새로 찾은 것 — 이번 diff 가 만든 것. 감독 전체 npm test 는 통과라 반려 사유 아님)
+
+### F-582 [열림] (심각도: 낮음) — PR #103 검토 #1 낮음 묶음
+- 위치·문제·확인 기준:
+  ① bench/load/socket/contract.mjs:24 'runScenario(scenario, { events, commit })' — 실제 run.mjs:123 은 method: SOCKET_METHOD 도 넘긴다(감독 확인). 계약대로 짜면 method 'sim' 이 되어 notes 가 늘 빈다. 확인: 두 줄 인자 일치.
+  ② bench/load/run_all/run.mjs:140-147 — method 'loopback-socket' 에 thresholds {} 를 주면 두 쪽 다 건너뛰어 예외 없이 임계 검사 0건으로 통과, 'sim' 은 'thresholds object must not be empty' 로 throw(축 7 재현, 감독 :140-147 읽음). 확인: {} 가 두 방식 모두 같은 예외.
+  ③ bench/load/socket/run.mjs:56 tickOnRealClock 이 Promise 를 돌려주는 함수인데 잘못된 durationS 에 동기 throw(축 7). 지금 호출처는 먼저 검증해 누출 없음. 확인: Promise.reject 로 바꾸고 rejects 단언, 또는 계약 주석에 동기 throw 명시.
+- 권장 모델: haiku(①③), sonnet(②)
+- 이력: 2026-10-06 20:45 감독 등록(PR #103 검토 #1, 축 2·7 — 모두 새로 찾은 것, 이번 diff 범위)
