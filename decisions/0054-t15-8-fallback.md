@@ -19,7 +19,7 @@
 
 ## 결정
 
-(a) 자동 맞춤을 채택한다. 받은 모든 점(드론·탐지·경로 점)의 (e,n) 경계 상자에서 중심과 범위(span)를 구하고, 화면 크기에 맞춰 메터/픽셀 비(metersPerPx)를 계산한다. 받은 점이 없으면 지도를 표시하지 않는다(view = null 자동 맞춤 조건: points.length === 0, view.mjs:21). 화면 좌표는 공식 `x = width/2 + (e−centerE)/metersPerPx`, `y = height/2 − (n−centerN)/metersPerPx` 로 변환하며, 여백(marginPx) 안에는 모든 점을 담는다. 극단적으로 작은 화면(너비 또는 높이가 여백보다 작을 때)에는 여백을 줄여서 `m = min(max(marginPx, 1), min(width, height) / 4)` 로 계산한다(구현 결정: marginPx 0 이어도 끝 점이 화면 안에 들도록 여백 하한 1 px, min(w,h) < 4m 이면 지도가 1 px 로 붕괴하지 않게 avail = min(w,h)/2; F-443). 필요하면 호출자가 setView() 로 범위를 직접 정할 수 있고, null 을 넘기면 자동 맞춤으로 돌아간다(view.mjs:32 에서 자동 맞춤이 처리).
+(a) 자동 맞춤을 채택한다. 받은 모든 점(드론·탐지·경로 점)의 (e,n) 경계 상자에서 중심과 범위(span)를 구하고, 화면 크기에 맞춰 메터/픽셀 비(metersPerPx)를 계산한다. 받은 점이 없으면 지도를 표시하지 않는다(view = null 자동 맞춤 조건: points.length === 0, view.mjs:23). 화면 좌표는 공식 `x = width/2 + (e−centerE)/metersPerPx`, `y = height/2 − (n−centerN)/metersPerPx` 로 변환하며, 여백(marginPx) 안에는 모든 점을 담는다. 극단적으로 작은 화면(너비 또는 높이가 여백보다 작을 때)에는 여백을 줄여서 `m = min(max(marginPx, 1), min(width, height) / 4)` 로 계산한다(구현 결정: marginPx 0 이어도 끝 점이 화면 안에 들도록 여백 하한 1 px, min(w,h) < 4m 이면 지도가 1 px 로 붕괴하지 않게 avail = min(w,h)/2; F-443). 필요하면 호출자가 setView() 로 범위를 직접 정할 수 있고, null 을 넘기면 자동 맞춤으로 돌아간다(view.mjs:32 에서 자동 맞춤이 처리).
 
 ## 선택 2: live 모드와 fallback 모드에서 목록 표시
 
@@ -45,8 +45,8 @@
 |---|---|---|---|
 | minSpanM | 100 m | 받은 점이 한곳에 몰려 있을 때(예: 드론이 제자리에 있을 때) 지도 범위의 최솟값. 100 m 이면 공중뷰에서 건물 수 개 또는 거리 한 블록 정도 보임. 측정 없는 선택값. | 미확인(추정). 실제 지형 크기·조작성 측정 필요. |
 | marginPx | 16 px | 지도 가장자리 여백(화면 가장자리와 데이터 점 사이 거리). 16 CSS px(기준 약 4.2 mm, 1x 기기에서 읽을 만한 크기). 측정 없는 선택값. | 미확인(추정). 기기 화면 크기·DPI 별 가독성 측정 필요. |
-| maxAbsEnuM | 1e6 m | 좌표계 범위 상한. overlay 데이터(Drone, Detection, Path)의 e, n 값이 ±1e6 m 범위 안에 있어야 한다(contracts/controlview/fallback.mjs:12). 1e6 m 는 지구 한 대륙 크기(추정). 이 상한을 넘으면 부동소수점 오차 누적 위험. | 대가: 범위를 좁히면 실제 장거리 운영(e.g., 수십 km 지역)에서 오버플로우 방지. 다시 볼: 실제 운영 영역 범위 확인(지형 측량 범위). |
-| maxPaths | 64 | T15.6f(overlay 모듈) 에서 경로 최대 64개 제약이 이미 있으므로, fallback 에서는 재사용(contracts/controlview/overlay.mjs:11). 추가 제약 없음. | 대가: overlay 와 fallback 의 제약이 일관성 있으려면 overlay 값 변경 시 fallback 도 함께 검토 필요. 다시 볼: overlay 의 maxPaths 가 64 에서 변경될 때. |
+| maxAbsEnuM | 1e6 m | 좌표계 범위 상한. overlay 데이터(Drone, Detection, Path)의 e, n 값이 ±1e6 m 범위 안에 있어야 한다(contracts/controlview/fallback.mjs:12). 운영 반경(수 km~수십 km)보다 충분히 크게 잡은 설계 상한이며 별도 출처는 없다(측정값 아님). 이 상한을 넘는 값은 폴백 투영의 부동소수점 정밀도를 해칠 수 있다. | 비용(±1e6 m 밖 거부): ±1e6 m 밖의 좌표는 오버레이 데이터로 거부된다(RangeError). 다시 볼: 실제 운영 영역 범위 확인(지형 측량 범위). |
+| maxPaths | 64 | T15.6f(overlay 모듈) 에서 경로 최대 64개 제약이 이미 있으므로, fallback 에서는 재사용(contracts/controlview/overlay.mjs:17). 추가 제약 없음. | 대가: overlay 와 fallback 의 제약이 일관성 있으려면 overlay 값 변경 시 fallback 도 함께 검토 필요. 다시 볼: overlay 의 maxPaths 가 64 에서 변경될 때. |
 
 호출자는 createTowerFallback(opts) 에서 {minSpanM, marginPx} 를 직접 지정할 수 있다. 기본값을 바꾸려면 실제 관제탑 지형·사용성 측정이 필요하다.
 
@@ -84,3 +84,7 @@
 
 조건부 승인. 받은 것만 그리는 2D 지도(경계 상자 맞춤, 북쪽 위, 보간·외삽·배경 생성 없음), 화면 단위 전부 또는 없음(live/fallback), 배너 '실시간 3D 불가', 네트워크·타이머 없음은 승인한다. 감독 직접 확인: 전체 npm test 5093 중 통과 5076·실패 0·취소 0, 폴백 시험 41/41, 축 1a·3 이 외삽·보간·가짜 표면 없음을 확인했다.
 조건: renderer_basis 절에 입력이 점군이 아니라는 것·Δd·LOD 해당 없음·confidence 의미 차이를 적고(F-445 ①), maxAbsEnuM 1e6 m·maxPaths 재사용의 근거·대가·다시 볼 조건을 선택 표에 넣고(F-445 ②), 수동 view·작은 화면 서술을 코드와 맞춘다(F-445 ③). 퇴화 입력(marginPx 0, 여백 > 크기, 극소 minSpanM·metersPerPx)의 동작은 F-443 으로 정해 이 문서에 반영한다.
+
+## 성능 시험 p90 문턱 정정 (F-462, PR #84 검토 #2)
+
+p90 ≤ 8 ms 는 측정 근거가 없었다. 부하(CPU 소모 프로세스 4개, 4코어)에서 21묶음 p90 은 4.1~12.2 ms 로 퍼졌고 한가할 때도 3.5~5.7 ms 라 간헐 실패가 났다. 문턱을 절대 p90 ≤ 16 ms(한 프레임 예산, 제품 요구)와 p90/중앙값 ≤ 2.5 로 바꾸고, 꼬리 비율이 흔들리지 않게 묶음당 호출을 5회에서 10회로 늘렸다. 묶음당 10회에서 비율 최대 1.77(부하·한가 120회)이라 2.5 는 최대의 약 1.4배다(5회에서는 최대 3.21). 이 두 단언은 꼬리만 보며, 균일한 느려짐은 중앙값·기준 비율·순회 몫 단언이 잡는다. 확인: 부하 5회 연속 실패 0, 맞춤 순회 10배 변이 실패 1, 옛 push 변이 실패 3. 긴 경로 장면의 BIG_RATIO 5 는 정상(0.75~3.00)과 옛 push(2.43~5.48)가 겹쳐 비율로 가르지 못하므로, 옛 push 는 Array push 호출 0 단언이 맡고 5 는 극단 퇴행만 잡는 상한으로 기록한다. 성공 기준 수치는 바꾸지 않았다.
