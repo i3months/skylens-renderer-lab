@@ -5875,44 +5875,77 @@
 - 권장 모델: haiku
 - 이력: 2026-10-06 감독 등록(PR #93 검토 #1, 축 12 가 높음으로 보고 — 문서 표기 문제이고 노트·PR 본문에 미검증이 밝혀져 있어 낮음으로 낮춤). 새로 찾은 것. → 2026-10-06 작업자 재처리(PR #93 반려 뒤; 제품 3b37b102, 연구 eadd088): 하위 시험·변이 확인 뒤 전체 npm test 5457 중 pass 5440·fail 0, 실제 skylens 체크아웃은 [local]. 확인 기준 직접 실행. → 2026-10-06 12:55 감독 확인(PR #93 검토 #2): 닫음 — first_frame/index.mjs 주석·README 한·영 절 확인(축 11). run.mjs:59 주석에 [local] 후속이 빠진 것은 F-533 ⑪ 로.
 
-### F-529 [처리됨-검증대기] (심각도: 중간) — run_all 통합 경로의 위반 수집이 시험으로 고정되지 않고, burstLevels < 4 에서 거짓 위반을 낸다
+### F-529 [닫힘] (심각도: 중간) — run_all 통합 경로의 위반 수집이 시험으로 고정되지 않고, burstLevels < 4 에서 거짓 위반을 낸다
 - 위치: 제품 bench/load/run_all/run.mjs:48·:49-51·:52-55·:45, bench/load/run_all/run_all.test.mjs (feat/t16-1 3b37b10)
 - 문제: ① runScenario 가 이벤트 로그를 직접 만들어 시험이 실패 로그를 넣을 수 없다. 감독 사본 재현: run.mjs:48(firstFrameViolations)·:55(checkBurstInvariants 결과) 두 줄을 주석 처리해도 run_all.test 6/6 통과. 축 4b: :50 열린 연결 수 위반·:51 unreachable 위반 제거도 생존, 지표 이름을 load.bandwidth_peak 로 되돌려도 생존. 축 1b: burst/index.mjs 표시를 '최고 수준 3 상수' 로 바꾼 변이가 burst30(4수준이 한 순간 도착)에서 올바른 표시와 같아 run_all.test 통과·main 종료 0. ② run.mjs:53 은 모든 level 이벤트를 arrivals 로 넘기는데 checkBurstInvariants 는 level < burstLevels 만 받는다(burst/index.mjs:53). simulateBurst(:119-122)에는 거르기가 있다.
 - 실패 상황: run.mjs 에서 비유한 p95·burst 위반 수집을 지워도 CI 가 초록. burstLevels 2·clients 3 burst 를 runScenario 로 돌리면 'arrival: client 1 level 2 … out of range 0..1' 등 거짓 위반 12건(축 1).
 - 고칠 것: (가) runScenario 가 events 를 주입받는 옵션(기본은 simulate). 주입 로그로 NaN p95·조기 close·바이트 0 클라이언트·burst 위반 로그 각각의 정확한 위반 문구를 deepEqual. (나) burst 도착 거르기를 burst 모듈 함수 하나(burstArrivals)로 두고 simulateBurst·run.mjs 가 함께 쓴다. (다) burstLevels 2 burst 시나리오를 run_all 시험에 추가(위반 0, 상수 3 변이는 'never arrived'). (라) 기록 metric 이름 목록 deepEqual.
 - 확인 기준: 감독 사본에서 run.mjs:48·:50·:51·:55 각 줄 제거, 이름 되돌림, 최고 수준 상수 변이가 각각 run_all.test 를 실패시킨다. burstLevels 1..4 runScenario 위반 0.
 - 권장 모델: sonnet
-- 이력: 2026-10-06 12:55 감독 등록(PR #93 검토 #2, 축 1·1b·4b; 감독이 :48·:55 제거 변이를 사본에서 재현, run.mjs:53 직접 읽음). 새로 찾은 것(F-523 ④·F-522 확인 기준 일부의 잔여). → 2026-10-06 작업자 처리(제품 46d9a7be, 연구 experiment/t16-13): run_all events·show 주입, burstArrivals 공유, 변이 시험. 전체 npm test 5498 중 pass 5478·fail 0(npm ci 뒤), 실제 skylens 체크아웃은 [local].
+- 이력: 2026-10-06 12:55 감독 등록(PR #93 검토 #2, 축 1·1b·4b; 감독이 :48·:55 제거 변이를 사본에서 재현, run.mjs:53 직접 읽음). 새로 찾은 것(F-523 ④·F-522 확인 기준 일부의 잔여). → 2026-10-06 작업자 처리(제품 46d9a7be, 연구 experiment/t16-13): run_all events·show 주입, burstArrivals 공유, 변이 시험. 전체 npm test 5498 중 pass 5478·fail 0(npm ci 뒤), 실제 skylens 체크아웃은 [local]. → 2026-10-06 13:32 감독 확인(PR #94 검토 #1): 닫음 — 감독 사본 변이: run.mjs:49 첫 프레임 위반 제거 → run_all.test fail 1, :56 burst 불변식 수집 제거 → fail 3(감독 직접). 축 4a: :51·:52 제거, 이름 되돌림, 최고 수준 상수 3, burstArrivals 거르기 제거·경계 변이 모두 실패. burstLevels 1..4 runScenario 위반 0. 남은 낮음(includes 단언·빈 반복 가드)은 F-537 로.
 
-### F-530 [처리됨-검증대기] (심각도: 중간) — '서버 CPU·메모리' 샘플이 하네스 프로세스 값을 가짜 시계로 나눈 것이다
+### F-530 [닫힘] (심각도: 중간) — '서버 CPU·메모리' 샘플이 하네스 프로세스 값을 가짜 시계로 나눈 것이다
 - 위치: 제품 bench/load/run_all/run.mjs:61-65, bench/load/server_stats/index.mjs:2·:15-23, contracts/load/harness.mjs:13-14 (feat/t16-1 3b37b10)
 - 문제: run.mjs 가 now 를 tick 마다 1000 ms 씩 늘리는 가짜 시계로 두고 sampler.tick() 을 60번 연달아 부른다. cpuUsage 는 실제 process.cpuUsage() 라 수 µs 의 CPU 를 가짜 1 s 로 나눈다(감독 :61-64 직접 읽음). 결과 cpuPct 0.001~0.01, rssMiB ≈ 54 상수(축 1·5·6). *.server.json 에 출처 표식이 없다. 계약 주석은 아직 intervalMs·rssMB(harness.mjs:13-14) 인데 구현은 intervalMs 없음·rssMiB.
 - 실패 상황: server.json 이 서버 부하 증거처럼 읽힌다. cpuUsage 에 NaN 을 넣어도 샘플 개수만 보므로 위반 0(축 7).
 - 고칠 것: 시뮬레이션에서는 샘플에 source:'harness-process', clock:'simulated' 를 싣거나 샘플을 만들지 않는다(실서버 값은 T16.12). now 만 가짜이고 cpuUsage 가 실제인 조합은 거부하거나 둘 다 주입. 비유한 샘플은 위반. 계약 주석을 구현과 맞춘다. TASKS T16.2 완료 표기에 '실서버 미측정(T16.12)'.
 - 확인 기준: server.json 에 출처 필드, NaN 주입 시 위반 ≥ 1, 계약 주석 grep 'rssMiB' 1건·'intervalMs' 0건.
 - 권장 모델: sonnet
-- 이력: 2026-10-06 12:55 감독 등록(PR #93 검토 #2, 축 1·5·6·7; 감독 run.mjs:58-68·harness.mjs:10-16 직접 읽음). 새로 찾은 것. → 2026-10-06 작업자 처리(제품 46d9a7be, 연구 experiment/t16-13): 서버 샘플 source·clock, 비유한 위반, 계약 주석. 전체 npm test 5498 중 pass 5478·fail 0(npm ci 뒤), 실제 skylens 체크아웃은 [local].
+- 이력: 2026-10-06 12:55 감독 등록(PR #93 검토 #2, 축 1·5·6·7; 감독 run.mjs:58-68·harness.mjs:10-16 직접 읽음). 새로 찾은 것. → 2026-10-06 작업자 처리(제품 46d9a7be, 연구 experiment/t16-13): 서버 샘플 source·clock, 비유한 위반, 계약 주석. 전체 npm test 5498 중 pass 5478·fail 0(npm ci 뒤), 실제 skylens 체크아웃은 [local]. → 2026-10-06 13:32 감독 확인(PR #94 검토 #1): 닫음 — server_stats/index.mjs 샘플에 source·clock, now·cpuUsage 한쪽만 주입하면 throw, checkServerSamples 로 비유한 위반(축 4b M1·M7 실패, NaN 위반 단언 확인), harness.mjs 'rssMiB' 있음·'intervalMs' 0건(감독 diff 직접 읽음). 남은 낮음(cpuPct 0 고정에 source 'harness-process', clock 라벨 추론)은 F-537 로.
 
-### F-531 [처리됨-검증대기] (심각도: 중간) — burst 묶음 페이로드의 latencyMs 가 실제 요청→수신 지연보다 작게 기록된다
+### F-531 [닫힘] (심각도: 중간) — burst 묶음 페이로드의 latencyMs 가 실제 요청→수신 지연보다 작게 기록된다
 - 위치: 제품 bench/load/clients/index.mjs:39-48 (feat/t16-1 3b37b10)
 - 문제: 묶음 수준은 tMs = d.t + max(묶음 지연) 으로 같은 시각에 도착하지만 bytes 이벤트에는 각자 뽑은 d.latencyMs 를 싣는다(감독 :41·:48 직접 읽음). Math.max(tMs, prev) 로 밀린 몫도 빠진다. 계약 harness.mjs:9 'request-to-receive delay' 와 어긋난다.
 - 실패 상황: burst, burstLevels 4, seed 1, clients 1 → 네 페이로드 모두 tMs 375, latencyMs [98.5, 42.5, 77.7, 99.6](축 1 보고, 감독 미재현). perClient.latencyMs 가 낮게 나온다.
 - 고칠 것: 기록 latencyMs = tMs − 요청 시각(d.t).
 - 확인 기준: 모든 bytes 이벤트에서 |latencyMs − (tMs − 요청 시각)| ≤ 0.5 단언, burst seed 1 client 0 의 네 값이 같다.
 - 권장 모델: sonnet
-- 이력: 2026-10-06 12:55 감독 등록(PR #93 검토 #2, 축 1). 새로 찾은 것. 수치 미확인. → 2026-10-06 작업자 처리(제품 46d9a7be, 연구 experiment/t16-13): burst latencyMs = tMs − 요청 시각. 전체 npm test 5498 중 pass 5478·fail 0(npm ci 뒤), 실제 skylens 체크아웃은 [local].
+- 이력: 2026-10-06 12:55 감독 등록(PR #93 검토 #2, 축 1). 새로 찾은 것. 수치 미확인. → 2026-10-06 작업자 처리(제품 46d9a7be, 연구 experiment/t16-13): burst latencyMs = tMs − 요청 시각. 전체 npm test 5498 중 pass 5478·fail 0(npm ci 뒤), 실제 skylens 체크아웃은 [local]. → 2026-10-06 13:32 감독 확인(PR #94 검토 #1): 닫음 — clients/index.mjs:49 latencyMs = tMs − d.t(감독 직접 읽음). 축 1 node: burst seed 1 clients 1 네 값 99.2 = 375 − 275.8, 축 4b: d.latencyMs 되돌림 변이 실패.
 
-### F-532 [처리됨-검증대기] (심각도: 중간) — 결정 0061 의 서술이 코드·SPEC 과 어긋난다
+### F-532 [닫힘] (심각도: 중간) — 결정 0061 의 서술이 코드·SPEC 과 어긋난다
 - 위치: 연구 decisions/0061-t16-load-harness.md:6·:14·:15·:16·:18·:24, experiments/t16-1.md:41 (experiment/t16-1 eadd088)
 - 문제: ① (다)·(카) 'dropped = 0, 바이트는 사라지지 않는다' — 코드는 close 때 역압에 막힌 페이로드를 버린다(제품 slow_link/index.mjs:3·:41 `dropped += size`, 감독 직접 읽음; slow_link.test 가 dropped 504828 을 단언). ② (나) 'burst 501 ms' — 현재 burst30 p95 526(축 2·5 실행). ③ (마) 'SPEC 은 제한 없는 회선에서의 3 s' — SPEC S5 는 회선 조건이 없다. S5 를 명시하고 slow_link 면제는 작업자 판단으로. ④ :16 slow_link/index.mjs:6 → :7, :6 관련 커밋 6cf65741 → 3b37b10. ⑤ (가) T16.12 [cloud] 는 근사, S5·S8 확정은 [local](SPEC §4) 문장. ⑥ experiments/t16-1.md:41 의 decisions/0061 을 상대 링크로, 노트 '308 중 308' 을 현재 범위 수치로, '3 시나리오 위반 0' 문장에 slow 문턱 제외를 명시. ⑦ clients/index.mjs 의 slow_link 지연 경로(큐 없는 두 번째 모형)를 0061 (라)에 시험 전용으로 적거나 simulateClients 가 slow_link 를 거부. ⑧ S6(초기 15 MB·구간당 3 MB) 판정 지표가 없다는 것을 T16.5·T16.9 범위로 노트 요지에.
 - 실패 상황: 결정 기록을 근거로 문턱·큐 상한을 조정할 때 틀린 전제(dropped 0, burst 501)를 쓴다.
 - 고칠 것: 위 ①~⑧ 정정. 0061 상태 줄은 정정 뒤 '승인'(감독 조건부 승인 이력 포함), decisions/README 행도.
 - 확인 기준: 0061 에 'dropped = 0' 무조건 주장 0건, '526' 1건, 'S5' 1건 이상, ':7' 확인, t16-1.md 에 '](../decisions/0061' 1건.
 - 권장 모델: haiku
-- 이력: 2026-10-06 12:55 감독 등록(PR #93 검토 #2, 축 2·5; ① 감독 확인, 나머지 축 보고). 새로 찾은 것. → 2026-10-06 작업자 처리(제품 46d9a7be, 연구 experiment/t16-13): 결정 0061 정정 ①~⑧. 전체 npm test 5498 중 pass 5478·fail 0(npm ci 뒤), 실제 skylens 체크아웃은 [local].
+- 이력: 2026-10-06 12:55 감독 등록(PR #93 검토 #2, 축 2·5; ① 감독 확인, 나머지 축 보고). 새로 찾은 것. → 2026-10-06 작업자 처리(제품 46d9a7be, 연구 experiment/t16-13): 결정 0061 정정 ①~⑧. 전체 npm test 5498 중 pass 5478·fail 0(npm ci 뒤), 실제 skylens 체크아웃은 [local]. → 2026-10-06 13:32 감독 확인(PR #94 검토 #1): 닫음 — 0061 에 'dropped = 0' 0건, '526' 1건, 'S5' 2건, :16 slow_link/index.mjs:7, t16-1.md '](../decisions/0061' 1건(감독 grep). 상태 '승인'·README 행 갱신 확인. 남은 서술 모순((카) '사라지지 않는다'·(차) 같은 순간 정책·:14 S6)은 F-534 로.
 
-### F-533 [처리됨-검증대기] (심각도: 낮음) — PR #93 검토 #2 견고성·시험 낮음 묶음
+### F-533 [닫힘] (심각도: 낮음) — PR #93 검토 #2 견고성·시험 낮음 묶음
 - 위치·고칠 것(제품 feat/t16-1 3b37b10): ① slow_link/index.mjs:58·:67 seed 를 >>> 0 으로 조용히 변환 — clients/index.mjs:17 과 같은 검사로 throw(seed 2^32·-1·1.5·NaN·undefined 가 0·2^32-1·1·0·0 과 같은 로그, 축 1·7). ② burst/index.mjs:58·:68 checkBurstInvariants 가 clients 를 검사하지 않음(clients 1e7 빈 입력 2.6 s), 배열 아님·scenario 없음 TypeError — 입구 검사, id 별 한 번 묶기. ③ contracts/load/index.mjs:38 durationS 상한 없음 — MAX_DURATION_S. ④ bandwidth/index.mjs:20-26 tMs NaN·음수·durationS 초과가 합산됨. ⑤ first_frame/index.mjs clients > 30 하드코딩 → MAX_CLIENTS, null 이벤트·비배열 입력. ⑥ thresholds loadThresholds 빈 {} 통과. ⑦ tools/load_report/index.mjs:3 단독 CR·이미 있는 '\|' 처리(축 4a 생존 변이 `/\r?\n/`→`/\n/`). ⑧ burst/index.mjs:35-36 같은 순간 도착을 높은 수준 먼저 넣는 것은 하네스 정책 — 주석과 0061 (차)에 명시, 오름차순 입력에서도 순간 말미 최고 수준이 표시되는지 시험(축 3). ⑨ 시뮬레이터가 '늦게 온 낮은 수준(추월)' 을 만들지 않음 — 시나리오 옵션으로 하나 넣거나 범위 밖임을 시험 주석에(축 3). ⑩ slow_link.test.mjs:68·:69·:78, clients.test.mjs:103 은 앞 단언 뒤 항상 참 — 생성 총량을 독립 계산으로, per_client.test.mjs:58 시험 이름 정정(축 4b). ⑪ run.mjs:59 주석에 '실서버 판정은 [local] 후속'(축 11).
 - 확인 기준: 각 항목 음성 시험 또는 grep. ⑦ 변이 실패.
 - 권장 모델: sonnet(①②③④⑧⑨⑩), haiku(⑤⑥⑦⑪)
-- 이력: 2026-10-06 12:55 감독 등록(PR #93 검토 #2, 축 1·3·4a·4b·7·11). 새로 찾은 것. 수치는 축 보고(감독 미재현). → 2026-10-06 작업자 처리(제품 46d9a7be, 연구 experiment/t16-13): ①~⑪ 항목별 시험·정정(⑩ slow_link 총량 상수 일부 남음). 전체 npm test 5498 중 pass 5478·fail 0(npm ci 뒤), 실제 skylens 체크아웃은 [local].
+- 이력: 2026-10-06 12:55 감독 등록(PR #93 검토 #2, 축 1·3·4a·4b·7·11). 새로 찾은 것. 수치는 축 보고(감독 미재현). → 2026-10-06 작업자 처리(제품 46d9a7be, 연구 experiment/t16-13): ①~⑪ 항목별 시험·정정(⑩ slow_link 총량 상수 일부 남음). 전체 npm test 5498 중 pass 5478·fail 0(npm ci 뒤), 실제 skylens 체크아웃은 [local]. → 2026-10-06 13:32 감독 확인(PR #94 검토 #1): 닫음 — 축 7 node: ① seed 2^32·-1·1.5·NaN·undefined throw, ② clients 1e7·비배열 throw, ③ durationS 3601 거부, ④ tMs NaN·음수·초과 RangeError, ⑤ clients 31 RangeError, ⑥ {} throw, ⑦ CRLF·단독 CR 정상·`/\n/` 변이 실패(축 4b). ⑧ burst/index.mjs:2-5 주석·오름차순 시험, ⑨ 시험 주석(축 3). 남은 것: ⑦ 짝수 역슬래시는 F-536, ⑩ slow_link 총량 리터럴·⑤ undefined 이벤트는 F-537 로.
+
+### F-534 [열림] (심각도: 중간) — 결정 0061 에 코드와 어긋나는 서술이 남았다((카) 손실 0, (차) 같은 순간 정책, S6 표시)
+- 위치: 연구 decisions/0061-t16-load-harness.md:24 (카)·:23 (차)·:14 (가), experiments/t16-1.md:28, experiments/t16-13.md (experiment/t16-13 79408b1); 제품 contracts/load/index.mjs:8 MAX_DURATION_S (feat/t16-13 46d9a7b)
+- 문제: ① (카) '바이트는 지연될 뿐 만들어지거나 사라지지 않는다' — 제품 slow_link/index.mjs:41 `dropped += size` 로 종료 때 역압 대기 페이로드를 버린다(감독 :24 직접 읽음, 같은 문서 (다) :16 과도 모순). ② (차) 에 F-533 ⑧ 이 요구한 '같은 순간 도착은 높은 수준부터 넣는 하네스 정책, 오름차순이면 수준마다 표시' 가 없고, '한 지연 표본' 은 구현(clients/index.mjs:41-42 묶음 지연 최댓값)과 다르다. ③ :14 'S6·S8 통과 표시는 합성 값' 과 :24·:30 'S6 판정 지표 없음' 이 모순. ④ MAX_DURATION_S 3600 상한이 새 계약 규칙인데 decisions/ 에 '3600' 0건(0060:16 은 durationS > 0 만). ⑤ t16-1.md:28 '새·변경 시험 5440 중 5440' 은 전체 npm test 수. ⑥ RULES.md:51 'renderer_basis 에서 벗어난 점' 줄이 두 노트에 없음(이탈 없음 한 줄이면 됨). ⑦ run.mjs:64 모의 CPU 0 고정이 0061 에 없음.
+- 실패 상황: 큐 상한·대역 결정을 '손실 0' 전제로 내림. S6 이 합성으로 통과한 것처럼 읽힘.
+- 고칠 것: ①~⑦ 정정(0060 또는 0061 에 MAX_DURATION_S 근거 행).
+- 확인 기준: 0061 에 '사라지지 않는다' 0건·(카) 에 'dropped' ≥ 1, (차) 에 '높은 수준' ≥ 1·'한 지연 표본' 0건, S6 서술 하나로 일치, decisions/ 에 '3600' ≥ 1, t16-1.md:28 '새·변경' 0건, 두 노트에 'renderer_basis' 각 1건, 0061 에 'cpuPct' ≥ 1.
+- 권장 모델: haiku
+- 이력: 2026-10-06 13:32 감독 등록(PR #94 검토 #1, 축 2·5; ① 감독 :24 직접 읽음, ④ 감독 grep). F-532 의 잔여(①②)와 새로 찾은 것(③~⑦).
+
+### F-535 [열림] (심각도: 중간) — runScenario 가 정수 아닌 durationS 에서 거짓 서버 샘플 위반을 낸다
+- 위치: 제품 bench/load/run_all/run.mjs:65·:67 (feat/t16-13 46d9a7b)
+- 문제: tick 루프는 t = 1..durationS 정수 초만 돌고, 기대 샘플 수는 `scenario.durationS` 그대로다(감독 diff 직접 읽음). validateScenario 는 소수 durationS 를 받는다(contracts/load/index.mjs:39).
+- 실패 상황: steady, clients 2, durationS 1.5 → 샘플 1개, 위반 's: 1 server samples, expected 1.5'(축 1 node 보고, 감독 미재현). durationS 0.5 → 샘플 0개 위반.
+- 고칠 것: 기대값 Math.floor(durationS) 로 하거나 validateScenario 가 durationS 정수만 받게 하고 근거를 0060/0061 에.
+- 확인 기준: durationS 1.5 시나리오의 runScenario 위반 0(또는 validateScenario 거부) 시험.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 13:32 감독 등록(PR #94 검토 #1, 축 1). 새로 찾은 것.
+
+### F-536 [열림] (심각도: 중간) — load_report 셀 이스케이프가 파이프 앞 짝수 개 역슬래시에서 표를 깬다(F-533 ⑦ 잔여)
+- 위치: 제품 tools/load_report/index.mjs:3-6 (feat/t16-13 46d9a7b)
+- 문제: `/\\(?=\|)/g` 는 파이프 바로 앞 역슬래시 하나만 두 배로 만든다(감독 직접 읽음).
+- 실패 상황: device 'a\\|b'(역슬래시 2 + 파이프) → 역슬래시 4 + '|' 가 되어 마크다운에서 파이프가 이스케이프되지 않고 열이 늘어난다(감독 손 계산, 축 7 보고). 역슬래시 1 은 정상.
+- 고칠 것: 모든 역슬래시를 먼저 두 배로(`/\\/g`), 그다음 '|' → '\|'. load_report.test.mjs:500-502 주석('should not double-escape')을 단언과 맞춘다.
+- 확인 기준: 역슬래시 0·1·2·3개 + 파이프 입력의 행에서 비이스케이프 '|' 수가 열 경계 수와 같고, 셀을 역파싱하면 원문.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 13:32 감독 등록(PR #94 검토 #1, 축 7·4b). F-533 ⑦ 의 잔여.
+
+### F-537 [열림] (심각도: 낮음) — PR #94 검토 #1 시험·견고성·계약 주석 낮음 묶음
+- 위치·고칠 것(제품 feat/t16-13 46d9a7b): ① run_all.test.mjs:65·:70·:78 includes·some 대신 전체 위반 배열 deepEqual(위반 중복 변이 생존, 축 4a). ② run_all.test.mjs:116 반복 앞 `mutated.length >= 30` 가드. ③ slow_link.test.mjs:79 총량 97096560 은 위 세 리터럴의 합이라 항상 참 — 생성 총량을 replay 로 독립 계산(F-533 ⑩ 잔여, 축 4b). ④ thresholds.test.mjs:81·:87·:99 이름은 loadThresholds 인데 checkThresholds 만 부름, loadThresholds 의 assertThresholds 호출 제거 변이 생존 — 경로 주입 후 빈 {} throw 단언. ⑤ clients/index.mjs:46 Math.max 밀림이 현재 생성기에서 일어나지 않음(제거 변이가 등가), clients.test.mjs:164 이름 'pushes included' 정정 또는 도달 입력. ⑥ burst.test.mjs:161-163 실제 시간 2000 ms 단언 → 구조적 단언 또는 퇴행만 넘는 규모. ⑦ first_frame/index.mjs:34-37 undefined 이벤트 TypeError(null 만 검사), firstFrameViolations({}) 문구 'p95 undefined'. ⑧ bandwidth/index.mjs:13 durationS 에 MAX_DURATION_S 상한. ⑨ burst/index.mjs:76-82 checkBurstInvariants 가 scenario.burstLevels 를 검사하지 않음('0..NaN' 위반 문자열), showFromArrivals(ev,'x') 조용히 []. ⑩ run.mjs:56 위반 spread push → 반복문(대량 위반 RangeError 예방). ⑪ run.mjs:64 cpuPct 0 고정인데 source 'harness-process' — source 'simulated' 또는 cpuPct null; server_stats/index.mjs:13 clock 라벨을 now 주입 여부로 추론하지 말고 명시 인자. ⑫ contracts/load/harness.mjs runScenario 시그니처에 events·show, arrivals 를 burstArrivals 로, 'one latency draw' → 묶음 최댓값, dropped 정의를 slow_link:2-3 과 같게. ⑬ run.mjs slow_link 는 문턱 검사 제외(0061 (마)) — 보고서에 'S5 문턱 제외 시나리오' 표시, load_report 끝에 'source: simulated, S5/S8 verdict [local]'.
+- 확인 기준: 각 항목 음성 시험·변이 실패 또는 grep.
+- 권장 모델: sonnet(①~⑪), haiku(⑫⑬)
+- 이력: 2026-10-06 13:32 감독 등록(PR #94 검토 #1, 축 1·2·4a·4b·5·6·7). 새로 찾은 것(③ 은 F-533 ⑩ 잔여). 수치·변이는 축 보고(감독 미재현, 일부 줄 직접 읽음).
