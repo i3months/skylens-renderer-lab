@@ -19,7 +19,7 @@
 
 ## 결정
 
-(a) 자동 맞춤을 채택한다. 받은 모든 점(드론·탐지·경로 점)의 (e,n) 경계 상자에서 중심과 범위(span)를 구하고, 화면 크기에 맞춰 메터/픽셀 비(metersPerPx)를 계산한다. 받은 점이 없으면 지도를 표시하지 않는다(view = null 자동 맞춤 조건: points.length === 0, view.mjs:21). 화면 좌표는 공식 `x = width/2 + (e−centerE)/metersPerPx`, `y = height/2 − (n−centerN)/metersPerPx` 로 변환하며, 여백(marginPx) 안에는 모든 점을 담는다. 극단적으로 작은 화면(너비 또는 높이가 여백보다 작을 때)에는 여백을 줄여서 `m = min(max(marginPx, 1), min(width, height) / 4)` 로 계산한다(구현 결정: marginPx 0 이어도 끝 점이 화면 안에 들도록 여백 하한 1 px, min(w,h) < 4m 이면 지도가 1 px 로 붕괴하지 않게 avail = min(w,h)/2; F-443). 필요하면 호출자가 setView() 로 범위를 직접 정할 수 있고, null 을 넘기면 자동 맞춤으로 돌아간다(view.mjs:32 에서 자동 맞춤이 처리).
+(a) 자동 맞춤을 채택한다. 받은 모든 점(드론·탐지·경로 점)의 (e,n) 경계 상자에서 중심과 범위(span)를 구하고, 화면 크기에 맞춰 메터/픽셀 비(metersPerPx)를 계산한다. 받은 점이 없으면 지도를 표시하지 않는다(view = null 자동 맞춤 조건: points.length === 0, view.mjs:23). 화면 좌표는 공식 `x = width/2 + (e−centerE)/metersPerPx`, `y = height/2 − (n−centerN)/metersPerPx` 로 변환하며, 여백(marginPx) 안에는 모든 점을 담는다. 극단적으로 작은 화면(너비 또는 높이가 여백보다 작을 때)에는 여백을 줄여서 `m = min(max(marginPx, 1), min(width, height) / 4)` 로 계산한다(구현 결정: marginPx 0 이어도 끝 점이 화면 안에 들도록 여백 하한 1 px, min(w,h) < 4m 이면 지도가 1 px 로 붕괴하지 않게 avail = min(w,h)/2; F-443). 필요하면 호출자가 setView() 로 범위를 직접 정할 수 있고, null 을 넘기면 자동 맞춤으로 돌아간다(view.mjs:32 에서 자동 맞춤이 처리).
 
 ## 선택 2: live 모드와 fallback 모드에서 목록 표시
 
@@ -46,7 +46,7 @@
 | minSpanM | 100 m | 받은 점이 한곳에 몰려 있을 때(예: 드론이 제자리에 있을 때) 지도 범위의 최솟값. 100 m 이면 공중뷰에서 건물 수 개 또는 거리 한 블록 정도 보임. 측정 없는 선택값. | 미확인(추정). 실제 지형 크기·조작성 측정 필요. |
 | marginPx | 16 px | 지도 가장자리 여백(화면 가장자리와 데이터 점 사이 거리). 16 CSS px(기준 약 4.2 mm, 1x 기기에서 읽을 만한 크기). 측정 없는 선택값. | 미확인(추정). 기기 화면 크기·DPI 별 가독성 측정 필요. |
 | maxAbsEnuM | 1e6 m | 좌표계 범위 상한. overlay 데이터(Drone, Detection, Path)의 e, n 값이 ±1e6 m 범위 안에 있어야 한다(contracts/controlview/fallback.mjs:12). 1e6 m 는 지구 한 대륙 크기(추정). 이 상한을 넘으면 부동소수점 오차 누적 위험. | 대가: 범위를 좁히면 실제 장거리 운영(e.g., 수십 km 지역)에서 오버플로우 방지. 다시 볼: 실제 운영 영역 범위 확인(지형 측량 범위). |
-| maxPaths | 64 | T15.6f(overlay 모듈) 에서 경로 최대 64개 제약이 이미 있으므로, fallback 에서는 재사용(contracts/controlview/overlay.mjs:11). 추가 제약 없음. | 대가: overlay 와 fallback 의 제약이 일관성 있으려면 overlay 값 변경 시 fallback 도 함께 검토 필요. 다시 볼: overlay 의 maxPaths 가 64 에서 변경될 때. |
+| maxPaths | 64 | T15.6f(overlay 모듈) 에서 경로 최대 64개 제약이 이미 있으므로, fallback 에서는 재사용(contracts/controlview/overlay.mjs:17). 추가 제약 없음. | 대가: overlay 와 fallback 의 제약이 일관성 있으려면 overlay 값 변경 시 fallback 도 함께 검토 필요. 다시 볼: overlay 의 maxPaths 가 64 에서 변경될 때. |
 
 호출자는 createTowerFallback(opts) 에서 {minSpanM, marginPx} 를 직접 지정할 수 있다. 기본값을 바꾸려면 실제 관제탑 지형·사용성 측정이 필요하다.
 
