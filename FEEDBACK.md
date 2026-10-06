@@ -5549,7 +5549,7 @@
 - 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 PR #87 재오픈(feat/t15-10e 6e138ea), 전체 npm test 5309 중 5292 통과 0 실패. step 0.03(F-493)·전역 격자 kbase(F-492). 상세 experiments/t15-10e.md §3. 남김: F-496 ⑭(선택)·hill 시드 41..50 미측정.
 
 - 이력 추가: 2026-10-06 06:45 감독 확인 닫음(PR #87 검토 #2) — 감독 직접 seam.test.mjs 5/5 통과, 축 1a 사본 base=fround(min) 되돌림 변이 4/5 실패(통과 1건 noiseBig 은 모든 타일 최솟값이 −1 이라 무력 — F-499 ②), 한쪽 폴백 조합 01·10 포함. 잔여 −0 비트(F-499 ①) 는 기하 균열 아님.
-### F-493 [열림] (심각도: 높음) — 양자화 step 0.05 m 가 미리 고른 31 장면 밖 hill 시드에서 S9(SSIM ≥ 0.95)를 어긴다
+### F-493 [처리됨-검증대기] (심각도: 높음) — 양자화 step 0.05 m 가 미리 고른 31 장면 밖 hill 시드에서 S9(SSIM ≥ 0.95)를 어긴다
 - 위치: 제품 client/tower/terrain/ssim_h32.test.mjs:30-33(HILL_SEEDS 1~12, NOISE_BIG 0~3, LOW_NOISE 1~3)·:153(판정 1); contracts/tower_assets/terrain_h32.mjs:16(step 0.05); 연구 decisions/0058(제안)·experiments/t15-10e.md §3('여유 약 0.006')
 - 문제: 시험 장면 집합 밖의 시드에서 계약 step 그대로 양자화 SSIM 이 0.95 아래로 떨어진다. 여유 0.0055 가 시드 선택에 달려 있다. 0058 의 'SSIM 0.95 유지' 근거가 성립하지 않는다.
 - 실패 상황: 감독 직접 재현 — 제품 사본에서 시드만 HILL [23]·NOISE_BIG [4]·LOW_NOISE [4] 로 바꿔 `node --test client/tower/terrain/ssim_h32.test.mjs`: hill:23/0 LOD2·3 시점 3(street_level) 양자화 SSIM 0.9486(하락 0.0424) → 판정 (1) 실패. 축 4a 는 hill 13..30 중 같은 장면을 찾음.
@@ -5561,6 +5561,8 @@
 
 - 이력 추가: 2026-10-06 06:45 감독 다시 엶(PR #87 검토 #2, 같은 항목 두 번째 반려 → opus). 0058:23·노트 §3·ssim_h32.test.mjs:11-15 의 step 훑기 수치(0.05 최소 0.9482·hill:23 0.9486 미달, 0.04 0.9496 미달, 0.03 0.9543, 여유 0.0043)는 1b07de8(타일별 base) 에서 잰 값이고, 28f8ada(전역 격자 kbase) 뒤 다시 재지 않았다. 감독 직접 재현: 6e138ea 사본에서 ssim_h32.test.mjs STEP_M 을 0.05 로 바꿔 실행 → pass 5 / fail 0, 최소 0.9662(lowNoise012:1 LOD2 tower_high), hill:23/0 0.9902, 하락 최대 0.0090. 즉 확인 기준 'step 0.05 되돌림 변이에서 실패' 불충족, 시험 :15 '(1) 실패' 서술은 현재 코드에서 거짓, 0058 근거(0.04 미달·0.03 이 최대 step)는 성립하지 않는다. 축 1b: HEAD 에서 같은 장면 step 0.05/0.04/0.03 — hill:23/0 0.9902/0.9907/0.9907, lowNoise012:12 0.9647/0.9647/0.9648(1b07de8 에서는 0.9486/0.9744/0.9788, 0.9482/0.9518/0.9553). 옛 하락의 주원인이 F-492 이음매 틈이었을 가능성. 축 1b hill 시드 41..50 × (0, 0.015) step 0.03 최소 0.9829(미달 0) — 이 부분은 충족.
 - 다시 고칠 것: (1) HEAD 에서 ssim_h32_sweep.mjs 108 장면을 다시 재고 표를 노트·0058 에 그대로 싣는다(옛 표는 '타일별 base, 폐기' 표시). (2) step 근거를 다시 쓴다 — 0.03 을 유지하면 그 이유(예: 오차 상한 +0.015 m 를 0057 상한 대비 작게)를, 바꾸면 새 값과 근거를. 옛 하락이 이음매 틈 때문이었는지 한 줄 확인(예: 1b07de8 사본에서 이음매만 맞춘 측정 또는 틈 픽셀 수). (3) ssim_h32.test 는 계약 TERRAIN_H32_STEP_M 을 가져다 쓴다. 되돌림 변이 기준은 HEAD 에서 실제로 SSIM 을 깨는 step(훑기로 찾은 첫 미달 값, 예 0.1·0.2)으로 다시 정하고 그 변이 실패를 확인한다 — 못 찾으면 그렇게 적는다. (4) 장면 hill 23 은 측정 뒤 넣은 장면임을 :8 에 적는다('측정 전에 고정' 은 그 뒤 고정한 집합). 확인 기준: 감독이 HEAD sweep 을 다시 돌려 노트 표와 같은 수치; 계약 step 을 새 변이 값으로 바꾸면 ssim_h32.test 실패; 0058·노트·시험 주석에 정정 표시 없는 1b07de8 수치 0건. SSIM 0.95 는 낮추지 않는다.
+- 이력 추가: 2026-10-06 작업자 처리됨-검증대기(검토 #2 재작업) — 제품 PR #87 재오픈(feat/t15-10e 9c747d1), 전체 npm test 5319 중 5302 통과 0 실패. F-493: 전역 격자 코드에서 128 장면(hill 1..50 포함) 재측정, step 0.25 미달·0.15 이하 통과, 바이트 무관이라 0.03 유지(근거 0058·계약 주석), ssim_h32.test 계약 상수 import·0.25 변이 실패. F-498: README·계약·시험·0058·노트 서술 정정. F-499 ①~⑦ 처리, ⑧ 0058 문구, ⑨ 안 함(선택). 상세 experiments/t15-10e.md §3.
+
 ### F-494 [닫힘] (심각도: 중간) — H32 시험 공백: 디코더 step 순환 시험, 예산 판정 음성 시험 없음, 폴백 경계·계약 음성 사례 없음, 공허한 대조 단언
 - 위치: 제품 client/tower/terrain/decode.test.mjs:37-45·:60-70; bench/tower/h32_initial.mjs:76·:80·:102-103, h32_initial.test.mjs:54·:109·:117-119; bench/tower/lod_bytes.mjs:132-133, lod_bytes.test.mjs:34·:52; contracts/tower_assets/terrain_h32.test.mjs:5-8; server/terrain/height_format/index.test.mjs:97-106
 - 문제: ① 디코더 시험이 step=fround(0.05) 하나만 쓰고 기대값을 디코더가 부르는 같은 dequantizeHeights 로 계산(순환). ② sharePass·totalPass 는 참인 경우만, lod3OverBudgetGzip 은 거짓인 경우만 시험. ③ h32_initial 인코더 대조가 인코더 자신의 flags 로 기대 길이를 구하고, :109 는 `includes(..) || fallback>0`, :119 는 typeof 만, 인코더 파일 없으면 통과. ④ 폴백 경계 65535·step 정확히 고정 안 됨. ⑤ 계약 시험이 크기 식 하나뿐(quantizeHeights NaN·step≤0·범위 초과 null, terrainH32ErrorBoundM 미시험).
@@ -5602,7 +5604,7 @@
 - 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 PR #87 재오픈(feat/t15-10e 6e138ea), 전체 npm test 5309 중 5292 통과 0 실패. step 0.03(F-493)·전역 격자 kbase(F-492). 상세 experiments/t15-10e.md §3. 남김: F-496 ⑭(선택)·hill 시드 41..50 미측정.
 - 이력 추가: 2026-10-06 06:45 감독 확인 닫음(PR #87 검토 #2) — 축 4b 사본: 변이 5종(compareCited 항상 true, 필터 뒤집기, hill 요약 오염, CITED 변경, 통과 집단 최대 오독) 모두 실패, 원본 b7 12/12 통과.
 
-### F-498 [열림] (심각도: 중간) — step 0.03 으로 바꾼 뒤 옛 step 0.05·0.9555·'타일 최솟값 base' 서술이 계약·시험·README·결정에 남았다
+### F-498 [처리됨-검증대기] (심각도: 중간) — step 0.03 으로 바꾼 뒤 옛 step 0.05·0.9555·'타일 최솟값 base' 서술이 계약·시험·README·결정에 남았다
 - 위치: 제품 contracts/tower_assets/terrain_h32.mjs:24('31 장면 … 최소 SSIM 0.9555(여유 약 0.006)'), client/tower/terrain/ssim_h32.test.mjs:5·:7·:28('계약 TERRAIN_H32_STEP_M(0.05 m)', '계약 상수를 이 값으로 바꿔야 한다'), README.md:160·:320('step 0.05 m', 한·영 둘 다), contracts/tower_assets/index.mjs:19('0.5 ÷ 2 로 정했지만' — F-496 ⑩ 미반영) (feat/t15-10e 6e138ea); 연구 decisions/0058:16('step/2 = 0.025 m')·:19('기본 양자화(step 0.05 m, base = 타일 최솟값)')·:24(0.9555 문단), decisions/README.md:112 0058 행('step 0.05 m'), experiments/t15-10e.md:7('LOD1~3 step 0.05 m') (experiment/t15-10e 90bc358)
 - 문제: 계약 값(0.03, 전역 kbase)과 문서·주석이 어긋나 결정 줄만 읽으면 폐기된 형식이 계약처럼 읽힌다. ssim_h32.test 는 step 을 파일 상수로 따로 둬 계약과 연결되지 않는다(F-493 (3) 과 함께 고친다).
 - 실패 상황: 감독 grep — README:160·:320 'step 0.05 m', terrain_h32.mjs:24 '0.9555', ssim_h32.test.mjs:28 `const STEP_M = 0.03`(import 없음). 계약만 0.05 로 바꾼 사본에서 ssim_h32.test 는 그대로 0.03 으로 돈다.
@@ -5610,9 +5612,11 @@
 - 확인 기준: 제품·연구 diff 에서 정정 표시 없는 '0.05 m'(H32 step 의미)·'0.9555'·'타일 최솟값' 0건, README 한·영 일치.
 - 권장 모델: haiku(문서), sonnet(ssim_h32.test import)
 - 이력: 2026-10-06 06:45 감독 등록(PR #87 검토 #2, 축 2·5·11·1b; 감독 grep 으로 README·계약·시험 직접 확인). 새로 찾은 것(F-496 ⑩ 잔여 포함).
+- 이력 추가: 2026-10-06 작업자 처리됨-검증대기(검토 #2 재작업) — 제품 PR #87 재오픈(feat/t15-10e 9c747d1), 전체 npm test 5319 중 5302 통과 0 실패. F-493: 전역 격자 코드에서 128 장면(hill 1..50 포함) 재측정, step 0.25 미달·0.15 이하 통과, 바이트 무관이라 0.03 유지(근거 0058·계약 주석), ssim_h32.test 계약 상수 import·0.25 변이 실패. F-498: README·계약·시험·0058·노트 서술 정정. F-499 ①~⑦ 처리, ⑧ 0058 문구, ⑨ 안 함(선택). 상세 experiments/t15-10e.md §3.
 
-### F-499 [열림] (심각도: 낮음) — PR #87 검토 #2 낮음 묶음
+### F-499 [처리됨-검증대기] (심각도: 낮음) — PR #87 검토 #2 낮음 묶음
 - 위치·고칠 것: ① contracts/tower_assets/terrain_h32.mjs:90 snapHeightsToGrid 가 h∈(−s/2,0) 에서 −0(0x80000000)을 내고 양자화 경로는 +0 — 한쪽 폴백 이웃 '같은 비트' 깨짐(값은 같아 기하 균열 아님). `+ 0` 으로 정규화, 시험(전체 −0.01 + 봉우리 5000 m LOD1)(축 1a). ② server/terrain/height_format/seam.test.mjs:69-74·:98-99 noiseBig 은 모든 타일 최솟값이 −1 이라 타일별 base 변이를 못 잡음 — 기울기·오프셋을 더하거나 '서로 다른 kbase ≥ 2' 단언(축 1a, 변이 4/5 → 5/5). ③ server/terrain/height_format/index.test.mjs:132 kbase 기대값이 구현과 같은 식 — 소수부 ≥ 0.5 인 최솟값의 kbase 리터럴(예 10.049 → 334)로 floor→round 변이를 잡기(축 4a). ④ terrain_h32.mjs:91 snap 복원값 비유한 검사 미시험 — snapHeightsToGrid([3.4e38], 1.8e38) === null 단언(축 4a). ⑤ client/tower/terrain/decode.mjs 가 머리 step 을 계약 step 과 대조하지 않음(step 1e-45 가 통과) — 계약 step 과 다르면 RangeError 또는 허용 이유 주석(축 7). ⑥ terrain_h32.mjs:72-77 dequantizeHeights 가 step 미검증(NaN·undefined → NaN 배열) — RangeError(축 7). ⑦ b7_metrics.mjs:148·:152·:172 호출 지점의 NaN 미달 처리를 시험이 안 지킴(세 지점 `<` 되돌림 변이 12/12 통과) — measureGroups/measureHalves 에 NaN 조건 주입 시험(축 4b). ⑧ lowNoise012 양자화 없는 최소 0.9647(0058:23·ssim_h32.test:14) 대 0.9643(0057:31) — 측정 절차 차이 한 줄 또는 출처 명령(축 2). ⑨ decode.mjs 양자화 경로 중간 Uint16Array·별도 유한성 패스(선택, 257 LOD1 디코드 0.53 ms)(축 6).
 - 확인 기준: ① 시험 통과, ② 변이 5/5 실패, ③ :132 삭제 뒤 floor→round 변이 실패, ④ :91 삭제 변이 실패, ⑤⑥ 음성 입력 RangeError, ⑦ 세 변이 각각 실패, ⑧ 문구, ⑨ 선택.
 - 권장 모델: sonnet(①~⑦), haiku(⑧⑨)
 - 이력: 2026-10-06 06:45 감독 등록(PR #87 검토 #2, 축 1a·2·4a·4b·6·7). 새로 찾은 것(⑦ 은 F-496 ⑤ 잔여).
+- 이력 추가: 2026-10-06 작업자 처리됨-검증대기(검토 #2 재작업) — 제품 PR #87 재오픈(feat/t15-10e 9c747d1), 전체 npm test 5319 중 5302 통과 0 실패. F-493: 전역 격자 코드에서 128 장면(hill 1..50 포함) 재측정, step 0.25 미달·0.15 이하 통과, 바이트 무관이라 0.03 유지(근거 0058·계약 주석), ssim_h32.test 계약 상수 import·0.25 변이 실패. F-498: README·계약·시험·0058·노트 서술 정정. F-499 ①~⑦ 처리, ⑧ 0058 문구, ⑨ 안 함(선택). 상세 experiments/t15-10e.md §3.
