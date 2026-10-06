@@ -13,10 +13,10 @@
 |---|---|---|
 | 메시 형식 유지 | 변경 없음 | noiseBig 초기 지형 몫의 3.5 배(미충족) |
 | H32 비양자화(f32) | 무손실, 단순 | 4,330,496 B(+프레임 머리 9,728 B) |
-| **H32 + LOD1~3 선택적 양자화(전역 격자 step 0.03 m, u16)**(채택) | 2,169,344 B(몫의 20 %), LOD0 은 f32 로 계약 상한 0 m 유지 | 양자화 오차 step/2 = 0.025 m 가 LOD 상한에 더해짐, 범위 > 3276.75 m 타일은 f32 폴백 |
+| **H32 + LOD1~3 선택적 양자화(전역 격자 step 0.03 m, u16)**(채택) | 2,169,344 B(몫의 20 %), LOD0 은 f32 로 계약 상한 0 m 유지 | 양자화 오차 step/2 = 0.015 m 가 LOD 상한에 더해짐, 범위 > 3276.75 m 타일은 f32 폴백 |
 
 ## 결정
-머리 16 B(+양자화 8 B) + f32/u16 본문 형식(계약 terrain_h32.mjs). LOD0 은 늘 f32, LOD1~3 은 기본 양자화(step 0.05 m, base = 타일 최솟값), 범위 초과 타일은 f32. 양자화 격자는 전역이다(F-492): 머리에 i32 kbase = floor(min/step), q = round(h/step) − kbase, 복원 fround((kbase+q)·step) — 같은 높이는 어느 타일에서든 같은 비트라 같은 LOD 이웃 공유 가장자리가 비트 동일(base = 타일 최솟값 방식은 smoothDem 36/36 이음매에 최대 0.0488 m 틈, 감독 재현). 범위 초과 폴백 타일(LOD1~3)의 f32 도 같은 격자로 반올림한다. 형식 버전 2. step 은 0.03 m(F-493: 0.05 는 hill 시드 23 에서 0.9486 미달). 양자화 타일의 오차 상한은 terrainLodMaxErrorM + step/2 = +0.015 m(f32 반올림 제외). 서버 encodeTerrainTileH32, 클라이언트 decodeTerrainTileH32.
+머리 16 B(+양자화 8 B) + f32/u16 본문 형식(계약 terrain_h32.mjs). LOD0 은 늘 f32, LOD1~3 은 기본 양자화(전역 격자 step 0.03 m), 범위 초과 타일은 f32(같은 격자로 반올림). 양자화 격자는 전역이다(F-492): 머리에 i32 kbase = floor(min/step), q = round(h/step) − kbase, 복원 fround((kbase+q)·step) — 같은 높이는 어느 타일에서든 같은 비트라 같은 LOD 이웃 공유 가장자리가 비트 동일(base = 타일 최솟값 방식은 smoothDem 36/36 이음매에 최대 0.0488 m 틈, 감독 재현). 범위 초과 폴백 타일(LOD1~3)의 f32 도 같은 격자로 반올림한다. 형식 버전 2. step 은 0.03 m(F-493: 0.05 는 hill 시드 23 에서 0.9486 미달). 양자화 타일의 오차 상한은 terrainLodMaxErrorM + step/2 = +0.015 m(f32 반올림 제외). 서버 encodeTerrainTileH32, 클라이언트 decodeTerrainTileH32.
 
 ## 근거
 - 크기 [cloud 합성]: noiseBig LOD3 256 타일 f32 payload 4,330,496 B, 양자화 2,169,344 B(폴백 0), 조각 프레임 머리 38 B/타일 포함 wire 4,340,224·2,179,072 B. 지형 몫 여유 6,439,939·8,601,091 B, 초기 합계 8,560,061·6,398,909 B ≤ 15,000,000 B(bench/tower/h32_initial.mjs, 서버 인코더 길이와 불일치 0).
