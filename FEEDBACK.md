@@ -5757,8 +5757,40 @@
 - 권장 모델: haiku(①②⑤⑥), sonnet(③④)
 - 이력: 2026-10-06 감독 등록(PR #90 검토 #1, 축 1a·2·4a·7). ①②③ 은 F-510 ⑧⑨⑩ 잔여, 나머지 새로 찾은 것. → 2026-10-06 작업자 처리(3485bc3, 연구 ea6ae1e) → 2026-10-06 감독 확인 닫음(PR #91 검토 #1: ① t15-10f.md:6 시험 주석과 일치, ② §5 대체 표시, ③ Math.max(0, …) — 축 4b 사본에서 Atomics.wait 400 ms 변이 여전히 실패(402 ms > 350), ④ 주석이 raster_flat 카운터 시점(함수 끝)과 일치, ⑤ perf.test.mjs:48 e0dcb1b, ⑥ t15-10h.md:6·:12)
 
-### F-514 [열림] (심각도: 낮음) — PR #91 검토 #1 낮음 묶음
+### F-514 [열림 — ④⑤ 잔여] (심각도: 낮음) — PR #91 검토 #1 낮음 묶음
 - 위치·고칠 것: ① 제품 contracts/tower_assets/terrain_h32.mjs:70 의 `kmax > I32_MAX` 검사를 삭제해도 terrain_h32.test 23/23 통과(감독 재현: 원본 quantizeHeights([2147483647, 2147483648], 1) → null; 기존 [1e9,1e9] 시험은 kbase 검사가 먼저 거름) → F-494 ⑤ 시험에 `assert.equal(h.quantizeHeights([2147483647, 2147483648], 1), null)` 와 대조 `assert.ok(h.quantizeHeights([2147483646, 2147483647], 1))`(감독 확인: 비null) 추가(축 4a). ② 연구 decisions/0059:28 같은 근거 문장 중복('black 120 ms 설정 이유: 74.7 × 1.5 ≈ 112 …') → 뒤 문장 삭제, '(이웃 잡음 여유)' 만 앞 문장에 합침. ③ 0059:5 와 decisions/README 0059 행 결정자 칸에 '감독 조건부 승인(PR #90 검토 #1) → F-512 확인(PR #91 검토 #1) 뒤 승인'. ④ 0059:15 '이전 black 100' 출처를 t15-10f.md §2·§5 로, :22 '(t15-10g.md 표 소재)' → 't15-10g.md F-505', :23 16 병렬 수치 출처(제품 perf.test.mjs 주석) 또는 t15-10i 노트에 수치 기재. ⑤ 0059:27 '그보다 작은 회귀는 결정적 단언이 맡는다' 와 :31 '단언만으로는 못 잡는다' 범위 맞춤(호출 수·화소 수·작업량이 바뀌는 회귀만 단언이 맡음), :31 괄호에 작업량 포함. ⑥ 0059:14·:15·:19 앞부분 실측에 [cloud](또는 머리말 한 줄). ⑦ experiments/t15-10i.md:11 검증 결과 한 줄(npm test fail 0 [cloud]) 노트에 기재(축 2·5).
 - 확인 기준: ① 사본에서 kmax > I32_MAX 삭제 변이가 새 단언으로 실패, 원본 통과. ②~⑦ 문구 확인('74.7 × 1.5' 1건, 0059·README 에 감독·PR 번호, 인용 수치가 인용 파일에서 grep 됨).
 - 권장 모델: sonnet(①), haiku(②~⑦)
-- 이력: 2026-10-06 감독 등록(PR #91 검토 #1, 축 2·4a·5; ① 감독 node 재현). 모두 새로 찾은 것. 기각: 축 11 'perf.test.mjs:48 커밋 해시 측정 출처는 연구 내용'·축 12 '같은 줄 [cloud] 누락' — 문턱 근거를 주석에 두라는 이전 관례이고 perf.test.mjs 머리에 [cloud] 가 있음. 축 5 'skipped 12 목록' — 이전부터 있던 환경 건, 정보.
+- 이력: 2026-10-06 감독 등록(PR #91 검토 #1, 축 2·4a·5; ① 감독 node 재현). 모두 새로 찾은 것. 기각: 축 11 'perf.test.mjs:48 커밋 해시 측정 출처는 연구 내용'·축 12 '같은 줄 [cloud] 누락' — 문턱 근거를 주석에 두라는 이전 관례이고 perf.test.mjs 머리에 [cloud] 가 있음. 축 5 'skipped 12 목록' — 이전부터 있던 환경 건, 정보. → 2026-10-06 작업자 처리(제품 caa4304, 연구 5c9e9b5) → 2026-10-06 감독 확인(PR #92 검토 #1): ①②③⑥⑦ 닫음(① 축 4b 사본에서 kmax 검사 삭제·>=·I32_MAX±1 변이 모두 새 시험 하나로 실패, 원본 24/24; ② '74.7 × 1.5' 1건; ③ 0059:5·README 행; ⑥ 0059:9 머리말; ⑦ t15-10i.md:11). ④⑤ 다시 엶: ④ 0059:16 '이전 black 100' 행 근거 칸이 아직 experiments/t15-10g.md § F-505 — 그 파일에 'black 100'·'1.34' grep 0건(감독 확인; 작업자는 :15 '옛 규칙' 행을 고침). 0059:24 16 병렬 최대 77.8/100.7/1.6 출처를 'experiments/t15-10i.md 검증 절' 로 댔고 t15-10i.md:11 이 그 수치를 T15.10i 검증 결과처럼 적었으나 측정은 T15.10g F-505(제품 perf.test.mjs:20 주석)이다 → 0059:24 출처를 'perf.test.mjs:20 주석(T15.10g F-505 측정)' 으로, t15-10i.md:11 의 16 병렬 문장은 '(T15.10g F-505 측정값 인용, 이번 작업 재측정 아님)' 으로. ⑤ 0059:32 괄호 '(호출·화소 변화 없는 경우)' 에 작업량 포함. 확인 기준: 0059:16·:24 가 대는 파일에서 각 수치가 grep 되고, t15-10i.md 에 16 병렬을 이번 측정으로 읽히는 서술 없음, :32 괄호에 '작업량'. 권장 모델: haiku.
+
+### F-515 [열림] (심각도: 높음) — T16.0 부하 계약의 기술적 결정에 결정 기록이 없다
+- 위치: 제품 contracts/load/index.mjs:4-6·:9-18·:37-38 (feat/t16-0 caa4304), 연구 decisions/ (experiment/t16-0 5c9e9b5 에 T16·contracts/load 관련 파일 0건 — 감독 git grep 확인)
+- 문제: 시나리오 종류 3종(steady 는 TASKS 에 없던 새 종류), 접속 수 상한 MAX_CLIENTS = 30(30명 초과 여유 시험 불가), 경로 형식 {t,e,n,u}(기준점·좌표계), 결과 형식(metrics 기록 재사용 + perClient {id, bytes, latencyMs[]}·길이 = clients), 알 수 없는 필드 거부가 계약에 들어 있다. RULES §3(기술적 결정은 모두 decisions/ 에)·SUPERVISOR §3.1 에 따라 기록이 필요하다(선례 0034·0036).
+- 실패 상황: T16.1~T16.9 서브에이전트 팬아웃이 이 형식에 의존하는데, steady 추가 이유·30 상한의 대가·지연 단위·표본 의미·burstLevels 의미를 바꿀 때 기준이 없다.
+- 고칠 것: decisions/0060-t16-0-load-contract.md(상태: 제안) — 선택지·결정·근거(TASKS T16.0/T16.6/T16.7, SPEC S8, contracts/metrics)·대가(30 초과 시나리오 표현 여부 포함 — 상한을 30 으로 둘지, S8 목표 30 과 계약 상한을 분리할지 판단)·다시 볼 조건. decisions/README 행, experiments/t16-0.md 에서 링크. F-516 의 의미 규정(경로 시간 범위·ENU 기준점·burstLevels 의미)도 여기에 적는다.
+- 확인 기준: decisions/ 에 0060 과 README 행이 있고, 위 결정 각각의 근거·대가·다시 볼 조건이 있다.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 10:46 감독 등록(PR #92 검토 #1, 축 2 발견 4; 감독이 git grep 으로 decisions 0건 확인). 새로 찾은 것.
+
+### F-516 [열림] (심각도: 높음) — 부하 계약 검증기가 의미가 틀린 시나리오·결과를 통과시킨다
+- 위치: 제품 contracts/load/index.mjs:9-18(checkPath), :30·:32(burstLevels), :40(validateResult 배열), :46-49(perClient) (feat/t16-0 caa4304)
+- 문제·실패 상황(감독 node 재현, 모두 오류 [] 로 통과): ① 경로 시간이 시나리오 시간과 무관 — durationS 60 에 path t=[100,200], t=[-5,10] 통과(축 1·3). ② path 빈 칸 [P(0),,] 통과(forEach 가 건너뜀, 축 1·7). ③ burstLevels 상한 없음 — burst burstLevels 9 통과, 4수준 규약(contracts/asset LEVEL_COUNT)과 연결 없음, 의미(개수인지 번호인지) 미정(축 3). ④ perClient id 중복·범위 밖 — clients 2 에 id [0,0], id [0,9] 통과 → T16.3 '30개 각각 기록' 을 같은 클라이언트 두 번으로 채워도 통과(축 1b). ⑤ latencyMs 음수 [-5]·빈 배열 [] 통과, bytes 1.5 통과(축 1b·7). ⑥ validateResult 가 배열 r 을 거르지 않음(:40, validateScenario·validateRecord 와 불일치).
+- 고칠 것: ① path[0].t === 0(또는 ≥ 0) 과 path.at(-1).t ≤ durationS, 마지막 점 이후 규칙을 주석·0060 에. ② 인덱스 루프로 빈 칸을 오류로. ③ 1 ≤ burstLevels ≤ LEVEL_COUNT(import), 의미 한 줄. ④ id 는 0..clients-1 정수이고 중복 없음. ⑤ latencyMs 원소 ≥ 0·길이 ≥ 1, bytes 는 0 이상 정수. ⑥ Array.isArray(r) 거부. ENU 주석에 'GeoAnchor 기준 ENU, 1 unit = 1 m'.
+- 확인 기준: 위 입력 각각이 의도한 오류 문자열을 정확히 반환하는 음성 시험(deepEqual), 경계 양성(burstLevels 1·4, path 끝 t = durationS, id 0..clients-1 순서 무관)이 통과. 감독이 사본에서 각 새 검사를 삭제하면 해당 시험이 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 10:46 감독 등록(PR #92 검토 #1, 축 1·1b·3·7; 감독 /tmp node 로 ①②③④⑤ 재현). 새로 찾은 것.
+
+### F-517 [열림] (심각도: 중간) — 부하 계약 시험이 오류 종류를 보지 않아 검사 삭제 변이 14개가 생존한다
+- 위치: 제품 contracts/load/load.test.mjs:15-32 (feat/t16-0 caa4304)
+- 문제: 음성 시험이 assert.notDeepEqual(…, []) 만 본다. 축 4a 사본 변이 42개 중 14개 생존: 오류 문자열 바꿔치기, :23 Array.isArray 삭제(validateScenario([]) 가 다른 오류로 걸림), :25 typeof 삭제(name undefined), :25 /i 플래그(대문자 이름), :28 isFinite 삭제(durationS Infinity), :13 'u' 누락(NaN 시험이 e 뿐), :30 isInteger·>= 1 삭제, :31 isFinite·> 0 삭제, :40 null 가드 삭제, :41 시나리오 오류 전파 삭제, :44 perClient missing, :48 id 정수·latencyMs 검사 삭제.
+- 실패 상황: 위 변이를 넣어도 load.test 3/3 통과.
+- 고칠 것: 입력마다 기대 오류를 deepEqual 로(예 ['bad clients']), 위 각 경계 입력 추가(name undefined·'Abc', durationS Infinity, t·n·u NaN, burstLevels 0·1.5, linkBytesPerS 0·Infinity, validateResult(null), 무효 scenario 전파, perClient 누락, id 'a', latencyMs 없음·[1,NaN]).
+- 확인 기준: 감독 사본에서 위 14개 변이 각각이 load.test 를 실패시킨다.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 10:46 감독 등록(PR #92 검토 #1, 축 4a 변이표). 새로 찾은 것. F-516 과 같은 PR 에서 처리.
+
+### F-518 [열림] (심각도: 낮음) — PR #92 검토 #1 낮음 묶음
+- 위치·고칠 것: ① 제품 README 한·영 절에 contracts/load 설명 없음(다른 contracts 는 절마다 기재, 예 README:122·:282) → 한 문단씩 추가. ② load.test.mjs:7 예시 기록 load.first_frame_p95 value 2.1 unit 'ms' — S5 3 s 와 단위 혼동 소지 → 2100. ③ index.mjs:41 errs.push(...validateScenario()) 가 path 15만 개 이상 무효 원소에서 RangeError(축 6·7 보고, 미확인) → for…of push 또는 오류 상한. ④ terrain_h32.test.mjs:184 양성 대조가 비null 만 봄 → kbase 2147483646·q [0,1] 단언(축 4b: 경계 내용 변이 2개 생존). ⑤ 결과가 S1~S7 판정용 필수 metric 이름을 요구하지 않음 — T16.8·T16.9 에서 정할지 0060 에 한 줄(축 5).
+- 확인 기준: ① grep 'contracts/load' README.md 가 한·영 각 1건 이상. ② 2100. ③ 해당 입력이 던지지 않고 배열 반환. ④ 단언 추가. ⑤ 0060 에 문장.
+- 권장 모델: haiku(①②⑤), sonnet(③④)
+- 이력: 2026-10-06 10:46 감독 등록(PR #92 검토 #1, 축 4b·5·6·7·11). 새로 찾은 것. ③ 미확인.
