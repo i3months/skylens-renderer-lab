@@ -5949,3 +5949,22 @@
 - 확인 기준: 각 항목 음성 시험·변이 실패 또는 grep.
 - 권장 모델: sonnet(①~⑪), haiku(⑫⑬)
 - 이력: 2026-10-06 13:32 감독 등록(PR #94 검토 #1, 축 1·2·4a·4b·5·6·7). 새로 찾은 것(③ 은 F-533 ⑩ 잔여). 수치·변이는 축 보고(감독 미재현, 일부 줄 직접 읽음).
+
+
+### F-538 [열림] (심각도: 중간) — runScenario 의 statsClock 주입이 '가짜 시계 + 실제 cpuUsage' 금지를 우회하고, 스텁 CPU 0 이 측정값처럼 기록된다
+- 위치: 제품 bench/load/run_all/run.mjs:63-64, bench/load/server_stats/index.mjs:15·:25-31·:39-45 (feat/t16-13 46d9a7b)
+- 문제: ① run.mjs:64 가 now 를 늘 주입하므로 statsClock 에 cpuUsage 만 넣으면 :15 검사를 지난다. ② statsClock 에 source:'server-process', clock:'real' 만 넣으면 0 스텁 CPU 에 실서버 레이블이 붙는다. ③ 기본 실행의 cpuPct 는 상수 0 스텁인데 rssMiB(실제 하네스 값)와 같은 source 'harness-process' 를 단다. ④ now 가 Infinity·NaN 이면 wallUs 비유한이 `<= 0` 을 지나 tS Infinity 샘플이 생기고 checkServerSamples 가 통과시킨다. 음수 cpuPct·rssMiB, tS 역순, 비배열·null 요소도 검사 밖.
+- 실패 상황: 감독 재현 `runScenario(SCENARIOS[0], {commit:'0000000', statsClock:{cpuUsage:()=>process.cpuUsage()}})` → 위반 0, 샘플 cpuPct 0.0036·clock 'simulated' — F-530 이 막으려던 값이 다시 나온다.
+- 고칠 것: statsClock 은 now·cpuUsage 를 함께 주거나 둘 다 주지 않을 때만 받고, source·clock 덮어쓰기는 실제 시계 주입과 함께일 때만. 스텁 CPU 이면 cpuPct null(검사기 허용) 또는 cpuSource:'stub'. tick 에서 `!(wallUs > 0 && Number.isFinite(wallUs))` 생략, checkServerSamples 에 배열·null·tS 유한·단조·값 ≥ 0 검사.
+- 확인 기준: 위 재현 두 입력이 throw 또는 위반 ≥ 1, 기본 runScenario 샘플에 스텁 표식 단언, now Infinity 입력에서 위반 또는 샘플 0, `[{cpuPct:-5,…}]` 위반.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 13:45 감독 등록(PR #94 중복 감독 실행 — 13:32 검토 #1 보강, 축 1·7; ① 감독 node 재현, run.mjs:63-64·server_stats:8-45 직접 읽음). 새로 찾은 것(F-530 잔여).
+
+### F-539 [열림] (심각도: 중간) — 주입한 측정 로그를 검증하지 않아 누락·중복·burst 도착 0건이 조용히 통과하고, 나쁜 값은 위반 대신 throw 한다
+- 위치: 제품 bench/load/run_all/run.mjs:37-41·:49-57, bench/load/first_frame/index.mjs:35·:50-53, bench/load/clients/index.mjs countOpenConnections, bench/load/burst/index.mjs checkBurstInvariants (feat/t16-13 46d9a7b)
+- 문제: F-529 로 생긴 events 주입 경로가 T16.12 실서버 로그의 입구인데 ① validateEvent 를 거치지 않는다(알 수 없는 kind·범위 밖 id·NaN tMs 무시). ② 30명 중 1명 first_frame 이 없어도 nearest-rank p95(29번째)가 유한이라 통과. ③ countOpenConnections 가 id 별이 아니라 개수만 세서 중복 connect 가 누락 connect 를 가린다. ④ burst 시나리오에서 level 이벤트가 0건이어도 통과. ⑤ bytes tMs NaN·초과·null 이벤트는 위반 문구 대신 RangeError/Error 로 main 이 스택으로 끝난다.
+- 실패 상황: 감독 재현 — steady30 로그에서 client 5 first_frame 제거 → runScenario 위반 []. burst30 로그에서 level 이벤트 전부 제거 → 위반 []. (③ ① ⑤ 는 축 7·축 1 재현, 감독 미재현)
+- 고칠 것: runScenario 입구에서 주입 로그를 validateEvent(e, clients)로 검사해 위반으로, 통계 함수 throw 는 '<name>: bad event log: …' 위반으로. perClientMs 비유한 클라이언트마다 'client N: no first frame'. 연결 수는 id 별 상태(중복 connect·connect 없는 close 위반). burst 에서 클라이언트별 burst 도착 0 이면 위반.
+- 확인 기준: 위 다섯 입력 각각 정확한 위반 문구 deepEqual, 기존 SCENARIOS 위반 0 유지.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 13:45 감독 등록(PR #94 중복 감독 실행 — 13:32 검토 #1 보강, 축 1·7; ②④ 감독 node 재현). 새로 찾은 것. T16.12 가 실서버 로그를 이 경로로 넣기 전에 고친다.
