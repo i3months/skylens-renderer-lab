@@ -1,6 +1,6 @@
 # 0062 T16.17 부하 하네스 규칙 여섯 가지(대역 피크 정의·실시계 허용 폭·로그 역행·statsClock.clock·loadReport 'unknown'·slow_link level 0)
 
-- 상태: 제안
+- 상태: 승인(2026-10-06 감독, PR #98 검토 #1 — 조건: (2)·(5) 서술 정정은 F-557, 마지막 tS 늦음 여유는 F-555, (6) 추월 건너뛰기 충돌은 F-556 으로 T16.12 와 함께 처리)
 - 날짜: 2026-10-06
 - 결정한 사람: 작업자(제안)
 - 관련: TASKS T16.17, FEEDBACK F-552, 실험 노트 [experiments/t16-17.md](../experiments/t16-17.md), 결정 0060·0061, 제품 bench/load/**, tools/load_report, contracts/load/harness.mjs (feat/t16-17)
