@@ -6474,7 +6474,7 @@
 - 이력: 2026-10-06 19:55 감독 등록(PR #102 검토 #1, 축 1·2·4a·4b·5·7 — ① 감독 run.test.mjs:139-141 읽음, 나머지는 축 보고 근거 줄. ②~⑥ 미확인(축 재현 보고))
 - 이력: 2026-10-06 20:45 감독 확인 닫음(PR #103 검토 #1 — ① 상한 0.02 s 로 좁힘(그러나 부하에서 흔들림 → F-581), ② 고정 +7 오프셋으로 부풀림 제거·40 ± 5(상한 쪽 여유 → F-581), ③ tMs 비감소·동률 id 단언(clients.test.mjs:291-294 감독 읽음), ④ server_proc.mjs:15 2^31−1 초과 RangeError(축 7 재현 2**31−1 허용·2**31 거부), ⑤ run.mjs:56 비유한 durationS RangeError(축 7), ⑥ main() NOTE stderr(run_notes.test.mjs), ⑦ 연구 t16-19.md:6 정정, ⑧ 시험 제목, ⑨ experiments/t16-18/socket30*.json 커밋(축 5 수치 일치), ⑩⑪ server_proc.test.mjs:178·:195 Timeout 개수·spawn 전 검증 시험. 감독 전체 npm test fail 0)
 
-### F-581 [열림] (심각도: 중간) — 좁힌 실시간 상한 두 개가 CPU 경합에서 거짓 실패한다
+### F-581 [닫힘] (심각도: 중간) — 좁힌 실시간 상한 두 개가 CPU 경합에서 거짓 실패한다
 - 위치: 제품 bench/load/socket/run.test.mjs:139-141(`d < 0.02`), bench/load/socket/clients.test.mjs:252-254(`Math.abs(handshakeMs - HANDSHAKE_MS) <= 5`) (feat/t16-20 90294ac)
 - 문제: F-580 ①② 로 늦은 쪽 상한을 실제 타이머 지연 크기 이하로 좁혔다. 이른 쪽(−2 ms, 35 ms 하한)이 t0 어긋남·기준 혼동을 잡는 핵심인데, 늦은 쪽은 OS 스케줄링 지연이 그대로 들어간다. 주석의 근거 '2.7 ms seen' 은 한 번의 관측이다.
 - 실패 상황: 축 6 재현 — socket 시험 3개 병렬 + CPU 부하 2개에서 run.test.mjs 5회 중 2회 실패(tS[1] = 2.0371875 → +37.2 ms, tS[0] = 1.0433109 → +43.3 ms, 둘 다 :141). handshake ±5 상한은 같은 유형(축 1 보고, 미확인 — 감독 전체 npm test 1회에서는 통과).
@@ -6484,7 +6484,8 @@
 - 이력: 2026-10-06 20:45 감독 등록(PR #103 검토 #1, 축 6·1 — 감독 run.test.mjs:139-141·clients.test.mjs:236-256 diff 읽음. 새로 찾은 것 — 이번 diff 가 만든 것. 감독 전체 npm test 는 통과라 반려 사유 아님)
 - 이력: 2026-10-06 20:55 감독 보강(축 4b 늦은 보고 — handshake ±5 상한도 재현됨: CPU 점유 2개에서 46~48 ms 로 4/4 실패, 8개에서 85~106 ms 로 5/5 실패. 하한 35·등식 단언·시험 10 이 connect 15 ms 앞당김 변이를 잡으므로 상한은 +150 으로 되돌려도 된다. 같은 조건에서 run.test.mjs:141 은 3/3 통과(축 6 은 2/5 실패 — 둘 다 고친다). 변이 8개 모두 사망. 참고: 2^31·tickOnRealClock 검증 제거 변이에서 server_proc_limits·run_notes 가 실패 대신 멈춤 — F-582 ④ 로 추가)
 
-### F-582 [열림] (심각도: 낮음) — PR #103 검토 #1 낮음 묶음
+- 이력: 2026-10-06 21:01 작업자 처리(제품 feat/t16-21 da33cd7: 늦은 쪽 0.1 s·표본 간격 단언·handshake +150) → 21:15 감독 확인 닫음(PR #104 검토 #1). 확인 기준 조건(socket 시험 3개 병렬 + yes 2개, 실제로는 yes 4개)에서 run·clients·server_proc 묶음 10회 0 실패(축 6). t0 +30 ms 변이 2/2 실패(실시간 시험 tS[0] 0.970 + 결정적 시험 :228·:235, 축 4a), connect 15 ms 앞당김 변이는 결정적 시험 clients.test.mjs:206 이 매번 잡음(실시간 하한은 부하 1/3 회 놓침, 축 4a). 더 무거운 부하에서 남은 거짓 실패는 F-583.
+### F-582 [닫힘] (심각도: 낮음) — PR #103 검토 #1 낮음 묶음
 - 위치·문제·확인 기준:
   ① bench/load/socket/contract.mjs:24 'runScenario(scenario, { events, commit })' — 실제 run.mjs:123 은 method: SOCKET_METHOD 도 넘긴다(감독 확인). 계약대로 짜면 method 'sim' 이 되어 notes 가 늘 빈다. 확인: 두 줄 인자 일치.
   ② bench/load/run_all/run.mjs:140-147 — method 'loopback-socket' 에 thresholds {} 를 주면 두 쪽 다 건너뛰어 예외 없이 임계 검사 0건으로 통과, 'sim' 은 'thresholds object must not be empty' 로 throw(축 7 재현, 감독 :140-147 읽음). 확인: {} 가 두 방식 모두 같은 예외.
@@ -6492,3 +6493,23 @@
 - 권장 모델: haiku(①③), sonnet(②)
 - 이력: 2026-10-06 20:45 감독 등록(PR #103 검토 #1, 축 2·7 — 모두 새로 찾은 것, 이번 diff 범위)
   ④ (20:55 추가, 축 4b) server_proc_limits.test.mjs·run_notes.test.mjs — 검증 제거 변이에서 2^31−1 ms 타이머·NaN 재무장으로 파일이 멈춘다(실패가 아니라 끝나지 않음). 확인: 시험별 timeout 옵션(예: { timeout: 5000 })을 걸어 그 변이에서 실패로 끝남.
+- 이력: 2026-10-06 21:01 작업자 처리(제품 feat/t16-21 da33cd7) → 21:15 감독 확인 닫음(PR #104 검토 #1). ① contract.mjs:24 와 run.mjs:124 인자 일치(축 2). ② run_all/run.mjs:140 `Object.keys(thresholds).length > 0` — 조건 제거 변이에서 report_path.test.mjs 새 시험 실패(축 4b), {}·null·[] 두 방식 모두 같은 예외(축 7). ③ Promise.reject — 동기 throw 복귀 변이에서 run_notes 시험 실패(축 4b). ④ 는 확인 기준 미충족(시험은 실패로 보고되나 프로세스가 끝나지 않음)이라 F-584 ① 로 옮김.
+
+### F-583 [열림] (심각도: 중간) — 실시간 샘플러 시험의 늦은 쪽 0.1 s 상한이 무거운 부하에서 여전히 거짓 실패하고, 주석이 검출 범위를 과장한다
+- 위치: 제품 bench/load/socket/run.test.mjs:139-144 (feat/t16-21 da33cd7)
+- 문제: 늦은 쪽 상한 `d < 0.1` 은 OS 스케줄링 지연을 그대로 받는다. 주석 근거 '37-43 ms' 는 한 조건의 관측이다. 또 :141 주석은 t0 어긋남을 '표본 간격으로도 잡는다' 고 하지만 spacing = tS[1]−tS[0] 에서 샘플러 t0 는 상쇄되어 균일 어긋남을 못 잡는다(축 1·2·4a·5 공통, 감독 :139-144 직접 읽음). 실시간 시험의 이른 쪽은 늦은 t0 만, 그것도 타이머 지연 < 28 ms 일 때만 잡는다. t0 공유를 실제로 보장하는 것은 결정적 시험 :228·:235 다. spacing 허용 ±0.05 가 늦은 쪽 0.1 보다 좁아, 두 표본 지연 차가 50 ms 를 넘으면 t0 와 무관하게 실패할 수도 있다.
+- 실패 상황: 축 4a — socket 시험 3개 반복 + yes 2개 + 동시 전체 npm test(4코어, loadavg 7~9)에서 run.test.mjs 10회 중 1회 `tS[0] = 1.1116562249999988`(+111.7 ms)로 :142 실패. 확인 기준 조건(축 6)에서는 10/10 통과라 F-581 은 닫았다.
+- 고칠 것: 실시간 시험은 이른 쪽(−2 ms)과 늦은 쪽 느슨한 상한(예: MAX_TICK_LATE_MS 1 s 미만, 늦음은 checkServerSamples 개수 검사가 다룸)만 단언하고, spacing 단언은 지우거나 허용을 늦은 쪽과 맞춘다. 주석을 't0 공유는 :228·:235 결정적 시험이 보장, 실시간 시험의 이른 쪽은 유휴 상태 보조 검사' 로 고친다. 필요하면 실시간 시험에서 deps.createProcSampler 를 감싸 받은 t0 가 run 의 t0 와 같은지 직접 단언한다(양방향 어긋남 검출).
+- 확인 기준: socket 시험 3개 반복 + yes 2개 + 동시 전체 npm test 조건에서 run.test.mjs 10회 0 실패. 샘플러 t0 +30 ms·−30 ms 변이가 각각 최소 하나의 시험을 실패시킴. run.mjs:111 의 t0 인자 제거 변이도 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 21:15 감독 등록(PR #104 검토 #1, 축 4a 재현·축 1·2·5 — 새로 찾은 것, F-581 수정이 남긴 것. 확인 기준 조건은 통과라 반려 사유 아님)
+
+### F-584 [열림] (심각도: 낮음) — PR #104 검토 #1 낮음 묶음
+- 위치·문제·확인 기준:
+  ① (F-582 ④ 이월) bench/load/socket/server_proc_limits.test.mjs:22·run_notes.test.mjs:14-15 — `{ timeout: 10000 }` 는 시험 단위 제한일 뿐이라 검증 제거 변이에서 실패를 출력한 뒤 남은 자식 프로세스·끝없는 1 ms 재무장 타이머 때문에 파일 프로세스가 끝나지 않는다(축 4b: killAfterMs 상한 검사만 뺀 변이 → `timeout 120` 에 걸려 exit 124, 검증 줄 삭제 변이 → exit 124. 작업자 노트도 미해결로 적음). 고칠 것: :22 는 resolve 되면 proc.stop() 뒤 실패하게, run_notes 는 호출 횟수를 제한한 schedule(6번째 인자)·t0(5번째 인자)를 주입. 확인: 두 변이 모두 `node --test <파일>` 이 수 초 안에 exit 1.
+  ② bench/load/socket/run.mjs:53·:56 — JSDoc 'never throws synchronously' 인데 기본 인자 `t0 = now()` 가 검사 전에 평가되어 now 가 throw 하거나 함수가 아니면 동기 예외(축 7 실측 `SYNC boom`). 호출처 runSocketLoad 는 t0 를 넘겨 영향 없음. 확인: now 가 throw 하는 경우 assert.rejects 통과, 또는 JSDoc 을 'durationS 검증 실패에 한해' 로 좁힘.
+  ③ 연구 experiments/t16-21.md:7 'handshake 상한 +50' — 코드 clients.test.mjs:255 는 +150(같은 노트 :19 보강과 어긋남, 감독 직접 확인). 확인: 노트에 +150 하나만.
+  ④ bench/load/socket/clients.test.mjs:252-255 — 실시간 handshake 하한 35 는 부하에서 connect 15 ms 앞당김 변이를 놓칠 수 있다(축 4a 부하 3회 중 1회). 결정적 시험 :206 이 잡으므로 주석에 그 사실을 적거나 주입 시계 단언 추가. 확인: 주석 또는 단언.
+  ⑤ 연구 experiments/t16-21.md:18 — '+30 ms 어긋남 변이 실패(2건)' 의 방향이 빠짐. 확인: 방향(+/−)과 결과를 적음.
+- 권장 모델: sonnet(①), haiku(②~⑤)
+- 이력: 2026-10-06 21:15 감독 등록(PR #104 검토 #1, 축 2·4a·4b·5·7 — ① 은 F-582 ④ 이월, 나머지 새로 찾은 것)
