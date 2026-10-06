@@ -32,9 +32,20 @@ T16.1~T16.10 하네스가 기록 없이 들어온 기술 결정을 (가)~(카) �
 - 모든 값이 합성이고 실제 성능과 무관하다. 보고서·문턱 통과는 하네스 배관이 맞다는 뜻이다.
 - (나)(자) 의 값은 근거 없는 상수라 바뀔 수 있고, 바뀌면 (마) 의 p95·bytes 가 달라진다.
 - T16.12 를 올리지 않으면 실제 소켓 부하 검증이 비게 된다.
-- S6(초기 15 MB, 구간당 3 MB) 의 판정 지표가 없다. T16.5·T16.9 에서 추가할 계획.
+- S6(초기 15 MB, 구간당 3 MB) 의 판정 지표가 없다. T16.8·T16.9 에서 추가할 계획.
 
 ## 다시 볼 조건
 - T16.12(실제 server/ws 대상 30 클라이언트 소켓 부하)를 TASKS 에 올릴 때: (가)(나)(다)(라) 를 함께 본다.
 - SPEC S6·S8 성공 기준이나 접속 상한이 바뀔 때: (마)(자)(카).
 - 수준 상태 기계(createLevelMachine)나 수준 수가 바뀔 때: (차).
+
+## 추가 기록 (T16.15)
+
+| 항목 | 결정 | 근거 | 대가 | 다시 볼 조건 |
+|---|---|---|---|---|
+| (가) 서버 표본 개수 | 매초 한 번 tick 하되 ceil(durationS) 번: tick_0=0, …, tick_{n-1}=durationS·1000 ms. 0.5 s 는 1개(tS 0.5), 1.5 s 는 2개(tS 1.0, 1.5) | Math.floor(durationS) 사용 시 0.5 s 같은 durationS<1 은 샘플 0개로 서버 CPU·메모리 증거 없이 통과. 최소 증거 1개는 필요하고, 종료 시각 정확히 durationS·1000 에서 한 번 샘플하는 것이 정의 일관성 | 기존 시험의 기대값 0개를 1개로 바뀜 | T16.12 실서버 측정에서 표본 시계가 벽시계(실제)일 때 |
+| (나) 통계 시계 인자 | createStatsSampler 의 clock 인자는 필수이며 'simulated' 또는 'real'. 모의는 기본 'simulated' 클록. cpuStub 옵션을 받아 모의 CPU 값을 cpuPct null 또는 cpuSource 'stub' 으로 표시(상수 0 이 측정값처럼 보이는 것을 방지) | run.mjs 에서 statsClock 주입 시 now 를 항상 주면 검사를 우회하고, 실제 clock 인자 없이 serverSamples 에 mock 값이 cpuPct 0 으로 기록되어 SPEC 조건 미충족이 눈에 띄지 않음 | contracts/load/harness.mjs 서명 수정, 기본 호출의 cpuSource 지정 추가 | T16.12 에서 clock:'real' 지정 여부 확인 시 |
+| (다) 대역: 종료 시각 bucket | 종료 시각 정확히 tMs = durationS·1000 인 이벤트는 bucket k = durationS 에 들어가(창 밖 가장 마지막 칸), 아무 값도 없으면 정의상 최후 유효 bucket. 유효하지 않은 tMs(음수, NaN, Infinity, 정수 아님)는 throw 대신 위반 문구로 reportResult 에 들어가거나 무시(전달 없음) | 1e6 bucket 시험은 메모리 3600 bucket 으로 줄여 처리했다. 그 시험에 'no argument-count-limit' 주석이 있지만 3600 bucket 에서는 그 주석의 의도를 보호하는 고용량 시험이 없다. 파이프라인 시간 상 1e6 를 새 helper 시험으로 두는 대신 주석을 삭제했다 | 1e6 bucket 시험 삭제; validateEvent 에 tMs 유효성 검사 추가(F-539) | 실제 구간 크기·네트워크 지연이 측정될 때(T16.12) |
+| (라) 주입 로그 검증 | runScenario 진입 시 주입받은 events 배열을 validateEvent(e, scenario) 로 검사해 누락·중복·범위 밖 값을 위반 문구로. T16.12 가 실서버 웹소켓 로그를 이 경로로 넣을 때 나쁜 데이터가 조용히 통과하지 않도록 함. 기존 SCENARIOS 위반 0 유지 | events 배열이 모의 하네스에서 만들어질 때는 검증이 중복처럼 보이지만, T16.12 에서 server/ws 의 실제 로그를 건네받을 때 필요한 방어. 기존 시험이 주입 로그 검증을 기대하지 않았으므로 새 검사가 기존 통과 시험 위반을 추가하지 않는지 확인 필요 | 기존 SCENARIOS 시험 통과 유지, T16.12 실서버 로그 검증 추가 | T16.12 실서버 웹소켓 로그를 runScenario 에 주입할 때 반드시 |
+
+완료: T16.15 에서 (가)~(라) 의 변경을 적용하고, 각 재현 기준을 만족했는지 확인한다. (다) 의 1e6 bucket 시험 삭제 대신 helper 시험을 추가하는 것과 그 비용은 다시 볼 조건에서 판단한다.
