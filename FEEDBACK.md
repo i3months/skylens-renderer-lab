@@ -5333,7 +5333,7 @@
 - 이력 추가: 2026-10-06 감독 확인 닫음(PR #85 검토 #2) — ①③ 축 4b 변이(가드 제거 각 1 fail, 큰 chunk 4개 변이 fail), ⑤ 축 7 quantize([1,NaN,3],1) RangeError·감독 diff 읽음, ⑦ 주석, ②④⑥⑧⑨⑩ 처리 확인. 처리하지 않은 ⑪⑫⑬ 과 ②④ 의 잔여는 F-476·F-478 로 옮김.
 
 
-### F-474 [열림] (심각도: 높음, 이 PR 의 결함 아님 — 기존 계약, T15.10d) — 현행 지형 LOD 상한표 [0,0.5,1,1] 이 1 m 셀 ±0.15 m 잡음 장면에서 S9(8시점 SSIM ≥ 0.95)를 어긴다
+### F-474 [처리됨-검증대기] (심각도: 높음, 이 PR 의 결함 아님 — 기존 계약, T15.10d) — 현행 지형 LOD 상한표 [0,0.5,1,1] 이 1 m 셀 ±0.15 m 잡음 장면에서 S9(8시점 SSIM ≥ 0.95)를 어긴다
 - 위치: 제품 contracts/tower_assets/index.mjs:12(TERRAIN_LOD_MAX_ERROR_M), server/terrain/mesh_lod/index.mjs(간격 선택); 측정 bench/tower/terrain_options/b5_measure.mjs(ee201f8); 연구 decisions/0056 결론 1
 - 문제: 높이 오차 상한만으로 간격을 고르므로, 1 m 셀에서 간격 2 의 최대 오차 0.296~0.298 m 가 LOD1 상한 0.5 m 안이라 솎아내지만 그 메시의 SSIM 이 0.95 를 밑돈다. 같은 잡음의 2 m 셀(lowNoise2m)과 ssim_views(2 m 셀)는 통과하므로 기존 시험이 이 미달을 잡지 못한다. T15.1·T15.1c 의 [x] 근거는 2 m 셀 장면뿐이다.
 - 실패 상황: `node bench/tower/terrain_options/b5_measure.mjs` → lowNoise(1 m 셀, 시드 1~12) 안 i: LOD1~3 최소 SSIM 0.9467, 36 조건 중 20 이 0.95 미만(LOD1 4·LOD2 10·LOD3 6), LOD0 1.0000. 감독이 출력 직접 읽음(축 1a 사본 실행).
@@ -5341,9 +5341,9 @@
 - 확인 기준: lowNoise 1 m 셀 시드 1~12 × LOD1~3 36 조건 SSIM ≥ 0.95 를 **시험으로** 단언(현행 상한표로 되돌리는 변이에서 실패), lowNoise2m·hill 24 장면·noiseBig 도 0.95 유지. 시드는 측정 뒤 고르지 않고 1~12 전부.
 - 권장 모델: opus
 - 이력: 2026-10-06 감독 등록(PR #85 검토 #2, 축 5 높음 보고·축 1a b5 재현; 감독이 b5 출력 lowNoise 행 직접 확인). 새로 찾은 것(측정은 0056). 이 PR 은 계약을 바꾸지 않아 반려 사유 아님.
+- 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 992aded5(feat/t15-10d), 연구 experiment/t15-10d. 확인 기준 직접 실행(npm test 5205 중 b6 3건은 b1 대조 가드 수정 후 통과, 나머지 실패는 기존 TODO). F-474 는 결정 0057(상한 = min(절대표, 0.25·cellM)), 메시 형식 15 MB 미충족은 T15.10e. 실제 skylens 체크아웃 입력은 [local].
 
-
-### F-475 [열림] (심각도: 중간) — 결정 0056 형식·범위: 0046 대체 범위, SPEC 인용과 해석 구분, 결정 형식 제목
+### F-475 [처리됨-검증대기] (심각도: 중간) — 결정 0056 형식·범위: 0046 대체 범위, SPEC 인용과 해석 구분, 결정 형식 제목
 - 위치: 연구 experiment/t15-10b decisions/0056-t15-10b-terrain-lod-recheck.md:6·:9·:10·:42, decisions/0046-t15-terrain-ssim-scene.md:100
 - 문제: ① 0046:100 이 승인 시 0046 전체에 '대체됨(→0056)' 을 붙이겠다고 하나, 0056 이 바꾸는 것은 T15.1c 다시 볼 조건('같거나')과 상한표 판단뿐이다. 장면(시드 1~12 × 잡음 {0, 0.015})·음영 모델(D)·C3 기각은 0046 에 남아야 한다. ② 0056:9 '예산 정의(SPEC §4 정의를 따름)' 아래에 SPEC 에 없는 작업자 해석(지형 몫 배분 15,000,000 − 건물 − 드레이프 밉2 − WELCOME, '초기 지형은 LOD3·256 타일 전부')이 섞여 SPEC 원문처럼 읽힌다. ③ decisions/README 형식(맥락/선택지/결정/근거/대가/다시 볼 조건) 제목이 없고 '## 결정' 한 문장이 없다. ④ :42 '지키는 안(i·iii)' 에 noiseBig 한정이 없어 (i) 이 SSIM 을 지키는 안으로 인용될 수 있다.
 - 실패 상황: 0056 승인 뒤 0046 전체가 무효로 읽혀 ssim_views 장면 근거가 사라지고, 지형 몫 10,780,163 B 가 감독 승인 없이 SPEC 수치처럼 굳는다.
@@ -5351,9 +5351,9 @@
 - 확인 기준: `grep -n '^## ' 0056` 에 형식 6 제목; 0046:100·0056:6 에 '부분 대체' 범위; :9 에 '해석' 구분; :42 에 noiseBig 한정; README 0046·0056 행 상태가 파일과 일치.
 - 권장 모델: sonnet(문구 haiku)
 - 이력: 2026-10-06 감독 등록(PR #85 검토 #2, 축 2 발견 1·2·3·5; 감독이 0056 diff 전체 읽음). 새로 찾은 것(F-471 잔여 성격).
+- 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 992aded5(feat/t15-10d), 연구 experiment/t15-10d. 확인 기준 직접 실행(npm test 5205 중 b6 3건은 b1 대조 가드 수정 후 통과, 나머지 실패는 기존 TODO). F-474 는 결정 0057(상한 = min(절대표, 0.25·cellM)), 메시 형식 15 MB 미충족은 T15.10e. 실제 skylens 체크아웃 입력은 [local].
 
-
-### F-476 [열림] (심각도: 중간) — client_bundle 시험: MIN_TOTAL_INPUTS 는 죽은 단언, 공유 chunk 하나 탈락을 못 잡음, MIN_TOTAL_GZIP 주석 결론 틀림
+### F-476 [처리됨-검증대기] (심각도: 중간) — client_bundle 시험: MIN_TOTAL_INPUTS 는 죽은 단언, 공유 chunk 하나 탈락을 못 잡음, MIN_TOTAL_GZIP 주석 결론 틀림
 - 위치: 제품 ee201f8 bench/client_bundle/bundle.test.mjs:17-25(MIN_INPUTS·MIN_TOTAL_INPUTS 9 와 주석)·:45·:47·:48·:52·:29-32·:55
 - 문제: ① 항목별 MIN_INPUTS 가 측정값과 같고 합 19 라 :45 통과 시 :47(합 ≥ 9)은 실패할 수 없다. 주석 '보통 리팩터링은 걸리지 않는다' 는 실제(파일 하나 빠지면 :45 실패)와 반대. ② 가장 큰 chunk 1개만 남기고 outputs 를 맞춘 변이(chunk 936 B 탈락, 합 11,475 B)가 client 시험을 통과(축 4b M5). ③ :29-32 주석은 하한 10,000 이 'bundling 이나 import 따라가기가 깨진 측정을 잡는다' 고 하나 bundle:false 10,812 B 는 이 하한을 통과하고 실제로는 :45·:48·:52 가 잡는다(축 4b M4). 'client/cull': 1 은 항상 참.
 - 실패 상황: 공유 chunk 하나를 빠뜨리는 측정 회귀가 client 시험을 통과한다.
@@ -5361,9 +5361,9 @@
 - 확인 기준: M5(큰 chunk 1개만) 변이에서 client 시험 실패; M4(bundle:false) 변이에서 주석이 가리키는 단언이 실패.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 감독 등록(PR #85 검토 #2, 축 4b 변이 M4·M5·M6 수치 사본; 감독이 bundle.test.mjs diff 읽음). F-473 ②④ 잔여.
+- 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 992aded5(feat/t15-10d), 연구 experiment/t15-10d. 확인 기준 직접 실행(npm test 5205 중 b6 3건은 b1 대조 가드 수정 후 통과, 나머지 실패는 기존 TODO). F-474 는 결정 0057(상한 = min(절대표, 0.25·cellM)), 메시 형식 15 MB 미충족은 T15.10e. 실제 skylens 체크아웃 입력은 [local].
 
-
-### F-477 [열림] (심각도: 중간) — b1 measureDem: tileCount 를 DEM 크기로 계산해 원점이 64 m 격자에 안 맞으면 바이트를 부풀려 보고, cellM 검증 없음
+### F-477 [처리됨-검증대기] (심각도: 중간) — b1 measureDem: tileCount 를 DEM 크기로 계산해 원점이 64 m 격자에 안 맞으면 바이트를 부풀려 보고, cellM 검증 없음
 - 위치: 제품 ee201f8 bench/tower/terrain_options/b1_measure.mjs:145-147(n0·tileCount), :69-70(lowNoiseDem side)
 - 문제: tileCount = ((width−1)/n0)·((height−1)/n0) 는 lodStrides 의 coveredTileOrigins(64 m 절대 격자 정렬) 개수와 다를 수 있는데 정수 검사만 한다. cellM 0·음수·NaN·64 의 약수 아님을 검사하지 않는다.
 - 실패 상황: 축 7 실행 — 6×6 타일 hill DEM 원점을 −224(32 m 어긋남)로 넣으면 throw 없이 tileCount 36(실제 덮는 타일 25)이라 meshRawBytes·heightOnlyRawBytes 가 +44 % 부풀어 15 MB 판정 근거가 틀린다. cellM −1 은 74 s 뒤 무관한 'Invalid array length'.
@@ -5371,9 +5371,9 @@
 - 확인 기준: 원점 +32 m 어긋난 6×6 DEM 에서 tileCount 25 이거나 throw; cellM 0·−1·NaN·3 이 1 초 안에 명확한 Error; 기존 hill 16·lowNoise 256·lowNoise2m 256 불변.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 감독 등록(PR #85 검토 #2, 축 7 발견 1~4 실행 수치 사본; 감독이 b1_measure.mjs:142-147 직접 읽음). 새로 찾은 것.
+- 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 992aded5(feat/t15-10d), 연구 experiment/t15-10d. 확인 기준 직접 실행(npm test 5205 중 b6 3건은 b1 대조 가드 수정 후 통과, 나머지 실패는 기존 TODO). F-474 는 결정 0057(상한 = min(절대표, 0.25·cellM)), 메시 형식 15 MB 미충족은 T15.10e. 실제 skylens 체크아웃 입력은 [local].
 
-
-### F-478 [열림] (심각도: 낮음) — PR #85 검토 #2 낮음 묶음
+### F-478 [처리됨-검증대기] (심각도: 낮음) — PR #85 검토 #2 낮음 묶음
 - 위치·고칠 것: ① (F-473 ⑪ 잔여) b4_formats.mjs:109 첫 표본 0 예측으로 BPP 비트 폭 부풀음 — off[0] 을 머리로. ② (F-473 ⑫ 잔여) b3_measure.mjs:224 초기 판정 base 에 WELCOME 27 B 누락. ③ (F-473 ⑬ 잔여) 0056 결론 2 양자화 SSIM·비트 묶기 바이트가 noiseBig 시드 0 하나뿐 — 표기하거나 시드 1~12. ④ b4_formats.mjs:52 quantize 가 kMax(range) 의 Int32 상한을 검사하지 않아 quantize([0,3e9],1) 이 off 를 조용히 랩어라운드 — range > 0x7fffffff throw. ⑤ b4_formats.test.mjs:38 정상 경로가 assert.ok 만 — range 300·복원 높이 ±step/2 단언, verify:true. ⑥ b5_measure.mjs:91·:99 간격 단위(셀) 미표기 — '간격(셀)' 과 cellM, 0056:45 '간격 2 비교' 가 1 m 셀 2 m 간격 대 2 m 셀 4 m 간격임을 명시. ⑦ b5_measure.mjs:49·:106-108 --only 오타·빈 값에 조용히 0개/전체 — throw. ⑧ bench/tower/bundle.test.mjs:30-34 여유 3 이라 작은 chunk 3개 탈락(1,160 B) 통과 — 의도면 주석, 아니면 하한 조정. ⑨ experiments/t15-10b.md:12·:13·:18-19 T15.10c·F-472·F-473 수치에 [cloud] 표기. ⑩ decisions/README.md 0046 행 '결정한 사람' 에 '감독 승인(PR #72 검토 #1)'. ⑪ 0056:50 u16 8.72 MB 에 '(계산값, 미측정)'. ⑫ experiments/t15-10b.md:7 '세 묶음 모두 0.95 를 지키는 안은 v2 뿐' 에 '측정한 안 중'·'0.25 m 는 사후 값' 한정. ⑬ 0056:45 'ssim_views … 같은 진폭 잡음 24 장면' → '24 장면 중 ±0.15 m 잡음 12 장면 포함'.
 - 확인 기준: ④ quantize([0,3e9],1) throw. ⑤ 반올림을 틀리게 바꾼 변이에서 실패. ⑦ --only typo 비영 종료. 나머지 문구 grep.
 - 권장 모델: haiku(④⑤⑦ sonnet)
@@ -5382,9 +5382,9 @@
 - 확인 기준 추가: ⑭~⑱ 문구 grep, ⑮ 바꾼 뒤 `--only lowNoise2m:1` 이 던지지 않음.
 - 추가 항목(같은 실행, 축 4a 늦게 도착, 낮음): ⑲ client/tower/fallback/perf.test.mjs:325-327 양성 대조가 시험 안에서 만든 Proxy 로 추가 순회를 세어 Array.from 가로채기 경로를 검증하지 않음 → store.pathsRaw() 의 이미 감싼 p.points 로 추가 순회(sonnet, F-479 와 함께). ⑳ perf.test.mjs:301 계수기가 store.mjs:87 의 Array.from(map.values()) 에 묶임 — spread 로 바꾸는 정상 리팩터에서 '읽기 0' 으로 시끄럽게 실패(사본 3/3) → 실패 메시지에 원인 명시(haiku). 축 4a 실행: 정상 10/10 통과, 순회 10회 변이 20/20·2회 변이 20/20 실패(서브에이전트 실행 수치).
 - 이력 추가: 2026-10-06 04:40 감독(예비 실행) — 축 1a(b5·b1 재실행, 0056 수치 전부 재현)·3·5 보고, ⑭⑯ 은 감독이 b5_measure.mjs:8·:98 직접 읽음.
+- 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 992aded5(feat/t15-10d), 연구 experiment/t15-10d. 확인 기준 직접 실행(npm test 5205 중 b6 3건은 b1 대조 가드 수정 후 통과, 나머지 실패는 기존 TODO). F-474 는 결정 0057(상한 = min(절대표, 0.25·cellM)), 메시 형식 15 MB 미충족은 T15.10e. 실제 skylens 체크아웃 입력은 [local].
 
-
-### F-479 [열림] (심각도: 중간, 미확인 — 서브에이전트 실행 수치) — perf 결정적 계수 시험이 '복사 뒤 반복' 변이와 buildPaths 반복을 못 잡고, 이름·주석이 실제보다 넓게 말한다
+### F-479 [처리됨-검증대기] (심각도: 중간, 미확인 — 서브에이전트 실행 수치) — perf 결정적 계수 시험이 '복사 뒤 반복' 변이와 buildPaths 반복을 못 잡고, 이름·주석이 실제보다 넓게 말한다
 - 위치: 제품 9d6d676 client/tower/fallback/perf.test.mjs:5·:294-308(countPointReads, 저장소 배열 인덱스 Get 만 셈)·:309-312(시험 이름)·:322-327(빼기·양성 대조)
 - 문제: ① 맞춤 순회가 `paths[k].points.slice()` 로 한 번 복사한 뒤 사본을 10회 돌면 저장소 배열 읽기는 1회라 계수 시험이 통과한다(축 4a mslice 8/8 계수 통과, 시간 시험 #6 만 몫 3.18 ms 대 문턱 2.4 ms 로 잡음 — F-472 와 같은 흔들리는 판정). ② auto − setView 빼기에서 buildPaths 순회가 상쇄되어 paths.mjs:24 를 10회 도는 변이(mpaths)가 계수 시험을 통과한다. ③ 양성 대조(:325-327)는 시험 원본 scene.paths 에 자체 Proxy 를 씌워 설치 경로(Array.from 가로채기)를 거치지 않는다.
 - 실패 상황: 위 변이로 맞춤 순회 비용이 10배가 되어도 결정적 시험은 통과하고 부하에 따라 시간 시험도 통과할 수 있다.
@@ -5392,3 +5392,4 @@
 - 확인 기준: mslice 변이에서 계수 시험 5/5 실패, mpaths 변이에서 viewReads 단언 실패, 정상 사본 3/3 통과.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 감독 등록(PR #85 검토 #2 병합 뒤 도착한 축 4a 보고 — m10 5/5·m2·mforof 실패로 F-472 닫음과 일치, mslice·mpaths 생존은 서브에이전트 실행 수치 사본, 감독 미재현이라 미확인). 새로 찾은 것.
+- 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 992aded5(feat/t15-10d), 연구 experiment/t15-10d. 확인 기준 직접 실행(npm test 5205 중 b6 3건은 b1 대조 가드 수정 후 통과, 나머지 실패는 기존 TODO). F-474 는 결정 0057(상한 = min(절대표, 0.25·cellM)), 메시 형식 15 MB 미충족은 T15.10e. 실제 skylens 체크아웃 입력은 [local].
