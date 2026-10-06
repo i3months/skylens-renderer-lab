@@ -1,6 +1,6 @@
 # 0046 T15.1 지형 SSIM 시험: 장면·음영 모델·SPEC S9 와 다른 점
 
-- 상태: 승인(감독, 2026-10-05 PR #72 검토 #1 — T15.1c 절 포함; 부분 대체: T15.1c 다시 볼 조건·상한표 판단 → 0056)
+- 상태: 승인(감독, 2026-10-05 PR #72 검토 #1 — T15.1c 절 포함; 부분 대체: T15.1c 다시 볼 조건·상한표 판단 → 0056, 0057)
 - 날짜: 2026-10-05(F-395 반영으로 고침)
 - 결정한 사람: 작업자(제안)
 - 관련: TASKS T15.1, FEEDBACK F-395·F-396 ⑤⑥·F-397 ⑤, experiments/t15-1b.md, 제품 client/tower/terrain/{ssim_views.test.mjs, raster.mjs, ref_trace.mjs, mesh.mjs, shade.mjs}
