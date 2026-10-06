@@ -5680,7 +5680,7 @@
 - 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — ③ 외 전부(③ 은 typeof 중복이라 동치 변이, 노트 §5).
 - 이력 추가: 2026-10-06 08:40 감독 확인 닫음(PR #88 검토 #2) — 축 4a 사본 변이: ① fround 제거 시 '첫 불일치 인덱스 3' 으로 즉시 실패, ② :84 재검사 삭제 실패, ⑤ 옛 length 검사 복원 실패, ⑥ 비유한 검사 삭제 실패. ③ 은 Number.isFinite 가 비숫자를 모두 거르므로 동치 변이로 인정. ④⑦⑧⑩⑪⑫ 문구 확인, ⑨ 손 계산 42,490 B 재계산 일치(축 1·4c). 잔여는 F-506.
 
-### F-505 [처리됨-검증대기] (심각도: 중간) — buildings perf 가 래스터 4회 반복 변이를 aerial 에서 5/10 만 잡고, 벽시계 중앙값 감시가 무거운 부하에서 원본과 Atomics 변이를 가르지 못한다
+### F-505 [닫힘] (심각도: 중간) — buildings perf 가 래스터 4회 반복 변이를 aerial 에서 5/10 만 잡고, 벽시계 중앙값 감시가 무거운 부하에서 원본과 Atomics 변이를 가르지 못한다
 - 위치: 제품 client/tower/buildings/perf.test.mjs:25(RENDER_THRESHOLD_MS aerial 120)·:27-28(WALL_STALL_MS 350, 근거 '부하 중앙값 최대 약 208 ms')·:261(중앙값 단언)·:290-299(덮인 화소 수는 새 out 으로, 시간은 재사용 out 으로); client/tower/buildings/index.mjs:135-141(래스터 호출)·:146(stats 는 groupsTotal·groupsDrawn 만) (feat/t15-10f 5887039)
 - 문제: aerial 문턱 120 ms 는 origin/main(100 ms)보다 느슨하고 4회 변이(최소 79.9~90.6 ms)를 가르지 못한다(작업자 노트 §5 가 미충족으로 밝힘). black 100 ms 는 변이 최소 103.1 ms 로 여유 3%. 벽시계 감시는 8 병렬 + 전체 npm test 수준 부하에서 원본 중앙값이 432 ms 까지 올라 Atomics.wait 400 ms 변이(426~428 ms)와 겹친다. 래스터 호출 수·처리 화소 수가 관측되지 않아 시간 말고는 4배 회귀를 잡을 길이 없다.
 - 실패 상황: 래스터 단계를 4번 반복하는 변이에서 aerial 10 회 중 5 회 통과(축 4b 사본). 축 4b 원본 40 회(전체 npm test 와 다른 검증 프로세스가 동시에 돌던 조건)에서 9 회 '벽시계 호출당 중앙값 354~432 ms > 350 ms' 실패 — 감독은 로그를 직접 읽음, 감독 단독 8 병렬 40 회는 0 실패.
@@ -5689,11 +5689,46 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-06 08:40 감독 등록(PR #88 검토 #2, 축 4b 발견 1·2·3·4·5, 축 5 발견 1, 축 7 낮음; 감독 단독 8 병렬 40 회 재현·축 4b 로그 직접 읽음). F-503·F-490 의 잔여(이어진 것) — aerial 4회 변이 미분리는 감독이 CPU 시간 문턱의 한계로 인정하고 결정적 계수로 넘김.
 - 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 feat/t15-10g(cd69e0e5). 래스터 호출·처리 화소 결정적 단언, 4회 변이 black·aerial·points 10/10 실패, out fill 삭제·Atomics 400 ms 변이 10/10 실패, 벽시계−CPU 최솟값 감시, 8 병렬 40회·16 병렬 48회 0 실패. 시간 문턱은 거친 상한(black 120·aerial 160·points 3 ms, 근거 노트). 상세 experiments/t15-10g.md.
+- 이력 추가: 2026-10-06 09:45 감독 확인 닫음(PR #89 검토 #1) — 감독 cd69e0e npm ci && npm test fail 0. 축 4a 사본 변이: 래스터 4회 반복 black(호출 8≠2)·aerial(4≠1)·points(4≠1) 실패, out fill 삭제(3개·각각) 실패, Atomics.wait 400 ms 매 호출 실패(최솟값 401 > 350), 묶음 비우기·stats 상수화 실패. 원본 4 병렬×3 라운드 12/12 통과(다른 시험과 겹친 부하). 'aerial 90 ms' 0건. 래스터 함수 안 반복은 못 잡음 → F-507. 문턱 규칙 결정 기록 → F-509.
 
 
-### F-506 [처리됨-검증대기] (심각도: 낮음) — PR #88 검토 #2 낮음 묶음
+### F-506 [닫힘] (심각도: 낮음) — PR #88 검토 #2 낮음 묶음
 - 위치·고칠 것: ① contracts/tower_assets/terrain_h32.mjs:45-47 checkStep 이 형식을 안 봐 quantizeHeights([1,2],'0.03')·true 가 통과, dequantizeHeights 는 거부(축 1·7) → typeof step === 'number'. ② :41 ArrayBuffer.isView 가 DataView 를 받아 dequantizeHeights 가 빈 배열을 조용히 반환(축 7) → DataView 거부. ③ quantizeHeights([3.4e38], 2e38) 가 성공하고 dequantize 가 던짐(축 1) → 복원값 비유한이면 null. ④ terrain_h32.test.mjs:136 {length:3} 단언은 원소 검사로도 던져 배열 검사 약화 변이가 생존(축 4a M7) → {length:0} RangeError 단언 추가; 3.5e38 은 [] 로도(M2b); checkStep fround 제거 변이(M1b) 생존 → step === fround(0.03) 단언. ⑤ bench/tower/h32_initial.test.mjs:119 상수끼리 비교(항상 참) → 스파이크 없는 DEM 과의 wire 차 8,442 를 실제 측정으로; :89 '범위/0.05' → 0.03. ⑥ client/tower/terrain/ssim_h32.test.mjs:12 '0.15 는 시험이 허용하는 상한' → '측정한 통과 후보 중 최대'; :70-71 벽시계·CPU 배수 혼용 정정. ⑦ 연구 0058:3·:5·decisions/README 0058 행에 '감독 조건부 승인(2026-10-06 07:22, PR #87 검토 #3) → F-500 확인(08:40, PR #88 검토 #2) 뒤 승인', :23 폐기된 서술을 별도 항목으로 분리. ⑧ 노트 t15-10f.md §2 의 aerial 75·1500 ms 에 '§5 로 대체'. ⑨ PR 본문 '5308 상당' → 실행 요약 그대로(감독 실행 tests 5325·pass 5308·fail 0·skipped 12·todo 5).
 - 확인 기준: ① ② ③ 음성 입력이 null 또는 RangeError, ④ M7·M2b·M1b 변이 실패, ⑤ 스파이크 제거 변이에서 :119 대체 단언 실패, 나머지 문구 확인.
 - 권장 모델: haiku(⑤ 주석·⑥⑦⑧⑨), sonnet(①②③④⑤ 단언)
 - 이력: 2026-10-06 08:40 감독 등록(PR #88 검토 #2, 축 1·2·4a·4c·5·7). 새로 찾은 것(⑦ 은 F-500 잔여).
 - 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 feat/t15-10g(cd69e0e5)·연구 experiment/t15-10g. ①~⑥ 코드·시험(변이 M7·M2b·M1b 실패 확인), ⑦⑧ 연구 문서, ⑨ PR 본문. 상세 experiments/t15-10g.md.
+- 이력 추가: 2026-10-06 09:45 감독 확인 닫음(PR #89 검토 #1) — 축 1·4b 사본 변이: typeof 삭제·M1b·DataView 복원·:73 삭제·M7(옛 length·검사 제거)·M2b 모두 실패, :119 대체 단언은 스파이크 제거 변이에서 실패(8442≠0). ⑥⑧⑨ 문구 확인. 잔여: ③ 의 kbase 쪽 검사(F-508), ⑦ 0058:3 상태 줄·README 상태 칸(F-510 ⑤).
+
+### F-507 [열림] (심각도: 중간) — 처리 화소 수가 깊이 시험 통과만 세서 래스터 함수 안의 반복 회귀를 못 잡는다
+- 위치: 제품 client/tower/buildings/raster_flat.mjs:96·:104(pixelCount 는 깊이 시험 :96 통과 뒤에만 증가)·:172-173; perf.test.mjs:2·:21('래스터를 4회 부르는 식의 회귀는 호출 수·처리 화소 수 단언이 정확히 잡는다')·:37-44(EXPECTED_RASTER_PIXELS 출처 없음) (feat/t15-10g cd69e0e)
+- 문제: 같은 장면을 한 번 더 그리면 깊이가 같아 :96 에서 걸러지므로 처리 화소가 늘지 않는다. 반복 회귀를 잡는 결정적 단언은 index.mjs 수준의 호출 수뿐이고, 래스터 함수 안에서 묶음 루프를 되풀이하면 호출 수·화소 수가 원본과 같다. 시간 문턱은 1.5~2배 이상만 잡는다.
+- 실패 상황: 축 4a 사본 — rasterizeGroupsCore 의 묶음 루프 4회 반복 변이에서 perf.test 전부 통과(호출 수·처리 화소 448077/663998/686759 원본과 동일, black 최대 84 ms < 120, aerial 92 ms < 160). 2회 반복도 통과. 호출 수 상수 + black 4회 반복 조합에서 처리 화소는 1.26배만 늘어남(lines 의 plot 시도분).
+- 고칠 것: 깊이 결과와 무관한 일의 양 카운터(예: 삼각형 수 = onTriangle 호출 수, 또는 덮개(w0·w1·w2) 시험을 통과한 화소 수 — 깊이 비교 전)를 stats 에 더하고 perf.test 에 정확값 또는 ±0.1% 단언. 주석 :2·:21 을 실제 범위(함수 호출 반복 + 내부 반복)에 맞게 고친다. EXPECTED_RASTER_PIXELS 위에 출처(측정 커밋·반복 횟수)를 적고 points 는 건물당 20점 × 그린 건물 수로 식을 적는다.
+- 확인 기준: 사본에서 rasterizeGroupsCore 묶음 루프 2회·4회 반복 변이가 perf.test 결정적 단언으로 실패, 원본 통과.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 09:45 감독 등록(PR #89 검토 #1, 축 4a 발견 1·2; 감독이 raster_flat.mjs:86-106 직접 읽어 카운터가 깊이 시험 뒤에 있음 확인). F-505 의 잔여(이어진 것).
+
+### F-508 [열림] (심각도: 중간) — quantizeHeights 의 복원값 비유한 검사가 쓰이지 않는 floor 격자로 정상 입력을 거부하고, kbase 쪽 검사는 시험이 없다
+- 위치: 제품 contracts/tower_assets/terrain_h32.mjs:68(kbase = Math.floor(min / s))·:72-73(검사)·:52(문서 'dequantize 가 던지는 입력만 거른다'); contracts/tower_assets/terrain_h32.test.mjs:165-170 (feat/t15-10g cd69e0e)
+- 문제: 실제 최소 격자 번호는 round(min/s) 인데 검사는 floor 값 kbase·s 로 해서, 복원값이 모두 유한해도 kbase·s 가 f32 밖이면 null 을 낸다. 시험 입력은 원소 하나([±3.4e38])라 kbase 쪽 검사를 지운 변이가 생존한다.
+- 실패 상황: quantizeHeights([-2.8e38], 2e38) → null(감독 재현), 같은 입력 snapHeightsToGrid → [-1.99999994e38] 유한(감독 재현). origin/main 은 {kbase:-2, q:[1]}. kbase 쪽 검사 삭제 변이에서 terrain_h32.test 19/19 통과, 그 변이에서 quantizeHeights([-3.45e38, -3.0e38], 1e34) 결과를 dequantize 하면 RangeError(축 4b·1 사본).
+- 고칠 것: :73 을 Math.round(min / s)·s(실제 최소 K)로 검사하고 :72·:52 주석을 맞춘다. 시험에 quantizeHeights([-2.8e38], 2e38) 이 null 아님·dequantize 결과가 snap 과 비트 동일, quantizeHeights([-3.4e38, 0], 2e38) === null(또는 [-3.45e38, -3.0e38], 1e34) 단언 추가.
+- 확인 기준: 위 두 단언 통과, 사본에서 최소 쪽 검사 삭제 변이가 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 09:45 감독 등록(PR #89 검토 #1, 축 1 발견 1·축 4b 발견 1; 감독이 :60-78 읽고 node 로 두 입력 재현). 새로 찾은 것(F-506 ③ 구현의 결함).
+
+### F-509 [열림] (심각도: 중간) — buildings perf 시간 문턱 규칙(부하 최대 × 약 1.5) 변경에 결정 기록이 없다
+- 위치: 제품 client/tower/buildings/perf.test.mjs:15-24(RENDER_THRESHOLD_MS black 100→120·aerial 120→160·points 2→3); 연구 experiments/t15-10g.md:9; decisions/ 에 해당 파일 없음 (experiment/t15-10g)
+- 문제: 문턱 규칙을 F-503 의 '(a) 부하 40회 통과, (b) 4회 변이 분리' 에서 '결정적 단언 + 부하 최대의 약 1.5배' 로 바꾼 것은 RULES 의 기술적 결정이다. 근거 수치와 대가(1.5~2배 미만 회귀 미검출)는 주석·노트에 있으나 1.5 를 고른 이유와 다시 볼 조건이 없고, black 은 이전 100 ms 에서도 부하 최대 74.7 ms 로 통과했는데 규칙만으로 120 이 됐다.
+- 실패 상황: 래스터가 1.3~1.4배 느려지는 회귀(호출 수·화소 수 불변)가 통과할 때 이 완화가 언제·왜 정해졌고 언제 다시 조일지 찾을 기록이 없다.
+- 고칠 것: decisions/0059(가칭) — 선택지(이전 규칙 대 결정적 단언 + 배수 상한), 근거(8 병렬 40회 74.7/102.2/1.8 ms, 16 병렬 48회 77.8/100.7/1.6 ms), 1.5 배수 근거, 대가, 다시 볼 조건(부하 최대가 문턱 2/3 초과, 래스터 구현 변경, 결정적 단언 제거·F-507 처리 뒤 재검토), decisions/README 표 행. 성공 기준 수치는 건드리지 않는다.
+- 확인 기준: decisions/0059 와 README 행에 선택지·근거·대가·다시 볼 조건이 모두 있고 black 120 의 근거가 규칙과 연결돼 있다.
+- 권장 모델: haiku
+- 이력: 2026-10-06 09:45 감독 등록(PR #89 검토 #1, 축 2 발견 1; 감독이 perf.test.mjs:15-24 와 decisions/README 직접 확인). 새로 찾은 것. 문턱 자체는 결정적 단언이 생겨 거친 상한으로 둘 근거가 있어 반려 사유로 보지 않음.
+
+### F-510 [열림] (심각도: 낮음) — PR #89 검토 #1 낮음 묶음
+- 위치·고칠 것: ① client/tower/buildings/reuse_cull.test.mjs:199('래스터 호출·화소 수는 perf.test.mjs 가 맡는다' — perf.test 는 컬링을 보지 않음)·:228(컬링 검출은 CPU 시간 단언 하나, list = scratchGroups 삭제 변이가 문턱 7.3~8.0 ms 에 8.0~9.0 ms 로 겨우 실패) → points 모드 CAM_BEHIND rasterPixels 0, CAM_EDGE rasterPixels = groupsDrawn × 600 같은 결정적 단언과 주석 정정(축 4b). ② client/tower/buildings/index.mjs:136·:144 stats 를 래스터 뒤로 옮겨 래스터가 던지면 groupsTotal·groupsDrawn 까지 이전 render 값으로 남음(지금 공개 경로로는 재현 안 됨) → try/finally 또는 묶음 수를 먼저 대입(축 1b). ③ raster_flat.mjs:94·:97 z 가 f32 밖이면 depth 에 Infinity 기록(lines·points 는 건너뜀) → if (!Number.isFinite(z)) continue(축 7, 이 PR 이전부터). ④ terrain_h32.mjs checkArray 가 BigInt64Array·BigUint64Array 를 통과시켜 형식 오류가 null 로 숨음 → RangeError(축 7). ⑤ 연구 decisions/0058:3 상태 줄과 decisions/README 0058 행 상태 칸에 '감독 조건부 승인 07:22 PR #87 검토 #3 → F-500 확인 08:40 PR #88 검토 #2 뒤 승인'(F-506 ⑦ 잔여, 축 2). ⑥ PR #89 본문·STATUS 의 'fail 3 은 esbuild 미설치, origin/main 에서도 동일' → esbuild 는 devDependencies 이고 npm ci 뒤 fail 0(감독 실행) — 작업자는 npm ci 뒤 전체 시험을 돌려 보고(축 5). ⑦ perf.test.mjs:19·:27 실측 주석에 [cloud] 표기(축 12).
+- 확인 기준: ① 사본에서 list = scratchGroups 삭제 변이가 새 결정적 단언으로 실패. ② lines 에 throw 주입 시 stats().groupsDrawn 이 이번 카메라 값. ③ 카메라 t=[0,0,3e38]·꼭짓점 ±3e38 입력에서 depth 에 Infinity 없음. ④ quantizeHeights(new BigInt64Array(2), 0.03) RangeError. ⑤⑥⑦ 문구 확인.
+- 권장 모델: sonnet(①②③④), haiku(⑤⑥⑦)
+- 이력: 2026-10-06 09:45 감독 등록(PR #89 검토 #1, 축 1b·2·4b·5·7·12). ⑤ 는 F-506 ⑦ 잔여, ③ 은 이전부터 있던 것, 나머지 새로 찾은 것. 축 11 의 '제품 시험 주석의 F 번호·실측 수치' 지적은 문턱 근거를 주석에 두라는 이전 FEEDBACK 관례라 채택하지 않음.
