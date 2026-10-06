@@ -62,3 +62,9 @@
 ## 감독 승인 (2026-10-06, 제품 PR #101 검토 #1)
 - 근거: F-569 확인 기준 충족 — 근거 각 행의 출처(run.mjs runSocketLoad 기본값 clients 30·durationS 10, contract.mjs LEVEL_PAYLOAD_BYTES 합 174,080 B × 30 = 5,222,400 B)가 실제 값과 일치, '= ceil(durationS)' 근거(run.mjs `Math.ceil(durationS)`, server_stats 개수 검사), 노트 p95 = socket30.json 값, 다시 볼 조건 세 개 모두 아직 일어나지 않은 사건, 임계값 '2배' 정의.
 - 조건(F-577 에서 정리): 근거 줄 'socketScenario 기본값' 출처를 runSocketLoad·CLI 기본값으로, 측정 머리말에 제품 커밋 2c9de9b9, first_frame p95 0 ms 는 고정값이 아님(재실행에서 0~수 ms)과 CPU·RSS 가 1회 실행값임을 표기.
+
+## 감독 결정 추가 (2026-10-06 19:55, PR #102 검토 #1)
+F-577 ②·⑩ 감독 지시를 작업자가 코드로 옮긴 두 규칙을 이 결정에 포함해 승인한다(감독이 내린 결정이므로 감독이 적는다).
+- (가) loopback-socket 처럼 클라우드 근사 방식(CLOUD_APPROXIMATION_METHODS)의 실행에서는 S5 3 s 첫 프레임 결과를 위반이 아니라 notes 에 '참고(S5 아님)' 로 싣는다(제품 bench/load/run_all/run.mjs runScenario). 근거: 이 값은 connect(핸드셰이크 완료) 기준이라 S5 정의(요청부터 첫 프레임)가 아니고, S5 판정은 [local] T17 이다. 'sim' 방식은 그대로 위반이다. 대가: 소켓 실행에서 첫 프레임이 크게 느려져도 종료 코드가 0 이다(콘솔 표시는 F-580 ⑥). 한정: 강등은 load.first_frame_p95 한 지표만이어야 한다 — 지금 코드는 checkThresholds 결과 전체를 강등하므로 F-579 에서 좁힌다.
+- (나) tickOnRealClock 은 목표보다 MAX_TICK_LATE_MS = 1000 ms 넘게 늦은 틱을 건너뛰고, 빠진 표본은 checkServerSamples 의 개수 위반으로 드러낸다. 근거: 밀린 틱을 몰아 실행하면 거의 같은 tS 표본이 생겨 1초 간격 측정이 왜곡된다(F-577 ②). 대가: 이벤트 루프가 1 s 넘게 막히면 표본이 빠진다.
+- 다시 볼 조건: S5 정의 기준(요청 시각)으로 재는 소켓 경로가 생길 때 (가) 를 다시 본다. 표본 간격을 1 s 가 아닌 값으로 바꿀 때 (나) 의 1000 ms 를 다시 본다.
