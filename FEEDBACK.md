@@ -6421,3 +6421,8 @@
   ⑯ first_frame.test.mjs:192·234·252 시험 제목의 'level-0', 위반 문구 'before level arrival (any level) (out of order)' 괄호 연속 — 선택.
 - 권장 모델: sonnet(①~⑫), haiku(⑬~⑯)
 - 이력: 2026-10-06 18:30 감독 등록(PR #101 검토 #1, 축 1·2·3·4a·4b·5·6·7 — ③ 은 감독 server_proc.test.mjs:98-99·:148 읽음, ① 은 감독 run.mjs:56-60 diff 읽음, 나머지는 축 보고 근거 줄. ④ 미확인)
+- 이력: 2026-10-06 18:36 감독 보강(예비 실행 :20 의 중복 검토, PR #101 2c9de9b9 — 새로 찾은 것만): ④ 재현됨 — 축 4b 사본에서 4코어에 바쁜 루프 12개를 건 상태로 server_proc.test.mjs 3회 중 1회 #4·#5 실패(`ENOENT … server_proc_*/pid`). 감독 server_proc.test.mjs:104-109 읽음: fakeMain 이 본문 뒤에 pid 를 쓰고 startTimeoutMs 600 이라 느린 자식이 pid 를 쓰기 전에 SIGKILL 된다. 고칠 것: pid 쓰기를 fakeMain 첫 문장으로 옮기거나 reject 오류에 e.pid 를 싣는다. 확인: 같은 부하 5/5 통과, M31·M32b 계속 사망. 심각도 낮음 유지(정상 부하 3/3 통과).
+  ⑰ server_proc.test.mjs:118(< 5000)·:150(< 400 + 3000) 상한이 느슨해 startTimeoutMs·killAfterMs 를 무시하고 3000 상수를 쓰는 변이(축 4b X2·X3) 생존. 확인: 상한을 각 값 + 1500 ms 로 좁혀 X2·X3 사망, 부하 5/5 통과.
+  ⑱ load_report.test.mjs 의 '주석은 p95 행에만' 시험이 metric 'm' 한 행뿐이라 정규식을 /first_frame/ 로 넓히는 변이(L4b)·행별 method 로 판정하는 변이(L5) 생존. 확인: p95·p50·다른 행이 섞인 클라우드 보고서에서 주석 정확히 1회, method 섞임(unknown) 보고서에서 주석 0회.
+  ⑲ proc_stats.mjs:53-55 readProcStats 가 parseStatm null 을 rss 0 으로 바꾸는 변이(P6) 생존 — 읽기 함수를 주입받게 하거나 statm 읽기 실패 경로 시험. 확인: P6 사망.
+  ⑳ 연구 0064·t16-18.md·t16-12b.md 가 출처로 적은 socket30.json·socket30.server.json 이 어느 저장소에도 커밋되지 않아 수치를 대조할 수 없다(축 2). 확인: 실행 결과 파일을 연구 experiments/t16-18/ 등에 커밋하고 0064 측정 머리말에 그 경로. 권장 모델: haiku
