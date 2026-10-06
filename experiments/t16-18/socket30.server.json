@@ -1,0 +1,242 @@
+[
+  {
+    "tS": 1.000948635,
+    "cpuPct": 2.0114381597588817,
+    "rssMiB": 59.31,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 2.0001332499999998,
+    "cpuPct": 0,
+    "rssMiB": 59.31,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 3.000687826,
+    "cpuPct": 0,
+    "rssMiB": 59.31,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 4.0003637229999995,
+    "cpuPct": 0,
+    "rssMiB": 59.31,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 5.000343137000001,
+    "cpuPct": 0,
+    "rssMiB": 59.31,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 6.001280171,
+    "cpuPct": 0,
+    "rssMiB": 59.31,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 7.000281005000001,
+    "cpuPct": 0,
+    "rssMiB": 59.31,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 8.000574702000002,
+    "cpuPct": 0,
+    "rssMiB": 59.31,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 9.001024802,
+    "cpuPct": 3.998200409995461,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 10.001408448,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 11.00042794,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 12.000635927,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 13.000181783,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 14.000045527000001,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 15.001089916,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 16.000337260000002,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 17.000120012,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 18.000794040000002,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 19.00085361,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 20.000029848999997,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 21.000146899,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 22.000992477,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 23.000619651,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 24.000110645,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 25.000396247,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 26.000384958999998,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 27.000449763,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 28.000930137,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 29.000345542999998,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  },
+  {
+    "tS": 30.000586287999997,
+    "cpuPct": 0,
+    "rssMiB": 57.68,
+    "source": "server-process",
+    "clock": "real",
+    "cpuSource": "measured"
+  }
+]
