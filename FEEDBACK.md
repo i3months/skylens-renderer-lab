@@ -6133,7 +6133,7 @@
 - 이력(2026-10-06 작업자): T16.17 처리, 제품 feat/t16-17 b3f72459, 연구 experiment/t16-17(노트 t16-17.md). 실제 skylens·실서버 [local].
 - 이력: 2026-10-06 15:56 감독 확인 닫음(PR #98 검토 #1 — 확인 기준 직접 재현)
 
-### F-555 [열림] (심각도: 중간) — 실제 시계 마지막 tS 가 durationS 를 1e-9 넘기만 해도 위반이라, 늦게 깨는 실제 타이머 실행이 늘 실패한다
+### F-555 [처리됨-검증대기] (심각도: 중간) — 실제 시계 마지막 tS 가 durationS 를 1e-9 넘기만 해도 위반이라, 늦게 깨는 실제 타이머 실행이 늘 실패한다
 - 위치: 제품 bench/load/server_stats/index.mjs:103 (`last > durationS + E`), 계약 주석 :54 (feat/t16-17 b3f72459)
 - 문제: 이른 쪽은 0.25 s 를 받는데 늦은 쪽은 1e-9 만 받는다. 실제 타이머는 예정보다 늦게 깨므로 T16.12 실서버 실행은 마지막 tS 가 durationS 를 몇 ms 넘는다. F-551 '고칠 것'의 '마지막 tS > durationS 위반' 문구를 그대로 구현한 결과라 감독 지시의 결함이다.
 - 실패 상황: 감독 재현 — tS 1.004..59.004, 60.004(간격 모두 1.0), durationS 60 → ['server samples: last tS 60.004 is beyond durationS 60']. 축 1: +0.05 지연 → 같은 위반.
@@ -6141,8 +6141,9 @@
 - 확인 기준: 위 +0.004·+0.05 입력 위반 [], F-551 네 입력은 각각 위반 ≥ 1 유지.
 - 권장 모델: opus (T16.12 실제 시계 경로와 함께)
 - 이력: 2026-10-06 15:56 감독 등록(PR #98 검토 #1, 감독 재현·축 1 — 새로 찾은 것, F-551 지시 문구의 부작용)
+- 이력(2026-10-06 작업자): T16.12 앞 정리, 제품 feat/t16-12 4cd87ea7, 연구 experiment/t16-12(노트 t16-12.md, 결정 0063). 실서버·실체크아웃 확정은 [local].
 
-### F-556 [열림] (심각도: 중간) — first_frame 이 level 0 도착만 인정해, 상위 수준이 먼저 와 level 0 을 건너뛴 정당한 추월 경로가 위반이 된다
+### F-556 [처리됨-검증대기] (심각도: 중간) — first_frame 이 level 0 도착만 인정해, 상위 수준이 먼저 와 level 0 을 건너뛴 정당한 추월 경로가 위반이 된다
 - 위치: 제품 bench/load/first_frame/index.mjs:56·63-70 (level 0 한정 인정, 'before level-0 arrival (out of order)'), 시험 first_frame.test.mjs 의 out of order 단언, 연구 decisions/0062 (6)행
 - 문제: skylens 는 상위 수준이 먼저 오면 하위 수준을 건너뛴다(SPEC 딜레이 패턴). 이때 처음 그려지는 것은 level 1 이상인데 하네스는 'first_frame without level-0 arrival' 로 센다. 합성 시뮬레이터는 늘 level 0 을 먼저 내 지금은 드러나지 않지만, T16.12 실서버 로그에서 거짓 위반이 난다. 0062 의 '실제 skylens 와 어긋난 점 없음' 서술도 이 충돌을 짚지 않는다.
 - 실패 상황: 축 3 재현 — connect@0, level1@500, first_frame@500 → perClientMs [Infinity], 'client 0: first_frame without level-0 arrival'. level0@900 이 뒤늦게 와도 같은 결과.
@@ -6150,8 +6151,9 @@
 - 확인 기준: (넓히면) 위 입력 위반 [], p95 500; 기존 FIXTURE·기본 시나리오 결과 불변.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 15:56 감독 등록(PR #98 검토 #1, 축 3 — 감독이 first_frame/index.mjs 줄 확인)
+- 이력(2026-10-06 작업자): T16.12 앞 정리, 제품 feat/t16-12 4cd87ea7, 연구 experiment/t16-12(노트 t16-12.md, 결정 0063). 실서버·실체크아웃 확정은 [local].
 
-### F-557 [열림] (심각도: 중간) — 계약 harness.mjs:19 와 결정 0062 (2)(5)행이 병합될 구현과 다르다
+### F-557 [처리됨-검증대기] (심각도: 중간) — 계약 harness.mjs:19 와 결정 0062 (2)(5)행이 병합될 구현과 다르다
 - 위치: 제품 contracts/load/harness.mjs:19, :21(outOfOrder 반환 필드 누락), :45(burst 'arrived more than once' 문구 누락); 연구 decisions/0062-t16-17-load-harness-rules.md (2)·(5)행
 - 문제: 계약 :19 는 '마지막 tS 가 durationS 에서 1 s 이내, 마지막이 아닌 간격만 0.5~1.5 s' — 구현은 개수 = ceil(durationS), 첫 tS min(1,durationS)±0.5, 마지막 tS ∈ [durationS−0.25, durationS], 마지막 간격 = 마지막 칸 폭±0.5, clock·source 섞임 위반, 비유한 durationS 위반. 0062 (2)는 '다른 작업자가 조이는 중이라 값을 고정하지 않는다'로 허용폭 근거(F-552 요구)가 비어 있고, (5)는 '현재 코드는 첫 표본의 출처를 쓴다'고 적지만 load_report/index.mjs:39 는 섞이면 'unknown' 이다.
 - 실패 상황: 감독 읽음(harness.mjs:19, 0062 :15·:18). real 표본 tS [1..59, 59.5], durationS 60 은 계약대로면 통과지만 구현은 'last tS 59.5 is not within 0.25 s'.
@@ -6159,8 +6161,9 @@
 - 확인 기준: harness.mjs:19 에 'ceil(durationS)'·'0.25'·'mixed' 서술, :21 에 outOfOrder; 정정 절에 0.25·ceil·첫 tS 규칙과 근거, '섞이면 unknown'.
 - 권장 모델: haiku(서술), 허용폭 근거는 F-555 와 함께 opus
 - 이력: 2026-10-06 15:56 감독 등록(PR #98 검토 #1, 축 2·5 — 감독이 줄 확인)
+- 이력(2026-10-06 작업자): T16.12 앞 정리, 제품 feat/t16-12 4cd87ea7, 연구 experiment/t16-12(노트 t16-12.md, 결정 0063). 실서버·실체크아웃 확정은 [local].
 
-### F-558 [열림] (심각도: 중간) — loadReport 가 durationS 없이 checkServerSamples 를 불러 실제 시계 샘플 1개로도 측정 출처가 표기되고, 샘플 0개·모의 시계는 개수 검사를 받지 않는다
+### F-558 [처리됨-검증대기] (심각도: 중간) — loadReport 가 durationS 없이 checkServerSamples 를 불러 실제 시계 샘플 1개로도 측정 출처가 표기되고, 샘플 0개·모의 시계는 개수 검사를 받지 않는다
 - 위치: 제품 tools/load_report/index.mjs:36 (`checkServerSamples(samples)`), bench/load/server_stats/index.mjs:93-97 (`samples.length > 0` 이고 모두 real 일 때만 개수 검사)
 - 문제: F-551 의 '몇 ms 샘플 통과' 틈이 보고서 경로에 남았다. checkServerSamples([], {durationS:60}) → [] (주석 :53 의 'count == ceil(durationS)' 약속과 다름). runScenario 는 run.mjs:137 이 따로 잡지만 다른 호출자는 못 잡는다.
 - 실패 상황: 감독 재현 — checkServerSamples([], {durationS:60}) → []. 축 7 재현 — 60 s steady 결과에 real 샘플 {tS 0.001, source 'server-process'} 1개 → 'cpu/rss source: server-process'.
@@ -6168,8 +6171,9 @@
 - 확인 기준: 위 두 입력이 각각 위반 ≥ 1 / 'cpu/rss source: unknown', 정상 60개·기본 SCENARIOS 위반 0.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 15:56 감독 등록(PR #98 검토 #1, 축 7 — 감독 재현)
+- 이력(2026-10-06 작업자): T16.12 앞 정리, 제품 feat/t16-12 4cd87ea7, 연구 experiment/t16-12(노트 t16-12.md, 결정 0063). 실서버·실체크아웃 확정은 [local].
 
-### F-559 [열림] (심각도: 중간) — server_stats 새 규칙의 생존 변이: 마지막 간격 규칙과 null 가드를 시험이 잡지 못한다
+### F-559 [처리됨-검증대기] (심각도: 중간) — server_stats 새 규칙의 생존 변이: 마지막 간격 규칙과 null 가드를 시험이 잡지 못한다
 - 위치: 제품 bench/load/server_stats/index.mjs:107-111(마지막 간격), :93(`objs.length === samples.length` 가드), :100(min(1,durationS)), :104(0.25), E 허용치; 시험 server_stats.test.mjs:263-265(주석은 'last interval' 인데 실제 위반은 last tS)
 - 문제: 축 4a 변이 실행 — 간격 루프 i<n-1, hi=mid+1·1.5, lo=0·mid−0.4 가 모두 생존. 가드 삭제 시 [null, real tS 1], {durationS:2} 가 TypeError 를 던지는데 시험이 통과. want=1, 0.25→0.2, E=0 변이 생존.
 - 실패 상황: R(0.9,1.4,2.5) D2.5 → 원본 ['server sample 2: interval 1.1 s outside 0..1'], i<n-1 변이 [].
@@ -6177,8 +6181,9 @@
 - 확인 기준: 위 변이 각각 시험 실패.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 15:56 감독 등록(PR #98 검토 #1, 축 4a)
+- 이력(2026-10-06 작업자): T16.12 앞 정리, 제품 feat/t16-12 4cd87ea7, 연구 experiment/t16-12(노트 t16-12.md, 결정 0063). 실서버·실체크아웃 확정은 [local].
 
-### F-560 [열림] (심각도: 낮음) — PR #98 검토 #1 견고성·서술 낮음 묶음
+### F-560 [처리됨-검증대기] (심각도: 낮음) — PR #98 검토 #1 견고성·서술 낮음 묶음
 - 위치·문제·확인 기준:
   ① bandwidth/index.mjs:76 bandwidthViolations(undefined|null|{}|5) → [], first_frame/index.mjs:100-105 firstFrameViolations({p95Ms:100}) → [], {p95Ms:100, outOfOrder:[null]} → TypeError — 각각 위반 ≥ 1·예외 없음.
   ② server_stats/index.mjs:30 첫 cpuUsage() 가 null 이면 tick() TypeError — skip 또는 'createStatsSampler:' 오류.
@@ -6192,3 +6197,4 @@
   ⑦ (F-553 ⑭ 잔여) 연구 experiments/t16-1.md:28 '추정' 표기 — 감독 기록 3b37b10 실행 수치로 확정.
 - 권장 모델: sonnet(①~⑥), haiku(⑦)
 - 이력: 2026-10-06 15:56 감독 등록(PR #98 검토 #1, 축 1·3·4a·4b·7 — 근거 줄 있는 것)
+- 이력(2026-10-06 작업자): T16.12 앞 정리, 제품 feat/t16-12 4cd87ea7, 연구 experiment/t16-12(노트 t16-12.md, 결정 0063). 실서버·실체크아웃 확정은 [local].
