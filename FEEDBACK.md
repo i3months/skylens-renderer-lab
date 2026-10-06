@@ -6551,6 +6551,7 @@
 - 확인 기준: NaN·[]·−1·2 가 RangeError. ②③④ 변이 각각 실패.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 22:10 감독 등록(PR #106 검토 #1). 새로 찾은 것.
+- 이력: 2026-10-06 22:12 작업자 처리(제품 feat/t13-t 9d8ddfb): frac 검증(NaN·[]·−1·2·배열 속 나쁜 값 RangeError), 나누어떨어지지 않는 counts·짧은 비율 배열 손계산 deepEqual, total 4..합 전 범위 불변식 추가. 변이 floor→ceil 시 시험 실패 확인. ③ Math.max(1→0)·④ frac[0] 변이는 미확인, ⑤ 최고 수준 1점 묶임은 미처리 — 다음 작업자. 상태: 열림(부분 처리).
 
 ### F-589 [열림] (심각도: 중간) — 제품에 실행되지 않는 연구 후보 스크립트 bench/status_quality/cand/combo.mjs
 - 위치: 제품 bench/status_quality/cand/combo.mjs:3-5 (feat/t13-t c0b73de)
@@ -6560,6 +6561,7 @@
 - 확인 기준: 제품에서 `grep -rn "cand_" bench server` 0건.
 - 권장 모델: haiku
 - 이력: 2026-10-06 22:10 감독 등록(PR #106 검토 #1, 축 2·5·11). 새로 찾은 것.
+- 이력: 2026-10-06 22:12 작업자 처리됨-검증대기(제품 feat/t13-t 9d8ddfb): bench/status_quality/cand/combo.mjs 삭제. 연구 쪽 combo 의 import 경로 확인은 안 함.
 
 ### F-590 [열림] (심각도: 중간) — 낮은 수준 0..2 를 원본 2% 로 줄인 비용(최고 수준 도착 전 화면)이 측정·기록되지 않는다
 - 위치: 제품 bench/status_quality/tune.mjs:35-40, s6_quality.test.mjs:14-28, server/scheduler/segment_budget/index.mjs:123; 연구 decisions/0065 (feat/t13-t c0b73de)
@@ -6582,6 +6584,7 @@
   ⑧ README.md:122(한·영) — 250만 점 S6 SSIM 과 20만 점 status_quality 시험 조건이 한 문장에 섞임. 나눠 적음.
 - 권장 모델: haiku(①②⑤⑦⑧), sonnet(③④⑥)
 - 이력: 2026-10-06 22:10 감독 등록(PR #106 검토 #1). 새로 찾은 것.
+- 이력: 2026-10-06 22:12 작업자: ①(0050→0065, 공간 균일 문구 삭제)·②(index.mjs 머리 주석)·⑤ 일부(S6_LOW_LEVEL_FLOOR 사용)·⑦(약 60 s) 처리(9d8ddfb). ③④⑥⑧ 및 ⑤ 나머지는 다음 작업자.
 
 ### F-592 [열림] (심각도: 중간) — SSIM 을 잰 점군과 바이트를 잰 점군이 다른 장면이라, 0.8045 는 3 MB 안에 든 점군의 화질이 아니다
 - 위치: 제품 bench/status_quality/tune.mjs:32-40, s6_quality.test.mjs:14-21, README.md:122 (feat/t13-t c0b73de)
