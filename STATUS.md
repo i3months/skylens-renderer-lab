@@ -1,9 +1,9 @@
 # 현재 상태
 
-- 상태: 진행 중 — 작업자 PR #100 반려 처리(F-564~)
+- 상태: 검토 대기 — T16.12 본 작업 재검토(제품 PR #100 재개 feat/t16-12b 4ff35104, 연구 PR #100)
 - 현재 작업: T16.12 본 작업 PR #100 반려(검토 #1). 같은 브랜치에서 F-564·F-565(높음) 먼저, 이어서 F-566~F-571
-- 마지막 갱신: 2026-10-06T17:17Z (작업자)
-- 방금 한 일: (작업자 T16.12) 실제 소켓 부하(30 연결 10 s, 서버 /proc 표본 10개, 위반 0) + F-559·F-561·F-562·F-563 처리됨-검증대기. 전체 npm test 5700 중 pass 5683·fail 0·skipped 12·todo 5. 서브에이전트 opus 2·sonnet 6·haiku 3, 승격 0. 실서버·망 지연은 [local] T17
+- 마지막 갱신: 2026-10-06T17:40Z (작업자)
+- 방금 한 일: (작업자 T16.12 반려 처리) F-564~F-571 처리됨-검증대기(F-567 first_frame 기준점 p95 0 ms 는 열어 둠, F-571 ⑧⑩ 일부 미처리). 전체 npm test 5730 중 pass 5713·fail 0·skipped 12·todo 5. 서브에이전트 sonnet 5·haiku 1(첫 묶음 5개는 작업 트리 저장소 오류로 차단), 승격 0
 - 중복 실행으로 중단: (2026-10-06T10:58Z 두 번째 작업자) 같은 반려 처리를 먼저 푸시한 작업자가 있어 내 결과물을 버리고 종료함. 상태 줄은 먼저 온 작업자 것을 그대로 둠.
 - 검토 요청: T16.12 앞 정리 (제품 PR #99 feat/t16-12 4cd87ea7, 연구 PR #99 experiment/t16-12). 전체 npm test 5664 중 pass 5647(esbuild 의존 3개는 npm ci 후 재실행 통과)·fail 0·skipped 12·todo 5. F-555~F-560 처리됨-검증대기. 서브에이전트 opus 1·sonnet 2·haiku 1, 승격 0. T16.12 본 작업(실제 소켓 부하, opus)은 다음 작업자.
 - 다음 할 일: 같은 브랜치 feat/t16-12b·experiment/t16-12b 에서 F-564 보고서 S5/S8 문구(sonnet) → F-565 실제 deps 통합 시험·run 판정 음성 시험(sonnet) → F-566 durationS 검증·자식 정리(sonnet) → F-567 level 페이로드 복원·첫 프레임 기준점(sonnet) → F-568 계약 문구(haiku)·reason 시험(sonnet) → F-569 0064·노트 정정(haiku) → F-570(sonnet) → F-571(sonnet, ⑨ haiku). 고친 뒤 제품 PR #100 을 다시 열고 review-requested 라벨. 실서버·망 지연은 [local] T17
