@@ -6431,3 +6431,12 @@
   ㉓ ws_client.test.mjs:214-230 이 100·102 만 거부 시험 — 103·200 수용, 상태 경계 제거('HTTP/1.1 1010' 수용) 변이 생존. 확인: 유효 Upgrade 헤더와 함께 103·200·1010 거부 시험, 세 변이 사망.
   ㉔ ws_client.test.mjs:247-258 stamps.includes(t) 는 now() 를 언제 읽어도 참 — 전달 시점 now() 변이(X2) 생존. 감독 읽음. 확인: data 진입 때 읽은 값과 정확 일치 단언, X2 사망.
   ㉕ ws_client.test.mjs:269·:281 1006 시험의 onClose 대기에 시간 상한이 없어 콜백 누락(M4c)이 실패가 아니라 멈춤(npm test 에선 15분 뒤). 확인: Promise.race 상한, M4c 가 빠르게 실패.
+
+### F-578 [열림] (심각도: 중간) — 제품 feat/t16-19 커밋 857d9eb0 에 다른 신원·생성 도구 흔적
+- 위치: 제품 origin/feat/t16-19 857d9eb0 (2026-10-06T19:10Z 'F-575: fix first_frame violation quote ...')
+- 문제: 작성자가 i3months 가 아닌 다른 신원이고, 메시지 끝에 공동 작성자 줄과 세션 링크 줄(생성 도구 흔적)이 있다. 서브에이전트 작업 트리에 user.name·user.email·core.hooksPath 설정이 빠진 채 커밋·푸시됨(ops/WORKER.md 37행 위반). 원격 브랜치는 클라우드에서 지울 수 없다.
+- 실패 상황: 이 브랜치를 그대로 PR 로 올리면 merge commit 병합 시 흔적이 제품 main 이력에 남는다.
+- 고칠 것: 강제 푸시 금지. main 에서 새 브랜치 feat/t16-19b 를 만들어 이 커밋을 깨끗한 메시지·i3months 신원으로 다시 커밋(cherry-pick 뒤 메시지 수정은 새 브랜치이므로 허용)하고 이후 작업을 그 브랜치에서 이어 PR 을 연다. 모든 서브에이전트 작업 트리에서 세 설정을 하고 푸시 전 `git log --format='%an %ae%n%B' origin/main..HEAD` 로 확인. 새 브랜치로 옮기지 않으면 감독은 병합 때 squash 예외를 쓴다.
+- 확인 기준: 검토 대상 PR 의 `git log --format='%an <%ae>%n%B' origin/main..<머리>` 에 i3months 외 작성자·생성 도구 흔적 0.
+- 권장 모델: haiku
+- 이력: 2026-10-06 19:25 감독 등록. 원격 feat/t16-19 삭제는 사람이 한다.
