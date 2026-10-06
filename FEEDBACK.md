@@ -5104,15 +5104,16 @@
 - → 2026-10-06 작업자(PR #83 반려 처리): ①⑥ 0055·t15-9.md 보강, ②③④ 0050·0053·0054·t15-7·t15-8 문구 정정(연구 experiment/t15-9). ⑤ 계약 API 다섯 메서드 추가.
 - → 2026-10-06 00:40 감독(PR #83 검토 #2, 연구 415e0a2): 확인 기준 15 중 10 통과(축 2 grep, 감독이 0055·t15-7.md:13 직접 읽음). 실패 5 — 0055 '첫 드론' 글자(drones[0] 로 내용 있음, 통과로 봄), t15-7.md:13 '4종'·'요청한 적 없는 보이는 타일 0' 잔존, t15-8.md:31 같은 줄 안 모순, 0053:42 '근거' 소제목. 이 잔여와 새 결정 누락(fitView 하한 고정·도달 불가 되돌리기 코드)을 F-455 로 옮기고 닫음.
 
-### F-451 [열림 — F-454 와 함께] (심각도: 중간, 미확인) — perf·visible 회귀 시험이 F-444 가 노린 회귀를 잡지 못하고, replay_starve 대조 주석이 측정과 다르다
+### F-451 [열림 — ①② F-454 와 함께, ③⑤ 닫음] (심각도: 중간) — perf·visible 회귀 시험이 F-444 가 노린 회귀를 잡지 못하고, replay_starve 대조 주석이 측정과 다르다
 - 위치: 제품 8a7fabc client/tower/fallback/perf.test.mjs:23-24(MAX_RATIO 3·BIG_RATIO 5)·:149·:156-162·:178, client/tower/streaming/visible.mjs:256(stats.combos 를 planes.length 공식으로 미리 계산), visible.test.mjs:440·:452·:485, streaming/replay_starve.test.mjs:8·:100·:117·:122·:134-145, fallback/view.test.mjs:142-155
 - 문제·실패 상황(축 4b 사본 실행): ① 점마다 push 하는 옛 맞춤 복원(Pold)이 한도 규모 비율 3.84·4.47 로 BIG_RATIO 5 통과, 맞춤 순회만 10 배(Pfit10)도 8/8 통과 — 상한이 사후 기준. ② '10 배 느린 변이' 시험은 frame 전체를 10 번 불러 비율이 늘 ≈10 이라 자명; Pfit10 은 :149 에서 8 중 6 만 실패. ③ visible.mjs:257 을 옛 16각형 구조(vertices([...planes, 16 반공간]))로 바꿔도 combos 는 220 그대로라 visible.test 22/22 통과 — 계수기가 순환. ④ replay_starve:134 'm3·m4 는 orderViolations 에만 걸린다' 는 거짓(m4 4/15·m3 1/15 가 maxStreak 도 실패), 단언이 some 이라 늘 통과. ⑤ m1 정리 잔여(:8 주석, :100 쓰이지 않는 minFail, :117 박아 넣은 10). ⑥ view.test:142-155 'yaw π/2 는 화면 오른쪽' 이 yaw 를 쓰지 않는 순환 시험.
 - 고칠 것: ① 맞춤 몫((frame − setView frame)/setView frame 또는 맞춤 순회 단독)을 따로 재고 상한을 근거와 함께. ② 변이를 '맞춤 순회 10 배' 로. ③ combos 를 vertices 안 i/j/k 루프에서 세거나 vertices 호출 수를 센다. ④ 주석·메시지를 측정에 맞추고 'orderViolations 를 뺀 실패 수 < minFail' 대조 단언. ⑤ 주석 갱신, m1 을 MUTANTS 에서 빼고 기대값 계산, 즉시 도착 5 건 통과 단언. ⑥ 이름을 단언에 맞게 낮추거나 계약 방향 함수와 대조.
 - 확인 기준: Pold·Pfit10 에서 perf 시험 실패(Pfit10 10/10), 6개 동시 실행 오탐 0. 16각형 복원 변이에서 visible.test 실패. replay_starve 대조 단언이 원본 통과.
 - 권장 모델: sonnet(③ opus 와 함께 해도 됨)
 - 이력: 2026-10-06 00:20 감독 등록(PR #83 검토 #1 뒤 도착한 축 4b 보고, 사본 근거라 미확인). 새로 찾은 것. 반려 판정에 영향 없음 — 다음 제출 때 F-444 ② 와 함께 처리.
+- 이력 추가: 2026-10-06 01:40 감독(PR #84 검토 #1) — ③ 16각형 복원 변이 visible.test 2 실패(축 4b 사본), ⑤ m1 분리·지연 실행 수 기대값 확인 → ③⑤ 닫음. ④ 대조 단언은 동작(orderViolations 제거 변이에서 m3·m4 실패), 단 :121 주석 "orderViolations 에만 걸린다" 는 실측(m3 1/15·m4 4/15 가 maxStreak 도)과 다름 → F-460 ⑤. ⑥ 방향 단언 :163 은 :161 과 겹쳐 따로 잡는 변이 0 → F-460 ⑦. ①② 미처리(F-454 와 함께, 두 번째 미처리 — sonnet).
 
-### F-452 [열림] (심각도: 중간) — no_network 시험에 옛 시험 안 조립이 남아 계약과 반대 동작(폴백 중 update)을 시범하고, held 단언이 약하다
+### F-452 [닫힘 — 잔여는 F-459 ②] (심각도: 중간) — no_network 시험에 옛 시험 안 조립이 남아 계약과 반대 동작(폴백 중 update)을 시범하고, held 단언이 약하다
 - 위치: 제품 feat/t15-9 b525103 client/tower/e2e/no_network.test.mjs:6-10(input·chase·overlay·streaming·fallback 직접 import)·:31-137(자체 조립 루프, :105 폴백 중에도 streaming.update)·:121-123(모드 단언이 자체 조립에만)·:165(snaps[7].streaming.held.length > 0)
 - 문제: F-447 ③ 은 감시 구간 안에서 createControlView 재생을 추가했지만 옛 자체 조립 루프를 지우지 않았다. 그 루프는 계약 fallbackStreaming 과 반대로 폴백 중 update 를 부른다. index.mjs 를 어떻게 바꿔도 이 부분은 반응하지 않는다. 통합 쪽 held 단언은 손계산 표가 아니다.
 - 실패 상황(감독이 :100-125 직접 읽음): 시험 안 setAvailable(false) 삭제 변이는 이 자체 조립 단언만 잡는다(축 4b). arrived 하나 무시 변이를 넣어도 :165 는 held > 0 이면 통과.
@@ -5120,8 +5121,9 @@
 - 확인 기준: no_network import 에 ../(input|chase|overlay|streaming|fallback)/index.mjs 0건. setTimeout·fetch 삽입 변이 계속 실패. arrived 하나 무시 변이에서 no_network 실패.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 00:40 감독 등록(PR #83 검토 #2, 축 4b 보고, 감독 직접 읽음). F-447 잔여(새로 찾은 것 아님).
+- 이력 추가: 2026-10-06 01:40 감독 확인 닫음(PR #84 검토 #1) — 감독 grep: no_network import 에 ../(input|chase|overlay|streaming|fallback)/index.mjs 0건. 축 4a 사본: setTimeout 삽입 1 실패·fetch 삽입 2 실패·arrived 무시 2·6 실패. F11 단언이 구현 출력인 점은 F-459 ②.
 
-### F-453 [열림] (심각도: 중간) — '오버레이만 거부한 데이터 되돌리기' 시험이 공허하고, 결정 시험 두 단언이 무력하다
+### F-453 [닫힘 — 잔여는 F-459 ①④] (심각도: 중간) — '오버레이만 거부한 데이터 되돌리기' 시험이 공허하고, 결정 시험 두 단언이 무력하다
 - 위치: 제품 b525103 client/tower/e2e/state_match.test.mjs:423-444(readByOverlayOnly·overlayOnlyBad·rejectedOrNot)·:446-499(시험 #28), client/tower/e2e/index.mjs:225·:237·:249-250(되돌리기 분기), determinism.test.mjs:65(rec.frames.length >= 60, FRAMES=72 상수)·:122-139('중간에 던지는 입력' 이 모두 try 앞 사전 검사에서 던짐)
 - 문제: rejectedOrNot 가 거부됨/거부 안 됨 두 분기 기대값을 모두 만들어 어느 쪽이든 통과한다. copyInput 사본화로 overlay 는 fallback 과 같은 사본을 받아 거부 분기에 도달하지 않는다(축 4a: rd·rk·rp2·rp3 모두 false). 시험 이름은 되돌리기를 검증한다고 주장한다.
 - 실패 상황(축 4a 사본, 감독이 :423-450 직접 읽음): index.mjs:225·:237·:249-250 되돌리기 세 곳을 지워도 e2e 실패 0. 추적 되돌리기 삭제 변이에서 determinism '중간에 던지는' 시험은 통과(state_match #23·#27 만 실패).
@@ -5129,8 +5131,9 @@
 - 확인 기준: 시험 이름과 단언이 일치(되돌리기 주장이 남으면 되돌리기 삭제 변이가 실패해야 함). 추적 되돌리기 삭제 변이에서 determinism 시험도 실패(또는 이름 변경).
 - 권장 모델: sonnet
 - 이력: 2026-10-06 00:40 감독 등록(PR #83 검토 #2, 축 4a 보고). 새로 찾은 것(F-448 수정이 만든 시험).
+- 이력 추가: 2026-10-06 01:40 감독 확인 닫음(PR #84 검토 #1) — 감독이 index.mjs:212-245 diff 직접 읽음(되돌리기 삭제, 방안 a). 축 4a 사본: 추적 되돌리기 삭제(M12) 에서 determinism 새 시험 실패, copyInput 제거 변이 state_match #28 실패. 감쇠 상태 되살림 변이(M18) 통과 0 실패는 F-459 ①, determinism:65 항상 참은 F-459 ④.
 
-### F-454 [열림] (심각도: 중간) — 폴백 성능 시험 문턱이 헐거워 F-449 ①·F-444 가 노린 회귀를 지키지 못한다
+### F-454 [열림 — ① 닫음, ②③④ 남음] (심각도: 중간) — 폴백 성능 시험 문턱이 헐거워 F-449 ①·F-444 가 노린 회귀를 지키지 못한다
 - 위치: 제품 b525103 client/tower/fallback/perf.test.mjs:2(머리 주석 '묶음 중앙값 ≤ 16 ms 그리고 ≤ 50 ms', 실제 단언은 50 ms 뿐 :117-118)·:22(CAP_SCALE_MAX_MS = 100)·:121-135(중앙값만, p90 없음)·:8(쓰지 않는 performance import), client/tower/e2e/(step/frame 비율·frame 호출 횟수 시험 없음)
 - 문제: 실측 약 1.7~3 ms 인데 50·100 ms 는 25~50 배 여유다. step 이 frame 을 두 번 계산하도록 되돌려도 실패하는 시험이 없다(F-449 ① 의 확인 기준은 '비율 1.2 배 이내 또는 frame 계산 1 회 계수 단언').
 - 실패 상황(축 4b·6 사본, 미확인): frame 10 배 느린 변이에서 50 ms 시험(32 ms)·CAP 시험(26 ms) 통과, AUTO_FIT 16 ms 만 실패. snapshotOf 에 frame 호출 추가 변이 실패 0.
@@ -5138,17 +5141,63 @@
 - 확인 기준: snapshotOf 에 frame 호출을 하나 더 넣는 변이에서 e2e 실패 ≥ 1. frame 10 배 느린 변이에서 CAP 시험 실패. p90 단언 존재. 6개 동시 실행 오탐 0.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 00:40 감독 등록(PR #83 검토 #2, 축 4b·5·6 보고; 감독이 perf.test.mjs 머리·문턱 줄은 축 보고의 줄 번호로만 확인, 변이 수치 미확인). F-449 ①·F-444 ② 잔여.
+- 이력 추가: 2026-10-06 01:40 감독(PR #84 검토 #1) — ① frame_calls.test 로 처리(축 4a 사본: frame 두 번 5 실패·추가 호출 4 실패·안 부름 3 실패) → ① 닫음. ②③④ 미처리(perf.test.mjs diff 0줄, 감독 확인). 두 번째 미처리.
 
-### F-455 [열림] (심각도: 중간) — 결정 0055 에 fitView 하한 고정·도달 불가 되돌리기가 없고, F-450 문구 잔여
+### F-455 [닫힘 — 잔여는 F-459 ⑤] (심각도: 중간) — 결정 0055 에 fitView 하한 고정·도달 불가 되돌리기가 없고, F-450 문구 잔여
 - 위치: 연구 experiment/t15-9 415e0a2 decisions/0055-t15-9-assembly.md:22(오버레이 거부 시 폴백 되돌리기를 장점으로 서술)·:26(하한을 계약에 둠만, 고정 방식 없음)·:37, experiments/t15-9.md:22('도달 불가 코드가 됨'), experiments/t15-7.md:13('경로 4종'·'요청한 적 없는 보이는 타일 0'), experiments/t15-8.md:31(앞 '정정: 미완 ①②④⑤⑨' 와 뒤 '①②④⑤ 처리, ⑨ 미처리' 모순), decisions/0053:42(대가 절 안 '근거(좌표 상한 검사의 대가):'), decisions/0054:48(대가 칸이 이점 '방지'·'대륙 크기(추정)' 출처 없음)·:22·:49(줄 참조 낡음: view.mjs:21→:23, overlay.mjs:11→:17)
 - 문제: ① fitView 가 하한 미만을 RangeError 에서 minMetersPerPx 고정으로 바꿨는데(setView 는 여전히 던짐, 비대칭) 0055 에 근거·대가·다시 볼 조건이 없다. ② 노트는 사본화로 되돌리기가 도달 불가라 하고 0055:22 는 그것을 장점으로 적는다(F-453 의 결정과 같이). ③ F-450 ②~④ 잔여 문구.
 - 고칠 것: ① 0055 표에 '자동 맞춤은 하한 고정·setView 는 던짐' 줄(근거·대가·다시 볼 조건). ② '사본화로 오버레이 단독 거부 되돌리기 도달 불가 — 유지/삭제, 대가, 다시 볼 조건(overlay 에만 있는 검사가 생길 때)' 줄, :22 정정. ③ t15-7.md:13 을 '무제한(maxInflight 10000) 5 경로 0, 기본값 놓침 0·자리 낭비 0·정지 뒤 ∅' 로, t15-8.md:31 괄호를 '①②④⑤⑨ 미완' 으로, 0053:42 소제목 '좌표 상한 검사의 대가'·근거 문장은 근거 절로, 0054:48 대가를 비용(±1e6 m 밖 거부)으로·출처, :22·:49 줄 참조 정정.
 - 확인 기준: 0055 에 grep '도달 불가' ≥1, fitView·minMetersPerPx 줄에 '고정'·setView 비대칭 서술. t15-7.md 에 '4종'(:13)·'요청한 적 없는 보이는 타일.*0' 0건, t15-8.md:31 에 '①②④⑤ 처리' 0건, 0053:34-46 '근거' 0건, 0054:48 '방지' 0건, 각 참조 줄에 해당 코드.
 - 권장 모델: haiku(①② sonnet)
 - 이력: 2026-10-06 00:40 감독 등록(PR #83 검토 #2, 축 2 보고; 감독이 t15-7.md:13·0055 직접 읽음). ①② 새로 찾은 것, ③ F-450 잔여(두 번째 지적 — 다음에도 남으면 sonnet 으로).
+- 이력 추가: 2026-10-06 01:40 감독 확인 닫음(PR #84 검토 #1) — 감독 grep: 0055 '도달 불가' 2, t15-8.md '①②④⑤ 처리' 0, 0053:34-46 '근거' 0, 0054:48 '방지' 0. t15-7.md 의 '4종'(:24)·'요청한 적 없는'(:42) 은 :13 과 다른 문맥. 0055 의 미래형 문구·'유일한 방어' 서술은 F-459 ⑤.
 
-### F-456 [열림] (심각도: 낮음) — PR #83 검토 #2 낮음 묶음
+### F-456 [닫힘 — ① 잔여는 F-460 ①] (심각도: 낮음) — PR #83 검토 #2 낮음 묶음
 - 위치·고칠 것: ① 제품 client/tower/e2e/index.mjs:164 주석 '처음이면 0(북)으로 둔다' 가 코드(:165-190 추적 안 함)·계약 e2e.mjs:13 과 반대 — '이전 방위도 없으면 지어내지 않고 이 프레임은 추적하지 않는다' 로(감독 직접 읽음, 축 1b·2·3 동시 보고). ② contracts/controlview/fallback.mjs:15-16·view.mjs:8 — 한 변 1 px 에서 '[m, size−m] 안'·'avail = side/2' 가 틀림(1×1·점 ±1e6 → x 0·1, visible false). '한 변 ≥ 2 px 에서' 로 한정(축 1a). ③ contracts/controlview/overlay.mjs:14·:17 — maxPathPoints 100,000 > maxTotalPathPoints 96,000 이라 '경로 하나가 maxPathPoints 까지' 문구가 폴백에서 불가능(축 1a). ④ index.mjs:23 copyOpts 가 {input:5}·{chase:null} 을 기본값으로 받아들임 — 비객체·배열 TypeError(축 7). ⑤ recording.mjs:62-74 view 검사 없음 — {} 에 'view.releaseAll is not a function', undefined·[] 는 [] 반환(축 7, 감독 t8 출력 확인). ⑥ 재생 실패 시 미리 누른 키도 releaseAll, 앞 프레임 데이터 비원자 — 계약 문구로 명시(축 7).
 - 확인 기준: index.mjs grep '0(북)' 0건. {input:5}·{chase:null}·{input:[1]} TypeError. replayRecording(undefined,[],S)·({},[{dtSec:0}],S) 가 'view' 를 말하는 TypeError. 계약 문구가 1×1 결과·97,000 점 setPath 결과와 모순 없음.
 - 권장 모델: haiku(④⑤ sonnet)
 - 이력: 2026-10-06 00:40 감독 등록(PR #83 검토 #2, 축 1a·1b·2·3·7). 새로 찾은 것.
+- 이력 추가: 2026-10-06 01:40 감독(PR #84 검토 #1) — ④⑤ 처리 확인(축 4a 사본: opts.test·recording_view 각 2 실패). ① index.mjs:162 '0(북)' 주석 그대로(감독 grep 1건) → F-460 ①. 닫음.
+
+### F-457 [열림] (심각도: 중간) — T15.10 측정 해석이 SPEC '초기' 정의와 어긋나고(형식·범위·gzip), 기존 초기 합계 미달을 완료 기준과 잇지 않았다
+- 위치: 제품 c3ba5db bench/tower/lod_bytes.mjs:1-4·:41-52(메시 조각 형식: f32 xyz + u32 인덱스)·:68(타일별 gzip)·:82-86(lod3OverBudgetRaw/Gzip 를 지형 단독으로 15,000,000 과 비교), bench/tower/bundle.mjs(모듈 목록·Raw/Minified 열·esbuild 없을 때 이어 붙이기 폴백·경로 처리), 연구 experiments/t15-10.md:8-10, README.md bench 절(한·영)
+- 문제: ① 지형 전송 형식 계약이 없는데 인덱스·xy 포함 메시 형식을 '실제 전송 포맷'으로 적었다(높이만 보내는 형식이면 noiseBig LOD3 raw 4.34 MB, 축 1b 사본 측정). ② 초기 예산을 지형 단독·시야 선택 없음·256 타일 전부로 비교했다(SPEC:103 은 접속~첫 프레임 웹소켓 바이트 전체; 건물 3.16 MB·드레이프 mip2 1.06 MB 가 같은 예산을 쓴다). ③ 서버 ws 는 permessage-deflate 가 없어(server/ws/frame/index.mjs:197 RSV 거부) gzip 은 참고값인데 노트가 'gzip 은 아래' 로 판정처럼 적었다. ④ bench/tower_assets 가 이미 초기 합계 noiseBig 42,378,658 B(초과)·완만 약 4.9 MB 를 내는데 노트·TASKS 에 완료 기준 '초기 ≤ 15 MB' 의 DEM 별 PASS/FAIL 이 없다. ⑤ 번들 도구: client/raster 미포함·모듈별 따로 번들해 중복 합산·Raw 열이 이미 최소화 값·`import.meta.url === file://${argv[1]}` 와 cwd 기준 경로라 공백 경로·다른 cwd 에서 출력 없음/실패(시험 쪽 결함은 F-461). ⑥ README 에 bench/tower 두 명령이 없다(한·영). ⑦ 합성 측정에 [cloud] 표기 없음.
+- 실패 상황: 노트를 읽은 다음 작업자가 gzip 12.10 MB 를 근거로 '초기 상한 아래' 로 판정하거나, 형식 선택 하나로 뒤집히는 2.54 배를 상한 정책 결함으로 판정한다. 감독 재현: `node bench/tower/lod_bytes.mjs` 노트와 일치, `node bench/tower/bundle.mjs` 83,323 B(노트 83,430 B, 차이 원인 미확인).
+- 고칠 것: 노트·주석에 형식 가정과 높이만 형식 수치, '지형 단독·시야 선택 없음' 조건, 'gzip 참고값(판정은 raw)' 을 적는다. 노트와 TASKS T15.10 에 초기 합계 DEM 별 PASS/FAIL(완만 통과·noiseBig 미달·실제 DEM [local] T14L·WS 실측은 T16 이월)을 쓴다. bundle.mjs 에 client/raster 추가 또는 '근사·raster 미포함·중복 합산' 표기, 열 정리, `pathToFileURL(process.argv[1]).href`·루트를 import.meta.url 기준으로. README 한·영에 두 명령. 합성 측정 머리에 [cloud].
+- 확인 기준: 노트에 '높이만'·'지형 단독'·'참고값' 문구와 DEM 별 초기 합계 PASS/FAIL. 공백 경로·다른 cwd 에서 bundle.mjs 표 출력. README 두 절 모두 bench/tower/lod_bytes.mjs·bundle.mjs.
+- 권장 모델: sonnet(⑥⑦ haiku)
+- 이력: 2026-10-06 01:40 감독 등록(PR #84 검토 #1, 축 1b·2·5·6·7·11·12 보고 종합; ①②③ 은 감독이 lod_bytes.mjs:41-86 직접 읽음, 수치는 서브에이전트 사본). 새로 찾은 것.
+
+### F-458 [열림] (심각도: 중간, 합성 최악 입력 — 실제 DEM 은 [local]) — 결정 0046 다시 엶: 거친 DEM 에서 지형 LOD1~3 이 원본으로 물러나 LOD 가 대역폭을 줄이지 못한다
+- 위치: 제품 contracts/tower_assets/index.mjs:12(상한표 [0,0.5,1,1])·server/terrain/mesh_lod/index.mjs:173-184(간격 절반으로 줄이며 원본까지 물러남, DEM 전체에 간격 하나), 연구 decisions/0046-t15-terrain-ssim-scene.md:90·:95
+- 문제: noiseBig(±1 m) 에서 LOD0~3 모두 38,158,848 B(감독 재현). 0046:90 다시 볼 조건 충족(LOD3 = LOD2, raw 예산 초과). 단 '같거나' 조건은 0046 승인 때 이미 14/24 장면에서 참이었고, 예산이 raw 인지 gzip 인지 0046 에 정의가 없다. 잡음 진폭이 Δd 규모라 실제 DEM 대표성은 미확인.
+- 실패 상황: 거친 지역에서 초기 묶음 지형만으로 15 MB 의 2.54 배(raw, 메시 형식), 초기 합계 42.38 MB.
+- 고칠 것: 같은 DEM(완만·noiseBig 시드 1~12·잡음 진폭 < Δd 장면)에서 (i) 현 [0,0.5,1,1] (ii) 옛 [0,0.5,1,2] (iii) C1 면 법선 오차 상한 7.5° (iv) LOD3 정점 수 상한 또는 타일별 간격 — 각 LOD3 raw 바이트·8시점 SSIM 을 표로 비교하고, 높이만 보내는 지형 형식(F-457 ①)을 함께 검토한다. 0046 에 'T15.10 결과' 절(충족 조건, 예산 = raw 웹소켓 바이트, 비교안, 결론)과 '같거나' 조건을 정보 있는 조건으로 바꾸는 판단을 적는다. SSIM 기준·초기 15 MB 는 낮추지 않는다.
+- 확인 기준: 0046 에 T15.10 결과 절과 예산 정의, 비교 표(4안 × 바이트·SSIM). 채택안에서 noiseBig 초기 지형 raw 가 남은 예산(15 MB − 건물 − 드레이프 − 환영) 이내이거나, 이내가 불가능하면 그 근거와 사람 판단 요청.
+- 권장 모델: opus
+- 이력: 2026-10-06 01:40 감독 등록(PR #84 검토 #1). 감독 판정: 0046 다시 엶(T15.10b). 이 PR 이 만든 결함이 아니라 T15.1 결정의 측정 결과라 PR #84 병합은 막지 않는다.
+
+### F-459 [열림] (심각도: 중간) — e2e 시험 빈틈: 던지는 프레임이 감쇠 중 추적을 보지 못하고, step 반환값·F11 단언이 동작에 반응하지 않으며, 0055 '유일한 방어' 문구가 실제 시험과 다르다
+- 위치: 제품 c3ba5db client/tower/e2e/determinism.test.mjs:174-205·:65, index.mjs:112-119(rebuildChase), no_network.test.mjs:83·:109-110·:123, recording.mjs:92·:99(step 반환값 버림), state_match.test.mjs:479-487; 연구 decisions/0055-t15-9-assembly.md:22·:24, contracts/controlview/e2e.mjs:22(replay 비원자)
+- 문제: ① 던지는 순간 추적이 snap 직후라 cur = target 이어서 rebuildChase 를 target 으로 되살리는 변이(M18)가 e2e 40/40 통과(축 4a 사본). ② no_network F11 단언은 구현 출력이고 폴백 중 update 가드 제거(M4)에 반응하지 않는데 주석은 '건너뜀' 을 주장한다. ③ step 이 직전 폴백 프레임을 재사용해 돌려주는 변이(M15)를 동작 시험이 못 잡는다(frame_calls 계수만). ④ determinism:65·no_network:123 항상 참. ⑤ state_match #28 은 사본화만 보고 '오버레이 검사 ⊆ 폴백 검사' 를 고정하지 않는데 0055:24 는 그것을 유일한 방어라 적었고, :22·:24 가 미래형이며 replay 비원자·copyOpts 비객체 거부 줄이 없다.
+- 실패 상황: 감쇠 도중 던지면 카메라가 목표로 순간이동해도 시험 통과. overlay/index.mjs setDrones 에 오버레이 전용 throw 를 넣어도 시험 통과(두 층 어긋남).
+- 고칠 것: ① head 에 데이터 없는 프레임을 더해 감쇠 중(cur ≠ target) 던지게 하고 던지기 전 카메라 x 가 (0,40) 사이인지 단언. ② F11 유도를 주석에 적거나 '회귀 고정(구현 출력)' 표기, '건너뜀' 주장은 차이가 드러나는 입력 또는 삭제. ③ 녹화 재생에서 프레임마다 step 반환 = snapshot(size) 단언(모드 전환 직후 포함). ④ 두 줄 삭제 또는 독립 상수. ⑤ 오버레이만 거부하는 검사 규칙 변이에서 실패하는 시험(또는 overlay.setX 가 던지면 조립이 Error) + 0055 문구 과거형·실제 시험명, 비원자·copyOpts 줄 추가.
+- 확인 기준: M18·M12 에서 determinism 새 시험 실패, M4 에서 no_network 실패 또는 주석에 그 주장 없음, M15 에서 frame_calls 외 실패 ≥ 1, overlay 전용 throw 변이에서 실패 ≥ 1, 0055 grep '비원자'·'copyOpts' ≥ 1.
+- 권장 모델: sonnet(⑤ 문구 haiku)
+- 이력: 2026-10-06 01:40 감독 등록(PR #84 검토 #1, 축 4a·2 보고; 감독이 index.mjs:158-178·state_match·0055:20-26 직접 읽음, 변이 수치는 사본 미확인). 새로 찾은 것(F-453·F-452 수정이 만든 시험).
+
+### F-460 [열림] (심각도: 낮음) — PR #84 검토 #1 낮음 묶음
+- 위치·고칠 것: ① index.mjs:162 '처음이면 0(북)으로 둔다' 주석이 코드(:172-178 추적 안 함)와 반대 — F-456 ① 잔여, 감독 grep 1건(haiku). ② recording.mjs:75-86 catch 안 view.releaseAll() 이 던지면 원래 오류가 가려짐 — try 로 감싸 원래 오류 우선(sonnet). ③ lod_bytes.test.mjs 가 measureLodBytes 를 8 번 이상 돌려 약 21 s — 결과 재사용(haiku). ④ lod_bytes ws 머리 10 B 는 상한이라 LOD3 프레임에서 6 B 과대 — 주석에 '상한'(haiku).
+⑤ replay_starve.test.mjs:121 주석 'm3, m4 는 orderViolations 에만 걸린다' → 실측(m3 1/15·m4 4/15 는 maxStreak 도)에 맞추고 대조 문턱을 실측 기반(≤ 4)으로 좁힘 — F-451 ④ 잔여(haiku). ⑥ visible.mjs:117 계수는 stats 를 넘길 때만 세서 옛 형태 vertices(halfSpaces(..., ring)) 복원 변이(V2)가 22/22 통과 — vertices 호출 수를 세거나 stats 필수(sonnet). ⑦ fallback/view.test.mjs:163 방향 대조는 :161 과 겹쳐 따로 잡는 변이 0 — 이름을 'yaw 그대로 전달' 로 낮추거나 계약 방향 함수와 대조(haiku) — F-451 ⑥ 잔여.
+- 확인 기준: index.mjs grep '0(북)' 0건. step 이 RangeError, releaseAll 이 없는 프록시 view 로 재생하면 RangeError. lod_bytes.test 단독 시간 절반 이하. ⑤ 주석 실측 일치·orderViolations 제거 변이 m3·m4 실패. ⑥ V2 변이 실패. ⑦ 이름과 단언 일치.
+- 권장 모델: haiku(② sonnet)
+- 이력: 2026-10-06 01:40 감독 등록(PR #84 검토 #1, 축 4a·6·7·1b).
+
+### F-461 [열림] (심각도: 높음) — 번들 ≤ 300 KB 시험이 esbuild 없으면 진입 파일만 재고 조용히 통과하고, 문턱이 계약(300,000 B)보다 헐겁고, 측정 도구를 부르지 않는다
+- 위치: 제품 c3ba5db bench/tower/bundle.test.mjs:10(GZIP_LIMIT_BYTES = 300 * 1024 = 307,200), :12-29(node_modules/.bin/esbuild 없으면 npx esbuild — package.json 에 esbuild 없음, 버전 고정 없음, 망 필요), :48-55·:76-77(esbuild 못 쓰면 concatenateSources 가 index.mjs 한 파일만 읽음, 어느 경로였는지 기록·단언 없음), :8(main·modules import 했으나 main 안 씀, :12-60 이 bundle.mjs 함수를 복사), :81-97(단언은 totalSize ≤ 상한 하나뿐); contracts/controlview/index.mjs:35-36(CONTROLVIEW_LIMITS.bundleBytes 300_000, 'KB = 1000 B')
+- 문제: T15.10 완료 기준(SPEC S4 번들 ≤ 300 KB)을 지키는 유일한 시험이 측정이 망가져도 실패하지 않는다. 문턱을 계약 상수 대신 300×1024 로 박아 성공 기준을 7,200 B 헐겁게 했다(작업자가 성공 기준 수치를 바꿀 수 없음). 기록 도구 bundle.mjs 와 시험이 서로 다른 코드로 잰다.
+- 실패 상황: 감독이 :48-55·:68-77 직접 읽음 — 이 환경에 node_modules/.bin/esbuild 가 없어(감독 ls 확인) npx 에 기대며, npx 캐시가 없거나 망이 막힌 CI 에서는 진입 파일만 재(축 4b 사본: 19,561 B) 하위 모듈이 아무리 커져도 통과. 축 4b 사본 변이: 빈 번들·modules []·gzip 0·bundle.mjs 측정 0 반환 모두 pass 1/fail 0(미확인 수치, 코드상 단언 부재는 감독 확인).
+- 고칠 것: ① 문턱을 CONTROLVIEW_LIMITS.bundleBytes 로. ② esbuild 를 devDependency 로 버전 고정(package-lock 갱신, 라이선스 MIT 확인)하거나, 못 쓰면 시험이 실패 또는 사유 있는 skip — 진입 파일만 재는 폴백 삭제(또는 import 그래프 전체). ③ bundle.mjs 에서 측정 함수를 export 하고 시험이 그것을 부름(복사 삭제). ④ 음성 단언: 모듈 수 = modules.length, 모듈마다 크기 하한(> 1 KB 등), 큰 입력(양성 대조)에서 상한 초과 판정.
+- 확인 기준: grep '300 \* 1024' 0건·bundleBytes 사용. esbuild 를 못 찾게 한 사본에서 시험 fail 또는 명시적 skip. 빈 번들·modules []·gzip 0·bundle.mjs 측정 0 변이 모두 fail. 원본 통과.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 01:40 감독 등록(PR #84 검토 #1, 축 4b 보고 높음 — 감독이 bundle.test.mjs 전체·contracts/controlview/index.mjs:34-36 직접 읽고 문턱 불일치는 감독이 새로 찾음). 새로 찾은 것. PR #84 반려 사유.
