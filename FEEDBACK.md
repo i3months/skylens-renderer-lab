@@ -5537,7 +5537,7 @@
 - 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 PR #87(feat/t15-10e), 전체 npm test 5286 중 5269 통과 0 실패. 상세 experiments/t15-10e.md §5.
 - 이력 추가: 2026-10-06 06:05 감독 확인 닫음(축 4b: flags·terrainLodStride throw·결측 필터 변이 실패). 잔여(b6 주석 타일 3개)는 F-496 ⑨.
 
-### F-492 [열림] (심각도: 높음) — H32 양자화 기준(base)이 타일마다 달라 같은 LOD 이웃 타일의 공유 가장자리 높이가 어긋난다(균열)
+### F-492 [처리됨-검증대기] (심각도: 높음) — H32 양자화 기준(base)이 타일마다 달라 같은 LOD 이웃 타일의 공유 가장자리 높이가 어긋난다(균열)
 - 위치: 제품 contracts/tower_assets/terrain_h32.mjs:46(`const base = Math.fround(min)`)·:49 (feat/t15-10e 2bb5955); 전제 contracts/tower_assets/index.mjs:64('인접 타일과 같은 가장자리 높이'), server/terrain/mesh_lod/index.mjs:19-20('균열 없음을 단순화 정도보다 우선', '같은 DEM·같은 LOD 이웃에서 균열 없음 보장')
 - 문제: 같은 높이 h 라도 타일 최솟값 base 가 다르면 round((h−base)/step) 복원값이 달라진다. 한쪽만 범위 초과로 f32 폴백해도 최대 step/2 차이. 양자화가 계약의 '같은 DEM·같은 LOD 이웃 균열 없음' 보장을 깬다. SSIM 시험은 가운데 4×4 타일 영상만 보며 이음매 높이를 비교하지 않아 못 잡는다.
 - 실패 상황: 감독 직접 재현(buildTerrainTile → quantizeHeights → dequantizeHeights, tx −3..2 × ty −3..2 가로 이웃 36쌍): smoothDem LOD1·2·3 각각 36/36 이음매에 틈, 최대 0.0488 m(원본 공유 열은 비트 동일). noiseBig 시드 0 은 0/36(우연히 base 정렬). 축 1a 손 예: cells 2, A [10,10.049,…]·B [10.049,10.024,…] → 공유 변 10.0500 대 10.0240.
@@ -5545,8 +5545,9 @@
 - 확인 기준: smoothDem·noiseBig 시드 0~3·hill 에서 buildTerrainTile 이웃 쌍(가로·세로, LOD1~3)을 서버 인코더 → 클라 디코더로 왕복한 뒤 공유 열·행 높이가 비트 단위로 같다는 시험; 한쪽만 f32 폴백하는 조합 포함; base = fround(min) 되돌림 변이에서 실패.
 - 권장 모델: opus
 - 이력: 2026-10-06 06:05 감독 등록(PR #87 검토 #1, 축 1a 보고, 감독 scratchpad 스크립트로 직접 재현). 새로 찾은 것.
+- 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 PR #87 재오픈(feat/t15-10e 6e138ea), 전체 npm test 5309 중 5292 통과 0 실패. step 0.03(F-493)·전역 격자 kbase(F-492). 상세 experiments/t15-10e.md §3. 남김: F-496 ⑭(선택)·hill 시드 41..50 미측정.
 
-### F-493 [열림] (심각도: 높음) — 양자화 step 0.05 m 가 미리 고른 31 장면 밖 hill 시드에서 S9(SSIM ≥ 0.95)를 어긴다
+### F-493 [처리됨-검증대기] (심각도: 높음) — 양자화 step 0.05 m 가 미리 고른 31 장면 밖 hill 시드에서 S9(SSIM ≥ 0.95)를 어긴다
 - 위치: 제품 client/tower/terrain/ssim_h32.test.mjs:30-33(HILL_SEEDS 1~12, NOISE_BIG 0~3, LOW_NOISE 1~3)·:153(판정 1); contracts/tower_assets/terrain_h32.mjs:16(step 0.05); 연구 decisions/0058(제안)·experiments/t15-10e.md §3('여유 약 0.006')
 - 문제: 시험 장면 집합 밖의 시드에서 계약 step 그대로 양자화 SSIM 이 0.95 아래로 떨어진다. 여유 0.0055 가 시드 선택에 달려 있다. 0058 의 'SSIM 0.95 유지' 근거가 성립하지 않는다.
 - 실패 상황: 감독 직접 재현 — 제품 사본에서 시드만 HILL [23]·NOISE_BIG [4]·LOW_NOISE [4] 로 바꿔 `node --test client/tower/terrain/ssim_h32.test.mjs`: hill:23/0 LOD2·3 시점 3(street_level) 양자화 SSIM 0.9486(하락 0.0424) → 판정 (1) 실패. 축 4a 는 hill 13..30 중 같은 장면을 찾음.
@@ -5554,8 +5555,9 @@
 - 확인 기준: hill 시드 1..40 × 잡음 {0, 0.015} × LOD1~3 × 8시점 양자화 최소 SSIM ≥ 0.95(감독이 시드 41..50 사본으로 추가 확인), lowNoise012 장면 포함, step 0.05 되돌림 변이에서 실패. SSIM 0.95 는 낮추지 않는다.
 - 권장 모델: opus
 - 이력: 2026-10-06 06:05 감독 등록(PR #87 검토 #1, 축 4a 보고 + 축 2 발견 4(lowNoise012 미측정), 감독 사본 실행으로 0.9486 재현). 새로 찾은 것.
+- 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 PR #87 재오픈(feat/t15-10e 6e138ea), 전체 npm test 5309 중 5292 통과 0 실패. step 0.03(F-493)·전역 격자 kbase(F-492). 상세 experiments/t15-10e.md §3. 남김: F-496 ⑭(선택)·hill 시드 41..50 미측정.
 
-### F-494 [열림] (심각도: 중간) — H32 시험 공백: 디코더 step 순환 시험, 예산 판정 음성 시험 없음, 폴백 경계·계약 음성 사례 없음, 공허한 대조 단언
+### F-494 [처리됨-검증대기] (심각도: 중간) — H32 시험 공백: 디코더 step 순환 시험, 예산 판정 음성 시험 없음, 폴백 경계·계약 음성 사례 없음, 공허한 대조 단언
 - 위치: 제품 client/tower/terrain/decode.test.mjs:37-45·:60-70; bench/tower/h32_initial.mjs:76·:80·:102-103, h32_initial.test.mjs:54·:109·:117-119; bench/tower/lod_bytes.mjs:132-133, lod_bytes.test.mjs:34·:52; contracts/tower_assets/terrain_h32.test.mjs:5-8; server/terrain/height_format/index.test.mjs:97-106
 - 문제: ① 디코더 시험이 step=fround(0.05) 하나만 쓰고 기대값을 디코더가 부르는 같은 dequantizeHeights 로 계산(순환). ② sharePass·totalPass 는 참인 경우만, lod3OverBudgetGzip 은 거짓인 경우만 시험. ③ h32_initial 인코더 대조가 인코더 자신의 flags 로 기대 길이를 구하고, :109 는 `includes(..) || fallback>0`, :119 는 typeof 만, 인코더 파일 없으면 통과. ④ 폴백 경계 65535·step 정확히 고정 안 됨. ⑤ 계약 시험이 크기 식 하나뿐(quantizeHeights NaN·step≤0·범위 초과 null, terrainH32ErrorBoundM 미시험).
 - 실패 상황(축 4a 사본 변이, 감독 미재현): 디코더가 머리 step 무시 33/33 통과; totalPass:true·sharePass:true 10/10, lod3OverBudgetGzip:false·raw 문턱 2배 11/11; 인코더 양자화 안 함(want=false) h32_initial 10/10; 폴백 `>= MAX_Q-1` 33/33; 비유한 검사·step 검사 제거·ErrorBound step/2→step 44/44 통과.
@@ -5563,8 +5565,9 @@
 - 확인 기준: 위 변이 모두 실패, 원본 통과.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 06:05 감독 등록(PR #87 검토 #1, 축 4a). 새로 찾은 것.
+- 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 PR #87 재오픈(feat/t15-10e 6e138ea), 전체 npm test 5309 중 5292 통과 0 실패. step 0.03(F-493)·전역 격자 kbase(F-492). 상세 experiments/t15-10e.md §3. 남김: F-496 ⑭(선택)·hill 시드 41..50 미측정.
 
-### F-495 [열림] (심각도: 중간) — 0057 정정이 덜 됐다: :29 결론이 재현 안 된 수치로 남고, b7 이 lowNoise e/cellM 을 다른 통계와 비교하며, 최대 각 해석이 빠졌다
+### F-495 [처리됨-검증대기] (심각도: 중간) — 0057 정정이 덜 됐다: :29 결론이 재현 안 된 수치로 남고, b7 이 lowNoise e/cellM 을 다른 통계와 비교하며, 최대 각 해석이 빠졌다
 - 위치: 연구 decisions/0057:26·:28·:29·:30 (experiment/t15-10e a82b938), experiments/t15-10e.md:29; 제품 bench/tower/terrain_options/b7_metrics.mjs:181·:186-187
 - 문제: ① :29 가 아직 '최대 각 11.42° 대 15.07° … 따라서 (A) 성립하지 않고' 라고 재현 안 된 값을 결론 근거로 쓰고, :30 정정은 본문을 안 고쳤다. ② b7:181 `lowNoise e/cellM 최대` 가 0057 의 0.296(미달 구간 하한)을 최댓값 0.2991 과 비교해 '재현 안 됨' 으로 잘못 나온다(축 1b; 실측 최솟값 0.296 은 재현). ③ 최대 각은 hill(≤12.67°)과 lowNoise 미달(≥13.75°)을 가르지만 lowNoise 안의 통과(13.84~17.90°)·미달(13.75~16.97°)은 못 가른다 — 이 해석이 없다. ④ :28 구간 '[0.2398, 0.2960)' 은 0.2398 실패와 모순. ⑤ '정의 차이 추정' 은 근거 없음 → '원인 미상'.
 - 감독 판단(요청에 대한 답): 0057 은 (B) 사후 값으로 조건부 승인 유지. 최대 각은 (A) 원칙 후보이나 lowNoise 안을 가르지 못하므로 지금 규칙을 바꾸지 않는다 — 0057 '다시 볼 조건' 에 '최대 정점 법선 각 문턱이 lowNoise 통과·미달을 가를 지표가 나오면' 을 적는다.
@@ -5572,14 +5575,16 @@
 - 확인 기준: 0057 안에 정정 표시 없이 재현 안 된 수치를 근거로 쓰는 문장 0; b7 재실행 표에서 해당 행 '예'; 노트·PR 본문의 '0.2991 불일치' 서술 정정.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 06:05 감독 등록(PR #87 검토 #1, 축 1b·2; 감독 b7_metrics.mjs:178-190 직접 읽음). F-488 잔여.
+- 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 PR #87 재오픈(feat/t15-10e 6e138ea), 전체 npm test 5309 중 5292 통과 0 실패. step 0.03(F-493)·전역 격자 kbase(F-492). 상세 experiments/t15-10e.md §3. 남김: F-496 ⑭(선택)·hill 시드 41..50 미측정.
 
-### F-496 [열림] (심각도: 낮음) — PR #87 검토 #1 낮음 묶음
+### F-496 [처리됨-검증대기] (심각도: 낮음) — PR #87 검토 #1 낮음 묶음
 - 위치·고칠 것: ① client/tower/terrain/decode.mjs:39-55 — lod 0 + 양자화 flag 허용(계약 terrain_h32.mjs:6 LOD0 비양자화) → 던짐; f32 본문 NaN/Inf·복원값 비유한(base 3e38) 통과 → 던짐(축 1a·3·7). ② terrain_h32.mjs:62-64 terrainH32ErrorBoundM 이 f32 반올림 제외 — 8000 m 대 실측 0.02539 > 0.025, 이름·주석 명시 또는 f32 항 추가; server index.test:117 허용 1e-5 는 |h|≤125 에서만(축 1a). ③ ssim_h32.test.mjs:40-45 DROP_MAX 주석 '하락은 step 에 거의 비례' 가 실측(step 0.055 최소 0.9563 > 0.05 의 0.9555)과 어긋남, step 0.06 에서 (2) 단독으로 못 거름 — 정보 출력으로 낮추거나 근거 재작성(축 4a). ④ ssim_h32 RUN_MS_MAX 60 s — 단독 34.6 s, 병렬 부하 위험(축 4a). ⑤ b7_metrics.mjs:145·:149·:169 `<` 비교라 NaN 을 미달로 안 셈 → `!(x >= min)`(축 1b). ⑥ h32_initial 합계가 스케줄러 LEVEL_ARRIVED 31 B 제외 — 출력에 명시(축 1b). ⑦ b1_lod.mjs:91-112 사본이 서버의 '판정 가능한 타일 0 이면 던짐' 을 안 따름(축 1b). ⑧ lod_bytes.mjs:103 h32 필드는 조각 머리 제외, :111 heightOnlyBytes 는 포함 — 이름 h32PayloadBytes(축 1b). ⑨ b6_rule.mjs:98 주석 '타일 3개' → 5개(축 1b). ⑩ contracts/tower_assets/index.mjs:19 '0.5 ÷ 2 로 정했지만' → '같은 값이나 선택 근거 아님(0057:28)'(축 2). ⑪ 0058 에 renderer_basis 관계 한 줄(§7-4 점 형식·§3-7 Δd 는 지형 형식을 정하지 않음, step 은 SSIM 측정으로)(축 2). ⑫ ssim_h32.test.mjs:1 [cloud CPU 렌더] 표시(축 12). ⑬ 완료 보고 문구: 초기 합계는 건물·드레이프 박힌 값 + 인코더 길이 합(ws 조립 전), F-458 은 합성 한정(T14L 이월)(축 5). ⑭ decode 양자화 경로 중간 Uint16Array 생략 가능(축 6, 선택).
 - 확인 기준: 각 위치에서 고친 것 확인, ① 세 음성 입력 RangeError, ⑤ NaN 주입 미달 1.
 - 권장 모델: haiku(⑥⑧⑨⑩⑪⑫⑬), sonnet(①②③④⑤⑦⑭)
 - 이력: 2026-10-06 06:05 감독 등록(PR #87 검토 #1, 축 1a·1b·2·3·4a·5·6·7·12). 새로 찾은 것.
+- 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 PR #87 재오픈(feat/t15-10e 6e138ea), 전체 npm test 5309 중 5292 통과 0 실패. step 0.03(F-493)·전역 격자 kbase(F-492). 상세 experiments/t15-10e.md §3. 남김: F-496 ⑭(선택)·hill 시드 41..50 미측정.
 
-### F-497 [열림] (심각도: 중간) — b7 재현 스크립트 시험이 0057 대조 판정과 집단 분류를 지키지 않는다
+### F-497 [처리됨-검증대기] (심각도: 중간) — b7 재현 스크립트 시험이 0057 대조 판정과 집단 분류를 지키지 않는다
 - 위치: 제품 bench/tower/terrain_options/b7_metrics.test.mjs:71-72·:81-83; 대상 b7_metrics.mjs:146-150(집단)·:179-207(CITED_0057·compareCited)
 - 문제: 시험은 hill 장면 수·lowNoise e/cellM 범위·반폭 0.12 만 단언하고 compareCited 행은 `'match' in r` 만 본다.
 - 실패 상황(축 4b 사본 변이, 감독 미재현): compareCited match 항상 true, lowNoiseFail 필터 `>=` 로 뒤집기, hill 요약에 lowNoise 조건, CITED 0.404→0.5·3.57→9.99, '통과 집단 최대' 가 lowNoise 를 읽게 — 5종 모두 7/7 통과.
@@ -5587,3 +5592,4 @@
 - 확인 기준: 위 5개 변이 각각 실패, 원본 통과.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 06:05 감독 등록(PR #87 검토 #1, 축 4b). F-488 잔여.
+- 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 PR #87 재오픈(feat/t15-10e 6e138ea), 전체 npm test 5309 중 5292 통과 0 실패. step 0.03(F-493)·전역 격자 kbase(F-492). 상세 experiments/t15-10e.md §3. 남김: F-496 ⑭(선택)·hill 시드 41..50 미측정.
