@@ -6177,7 +6177,7 @@
 - 이력(2026-10-06 작업자): T16.12 앞 정리, 제품 feat/t16-12 4cd87ea7, 연구 experiment/t16-12(노트 t16-12.md, 결정 0063). 실서버·실체크아웃 확정은 [local].
 - 이력: 2026-10-06 16:50 감독 확인 닫음(PR #99 검토 #1 — 감독 재현 checkServerSamples([],{durationS:60}) → 개수 위반, 1개 → 위반 3, 정상 60개 [], loadReport 가 scenario.durationS 전달(load_report/index.mjs:36))
 
-### F-559 [열림] (심각도: 중간) — server_stats 새 규칙의 생존 변이: 마지막 간격 규칙과 null 가드를 시험이 잡지 못한다
+### F-559 [처리됨-검증대기] (심각도: 중간) — server_stats 새 규칙의 생존 변이: 마지막 간격 규칙과 null 가드를 시험이 잡지 못한다
 - 위치: 제품 bench/load/server_stats/index.mjs:107-111(마지막 간격), :93(`objs.length === samples.length` 가드), :100(min(1,durationS)), :104(0.25), E 허용치; 시험 server_stats.test.mjs:263-265(주석은 'last interval' 인데 실제 위반은 last tS)
 - 문제: 축 4a 변이 실행 — 간격 루프 i<n-1, hi=mid+1·1.5, lo=0·mid−0.4 가 모두 생존. 가드 삭제 시 [null, real tS 1], {durationS:2} 가 TypeError 를 던지는데 시험이 통과. want=1, 0.25→0.2, E=0 변이 생존.
 - 실패 상황: R(0.9,1.4,2.5) D2.5 → 원본 ['server sample 2: interval 1.1 s outside 0..1'], i<n-1 변이 [].
@@ -6187,6 +6187,7 @@
 - 이력: 2026-10-06 15:56 감독 등록(PR #98 검토 #1, 축 4a)
 - 이력(2026-10-06 작업자): T16.12 앞 정리, 제품 feat/t16-12 4cd87ea7, 연구 experiment/t16-12(노트 t16-12.md, 결정 0063). 실서버·실체크아웃 확정은 [local].
 - 이력: 2026-10-06 16:50 감독 다시 엶(PR #99 검토 #1, 축 4a — 요구 변이 중 want=1(server_stats/index.mjs:107 `Math.min(1, durationS)` → `1`)만 생존. 요구 입력 R(0.3) D0.3 → [] 대신 R(0.55) D0.3(server_stats.test.mjs:382)을 넣어 want 1 에서도 0.5 이내라 판별 못 함. 나머지 요구 변이는 모두 시험 실패 확인). 남은 고칠 것: checkServerSamples(R(0.3),{durationS:0.3}) → [] 와 checkServerSamples(R(0.81),{durationS:0.3}) → ['server sample 0: first tS 0.81 is not within 0.5 s of 0.3', 'server samples: last tS 0.81 is not within 0.25 s of durationS 0.3'] 정확 단언. 확인 기준: want=1 변이에서 시험 실패. 권장 모델: sonnet
+- 이력(2026-10-06 작업자): T16.12 본 작업 PR, 제품 feat/t16-12b 6352dd63, 연구 experiment/t16-12b(노트 t16-12b.md). 처리됨-검증대기.
 
 ### F-560 [닫힘] (심각도: 낮음) — PR #98 검토 #1 견고성·서술 낮음 묶음
 - 위치·문제·확인 기준:
@@ -6205,7 +6206,7 @@
 - 이력(2026-10-06 작업자): T16.12 앞 정리, 제품 feat/t16-12 4cd87ea7, 연구 experiment/t16-12(노트 t16-12.md, 결정 0063). 실서버·실체크아웃 확정은 [local].
 - 이력: 2026-10-06 16:50 감독 확인 닫음(PR #99 검토 #1 — 감독 재현 ⑧ 정확 배열, ⑩ perClientMs [500]·위반 [], ① bandwidth 4입력 위반, ⑥ FIXTURE 순서·⑦ t16-1.md 수치 확인. ① firstFrameViolations({p95Ms:100}) → [] 잔여는 F-563 ③)
 
-### F-561 [열림] (심각도: 중간) — loadReport 의 섞인 source 판정이 checkServerSamples 에만 기대게 됐는데 load_report 시험에 섞인 source 입력이 없고, server_stats 시험에 위반 종류를 고정하지 않는 약한 단언이 남았다
+### F-561 [처리됨-검증대기] (심각도: 중간) — loadReport 의 섞인 source 판정이 checkServerSamples 에만 기대게 됐는데 load_report 시험에 섞인 source 입력이 없고, server_stats 시험에 위반 종류를 고정하지 않는 약한 단언이 남았다
 - 위치: 제품 tools/load_report/index.mjs:36(이번 PR 에서 `samples.some((x) => x?.source !== src)` 삭제), bench/load/server_stats/index.mjs:98(mixed source), 시험 tools/load_report/load_report.test.mjs(grep 'mixed' 0건), bench/load/server_stats/server_stats.test.mjs:207·:215-217·:315-317(`assert.ok(... .length >= 1)`) (feat/t16-12 4cd87ea)
 - 문제: server_stats/index.mjs:98 의 mixed source 줄을 지우면 server_stats 시험은 1개 실패하지만 load_report 시험은 0 실패 — 보고서 출처 줄이 섞인 표본에서 'server-process, measured on …' 로 나와도 잡지 못한다. 약한 단언은 어떤 위반이 나는지 고정하지 않아 F-559 want=1 같은 변이를 가린다.
 - 실패 상황: 축 4a 변이 실행 — :98 삭제 → load_report 시험 통과, server-process 10개 중 index 5 만 source 'other' 인 입력의 보고서 줄 'cpu/rss source: server-process, measured on server-process'.
@@ -6213,8 +6214,9 @@
 - 확인 기준: :98 삭제 변이에서 load_report 시험 실패, 위 세 입력이 deepEqual.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 16:50 감독 등록(PR #99 검토 #1, 축 4a — 새로 찾은 것, 이번 PR 의 load_report 중복 검사 삭제로 생긴 공백. 감독이 load_report.test.mjs grep 'mixed' 0건 확인)
+- 이력(2026-10-06 작업자): T16.12 본 작업 PR, 제품 feat/t16-12b 6352dd63, 연구 experiment/t16-12b(노트 t16-12b.md). 처리됨-검증대기.
 
-### F-562 [열림] (심각도: 중간) — 계약 harness.mjs:19-21 과 결정 0063 (A) 가 개수 검사를 실제 시계 한정 규칙으로 적어, 모든 시계에 개수를 검사하는 구현과 다르다
+### F-562 [처리됨-검증대기] (심각도: 중간) — 계약 harness.mjs:19-21 과 결정 0063 (A) 가 개수 검사를 실제 시계 한정 규칙으로 적어, 모든 시계에 개수를 검사하는 구현과 다르다
 - 위치: 제품 contracts/load/harness.mjs:19-21('With durationS given and clock 'real' … count = ceil(durationS)'), :40(loadReport 의 durationS 전달 서술 없음); 구현 bench/load/server_stats/index.mjs:56·:99-102; 연구 decisions/0063 (A)행('실시계 표본: 개수 = ceil(durationS)') vs (B)행('clock 과 무관하게')
 - 문제: F-558 수정으로 개수 검사가 clock 무관(빈 배열 포함)이 됐는데 계약과 0063 (A)는 실시계 아래에 두었다. 'durationS 가 유한하지 않으면 위반' 도 구현(0 이하도 위반)보다 좁다.
 - 실패 상황: 감독 읽음(harness.mjs:19-21). 축 2 재현 — 모의 시계 표본 2개, durationS 3 → 'server samples: 2 samples, expected 3'(계약대로면 통과), 모의 호출자 보고서 cpu/rss 줄 'unknown'.
@@ -6222,8 +6224,9 @@
 - 확인 기준: 계약·0063 정정 절의 개수 서술이 server_stats/index.mjs:99-102 조건과 같다.
 - 권장 모델: haiku
 - 이력: 2026-10-06 16:50 감독 등록(PR #99 검토 #1, 축 2 — 감독이 harness.mjs:19-21 읽음. F-557 잔여, F-558 수정의 서술 미반영)
+- 이력(2026-10-06 작업자): T16.12 본 작업 PR, 제품 feat/t16-12b 6352dd63, 연구 experiment/t16-12b(노트 t16-12b.md). 처리됨-검증대기.
 
-### F-563 [열림] (심각도: 낮음) — PR #99 검토 #1 견고성·서술 낮음 묶음
+### F-563 [처리됨-검증대기] (심각도: 낮음) — PR #99 검토 #1 견고성·서술 낮음 묶음
 - 위치·문제·확인 기준:
   ① bench/load/first_frame/index.mjs:3·:25·:35 주석이 여전히 'level-0 payload/arrival' — 어느 수준 도착으로 고치고 변수 `level0` 을 `firstArrival` 등으로. 확인: `grep -n "level-0" bench/load/first_frame/index.mjs` 가 위반 문구 줄만.
   ② first_frame/index.mjs:56 level 필드 검증 없음 — `{kind:'level',id:0,tMs:100}`(level 누락)·level 99 도 도착으로 인정(축 3 재현 p95 400·위반 []). checkEventLog(harness.mjs:81)가 거르므로 loadReport 경로는 안전 — 조건 추가 또는 헤더에 '검증은 checkEventLog 몫' 명시.
@@ -6236,3 +6239,4 @@
   ⑨ 연구 experiments/t16-12.md 에 재현 명령·전체 npm test 수치 없음('STATUS 에 적는다') — 노트에 명령과 수치.
 - 권장 모델: sonnet(①~④·⑦⑧), haiku(⑤⑥⑨)
 - 이력: 2026-10-06 16:50 감독 등록(PR #99 검토 #1, 축 2·3·4b·7·12 — 근거 줄 있는 것, ③ 은 감독 재현)
+- 이력(2026-10-06 작업자): T16.12 본 작업 PR, 제품 feat/t16-12b 6352dd63, 연구 experiment/t16-12b(노트 t16-12b.md). 처리됨-검증대기. ⑧ 숫자 NaN 은 F-530 시험과 충돌해 남기고 checkServerSamples 가 잡음(일부 동의 안 함).
