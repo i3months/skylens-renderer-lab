@@ -23,6 +23,8 @@
 - SSIM [cloud CPU 소프트웨어 렌더]: ssim_h32.test(hill 24·noiseBig 시드 0~3·lowNoise 시드 1~3, LOD1~3 × 8시점) 최소 0.9555(hill 시드 10, LOD2), 양자화 안 한 장면 대비 하락 최대 hill 0.0365·lowNoise 0.0183·noiseBig 0.0090. step 0.5 변이는 최소 0.8495 로 실패. 0056 의 '하락 ≤ 0.0076' 은 noiseBig 시드 0 한 장면 값이라 hill 에는 맞지 않았다(정정).
 - step 0.05 m 는 작업자가 정한 값이며 SPEC 수치가 아니다. 0.9555 는 여유가 약 0.006 으로 얇다.
 
+- renderer_basis 와의 관계: renderer_basis §7-4 점 형식과 §3-7 Δd 는 지형 전송 형식을 정하지 않는다. step 은 SSIM 측정으로 정한다.
+
 ## 대가
 - 양자화 LOD1~3 의 SSIM 여유가 얇다(hill 0.9555). step 을 키우면 실패한다.
 - 0.5 m 셀 실제 DEM 이면 f32 상한이 지형 몫을 넘는다는 0056 계산은 그대로(미측정). 양자화는 들어간다는 계산값(미측정).
