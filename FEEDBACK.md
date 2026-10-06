@@ -5489,3 +5489,36 @@
 - 확인 기준: 각 항목 위치에서 고친 것 확인, ① NaN 입력 fail ≥ 1, ② `cellM <= 0` 변이 실패.
 - 권장 모델: haiku(④⑥⑧⑨⑩), sonnet(①②③⑤⑦)
 - 이력: 2026-10-06 05:40 감독 등록(PR #86 검토 #2, 축 1a·1b·4a·4b·6·7·12). 새로 찾은 것(⑧ 은 F-484 잔여).
+
+### F-488 [열림] (심각도: 중간) — (A) 지표 측정(e/cellM·정점 법선 각)과 ±0.10·±0.11 m SSIM 이 재현 경로 없이 0057 결론에 쓰였다
+- 위치: 연구 decisions/0057-t15-10d-terrain-lod-slope-cap.md:29(e/cellM 0.404, 평균 각 3.57°/3.92°, RMS 4.03°/4.31°, 최대 각 11.42°/15.07°, '0.9737 → 0.9690 → 0.9643 → 0.9467'), :30(±0.10 0.9737, ±0.11 0.9690); experiments/t15-10d.md:58(요약만, 표·명령 없음); 제품 bc36102 bench/tower/terrain_options/b6_rule.mjs(반폭 인자 없음, LOW_NOISE_012_HALF_M = 0.12 고정)
+- 문제: (B) 를 택한 근거('두 집단을 못 가른다')와 '잡음에 단조 감소' 가 노트 표·실행 명령·커밋된 스크립트 없이 수치만 있다. 제품에 해당 지표를 계산하는 코드가 없다(축 2 git grep).
+- 실패 상황: 감독이 (A) 기각과 ±0.10·0.11 수치를 재현·검토할 수 없다. 감독 확인: 노트 grep '0.404'·'3.57' 0건, ±0.10·0.11 은 :58 요약 한 줄.
+- 고칠 것: 노트에 지표 측정 표(집단·장면 수·지표별 최소/최대)와 실행 명령. 스크립트를 bench 에 커밋하거나 '일회성, 미커밋' 명시. ±0.10·±0.11 행(간격·최소 SSIM·미달/36·최악 e)과 재현 방법(b6 반폭 인자 또는 node -e).
+- 확인 기준: 노트의 명령으로 0.404·3.57°·0.9737·0.9690 재현.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 05:45 감독 등록(PR #86 검토 #2 의 중복 실행 — 같은 머리 bc36102 를 독립 검증, 축 2; 감독 노트 grep). 새로 찾은 것.
+
+### F-489 [열림] (심각도: 중간) — b1 서버 높이 대조 표본이 대각선 타일뿐이라 가로·세로 뒤바뀐 사본 오류를 못 잡는다
+- 위치: 제품 bc36102 bench/tower/terrain_options/b1_measure.mjs:159-166(sampleTiles: [0,0]·[mid,mid]·[nx-1,ny-1]), b1_servercheck.test.mjs:18(originX = originY = -128 대칭 DEM)
+- 문제: 표본이 모두 tx−tx0 = ty−ty0 이고 시험·측정 DEM 이 모두 정사각형·원점 대칭이다(감독 :159-166 직접 읽음).
+- 실패 상황: 사본 b1_lod.mjs:109-110 에서 i0·j0 의 tx/ty 를 뒤바꾼 변이, 대각선 밖 타일에만 +0.01 을 더한 변이에서 b1_servercheck 10/10 통과(축 1b 사본 실행, 감독 미재현). measureDem 은 모든 타일로 SSIM 을 재므로 틀린 측정이 '대조 통과' 로 나온다. b6 checkTilesAgainstServer 도 같은 표본을 쓰는지 함께 점검.
+- 고칠 것: 표본에 [nx-1,0]·[0,ny-1] 추가, 시험에 originX ≠ originY 또는 width ≠ height DEM 하나.
+- 확인 기준: 위 두 변이에서 b1_servercheck 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 05:45 감독 등록(PR #86 검토 #2 중복 실행, 축 1b). 새로 찾은 것.
+
+### F-490 [열림] (심각도: 중간, 미확인 — 서브에이전트 사본 실행) — buildings perf 렌더 문턱 300 ms 하나가 세 모드 공용이라 CPU 시간 전환 뒤 4배 회귀가 통과한다
+- 위치: 제품 bc36102 client/tower/buildings/perf.test.mjs:2('CPU 잡음 여유')·:15(RENDER_THRESHOLD_MS = 300)·:27-31·:283·:287-293(setMode 호출마다 cpuMs); client/tower/fallback/perf.test.mjs:6
+- 문제: 문턱이 넉넉한 근거는 CPU 잡음이었는데 6a72310 이 스레드 CPU 시간으로 바꿔 그 잡음이 빠졌다(8 프로세스 부하에서도 최대 47 ms). 실측 black·aerial 최대 40~70 ms, points 2~4 ms 에 300 ms 공용이라 points 는 75 배까지 통과. 이 VM 의 threadCpuUsage 눈금이 약 4 ms 라 setMode(호출당 µs)를 호출마다 재면 계단 표본. CPU 시간은 Atomics.wait 같은 비CPU 지연을 못 보는데 주석에 한계가 없다. fallback/perf.test.mjs:6 '프로세스 CPU 시간' 은 실제 스레드 CPU 시간.
+- 실패 상황: render 4회 반복 변이 통과(black 140, aerial 199, points 9.7 ms), Atomics.wait 400 ms 변이 통과(축 4b 사본 실행). 감독은 :1-31 직접 읽음, 변이 미재현.
+- 고칠 것: 모드별 문턱(근거와 함께, 예 black·aerial 150 ms·points 20 ms) 또는 같은 프로세스 기준 연산 대비 비율; setMode 는 1000 회 전체를 cpuMs 한 쌍으로; 비CPU 지연 한계 주석 또는 헐거운 벽시계 멈춤 감시; fallback 주석 문구.
+- 확인 기준: render 4회 반복 변이 실패, 8 프로세스 부하에서 원본 3/3 통과, setMode 1.2 ms 변이 결정적 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 05:45 감독 등록(PR #86 검토 #2 중복 실행, 축 4b). 새로 찾은 것(문턱 값은 기존, 근거가 이 PR 의 측정 방식 변경으로 바뀜).
+
+### F-491 [열림] (심각도: 낮음) — PR #86 검토 #2 중복 실행 낮음 묶음(F-487 에 없는 것)
+- 위치·고칠 것: ① 0057:28 S 구간 [0.240, 0.296) → 실측 [0.2398, 0.2960)(S=0.2399 사본 통과, 0.2398 실패 — 축 1a), b6_rule.test.mjs:73 주석 '0.24 m 미만' → '0.2398 m 미만'; '추가 전 (0.149, 0.296)' 아래 끝은 간격 8 오차 0.307 기준 0.1535, 하한 출처 셀(2 m) 명시. ② b6_rule.test.mjs:75 `maxErrorM <= ruleBounds(1)[lod]` 는 간격 판정 정의상 항상 참 — 기대 범위 리터럴(예 0.236~0.2399)로 바꾸거나 지움. ③ decisions/README.md 0057 행 '1 m 셀 lowNoise 36/36 ≥ 0.95' 에 '항등' 표시와 lowNoise012 0/36·0.9643. ④ 노트 lowNoise012 표 행 칸 어긋남(장면당 최대 칸에 12 장면 합 7,870,464·높이만 1,161,216). ⑤ b6_rule.test 바이트 비단언 — 노트에 명시 또는 LOD3 바이트 상한 단언. ⑥ b6_rule.mjs:186-191·b1_measure.mjs:330-336·b5_measure.mjs:126-130 플래그 검사가 정확한 이름만 — `--only=x`·`--onlyy`·`--group` 이 조용히 전체 측정, `--json` 값 없으면 산출물 없이 exit 0 → 알려진 플래그 밖 '--' 토큰·값 누락은 던지기, 공용 함수로, spawnSync 시험(b6_rule.mjs:187 `?? ''`→`|| null` 변이 8/8 통과). ⑦ server/terrain/mesh_lod/index.mjs:176-187 덮는 타일 0 또는 전부 결측이면 공칭 간격 반환 → 1 반환 또는 던지기. ⑧ b4_formats.mjs:149-152 encodeQuantized cells < 2 거부. ⑨ 0057 대가에 정점 수·GPU 메모리도 LOD3 = LOD0(58 배), 높이만 형식 기각 시 대안(예: 1 m 셀 2 m 재표본)을 다시 볼 조건에. ⑩ b6_rule.test.mjs:94-96 noiseHalfDem·lowNoiseDem 비교가 width·heights 만 → origin·cellM·height 도. ⑪ b1_measure.test.mjs:42-43 타일 수만 단언해 lowNoiseDem 원점 한 타일 이동 통과 → originX/Y === -512 단언. ⑫ b6 noiseBig 시험(:85-89)은 옛 표에서도 간격 [1,1,1,1] 이라 어떤 S 에도 통과 — 주석에 '규칙과 무관'. ⑬ b1_measure.test.mjs:34 벽시계 1000 ms 단언 부하 민감.
+- 확인 기준: ① S=0.2399 사본 통과·문서 구간 일치. ② 반폭 0.125 변이 실패. ⑥ `--only=x`·`--json` 단독 비영 종료 시험, `|| null` 변이 실패. ⑦ 10×10·전부 NaN DEM 에서 1 또는 throw. ⑧ cells=1 RangeError. ⑩⑪ 원점 변이 실패. 나머지 문구 확인.
+- 권장 모델: haiku(⑥⑦⑧⑩⑪ sonnet)
+- 이력: 2026-10-06 05:45 감독 등록(PR #86 검토 #2 중복 실행, 축 1a·2·4a·5·6·7·12). 새로 찾은 것.
