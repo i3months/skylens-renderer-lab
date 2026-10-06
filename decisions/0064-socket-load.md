@@ -20,7 +20,7 @@
 
 ## 근거
 첫 번째 실제 소켓 부하이므로 간단한 구성으로 시작한다:
-- 클라이언트 30명, 기본 기간 10 s: bench/load/socket/run.mjs 의 socketScenario·runSocketLoad 기본값(durationS = 10)
+- 클라이언트 30명, 기본 기간 10 s: bench/load/socket/run.mjs 의 runSocketLoad 기본값(run.mjs:76)·CLI(run.mjs:118) (durationS = 10)
 - 4개 수준 payload: bench/load/socket/contract.mjs 의 LEVEL_PAYLOAD_BYTES [2048, 8192, 32768, 131072] B
 - createWsServer + 베어 핸들러: 제품 완전 wire protocol 불필요 (비용 절감, 측정 목표에 충분)
 - /proc 표본: 실제 커널 자원, CPU 시간·메모리 페이지 수 절대값
@@ -37,15 +37,15 @@
 - T17 에서 실제 서버·실체크아웃 환경의 실측 데이터가 들어올 때
 - 이 벤치를 다시 실행해 서버 CPU 최대·RSS 가 이 결정의 측정값과 2배 이상 어긋날 때(임계값은 이 줄이 정의)
 
-## 측정된 수치 (2026-10-06 클라우드 컨테이너, 제품 feat/t16-18 통합본, `node bench/load/socket/run.mjs <outDir> 10`)
+## 측정된 수치 (2026-10-06 클라우드 컨테이너, 제품 feat/t16-18 통합본 2c9de9b9, `node bench/load/socket/run.mjs <outDir> 10`)
 
 ### 서버 자원 (실제 시계, /proc/<pid>)
 - 클라이언트: 30명, 기간 10 s, 서버 샘플 10개(tS 0.9933 … 9.9932)
-- CPU: 첫 초 1.01 %, 최대 4.00 %, 나머지 대부분 0 %
-- 메모리 RSS: 59.3 MiB(첫) / 59.3(최대) / 57.7(마지막)
+- CPU: 첫 초 1.01 %, 최대 4.00 %, 나머지 대부분 0 % (1회 실행값)
+- 메모리 RSS: 59.3 MiB(첫) / 59.3(최대) / 57.7(마지막) (1회 실행값)
 
 ### 첫 프레임 분포 (30 클라이언트, loopback)
-- first_frame p95: 0 ms(결과 파일 socket30.json). 통계가 connect 이벤트(핸드셰이크 완료)부터이고 101 과 같은 청크로 첫 페이로드가 오므로 0 으로 나온다. 시도 시각 기준 지연은 bytes 의 latencyMs 에 있다. loopback 이라 S5 판정 자료가 아니며 보고서에도 '(handshake-complete basis, not an S5 value)' 로 표기된다
+- first_frame p95: 대개 0, 재실행에서 0~수 ms(10 s 실행 5.796 ms)(결과 파일 socket30.json). 통계가 connect 이벤트(핸드셰이크 완료)부터이고 101 과 같은 청크로 첫 페이로드가 오므로 0 으로 나온다. 시도 시각 기준 지연은 bytes 의 latencyMs 에 있다. loopback 이라 S5 판정 자료가 아니며 보고서에도 '(handshake-complete basis, not an S5 value)' 로 표기된다
 - 총 5,222,400 B(30 × 174,080), 위반 0
 
 ### 위반 및 조건
@@ -62,3 +62,9 @@
 ## 감독 승인 (2026-10-06, 제품 PR #101 검토 #1)
 - 근거: F-569 확인 기준 충족 — 근거 각 행의 출처(run.mjs runSocketLoad 기본값 clients 30·durationS 10, contract.mjs LEVEL_PAYLOAD_BYTES 합 174,080 B × 30 = 5,222,400 B)가 실제 값과 일치, '= ceil(durationS)' 근거(run.mjs `Math.ceil(durationS)`, server_stats 개수 검사), 노트 p95 = socket30.json 값, 다시 볼 조건 세 개 모두 아직 일어나지 않은 사건, 임계값 '2배' 정의.
 - 조건(F-577 에서 정리): 근거 줄 'socketScenario 기본값' 출처를 runSocketLoad·CLI 기본값으로, 측정 머리말에 제품 커밋 2c9de9b9, first_frame p95 0 ms 는 고정값이 아님(재실행에서 0~수 ms)과 CPU·RSS 가 1회 실행값임을 표기.
+
+## 감독 결정 추가 (2026-10-06 19:55, PR #102 검토 #1)
+F-577 ②·⑩ 감독 지시를 작업자가 코드로 옮긴 두 규칙을 이 결정에 포함해 승인한다(감독이 내린 결정이므로 감독이 적는다).
+- (가) loopback-socket 처럼 클라우드 근사 방식(CLOUD_APPROXIMATION_METHODS)의 실행에서는 S5 3 s 첫 프레임 결과를 위반이 아니라 notes 에 '참고(S5 아님)' 로 싣는다(제품 bench/load/run_all/run.mjs runScenario). 근거: 이 값은 connect(핸드셰이크 완료) 기준이라 S5 정의(요청부터 첫 프레임)가 아니고, S5 판정은 [local] T17 이다. 'sim' 방식은 그대로 위반이다. 대가: 소켓 실행에서 첫 프레임이 크게 느려져도 종료 코드가 0 이다(콘솔 표시는 F-580 ⑥). 한정: 강등은 load.first_frame_p95 한 지표만이어야 한다 — 지금 코드는 checkThresholds 결과 전체를 강등하므로 F-579 에서 좁힌다.
+- (나) tickOnRealClock 은 목표보다 MAX_TICK_LATE_MS = 1000 ms 넘게 늦은 틱을 건너뛰고, 빠진 표본은 checkServerSamples 의 개수 위반으로 드러낸다. 근거: 밀린 틱을 몰아 실행하면 거의 같은 tS 표본이 생겨 1초 간격 측정이 왜곡된다(F-577 ②). 대가: 이벤트 루프가 1 s 넘게 막히면 표본이 빠진다.
+- 다시 볼 조건: S5 정의 기준(요청 시각)으로 재는 소켓 경로가 생길 때 (가) 를 다시 본다. 표본 간격을 1 s 가 아닌 값으로 바꿀 때 (나) 의 1000 ms 를 다시 본다.
