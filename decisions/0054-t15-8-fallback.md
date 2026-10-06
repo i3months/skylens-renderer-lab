@@ -45,7 +45,7 @@
 |---|---|---|---|
 | minSpanM | 100 m | 받은 점이 한곳에 몰려 있을 때(예: 드론이 제자리에 있을 때) 지도 범위의 최솟값. 100 m 이면 공중뷰에서 건물 수 개 또는 거리 한 블록 정도 보임. 측정 없는 선택값. | 미확인(추정). 실제 지형 크기·조작성 측정 필요. |
 | marginPx | 16 px | 지도 가장자리 여백(화면 가장자리와 데이터 점 사이 거리). 16 CSS px(기준 약 4.2 mm, 1x 기기에서 읽을 만한 크기). 측정 없는 선택값. | 미확인(추정). 기기 화면 크기·DPI 별 가독성 측정 필요. |
-| maxAbsEnuM | 1e6 m | 좌표계 범위 상한. overlay 데이터(Drone, Detection, Path)의 e, n 값이 ±1e6 m 범위 안에 있어야 한다(contracts/controlview/fallback.mjs:12). 1e6 m 는 지구 한 대륙 크기(추정). 이 상한을 넘으면 부동소수점 오차 누적 위험. | 대가: 범위를 좁히면 실제 장거리 운영(e.g., 수십 km 지역)에서 오버플로우 방지. 다시 볼: 실제 운영 영역 범위 확인(지형 측량 범위). |
+| maxAbsEnuM | 1e6 m | 좌표계 범위 상한. overlay 데이터(Drone, Detection, Path)의 e, n 값이 ±1e6 m 범위 안에 있어야 한다(contracts/controlview/fallback.mjs:12). 운영 반경(수 km~수십 km)보다 충분히 크게 잡은 설계 상한이며 별도 출처는 없다(측정값 아님). 이 상한을 넘는 값은 폴백 투영의 부동소수점 정밀도를 해칠 수 있다. | 비용(±1e6 m 밖 거부): ±1e6 m 밖의 좌표는 오버레이 데이터로 거부된다(RangeError). 다시 볼: 실제 운영 영역 범위 확인(지형 측량 범위). |
 | maxPaths | 64 | T15.6f(overlay 모듈) 에서 경로 최대 64개 제약이 이미 있으므로, fallback 에서는 재사용(contracts/controlview/overlay.mjs:17). 추가 제약 없음. | 대가: overlay 와 fallback 의 제약이 일관성 있으려면 overlay 값 변경 시 fallback 도 함께 검토 필요. 다시 볼: overlay 의 maxPaths 가 64 에서 변경될 때. |
 
 호출자는 createTowerFallback(opts) 에서 {minSpanM, marginPx} 를 직접 지정할 수 있다. 기본값을 바꾸려면 실제 관제탑 지형·사용성 측정이 필요하다.
