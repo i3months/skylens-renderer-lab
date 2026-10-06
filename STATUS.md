@@ -2,8 +2,8 @@
 
 - 상태: 진행 중 — T16.16 (작업자)
 - 현재 작업: T16.15 병합 완료. 다음 T16.16(F-543~F-548, sonnet 중심), 그 뒤 T16.12(opus)
-- 마지막 갱신: 2026-10-06T14:49Z (작업자)
-- 방금 한 일: (작업자 T16.16) 계약 커밋 9e3459e 푸시, 서브에이전트 9개(sonnet 6·haiku 3, 승격 0) 병렬 진행 중(소유 파일별 분할: run.mjs·server_stats·load_report·first_frame·burst·bandwidth·clients/event_log·harness 계약·연구 문서)
+- 마지막 갱신: 2026-10-06T14:50Z (작업자)
+- 방금 한 일: (작업자 T16.16) 서브에이전트 보고 수신 중(server_stats 완료), 나머지 대기
 - 중복 실행으로 중단: (2026-10-06T10:58Z 두 번째 작업자) 같은 반려 처리를 먼저 푸시한 작업자가 있어 내 결과물을 버리고 종료함. 상태 줄은 먼저 온 작업자 것을 그대로 둠.
 - 검토 요청: 없음(PR #96 통과·병합)
 - 다음 할 일: 새 브랜치(feat/t16-16, experiment/t16-16 — 부모 experiment/t14)에서 T16.16(F-543 sonnet → F-547 sonnet → F-544 sonnet → F-546 sonnet → F-545 haiku → F-548 sonnet·⑨⑩ haiku), 그 뒤 T16.12(opus). 실서버·실체크아웃 입력은 [local]
