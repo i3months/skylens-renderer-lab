@@ -3,7 +3,7 @@
 - 상태: 제안
 - 날짜: 2026-10-06
 - 결정한 사람: 작업자(제안)
-- 관련: TASKS T16.12, 결정 0061(가), 실험 노트 [experiments/t16-12.md](../experiments/t16-12.md)
+- 관련: TASKS T16.12, 결정 0061(가), 실험 노트 [experiments/t16-12b.md](../experiments/t16-12b.md)
 
 ## 맥락
 기존 부하 하네스는 모의 시계를 썼으므로 실제 서버 프로세스의 CPU·RSS 측정값은 없다. T16.12 는 실제 소켓 연결로 제품 ws 서버를 띄우고 프로세스 자원을 측정하는 첫 단계다.
@@ -20,11 +20,11 @@
 
 ## 근거
 첫 번째 실제 소켓 부하이므로 간단한 구성으로 시작한다:
-- 클라이언트 30명: 중간 부하 시나리오 (tests/first_frame 기본값)
-- 4개 수준 payload: 제품 LEVEL_PAYLOADS 크기 일치 (bench/load/socket/contract.mjs)
+- 클라이언트 30명, 기간 60 s: bench/load/run_all/run.mjs 의 steady30 시나리오
+- 4개 수준 payload: bench/load/socket/contract.mjs:24 LEVEL_PAYLOAD_BYTES [2048, 8192, 32768, 131072] B
 - createWsServer + 베어 핸들러: 제품 완전 wire protocol 불필요 (비용 절감, 측정 목표에 충분)
-- /proc 표본: 실제 커널 자원, 하드웨어 무관 지표 (CPU 시간·메모리 페이지 수 절대값)
-- 1초 간격: 부하 패턴 해상도와 S5/S8 검증용 통계량 충분
+- /proc 표본: 실제 커널 자원, CPU 시간·메모리 페이지 수 절대값
+- 1초 간격: 부하 패턴 해상도
 
 ## 대가
 - **제품 wire protocol 미반영**: 벤치 핸들러는 자산·압축·메시지 재구성 없음. 실제 클라이언트 부하와 다를 수 있음 (하지만 처음 측정이므로 기준선).
@@ -32,11 +32,9 @@
 - **클라우드 컨테이너 환경**: CPU 스케줄링·분할은 대상 하드웨어(데스크톱·모바일·서버)와 다를 수 있음. 상대 비교만 유효.
 
 ## 다시 볼 조건
-실제 소켓 측정값이 나온 후:
-- 서버 샘플 수 ≥ ceil(durationS) 확인 (이상 정지)
-- 첫 프레임 분포가 합성 기준값과 비교했을 때 (p95 ~ S5/S8 범위 확인 여부)
-- CPU·RSS 합리성 (idle 대비 부하 시 증가량, 30 연결 유지 확인)
-- 원격 측정(실서버·실체크아웃)이 필요하면 T17
+- server_main 이 제품 wire 프로토콜을 전체적으로 쓰게 될 때
+- T17 에서 실제 서버·실체크아웃 환경의 실측 데이터가 들어올 때
+- 이 벤치 자체를 다시 실행했을 때 변동이 정한 임계값을 넘을 때
 
 ## 측정된 수치 (2026-10-06 클라우드 컨테이너, 제품 6352dd63, `node bench/load/socket/run.mjs <outDir> 10`)
 
@@ -52,7 +50,10 @@
 ### 위반 및 조건
 - 결과 validateResult 통과: YES
 - 30 연결 유지: YES(open min 30)
-- 한계: 한 번 실행한 값이며 재현 변동은 보지 않았다. 보고서의 `S5/S8 verdict measured on loopback-socket` 문구는 loadReport 가 method 문자열을 그대로 쓴 결과일 뿐 S5/S8 판정이 아니다(판정은 [local] T17, 후속 정정 대상).
+- S8 미측정 — 클라우드 근사만, [local] T17 에서 판정
+- 서버 부하: burst-only(접속 직후 약 5 MB 버스트만, 나머지 시간 유휴), 정상상태 아님
+- /proc CPU 해상도: 100/(CLK_TCK·wallS)%, 짧은 마지막 칸(durationS 2.01·1.001)에서 0%/수백 %
+- 한계: 한 번 실행한 값이며 재현 변동은 보지 않았다. 보고서의 `S5/S8 verdict measured on loopback-socket` 문구는 loadReport 가 method 문자열을 그대로 쓴 결과일 뿐 S5/S8 판정이 아니다.
 
 ## 감독 검토 (대기)
 실제 측정값 수집 후 검토 예정.
