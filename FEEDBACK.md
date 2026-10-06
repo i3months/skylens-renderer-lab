@@ -6278,7 +6278,7 @@
 - 이력(2026-10-06 작업자): PR #100 반려 후 같은 브랜치 feat/t16-12b 4ff35104 에서 처리, 연구 experiment/t16-12b(노트 t16-12b.md). 처리됨-검증대기.
 - 이력: 2026-10-06 18:00 감독 확인 닫음(PR #100 검토 #2 — run.test.mjs:90-98 NaN·0·Infinity·-1·clients 0·1.5·NaN → RangeError <1 s·서버 시작 0, 축 7 재현: 6건 즉시 reject, 부모 SIGTERM·SIGKILL·SIGHUP 1 s 뒤 server_main 0개)
 
-### F-567 [처리됨-검증대기] (심각도: 중간) — 소켓 클라이언트가 level 을 페이로드가 아니라 도착 순번으로 매기고, 첫 프레임 기준점이 101 검증 뒤라 지연이 0 에 붙는다
+### F-567 [닫힘] (심각도: 중간) — 소켓 클라이언트가 level 을 페이로드가 아니라 도착 순번으로 매기고, 첫 프레임 기준점이 101 검증 뒤라 지연이 0 에 붙는다
 - 위치: 제품 bench/load/socket/clients.mjs:46-58(st.connectMs 를 .then 안에서 기록, level = st.messages++), ws_client.mjs:104-105·:128(101 과 같은 청크로 온 프레임을 큐에 담았다가 onMessage 등록 때 비움), server_main.mjs:7·:13(페이로드에 fill(i+1)·크기로 수준 신원이 있음)
 - 문제: (1) 서버가 수준을 건너뛰거나(추월) 순서를 바꿔도 클라이언트는 0,1,2,… 로 기록 — 실제 도착 수준이 아니라 가정. (2) connect 가 핸드셰이크 완료 시각이고 첫 페이로드는 같은 청크에서 큐로 들어가 같은 틱에 기록돼 '접속 → 첫 프레임'(S5) 근사값이 TCP·핸드셰이크 시간을 뺀 큐 처리 시간이 된다.
 - 실패 상황: 감독 실행 first_frame_p95 0.0568 ms, 축 4a 0.007 ms, 축 5 0.00717 ms(노트는 0.22 ms). 서버가 [level3, level1] 순으로 보내도 level 0·1 로 기록.
@@ -6289,6 +6289,8 @@
 - 이력(2026-10-06 작업자): PR #100 반려 후 같은 브랜치 feat/t16-12b 4ff35104 에서 처리, 연구 experiment/t16-12b(노트 t16-12b.md). 처리됨-검증대기. 일부 동의 안 함: first_frame 통계 기준점(connect 이벤트)은 계약 변경이라 건드리지 않아 p95 가 0 ms 로 나옴 — 열어 둠.
 - 이력: 2026-10-06 18:00 감독 확인(PR #100 검토 #2): level 페이로드 복원·first_frame 1회는 확인(축 1 재현 [level3, level1] → 3·1, first_frame 은 level3 tMs, 지연 ≥45). 잔여로 다시 엶 — 지연 기준이 둘로 갈렸다: clients.mjs:51-55 bytes.latencyMs 는 attemptMs 기준, connect 이벤트 tMs 는 핸드셰이크 완료(conn.connectedMs) 기준이라 first_frame 통계(connect 기준) p95 가 0 ms 로 나온다(축 1: 핸드셰이크 40 ms 지연 시 latency 97.07 vs tMs−connect 51.44). 고칠 것: connect 이벤트에 attempt 시각을 함께 담거나(계약 필드 추가는 결정 기록) 보고서의 first_frame_p95 에 '핸드셰이크 완료 기준, S5 값 아님' 표기. 확인 기준: 핸드셰이크 40 ms 지연 가짜 서버에서 보고서 first_frame 값과 bytes.latencyMs 의 기준이 문서대로 일치하는 정확 단언. 심각도 중간 유지(S5 확정은 [local]). 권장 모델: sonnet
 - 이력(2026-10-06 작업자): 제품 feat/t16-18 2c9de9b9, 연구 experiment/t16-18. 계약 필드를 늘리지 않고 보고서 first_frame_p95 행에 '(handshake-complete basis, not an S5 value)' 표기(load_report 시험 4개, 변이 2개 사망), clients.test.mjs 에 핸드셰이크 40 ms 지연 서버의 두 기준 정확 단언. 처리됨-검증대기.
+- 이력: 2026-10-06 18:30 감독 확인 닫음(PR #101 검토 #1 — 감독 tools/load_report/index.mjs:26-28·:67-71 읽음, 축 1 재현: 핸드셰이크 40 ms 지연 서버에서 latencyMs−(ff−connect) ≈ 46 ms, 보고서 행 '(handshake-complete basis, not an S5 value)', 축 1·4b 변이 사망. 보고서까지 잇는 단일 시험 공백과 비-S5 값에 S5 임계를 거는 표기는 F-577 ⑨⑩)
+
 
 ### F-568 [닫힘] (심각도: 중간) — 계약 서술이 구현과 다르다: reason 이름, mixed 규칙 삭제, socket 계약 시그니처·close 서술
 - 위치: 제품 contracts/load/harness.mjs:25('before_level0') vs bench/load/first_frame/index.mjs:70('before_firstArrival'); harness.mjs:19-21(이번 PR 이 'mixed clock/source is a violation' 문구를 지움) vs server_stats/index.mjs:99-100; bench/load/socket/contract.mjs:13(path·connectTimeoutMs 빠짐)·:17('every connection stays open until durationS' — clients.mjs:7·:60-64 는 서버가 먼저 끊으면 그때 close)·:20(deps 빠짐)
@@ -6300,7 +6302,7 @@
 - 이력(2026-10-06 작업자): PR #100 반려 후 같은 브랜치 feat/t16-12b 4ff35104 에서 처리, 연구 experiment/t16-12b(노트 t16-12b.md). 처리됨-검증대기.
 - 이력: 2026-10-06 18:00 감독 확인 닫음(PR #100 검토 #2 — 축 2: contracts 에 before_firstArrival 만(harness.mjs:26), bench 의 before_level0 은 음성 시험 first_frame.test.mjs:345 한 줄, harness.mjs:19 'Mixed', 모르는 reason 위반 index.mjs:128·축 4b 변이 사망. 잔여 contract.mjs:16 서술은 F-573 ①)
 
-### F-569 [처리됨-검증대기] (심각도: 중간) — 결정 0064·노트 t16-12b.md 의 근거·수치가 사실과 다르다
+### F-569 [닫힘] (심각도: 중간) — 결정 0064·노트 t16-12b.md 의 근거·수치가 사실과 다르다
 - 위치: 연구 experiment/t16-12b decisions/0064-socket-load.md:6(관련 링크가 t16-12.md), :23('tests/first_frame 기본값' — 실제 출처 bench/load/run_all/run.mjs steady30), :24('제품 LEVEL_PAYLOADS 크기 일치' — 제품에 그런 상수 없음, 크기는 bench/load/socket/contract.mjs:24 합성 값), :26·:27('하드웨어 무관'·'S5/S8 검증용 통계량 충분' — :32·:49·:55 와 모순), :36('서버 샘플 수 ≥ ceil' — 구현은 =), :34-39(다시 볼 조건이 이미 일어난 일·점검 목록); experiments/t16-12b.md '실제 실행' 줄 '첫 프레임 p95 0.22 ms'(0064 는 한 클라이언트 예시라 함)
 - 문제: RULES 근거 규칙 위반 — 출처 없는 근거, 내부 모순, p95 가 아닌 값을 p95 로 적음. S8(30명에서 S1~S7 유지)은 S5 근사·서버 자원만 봤는데 미측정이라는 문장이 없다.
 - 고칠 것: 0064 는 '제안' 상태이므로 해당 행을 직접 고친다. 근거 출처를 실제 파일로, 모순 문장 삭제, '= ceil(durationS)', 다시 볼 조건을 아직 안 일어난 사건으로(server_main 이 제품 wire 를 쓰게 될 때, T17 실측 들어올 때, 재실행 변동이 정한 값을 넘을 때). 노트 p95 를 해당 실행 socket30.json 값으로, 'S8 미측정 — 클라우드 근사만, [local] T17' 한 줄.
@@ -6310,8 +6312,10 @@
 - 이력(2026-10-06 작업자): PR #100 반려 후 같은 브랜치 feat/t16-12b 4ff35104 에서 처리, 연구 experiment/t16-12b(노트 t16-12b.md). 처리됨-검증대기.
 - 이력: 2026-10-06 18:00 감독 확인 — 미해결로 다시 엶(PR #100 검토 #2, 감독이 origin/experiment/t16-12b f5cf4ac 의 0064 직접 읽음): :21 '기간 60 s: bench/load/run_all/run.mjs 의 steady30'(실제는 run.mjs socketScenario·기본 10 s), :22 'contract.mjs:24'(LEVEL_PAYLOAD_BYTES 는 :25 — 이름으로 가리킬 것), 측정 절 'p95: 0.22 ms 급(예: 한 클라이언트…)' 는 여전히 p95 아님·측정 머리말이 6352dd63 기준, 한계 줄이 '보고서의 S5/S8 verdict measured on loopback-socket 문구' 를 현재형으로 적음(제품은 이미 정정), 다시 볼 조건 '정한 임계값' 정의 없음, '= ceil(durationS)' 근거 줄 없음. 확인 기준 그대로. 결정 0064 는 제안 유지. 권장 모델: haiku
 - 이력(2026-10-06 작업자): 제품 feat/t16-18 2c9de9b9, 연구 experiment/t16-18. 0064 출처 파일·값·모순·다시 볼 조건 정정, ceil 근거 줄, 노트 p95 를 socket30.json 값(0 ms, S5 아님)으로, S8 미측정 줄. 처리됨-검증대기.
+- 이력: 2026-10-06 18:30 감독 확인 닫음(PR #101 검토 #1 — 축 2: 근거 각 행 출처 실재·값 일치(run.mjs:76 30·10, contract.mjs:25 합 174,080×30 = 5,222,400 B, 실행값 동일), ceil 근거 줄 0064:28, 노트 p95 = socket30.json 0, 다시 볼 조건 3개 미발생, 임계 2배 정의. 출처 표기·해시 정리는 F-577 ⑬⑭. 결정 0064 승인 experiment/t16-18 47d6d1a)
 
-### F-570 [처리됨-검증대기] (심각도: 중간) — 소켓 모듈 시험의 약한 단언·빠진 음성 시험
+
+### F-570 [닫힘] (심각도: 중간) — 소켓 모듈 시험의 약한 단언·빠진 음성 시험
 - 위치: 제품 bench/load/socket/clients.test.mjs:42(latencyMs ≥ 0 && ≤ tMs — 구현상 늘 참), ws_client.test.mjs:143(403 을 /handshake failed/ 만), proc_stats.test.mjs:27·:31-33(CPU 부호만, rss 5 MB~4 GB), clients.test.mjs 전반(레벨 개수 초과 메시지·path·늦은 connect 미검증)
 - 실패 상황: 축 4a 변이 생존 — M11 latencyMs=tMs, M1 accept 키 검사 삭제, M2 Upgrade 헤더 검사 삭제, M6 MAX_HANDSHAKE_BYTES 삭제, M8b status 정규식 완화, M26 statm [1]→[0](VSZ), M27 µs→ms, M28 음수 검사 삭제, M10 index<LEVEL_MESSAGES → true, M15 path 누락, M13 늦은 connect 로그 포함.
 - 고칠 것: latencyMs === tMs − connect.tMs 정확 비교(F-567 지연 서버와 함께). rawServer 에 accept 위조·Upgrade 누락·16 KB 초과 헤더 → 각각 정확 오류 문구. 바쁜 자식의 ~1 s CPU 증가 0.5e6~1.5e6 µs, rss 가 VSZ 미만·process.memoryUsage().rss 0.3~3배, parseProcStat 음수·비정수 → null. 서버 5개 메시지 → level 4·bytes 5, path '/x' → req.url, durationS 뒤 101 → 이벤트 [].
@@ -6321,8 +6325,10 @@
 - 이력(2026-10-06 작업자): PR #100 반려 후 같은 브랜치 feat/t16-12b 4ff35104 에서 처리, 연구 experiment/t16-12b(노트 t16-12b.md). 처리됨-검증대기.
 - 이력: 2026-10-06 18:00 감독 확인(PR #100 검토 #2): M1·M2·M6·M8b·M10·M13·M15 사망(축 4a). 잔여로 다시 엶 — M11(latencyMs=tMs) 생존 2회 재현. 감독 clients.test.mjs:204-218 읽음: 주입 시계가 Math.round(performance.now()) 라 start·attempt 가 같은 ms 로 읽혀 attempt−start=0, :218 단언이 latencyMs===tMs 로 줄어 순환. 고칠 것: 주입 시계를 호출마다 확실히 전진(예: 첫 호출 0, 둘째 100)시키고 attempt−start>0 을 먼저 단언. 확인 기준: M11 변이에서 시험 실패. 권장 모델: sonnet
 - 이력(2026-10-06 작업자): 제품 feat/t16-18 2c9de9b9, 연구 experiment/t16-18. M11 사망(증가 시계, attempt-start>0 선단언, 정확 단언). 처리됨-검증대기.
+- 이력: 2026-10-06 18:30 감독 확인 닫음(PR #101 검토 #1 — 축 1·4a: M11·M11b 변이에서 clients 시험 10 실패, attempt−start>0 선단언. 같은 성질의 새 시험 'two time bases' 가 단독으로는 순환인 것은 F-576)
 
-### F-571 [처리됨-검증대기] (심각도: 낮음) — PR #100 검토 #1 낮음 묶음
+
+### F-571 [닫힘] (심각도: 낮음) — PR #100 검토 #1 낮음 묶음
 - 위치·문제·확인 기준:
   ① (F-563 ① 잔여) bench/load/first_frame/index.mjs:36 'no level-0 arrival at all' 서술 주석 → 'no level arrival (any level)'. 확인: grep 'level-0' 이 문구 줄만.
   ② (F-563 ③ 보조) noArrival 비배열 검사 줄 삭제 변이 생존 — {p95Ms:1,missing:[],perClientMs:[1],noArrival:'x'} → 위반 ≥ 1 단언.
@@ -6339,8 +6345,10 @@
 - 이력(2026-10-06 작업자): PR #100 반려 후 같은 브랜치 feat/t16-12b 4ff35104 에서 처리, 연구 experiment/t16-12b(노트 t16-12b.md). 처리됨-검증대기. ⑧ 및 ⑩ 일부 미처리.
 - 이력: 2026-10-06 18:00 감독 확인(PR #100 검토 #2): ①~⑦⑨ 처리 확인(축 4b·6: ② noArrival·③ peak 넘침 변이 사망, ⑤ getconf 선읽기 proc_stats.test.mjs:61-70, ⑥ 틱당 1회 스냅샷, ⑦ 1002 시험). 남음: ⑧ 표본 0개 원인 문구 미처리(작업자 보고), ⑩ 중 server_proc 은 F-572 로 분리. 권장 모델: sonnet
 - 이력(2026-10-06 작업자): 제품 feat/t16-18 2c9de9b9, 연구 experiment/t16-18. ⑧ 표본 0개 원인 문구, ⑩ M16·M12·M4 사망(M31·M32 는 F-572). 처리됨-검증대기.
+- 이력: 2026-10-06 18:30 감독 확인 닫음(PR #101 검토 #1 — ⑧ run.mjs:109 원인 문구·run.test 표본 0개 시험(축 4b 문구 삭제 변이 사망), ⑩ M12·M16b·M4a·M4b 사망(축 4a). ⑤ 는 실제 실행 경로에서 −8 ms 로 다시 어긋나 F-574 로 옮김)
 
-### F-572 [처리됨-검증대기] (심각도: 중간) — server_proc 시작 타임아웃·SIGKILL 폴백이 시험되지 않는다
+
+### F-572 [닫힘] (심각도: 중간) — server_proc 시작 타임아웃·SIGKILL 폴백이 시험되지 않는다
 - 위치: 제품 bench/load/socket/server_proc.mjs:24-26(시작 타임아웃 fail), :32(fail 의 SIGKILL), :58(stop 의 SIGKILL 폴백) (feat/t16-12b 4ff35104)
 - 문제: listening 줄을 끝내 찍지 않는 자식, SIGTERM 을 무시하는 자식을 다루는 시험이 없다. 하네스가 멈추거나 자식이 남는 경로가 무방비.
 - 실패 상황: 축 4b 변이(사본) — M31 타임아웃 fail 호출 삭제, M32 stop() SIGKILL 폴백 삭제(3회 통과), M32b fail() SIGKILL 삭제 모두 생존. (F-571 ⑩ M31·M32 잔여)
@@ -6349,8 +6357,10 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-06 18:00 감독 등록(PR #100 검토 #2, 축 4b — 감독 server_proc.mjs:20-35 읽음. F-571 ⑩ 잔여를 분리)
 - 이력(2026-10-06 작업자): 제품 feat/t16-18 2c9de9b9, 연구 experiment/t16-18. server_proc 에 mainPath·startTimeoutMs·killAfterMs 주입, 시험 3개, M31·M32·M32b 사망, 부모 종료 시험 폴링 20 s 로 10/10 통과. 처리됨-검증대기.
+- 이력: 2026-10-06 18:30 감독 확인 닫음(PR #101 검토 #1 — 축 4b: M31·M32·M32b·M32b' 모두 사망, server_proc.test 5회 6/6. 경주 타이머 미해제로 파일 시간 +5 s 는 F-577 ③)
 
-### F-573 [처리됨-검증대기] (심각도: 낮음) — PR #100 검토 #2 낮음 묶음
+
+### F-573 [닫힘] (심각도: 낮음) — PR #100 검토 #2 낮음 묶음
 - 위치·문제·확인 기준:
   ① bench/load/socket/contract.mjs:16 'level = its index' 옛 서술 — clients.mjs:5-7(페이로드 길이로 복원)과 어긋남. 확인: 두 서술 일치.
   ② bench/load/first_frame/index.mjs:84·118-120·126 위반 문구·주석의 'level-0 arrival' — 코드는 어느 수준이든 인정. 'level arrival (any level)' 로, 문구 단언 시험 갱신.
@@ -6362,3 +6372,52 @@
 - 권장 모델: sonnet(③~⑦), haiku(①②)
 - 이력: 2026-10-06 18:00 감독 등록(PR #100 검토 #2, 축 3·4a·4b·5·6 — 감독 contract.mjs:16·first_frame/index.mjs grep 확인, 나머지는 축 보고 근거 줄)
 - 이력(2026-10-06 작업자): 제품 feat/t16-18 2c9de9b9, 연구 experiment/t16-18. ①② 문구 ③ SOCKET_METHOD 리터럴 단언·변이 사망 ④ 1xx 거부 ⑤ parseStatm 분리 ⑥ 공유 t0·늦은 발화 보정 ⑦ 폴링. 처리됨-검증대기.
+- 이력: 2026-10-06 18:30 감독 확인 닫음(PR #101 검토 #1 — ①② 문구 일치(축 2, 단 계약 contracts/load/harness.mjs:25 인용 문구 어긋남은 F-575), ③ SOCKET_METHOD 변이 사망, ④ 1xx 변이 사망, ⑤ parseStatm 음수 변이 사망, ⑦ 폴링 5회 통과. ⑥ 공유 t0 는 sampler 의 t0 와 실제로 공유되지 않아 F-574 로 옮김)
+
+### F-574 [열림] (심각도: 중간) — 소켓 실행의 '공유 t0' 가 sampler 의 t0 와 공유되지 않아 서버 표본 tS 가 목표보다 약 8~9 ms 이르다
+- 위치: 제품 bench/load/socket/run.mjs:90-92(t0 = now() 를 createProcSampler 전에 읽음), bench/load/socket/proc_stats.mjs:63-64(tck()·pgsz() 의 getconf 동기 실행), bench/load/server_stats/index.mjs:26(sampler 가 자기 t0 를 따로 읽음) (feat/t16-18 2c9de9b9)
+- 문제: 틱은 run 의 t0 기준으로 목표 시각에 맞지만 표본 tS 는 getconf 뒤에 잡힌 sampler 자체 t0 기준이라 늘 이르다. run.mjs:44-46 주석('t0 is shared', 'a tick never runs before its target')과 어긋나고, F-571 ⑤(무부하 첫 tS − 1.0 < 2 ms)를 실제 실행 경로에서 다시 깨뜨린다. 기존 시험은 늦은 쪽만 보거나(proc_stats.test.mjs:78) 가짜 sampler 를 써서 못 잡는다.
+- 실패 상황: 축 1 사본에서 `node bench/load/socket/run.mjs <out> 3` 3회 → tS [0.9918, 1.9916, 2.9917], [0.9917, 1.9909, 2.9916], [0.9907, 1.9897, 2.9902]. t0 를 sampler 생성 뒤로 옮기면 [1.0019, 2.0012, 3.0043].
+- 고칠 것: t0 를 sampler 생성 뒤에 읽거나, createStatsSampler·createProcSampler 가 t0 를 주입받아 tickOnRealClock 과 같은 값을 쓰게 한다. 시험은 양쪽 방향(Math.abs)으로.
+- 확인 기준: 실제 runSocketLoad(실제 createProcSampler)에서 모든 i 에 대해 |tS_i − min(i, durationS)| < 2 ms, proc_stats.test.mjs:78 을 Math.abs 로. runSocketLoad 가 t0 를 넘기지 않는 변이(축 4b T0-a)에서 시험 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 18:30 감독 등록(PR #101 검토 #1, 축 1·4b — 감독 run.mjs:88-92·proc_stats.mjs:61-67·server_stats/index.mjs:22-30 읽음. F-571 ⑤·F-573 ⑥ 잔여. 새로 찾은 것 아님 — 이번 diff 가 만든 회귀)
+
+### F-575 [열림] (심각도: 중간) — 계약이 바뀌기 전 위반 문구를 인용한다
+- 위치: 제품 contracts/load/harness.mjs:25('`client N: first_frame without level-0 arrival` (message text kept)') vs bench/load/first_frame/index.mjs:126('first_frame without level arrival (any level)'); harness.mjs:41 loadReport 서술에 클라우드 근사 행 표기 없음
+- 문제: 이 PR 이 위반 문구를 바꿨으나 계약은 소유 경로 밖이라 그대로다. 계약대로 문자열을 맞추는 소비자·시험은 실제 출력과 어긋난다.
+- 실패 상황: 계약 인용 문구로 firstFrameViolations 출력을 비교 → 불일치.
+- 고칠 것: harness.mjs:25 인용을 index.mjs:126·127 문자열로, '(message text kept)' 삭제. :41 에 'cloud-approximation source 면 first_frame_p95 행에 (handshake-complete basis, not an S5 value)' 한 줄.
+- 확인 기준: `git grep "level-0 arrival" -- contracts bench tools ':!*.test.mjs'` 0건, 계약 인용 = index.mjs:126 문자열.
+- 권장 모델: haiku
+- 이력: 2026-10-06 18:30 감독 등록(PR #101 검토 #1, 축 2 — 감독 harness.mjs:23-27·index.mjs grep 확인. 새로 찾은 것)
+
+### F-576 [열림] (심각도: 중간) — 'two time bases' 시험이 단독으로는 순환이다
+- 위치: 제품 bench/load/socket/clients.test.mjs:231-250(:239 Math.round(performance.now()) 시계, :246 등식)
+- 문제: 정수 ms 실시계라 보통 attempt === start 로 읽혀 :246 이 handshakeMs === connect.tMs 로 줄고, latencyMs = tMs 변이(M11)에서도 :246·:249·:250 이 모두 성립한다. 이름이 내세우는 두 기준의 구분을 이 시험이 검증하지 못한다(같은 변이는 시험 10 이 잡는다).
+- 실패 상황: 축 4a 사본 M11 → 이 시험 통과(생존).
+- 고칠 것: 시계를 호출마다 확실히 전진(예: 반올림 실시계 + 호출 횟수 × 7)시키고 assert.ok(attempt − start > 0) 선단언.
+- 확인 기준: M11 변이에서 이 시험이 단독으로 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 18:30 감독 등록(PR #101 검토 #1, 축 4a — 감독 clients.test.mjs:231-252 읽음. F-570 과 같은 유형이 새 시험에서 다시 나옴)
+
+### F-577 [열림] (심각도: 낮음) — PR #101 검토 #1 낮음 묶음
+- 위치·문제·확인 기준:
+  ① run.mjs:56-60 arm() — 시계가 멈춘 주입 now(예: () => 0)와 실제 setTimeout 이면 무한 재무장, tick 영영 안 함(축 7 재현: 1 s 뒤 pending). 확인: 고정 시계 주입 호출이 timeout 안에 끝나거나 RangeError.
+  ② run.mjs:56-60 1 s 넘게 늦은 발화 뒤 밀린 틱이 지연 0 으로 연달아 실행 — 거의 같은 tS 표본이 몰린다(축 6). 확인: 한 타이머 2500 ms 지연 시험에서 표본 간격 하한 또는 건너뜀 위반.
+  ③ server_proc.test.mjs:98-99 within()·:148 의 경주 sleep(5000) 타이머 미해제로 파일 실행이 매번 약 +5 s(축 4b 8.0~9.0 s → 고친 사본 3.26 s). unref 는 거짓 통과를 만드니 clearTimeout 으로. 확인: 6/6 통과·파일 시간 < 4 s.
+  ④ server_proc.test.mjs fakeMain pid 파일 ENOENT — 부하 시 자식이 pid 를 쓰기 전에 죽으면 f.pid() 가 던짐(축 6, 미확인 — 부하 재현 없음). 확인: CPU 부하 20회 통과.
+  ⑤ server_proc.mjs:10 mainPath 외 startTimeoutMs·killAfterMs 검증 없음 — NaN·음수·Infinity 가 1 ms 타이머로 바뀌어 설정 오류가 시작 타임아웃으로 보이고 SIGTERM 유예 없이 SIGKILL(축 7 재현). 확인: startTimeoutMs NaN → spawn 없이 RangeError.
+  ⑥ run.mjs:109 와 :110 checkServerSamples 가 표본 0개에서 '0 samples' 위반 2건 중복. 확인: 표본 0개 → '0 samples' 위반 정확히 1건.
+  ⑦ proc_stats.mjs:42-44 parseStatm 이 '1 1e3'·'1 0x10' 을 받아들임. 확인: 둘 다 null.
+  ⑧ clients.test.mjs:266·:275 ties 시험의 가짜 시계가 0→1000 으로 한 번에 뛰어 이른 닫기 변이(M16a)를 못 잡음. 확인: M16a 에서 이 시험 실패.
+  ⑨ F-567 보고서 경로 단일 시험 없음 — 40 ms 핸드셰이크 지연 서버 → runSocketClients → runScenario → loadReport 로 first_frame_p95 = (ff − connect) p95, latency 와의 차 ≥ 35, 행 표기 단언. 확인: run_all/run.mjs:114 기준 변이에서 실패.
+  ⑩ run_all/run.mjs:126-127 S5 3 s 임계가 'not an S5 value' 로 표기한 값에 그대로 걸림 — 소켓 실행에서는 임계 결과를 '참고(S5 아님)' 로 표기하거나 0064 에 적기. 확인: 임계 결과 출처 표기와 보고서 주석 일치.
+  ⑪ run.test.mjs:194-203 실제 경로 보고서에 first_frame_p95 주석 단언 없음 — load_report 주석 변이 4종이 run.test 에서 생존. 확인: 주석 삭제 변이가 run.test 에서도 실패.
+  ⑫ ws_client.test.mjs:276-283 'once' 가 비어 있음 — finish() 가드(ws_client.mjs:86) 삭제 변이 M4c 생존. 서버 close(1000) 프레임 뒤 소켓 종료 시험으로 onClose 1건 단언. 확인: M4c 에서 실패.
+  ⑬ 연구 decisions/0064:23 'socketScenario 기본값' → runSocketLoad 기본값(run.mjs:76)·CLI(run.mjs:118), :40 측정 머리말에 2c9de9b9, experiments/t16-12b.md '실제 실행' 줄에 '(값은 t16-18 2c9de9b9 재실행)'.
+  ⑭ 0064·t16-18.md·t16-12b.md 의 first_frame p95 '0 ms' 는 고정값 아님(축 5 10 s 실행 5.796 ms) — '대개 0, 재실행에서 0~수 ms' 표기. CPU·RSS 수치 줄에 '1회 실행값'.
+  ⑮ bench/load/socket/contract.mjs:9·:21-24 에 server_proc 새 옵션·deps.setTimeout·'0 samples' 위반 반영.
+  ⑯ first_frame.test.mjs:192·234·252 시험 제목의 'level-0', 위반 문구 'before level arrival (any level) (out of order)' 괄호 연속 — 선택.
+- 권장 모델: sonnet(①~⑫), haiku(⑬~⑯)
+- 이력: 2026-10-06 18:30 감독 등록(PR #101 검토 #1, 축 1·2·3·4a·4b·5·6·7 — ③ 은 감독 server_proc.test.mjs:98-99·:148 읽음, ① 은 감독 run.mjs:56-60 diff 읽음, 나머지는 축 보고 근거 줄. ④ 미확인)
