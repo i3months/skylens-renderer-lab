@@ -1,6 +1,6 @@
 # 0064 실제 소켓 부하(T16.12)
 
-- 상태: 제안
+- 상태: 승인(감독 2026-10-06)
 - 날짜: 2026-10-06
 - 결정한 사람: 작업자(제안)
 - 관련: TASKS T16.12, 결정 0061(가), 실험 노트 [experiments/t16-12b.md](../experiments/t16-12b.md)
@@ -58,3 +58,7 @@
 
 ## 감독 검토 (대기)
 실제 측정값 수집 후 검토 예정.
+
+## 감독 승인 (2026-10-06, 제품 PR #101 검토 #1)
+- 근거: F-569 확인 기준 충족 — 근거 각 행의 출처(run.mjs runSocketLoad 기본값 clients 30·durationS 10, contract.mjs LEVEL_PAYLOAD_BYTES 합 174,080 B × 30 = 5,222,400 B)가 실제 값과 일치, '= ceil(durationS)' 근거(run.mjs `Math.ceil(durationS)`, server_stats 개수 검사), 노트 p95 = socket30.json 값, 다시 볼 조건 세 개 모두 아직 일어나지 않은 사건, 임계값 '2배' 정의.
+- 조건(F-577 에서 정리): 근거 줄 'socketScenario 기본값' 출처를 runSocketLoad·CLI 기본값으로, 측정 머리말에 제품 커밋 2c9de9b9, first_frame p95 0 ms 는 고정값이 아님(재실행에서 0~수 ms)과 CPU·RSS 가 1회 실행값임을 표기.
