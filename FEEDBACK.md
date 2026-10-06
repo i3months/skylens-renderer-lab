@@ -6374,7 +6374,7 @@
 - 이력(2026-10-06 작업자): 제품 feat/t16-18 2c9de9b9, 연구 experiment/t16-18. ①② 문구 ③ SOCKET_METHOD 리터럴 단언·변이 사망 ④ 1xx 거부 ⑤ parseStatm 분리 ⑥ 공유 t0·늦은 발화 보정 ⑦ 폴링. 처리됨-검증대기.
 - 이력: 2026-10-06 18:30 감독 확인 닫음(PR #101 검토 #1 — ①② 문구 일치(축 2, 단 계약 contracts/load/harness.mjs:25 인용 문구 어긋남은 F-575), ③ SOCKET_METHOD 변이 사망, ④ 1xx 변이 사망, ⑤ parseStatm 음수 변이 사망, ⑦ 폴링 5회 통과. ⑥ 공유 t0 는 sampler 의 t0 와 실제로 공유되지 않아 F-574 로 옮김)
 
-### F-574 [열림] (심각도: 중간) — 소켓 실행의 '공유 t0' 가 sampler 의 t0 와 공유되지 않아 서버 표본 tS 가 목표보다 약 8~9 ms 이르다
+### F-574 [닫힘] (심각도: 중간) — 소켓 실행의 '공유 t0' 가 sampler 의 t0 와 공유되지 않아 서버 표본 tS 가 목표보다 약 8~9 ms 이르다
 - 위치: 제품 bench/load/socket/run.mjs:90-92(t0 = now() 를 createProcSampler 전에 읽음), bench/load/socket/proc_stats.mjs:63-64(tck()·pgsz() 의 getconf 동기 실행), bench/load/server_stats/index.mjs:26(sampler 가 자기 t0 를 따로 읽음) (feat/t16-18 2c9de9b9)
 - 문제: 틱은 run 의 t0 기준으로 목표 시각에 맞지만 표본 tS 는 getconf 뒤에 잡힌 sampler 자체 t0 기준이라 늘 이르다. run.mjs:44-46 주석('t0 is shared', 'a tick never runs before its target')과 어긋나고, F-571 ⑤(무부하 첫 tS − 1.0 < 2 ms)를 실제 실행 경로에서 다시 깨뜨린다. 기존 시험은 늦은 쪽만 보거나(proc_stats.test.mjs:78) 가짜 sampler 를 써서 못 잡는다.
 - 실패 상황: 축 1 사본에서 `node bench/load/socket/run.mjs <out> 3` 3회 → tS [0.9918, 1.9916, 2.9917], [0.9917, 1.9909, 2.9916], [0.9907, 1.9897, 2.9902]. t0 를 sampler 생성 뒤로 옮기면 [1.0019, 2.0012, 3.0043].
@@ -6383,7 +6383,8 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-06 18:30 감독 등록(PR #101 검토 #1, 축 1·4b — 감독 run.mjs:88-92·proc_stats.mjs:61-67·server_stats/index.mjs:22-30 읽음. F-571 ⑤·F-573 ⑥ 잔여. 새로 찾은 것 아님 — 이번 diff 가 만든 회귀)
 
-### F-575 [열림] (심각도: 중간) — 계약이 바뀌기 전 위반 문구를 인용한다
+- 이력: 2026-10-06 19:55 감독 확인 닫음(PR #102 검토 #1 — 감독 run.mjs:106-107·server_stats/index.mjs:26-32 읽음(t0 주입, 첫 CPU 기준은 생성 시각). 축 1 실제 실행 `run.mjs <out> 3` 3회 tS−목표 +0.07~+3.6 ms, 이른 쪽 0건(전엔 −8~9 ms). run.test.mjs:141 이른 쪽 −2 ms 단언, 축 4b T0 변이 사망. 늦은 쪽 상한 100 ms 는 F-580 ①)
+### F-575 [닫힘] (심각도: 중간) — 계약이 바뀌기 전 위반 문구를 인용한다
 - 위치: 제품 contracts/load/harness.mjs:25('`client N: first_frame without level-0 arrival` (message text kept)') vs bench/load/first_frame/index.mjs:126('first_frame without level arrival (any level)'); harness.mjs:41 loadReport 서술에 클라우드 근사 행 표기 없음
 - 문제: 이 PR 이 위반 문구를 바꿨으나 계약은 소유 경로 밖이라 그대로다. 계약대로 문자열을 맞추는 소비자·시험은 실제 출력과 어긋난다.
 - 실패 상황: 계약 인용 문구로 firstFrameViolations 출력을 비교 → 불일치.
@@ -6392,7 +6393,8 @@
 - 권장 모델: haiku
 - 이력: 2026-10-06 18:30 감독 등록(PR #101 검토 #1, 축 2 — 감독 harness.mjs:23-27·index.mjs grep 확인. 새로 찾은 것)
 
-### F-576 [열림] (심각도: 중간) — 'two time bases' 시험이 단독으로는 순환이다
+- 이력: 2026-10-06 19:55 감독 확인 닫음(PR #102 검토 #1 — 축 2: `git grep "level-0 arrival" -- contracts bench tools ':!*.test.mjs'` 0건, harness.mjs:25 인용 = first_frame/index.mjs:126, :41 클라우드 행 표기 = load_report FIRST_FRAME_P95_CLOUD_NOTE. runScenario 반환·opts 서술 공백은 F-579)
+### F-576 [닫힘] (심각도: 중간) — 'two time bases' 시험이 단독으로는 순환이다
 - 위치: 제품 bench/load/socket/clients.test.mjs:231-250(:239 Math.round(performance.now()) 시계, :246 등식)
 - 문제: 정수 ms 실시계라 보통 attempt === start 로 읽혀 :246 이 handshakeMs === connect.tMs 로 줄고, latencyMs = tMs 변이(M11)에서도 :246·:249·:250 이 모두 성립한다. 이름이 내세우는 두 기준의 구분을 이 시험이 검증하지 못한다(같은 변이는 시험 10 이 잡는다).
 - 실패 상황: 축 4a 사본 M11 → 이 시험 통과(생존).
@@ -6401,7 +6403,8 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-06 18:30 감독 등록(PR #101 검토 #1, 축 4a — 감독 clients.test.mjs:231-252 읽음. F-570 과 같은 유형이 새 시험에서 다시 나옴)
 
-### F-577 [열림] (심각도: 낮음) — PR #101 검토 #1 낮음 묶음
+- 이력: 2026-10-06 19:55 감독 확인 닫음(PR #102 검토 #1 — 축 4a: M11 에서 'two time bases' 단독 실패, 정상·부하 8회 0 실패. 가짜 시계 +7 이 폴링마다 붙어 하한이 약 20 ms 느슨한 것은 F-580 ②)
+### F-577 [닫힘] (심각도: 낮음) — PR #101 검토 #1 낮음 묶음
 - 위치·문제·확인 기준:
   ① run.mjs:56-60 arm() — 시계가 멈춘 주입 now(예: () => 0)와 실제 setTimeout 이면 무한 재무장, tick 영영 안 함(축 7 재현: 1 s 뒤 pending). 확인: 고정 시계 주입 호출이 timeout 안에 끝나거나 RangeError.
   ② run.mjs:56-60 1 s 넘게 늦은 발화 뒤 밀린 틱이 지연 0 으로 연달아 실행 — 거의 같은 tS 표본이 몰린다(축 6). 확인: 한 타이머 2500 ms 지연 시험에서 표본 간격 하한 또는 건너뜀 위반.
@@ -6432,7 +6435,8 @@
   ㉔ ws_client.test.mjs:247-258 stamps.includes(t) 는 now() 를 언제 읽어도 참 — 전달 시점 now() 변이(X2) 생존. 감독 읽음. 확인: data 진입 때 읽은 값과 정확 일치 단언, X2 사망.
   ㉕ ws_client.test.mjs:269·:281 1006 시험의 onClose 대기에 시간 상한이 없어 콜백 누락(M4c)이 실패가 아니라 멈춤(npm test 에선 15분 뒤). 확인: Promise.race 상한, M4c 가 빠르게 실패.
 
-### F-578 [열림] (심각도: 중간) — 제품 feat/t16-19 커밋 857d9eb0 에 다른 신원·생성 도구 흔적
+- 이력: 2026-10-06 19:55 감독 확인 닫음(PR #102 검토 #1 — ①② 축 6·7(멈춘 시계 RangeError, 1 s 넘게 늦은 틱 건너뜀, 감독 run.mjs:56-79 읽음), ⑧⑫㉒㉓㉔㉕ 축 4a 변이 모두 사망, ③④⑤⑥⑦⑨⑪⑰⑱⑲㉑ 축 4b·7, ⑩ 감독 run_all/run.mjs:123-143 읽음(결정 0064 감독 추가 (가)), ⑬⑭⑮ 축 2. 미처리 ⑯(선택)·⑳(30 s 실행 결과 파일)은 F-580 ⑧⑨ 로 옮김)
+### F-578 [닫힘] (심각도: 중간) — 제품 feat/t16-19 커밋 857d9eb0 에 다른 신원·생성 도구 흔적
 - 위치: 제품 origin/feat/t16-19 857d9eb0 (2026-10-06T19:10Z 'F-575: fix first_frame violation quote ...')
 - 문제: 작성자가 i3months 가 아닌 다른 신원이고, 메시지 끝에 공동 작성자 줄과 세션 링크 줄(생성 도구 흔적)이 있다. 서브에이전트 작업 트리에 user.name·user.email·core.hooksPath 설정이 빠진 채 커밋·푸시됨(ops/WORKER.md 37행 위반). 원격 브랜치는 클라우드에서 지울 수 없다.
 - 실패 상황: 이 브랜치를 그대로 PR 로 올리면 merge commit 병합 시 흔적이 제품 main 이력에 남는다.
@@ -6440,3 +6444,30 @@
 - 확인 기준: 검토 대상 PR 의 `git log --format='%an <%ae>%n%B' origin/main..<머리>` 에 i3months 외 작성자·생성 도구 흔적 0.
 - 권장 모델: haiku
 - 이력: 2026-10-06 19:25 감독 등록. 원격 feat/t16-19 삭제는 사람이 한다.
+- 이력: 2026-10-06 19:55 감독 확인 닫음(PR #102 검토 #1 — 작업자가 깨끗한 feat/t16-19c 로 옮김. 감독 `git log --format='%an <%ae>%n%B' origin/main..origin/feat/t16-19c` 16커밋 모두 i3months, 흔적 0(축 9 도 같음). 원격 feat/t16-19 삭제는 사람 몫으로 남음)
+
+### F-579 [열림] (심각도: 중간) — runScenario 의 method·notes 와 클라우드 강등 규칙이 계약에 없고, 강등이 첫 프레임 지표 밖으로 넓다
+- 위치: 제품 contracts/load/harness.mjs:45('runScenario returns { result, violations, serverSamples }', opts.method 없음), bench/load/socket/contract.mjs:20('createProcSampler({ pid, now })' — t0 없음)·:21(runSocketLoad 반환에 notes 없음), bench/load/run_all/run.mjs:139-142(`if (cloud) appendAll(notes, thresholdResults, referenceOnly)` — checkThresholds 결과 전체) (feat/t16-19c 3f76edd)
+- 문제: 이 PR 이 runScenario 에 opts.method 와 반환 notes 를 더하고, 클라우드 근사 방식이면 3 s 임계 결과를 위반에서 notes 로 옮겼는데 계약은 그대로다. 또 강등이 load.first_frame_p95 만이 아니라 모든 임계 결과에 걸린다(결정 0064 감독 추가 (가) 는 첫 프레임 한 지표만 허용).
+- 실패 상황: (1) 계약대로 짠 소비자는 notes 를 읽지 않아 method 'loopback-socket' 실행의 임계 초과가 아무 표시 없이 사라진다. (2) thresholds.json 에 대역폭 임계를 더하면 소켓 실행에서 대역폭 초과도 위반이 아니라 참고로 강등된다(지금은 thresholds.json 이 load.first_frame_p95 하나라 드러나지 않음).
+- 고칠 것: harness.mjs T16.10 줄에 opts.method(기본 'sim', 빈 값 throw)·반환 notes·클라우드 근사 강등 규칙, server_stats/proc_stats 의 t0 를 적는다. socket/contract.mjs:20·:21 에 t0·notes. run.mjs:141 은 metric 이 load.first_frame_p95 인 임계 결과만 notes 로, 나머지는 위반으로.
+- 확인 기준: `grep -n "notes" contracts/load/harness.mjs bench/load/socket/contract.mjs` 각 1건 이상, `grep -n "t0" bench/load/socket/contract.mjs` 1건 이상. 대역폭 임계를 더한 thresholds 주입 시험에서 method 'loopback-socket' 이어도 대역폭 초과가 violations 에 남고 first_frame 초과만 notes 에 간다 — 강등 필터를 지우는 변이에서 실패.
+- 권장 모델: sonnet(run.mjs·시험), haiku(계약 문구)
+- 이력: 2026-10-06 19:55 감독 등록(PR #102 검토 #1, 축 2 — 감독 harness.mjs:40-48·run_all/run.mjs:123-143 diff 읽음. 새로 찾은 것 — 이번 diff 가 만든 계약 공백)
+
+### F-580 [열림] (심각도: 낮음) — PR #102 검토 #1 낮음 묶음
+- 위치·문제·확인 기준:
+  ① bench/load/socket/run.test.mjs:141 늦은 쪽 상한 0.1 s — 두 t0 사이에 100 ms 미만 어긋남이 생기는 변이가 살아남는다(축 1: 200 ms 어긋남 변이는 잡힘, 실제 지터 최대 +3.6 ms). 감독 :139-141 읽음. 확인: 상한 0.02 s, 전체 npm test 와 동시 10회 통과, t0 30 ms 어긋남 변이 사망.
+  ② clients.test.mjs:242-253 가짜 시계가 now() 호출마다 +7 ms 라 폴링 횟수만큼 handshakeMs 가 부풀어(40 ms 지연에 66 ms) 하한 HANDSHAKE_MS−5 가 실제로 약 20 ms 느슨하다(축 1). 확인: 부풀림을 빼고 40 ± 5, connect 기록을 15 ms 앞당기는 변이 사망.
+  ③ clients.test.mjs 'ties' 시험 :293 근처 `tMs < … || id <= …` 가 id 만 오르면 tMs 역순도 통과 — clients.mjs:90 정렬을 id 만으로 바꾼 변이가 이 시험에서 생존(축 4a, 파일 전체로는 시험 1·2·5 가 잡음). 확인: 모든 i 에 tMs 비감소 단언 추가, 그 변이에서 이 시험 단독 실패.
+  ④ server_proc.mjs:12-14 startTimeoutMs·killAfterMs 가 2^31−1 초과면 Node 가 1 ms 로 바꿔 즉시 시작 타임아웃·즉시 SIGKILL(축 7 재현). 확인: 2**31 두 옵션 모두 RangeError.
+  ⑤ run.mjs:55-60 tickOnRealClock 이 durationS NaN·Infinity 에서 끝나지 않음(축 7 재현, 내보낸 함수 직접 호출만 — runSocketLoad 는 먼저 거부). 확인: 두 호출이 즉시 RangeError.
+  ⑥ socket/run.mjs main() — 클라우드 실행의 notes(첫 프레임 3 s 초과 참고)가 report.md 에만 가고 콘솔에 안 나온다(축 5). 확인: notes 를 stderr 에 'NOTE …' 로, p95 3500 ms 주입 시험에서 출력 단언.
+  ⑦ 연구 experiments/t16-19.md:6 '|tS_i − min(i, durationS)| < 2 ms 를 양방향으로' — 실제 단언은 −2 ms·+100 ms(같은 노트 17행과도 어긋남, 축 2). 확인: 6행을 코드와 같게.
+  ⑧ (F-577 ⑯ 이월, 선택) first_frame.test.mjs 시험 제목의 'level-0'.
+  ⑨ (F-577 ⑳ 이월) 0064·노트가 출처로 적은 socket30.json·socket30.server.json 을 연구 experiments/t16-18/ 등에 커밋하고 0064 측정 머리말에 경로. 권장 모델: haiku
+  ⑩ server_proc.test.mjs:102 등 — 성공 경로·stop()·within() 의 clearTimeout 을 지우는 변이가 생존(파일 시간만 13.4 s 로 늘어남, 축 4b). F-577 ③ 의 '< 4 s' 도 정상에서 3.9~4.3 s 로 경계. 확인: 시작 전·stop 뒤 process.getActiveResourcesInfo() 의 'Timeout' 개수 같음 단언, 두 변이 사망.
+  ⑪ server_proc.test.mjs:163-171 — 옵션 검증을 spawn 뒤로 옮기고 자식을 SIGKILL 하는 변이가 생존(pid 파일을 쓰기 전에 죽음, 축 4b). 확인: deps.spawn 주입 후 호출 0회 단언, 그 변이 사망.
+- 권장 모델: sonnet(①~⑥·⑩⑪), haiku(⑦~⑨)
+- 이력: 2026-10-06 19:55 감독 등록(PR #102 검토 #1, 축 1·2·4a·4b·5·7 — ① 감독 run.test.mjs:139-141 읽음, 나머지는 축 보고 근거 줄. ②~⑥ 미확인(축 재현 보고))
+
