@@ -5333,7 +5333,7 @@
 - 이력 추가: 2026-10-06 감독 확인 닫음(PR #85 검토 #2) — ①③ 축 4b 변이(가드 제거 각 1 fail, 큰 chunk 4개 변이 fail), ⑤ 축 7 quantize([1,NaN,3],1) RangeError·감독 diff 읽음, ⑦ 주석, ②④⑥⑧⑨⑩ 처리 확인. 처리하지 않은 ⑪⑫⑬ 과 ②④ 의 잔여는 F-476·F-478 로 옮김.
 
 
-### F-474 [처리됨-검증대기] (심각도: 높음, 이 PR 의 결함 아님 — 기존 계약, T15.10d) — 현행 지형 LOD 상한표 [0,0.5,1,1] 이 1 m 셀 ±0.15 m 잡음 장면에서 S9(8시점 SSIM ≥ 0.95)를 어긴다
+### F-474 [닫힘] (심각도: 높음, 이 PR 의 결함 아님 — 기존 계약, T15.10d) — 현행 지형 LOD 상한표 [0,0.5,1,1] 이 1 m 셀 ±0.15 m 잡음 장면에서 S9(8시점 SSIM ≥ 0.95)를 어긴다
 - 위치: 제품 contracts/tower_assets/index.mjs:12(TERRAIN_LOD_MAX_ERROR_M), server/terrain/mesh_lod/index.mjs(간격 선택); 측정 bench/tower/terrain_options/b5_measure.mjs(ee201f8); 연구 decisions/0056 결론 1
 - 문제: 높이 오차 상한만으로 간격을 고르므로, 1 m 셀에서 간격 2 의 최대 오차 0.296~0.298 m 가 LOD1 상한 0.5 m 안이라 솎아내지만 그 메시의 SSIM 이 0.95 를 밑돈다. 같은 잡음의 2 m 셀(lowNoise2m)과 ssim_views(2 m 셀)는 통과하므로 기존 시험이 이 미달을 잡지 못한다. T15.1·T15.1c 의 [x] 근거는 2 m 셀 장면뿐이다.
 - 실패 상황: `node bench/tower/terrain_options/b5_measure.mjs` → lowNoise(1 m 셀, 시드 1~12) 안 i: LOD1~3 최소 SSIM 0.9467, 36 조건 중 20 이 0.95 미만(LOD1 4·LOD2 10·LOD3 6), LOD0 1.0000. 감독이 출력 직접 읽음(축 1a 사본 실행).
@@ -5351,6 +5351,8 @@
 - 확인 기준(추가): 0057 에 '고른 값이 아니다' 0건 또는 (A) 의 지표 측정 표; hill 0.5 m/m 통과 언급; 새 1 m 셀 장면 묶음이 b6 시험에서 간격 단언과 SSIM ≥ 0.95 로 돌고, S 를 0.5 로 바꾼 변이에서 실패.
 - 권장 모델: opus
 - 이력 추가: 2026-10-06 작업자 처리됨-검증대기(재작업) — 제품 891f59c·bc36102(feat/t15-10d), 연구 0057·노트. (A) 지표 측정(e/cellM·정점 법선 각)은 두 집단을 못 가름 → (B) 사후 값으로 정직하게 서술(S 구간 [0.240,0.296)). 1 m 셀 ±0.10~0.12 m 시드 1~12 묶음(lowNoise012, 간격 1,2,4,8, 최소 SSIM 0.9643, 0/36)을 b6 시험에 추가. 전체 npm test 5220 중 5203 통과 0 실패.
+- 이력 추가: 2026-10-06 05:40 감독 확인 닫음(PR #86 검토 #2) — (B) 충족: 0057:28 '사후 값' 명시·'고른 값이 아니다' 0건(0057), :29 hill e/cellM 0.404 통과 대 lowNoise 0.296 미달 반례와 정점 법선 각 측정 표. lowNoise012(±0.12 m, 시드 1~12) 간격 [1,2,4,8] 12/12·최소 SSIM 0.9643·0/36 을 b6 시험이 단언(축 1a 원본 8/8, 축 5 b6_rule.mjs 직접 실행 일치). 변이: S=0.5·Infinity 는 lowNoise 간격 단언에서, S=0.2 는 lowNoise012 간격 단언에서 실패(축 1a 사본). 잔여(제품 계약 주석의 '고른 값이 아니다'·0057:26 단정 문장)는 F-485.
+
 
 ### F-475 [닫힘] (심각도: 중간) — 결정 0056 형식·범위: 0046 대체 범위, SPEC 인용과 해석 구분, 결정 형식 제목
 - 위치: 연구 experiment/t15-10b decisions/0056-t15-10b-terrain-lod-recheck.md:6·:9·:10·:42, decisions/0046-t15-terrain-ssim-scene.md:100
@@ -5408,7 +5410,7 @@
 - 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 992aded5(feat/t15-10d), 연구 experiment/t15-10d. 확인 기준 직접 실행(npm test 5205 중 b6 3건은 b1 대조 가드 수정 후 통과, 나머지 실패는 기존 TODO). F-474 는 결정 0057(상한 = min(절대표, 0.25·cellM)), 메시 형식 15 MB 미충족은 T15.10e. 실제 skylens 체크아웃 입력은 [local].
 - 이력 추가: 2026-10-06 05:05 감독 확인 닫음(PR #86 검토 #1, 축 4b 사본 실행) — mslice 5/5 실패(좌표 읽기 1920000 대 192000), mpaths 5/5 실패(viewReads 960000 대 96000), 정상 3/3 통과.
 
-### F-480 [처리됨-검증대기] (심각도: 중간) — b6 1 m 셀 SSIM 시험이 자명하게 참이다: 규칙 간격이 1,1,1,1 이라 LOD1~3 = LOD0 이고 간격·바이트를 단언하지 않는다
+### F-480 [닫힘] (심각도: 중간) — b6 1 m 셀 SSIM 시험이 자명하게 참이다: 규칙 간격이 1,1,1,1 이라 LOD1~3 = LOD0 이고 간격·바이트를 단언하지 않는다
 - 위치: 제품 992aded bench/tower/terrain_options/b6_rule.test.mjs:34-46(assertAll)·:61-65(lowNoise)·:73-76(noiseBig); 연구 0057:28-30·experiments/t15-10d.md 측정 표(굵은 1.0000·0/36)
 - 문제: 1 m 셀 규칙 상한 0.25 m 에서 lowNoise·noiseBig 간격이 전부 1 이라 SSIM 1.0000 은 항등의 결과다. 시험은 간격을 단언하지 않아 LOD 를 전부 끄는 규칙도 72 조건을 통과한다. 문서 표는 이 값을 굵게 적어 성과처럼 읽힌다(대가 절이 LOD3 = LOD0 을 밝히므로 은폐는 아님).
 - 실패 상황: 규칙이 1 m 셀에서 LOD 를 과하게 막아도(바이트 58 배) 시험이 통과한다.
@@ -5417,8 +5419,10 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-06 05:05 감독 등록(PR #86 검토 #1, 축 4a·5 같은 발견; 축 1a b6 출력 '간격 1,1,1,1' 로 확인). 새로 찾은 것.
 - 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 891f59c: lowNoise·noiseBig 간격 [1,1,1,1] 단언, LOD3 바이트 출력, 0057·노트 표 '항등' 표시.
+- 이력 추가: 2026-10-06 05:40 감독 확인 닫음(PR #86 검토 #2) — b6_rule.test lowNoise·noiseBig 간격 [1,1,1,1] 단언, 0057 측정 절 '항등(자명)' 표시 감독 읽음.
 
-### F-481 [처리됨-검증대기] (심각도: 중간) — 서버 타일 높이 대조(checkAgainstServer)가 어느 측정에서도 실행되지 않는다
+
+### F-481 [닫힘] (심각도: 중간) — 서버 타일 높이 대조(checkAgainstServer)가 어느 측정에서도 실행되지 않는다
 - 위치: 제품 992aded bench/tower/terrain_options/b1_measure.mjs:170-174(sameAsTable 가드), b5_measure.mjs:20(주석 '대조를 통과 못 하면 던진다')·:67, b6_rule.mjs:52-55(간격만 대조)
 - 문제: 서버 실효 상한이 사본 i [0,0.5,1,1] 과 같은 것은 cellM ≥ 4 뿐인데 b1·b5 DEM 은 모두 1·2 m 셀이라 대조가 항상 console.error 한 줄로 생략된다(감독이 :170-174 직접 읽음). b6 은 간격만 대조하고 타일 높이는 대조하지 않는다.
 - 실패 상황: 사본 buildTileWithStride 의 높이가 서버 buildTerrainTile 과 달라져도 b1·b5·b6 측정·시험이 모두 통과한다(축 1b·4a).
@@ -5427,8 +5431,10 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-06 05:05 감독 등록(PR #86 검토 #1, 축 1b·4a 같은 발견, 감독 b1_measure.mjs:163-174 직접 읽음). 새로 찾은 것(커밋 ee53389·992aded 의 가드가 만든 것).
 - 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 2a4d023: b1·b5 서버 대조 항상 실행(생략 경로 삭제), b1_servercheck.test 변이 2종 실패, b6 도 DEM 마다 타일 높이 대조.
+- 이력 추가: 2026-10-06 05:40 감독 확인 닫음(PR #86 검토 #2) — b1_measure.mjs:200-201 생략 경로 삭제·서버 실효 상한으로 사본 간격 구해 항상 대조(감독 읽음), checkAgainstServer 높이 +0.001·간격 ×2 변이 1·2 m 셀에서 실패(축 1b 사본). 잔여: measureDem 대조 호출 자체를 지키는 시험이 공허(축 1b·4a 같은 발견, 감독 b1_servercheck.test.mjs:58-69 읽음) → F-486.
 
-### F-482 [처리됨-검증대기] (심각도: 중간, 미확인 — 서브에이전트 사본 실행) — F-315 결측 타일 시험이 1 m 셀 상한 변경 뒤 결측 제외를 가려내지 못한다
+
+### F-482 [닫힘] (심각도: 중간, 미확인 — 서브에이전트 사본 실행) — F-315 결측 타일 시험이 1 m 셀 상한 변경 뒤 결측 제외를 가려내지 못한다
 - 위치: 제품 992aded server/terrain/mesh_lod/mesh_lod.test.mjs:346-351, server/terrain/mesh_lod/index.mjs:176(.filter(!tileHasNonFinite))
 - 문제: 1 m 셀 noise 는 이제 LOD1~3 간격이 모두 1 이라 '결측 DEM 간격 = 정상 DEM 간격' 대조가 아무것도 가려내지 못한다. 보강한 d2(2 m 셀)에는 NaN 하나만 넣었고 NaN 은 크기 비교에서 무시되며 경계 Infinity 는 넣지 않았다.
 - 실패 상황: index.mjs:176 의 filter 를 지운 변이에서 새 시험 21/21 통과, 같은 변이에 origin/main 시험은 F-315 실패(축 1b 사본 실행).
@@ -5437,8 +5443,10 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-06 05:05 감독 등록(PR #86 검토 #1, 축 1b). 감독 미재현이라 미확인.
 - 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 121760c: d2 에 ±Infinity 추가, filter 삭제 변이에서 F-315 시험 실패 확인.
+- 이력 추가: 2026-10-06 05:40 감독 확인 닫음(PR #86 검토 #2) — index.mjs:176 filter 삭제 변이에서 F-315 시험 실패(mesh_lod.test.mjs:354, expected 2 / actual 1 — 축 1b 사본).
 
-### F-483 [처리됨-검증대기] (심각도: 중간) — 0057·노트의 '알려진 깨짐(소유 밖이라 고치지 않음)' 이 실제 커밋과 모순된다
+
+### F-483 [닫힘] (심각도: 중간) — 0057·노트의 '알려진 깨짐(소유 밖이라 고치지 않음)' 이 실제 커밋과 모순된다
 - 위치: 연구 experiment/t15-10d decisions/0057-t15-10d-terrain-lod-slope-cap.md:39, experiments/t15-10d.md '알려진 깨짐' 절(b2 (1) 실패·b1/b5 대조가 던짐·bundle.test esbuild 없음)
 - 문제: 제품 ee53389·992aded 가 b2_mesh_lod.test (1) 사본 상한을 terrainLodMaxErrorM 로 바꾸고 b1 대조에 생략 가드를 넣었다(감독 diff 확인). 문서는 고치지 않았다·실패한다고 적는다. b1·b5 1 m 셀 서버 대조가 조용히 빠진 것(F-481)도 기록이 없다.
 - 실패 상황: 문서를 믿고 b2 (1) 실패·b1/b5 throw 를 기대하는데 실제로는 통과·생략된다.
@@ -5447,10 +5455,37 @@
 - 권장 모델: haiku
 - 이력: 2026-10-06 05:05 감독 등록(PR #86 검토 #1, 축 2 (d); 감독 0057:39 grep 확인). 새로 찾은 것.
 - 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 연구 a90b8e1·후속 커밋: 0057·노트 '고치지 않음' 0건, ee53389·992aded 언급, 재작업 후 상태로 정정.
+- 이력 추가: 2026-10-06 05:40 감독 확인 닫음(PR #86 검토 #2) — 0057·노트 '고치지 않음' 0건(감독 grep), 0057 대가 절에 ee53389·992aded·F-481 처리 서술.
 
-### F-484 [처리됨-검증대기] (심각도: 낮음) — PR #86 검토 #1 낮음 묶음
+
+### F-484 [닫힘] (심각도: 낮음) — PR #86 검토 #1 낮음 묶음
 - 위치·고칠 것: ① (F-478 ⑳ 잔여) client/tower/fallback/perf.test.mjs:338 실패 메시지에 원인('Array.from(Map Iterator) 가로채기가 store.pathsRaw 를 못 잡음') — 또는 counter.stored.length === N_PATHS 를 먼저 단언(sonnet). ② b6_rule.mjs:104-106 --only·--groups 검증 없음(`--only lowNoize:1` exit 0 빈 표), b1_measure.mjs:302 같음 → parseOnly 재사용. ③ b5_measure.test.mjs:133-137 '그룹 규칙 보충' 시험이 cellM 없는 lowNoise2m 행을 넣지 않아 GROUP_CELL_M 삭제 변이 통과 → 행 추가·2 단언. ④ b1_measure.test.mjs:36-40 tileCount 불변을 손으로 만든 gridDem 으로만 — 실제 lowNoiseDem(s,1|2)·makeHillDem 에 demTileCount 단언. ⑤ bench/tower/bundle.test.mjs:19-21·:25-26 주석 실측 낡음(68,062/32,630/35,432 → 현재 68,060/32,930/35,130). ⑥ contracts/tower_assets/index.mjs:29-34 terrainLodMaxErrorM 이 lod 를 배열 조회로만 검사 — 'length'·'1'·[1] 통과, 'constructor' 는 NaN 반환 → Number.isInteger·범위 검사. ⑦ b4_formats.mjs:53 quantize 빈 입력이 'k0 Infinity' 메시지 → 'heights 가 비어 있다' 먼저. ⑧ 0057:24 '기울기가 e/cellM 만큼' → 삼각형 꼭짓점 오차 ≤ e 이면 기울기 차 최대 2√2·e/cellM, S 는 보장값이 아니라 비례 상수. ⑨ 0057 에 '승인 시 0046 상태 줄·README 0046 행에 부분 대체 → 0057 표시' 문장. ⑩ 0056 '## 결정'(:46-52) 한 문장 외 감독 판정·제안 문단을 근거 또는 별도 절로. ⑪ 0057 대가·F-474 이력에 '1 m 셀 ±0.1 m 잡음 미측정, 15 MB 는 T15.10e' 요약. ⑬ (F-478 ⑭ 잔여) b5_measure.mjs:8 '0.2960~0.2991' → '간격 2 는 0.2960~0.2980, 간격 2~8 은 ≤ 0.2991'. ⑭ (F-478 ⑮ 잔여) b5_measure.mjs:66-67 check 가 lowNoise2m 을 끔 → F-481 처리와 함께 d.group !== 'hill'. ⑮ (F-478 ⑯ 잔여) b5_measure.mjs:115 toFixed(4) 로 0.949998 이 0.9500 — 소수 6자리 또는 미달 표시. ⑫ client/tower/buildings/perf.test.mjs '렌더 ≤ 300ms' 가 전체 npm test 동시 부하에서 1회 실패(단독 2/2 통과, 이 PR 무관) — F-469 와 같은 부하 민감 시간 단언인지 점검.
 - 확인 기준: ① mspread 변이 메시지에 Array.from/pathsRaw. ② b6 --only 오타 비영 종료. ③ GROUP_CELL_M 삭제 변이 실패. ④ lowNoiseDem 원점 변이 실패. ⑥ 'length'·'1' RangeError. ⑦ 빈 입력 메시지. ⑤⑧~⑪⑬⑮ 문구 grep, ⑭ `--only lowNoise2m:1` 에서 대조 실행. ⑫ 부하 재현 또는 근거 있는 문턱.
 - 권장 모델: haiku(①②③④⑥ sonnet, ⑫ sonnet)
 - 이력: 2026-10-06 05:05 감독 등록(PR #86 검토 #1, 축 1a·2·4a·4b·5·7·12; ⑫ 감독 직접 — 전체 실행 not ok 1304, 단독 2회 통과).
 - 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — ①⑫ 6a72310(CPU 시간 기준, 변이 실패), ② 891f59c·2a4d023, ③④⑤⑦ b8d2598, ⑥ 121760c, ⑬⑭⑮ 2a4d023, ⑧⑨⑩⑪ 연구 문서. 전체 npm test 5203 통과 0 실패.
+- 이력 추가: 2026-10-06 05:40 감독 확인 닫음(PR #86 검토 #2) — ⑥ lod 정수·범위 검사와 음성 시험(축 4b 변이 3종 실패), ⑦ quantize 빈 입력 먼저(축 7), ② b6 --only 를 parseOnly 재사용(감독 b6_rule.mjs:28·:91-93 읽음), ⑤ bundle.test 주석 68,060/32,930/35,130(감독 읽음), ⑭ b5 check 모든 그룹(감독 b5_measure.mjs:66-68 읽음), ⑮ toFixed(6)(감독 :116 읽음), ① 실패 메시지 원인(축 4b), ⑫ 스레드 CPU 시간 측정·문턱 300 ms 유지(축 4b). 잔여: ⑬ b5_measure.mjs:8 '0.2960~0.2991' 미정정, ⑧ 2√2 서술의 전제·단위(축 1a) → F-485·F-487.
+
+### F-485 [열림] (심각도: 중간) — S = 0.25 '사후 값' 정정이 계약 주석과 0057 '근거-형태' 단락에 반영되지 않았다
+- 위치: 제품 contracts/tower_assets/index.mjs:19-20 (feat/t15-10d bc36102); 연구 decisions/0057-t15-10d-terrain-lod-slope-cap.md:26·:42 (experiment/t15-10d)
+- 문제: ① 계약 주석이 아직 '0.25 = 현행표 LOD1 상한 0.5 m ÷ 셀 2 m … lowNoise 측정을 보고 고른 값이 아니다' 라고 적는다(감독 직접 읽음). 0057:28 의 '사후 값' 과 정반대다. ② 0057:26 이 '화면에 보이는 차이를 묶는 것은 … S·cellM 이다', '측정이 이 형태와 맞는다' 고 단정해 같은 문서 :29 'e/cellM 하나로는 판정하지 못한다(hill 0.404 통과)' 와 모순된다. ③ :26 '한 격자점에 몰리면 … 2√2·e/cellM' 은 전제가 틀렸다(한 점 오차면 √2·e/cellM, 2√2 는 이웃 점 오차 부호가 반대일 때). 'S·cellM' 은 높이(m)이지 기울기가 아니고, 같은 줄 '0.296 대 0.149 m/m' 는 e/cellM 이다(축 1a). ④ :42 'S 는 한 장면군에서 검증된 비를 일반화한 것' 이 :28 과 어긋난다(축 2).
+- 실패 상황: 코드만 읽는 사람이 S 를 검증된 원칙으로 믿고 0.5 m 셀 등 새 셀 크기에 그대로 적용한다. 문서 안 두 단락이 서로 반대 결론을 낸다.
+- 고칠 것: ① 주석을 '사후 비례 상수(lowNoise 결과를 알고 고름), 근거·한계는 결정 0057' 로. ② :26 을 가설로 낮추고 :29 를 참조. ③ 'e ≤ S·cellM 이면 이웃 점 오차 부호가 반대일 때 기울기 차 ≤ 2√2·S' 로, 수치가 e/cellM 임을 명시. ④ :42 를 '사후 비례 상수' 로 통일. 0057 승인 반영: 0057 상태 줄 '승인(조건부 — F-485)', 0046 상태 줄과 decisions/README 0046·0057 행을 같은 내용으로(현재 README 0046 행에만 0057 이 있음 — 축 2).
+- 확인 기준: 제품·연구 grep '고른 값이 아니' 0건; 0057:26 에 단정 문구('묶는 것은') 0건; README 0046 행 = 0046 상태 줄.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 05:40 감독 등록(PR #86 검토 #2, 축 2 높음 보고 2건 → 결정 문서의 사후 값 서술(:28)과 한계(:29)가 이미 있어 감독이 중간으로 낮춤; 감독이 index.mjs:19-20·0057:26 직접 읽음; ③ 축 1a). F-474 잔여.
+
+### F-486 [열림] (심각도: 중간) — measureDem 의 서버 대조 호출을 지키는 시험이 공허하다
+- 위치: 제품 bench/tower/terrain_options/b1_servercheck.test.mjs:58-69, :45-50; bench/tower/terrain_options/b5_measure.mjs:70
+- 문제: ① :58-69 는 smallDem(2)(두 표 간격이 같음)·시점 0개로 measureDem 을 부르고 예외를 삼킨 뒤 '생략' 로그가 없다는 것만 단언한다(감독 직접 읽음). ② :49 는 `if (old !== now)` 안에서만 단언해 두 간격이 같아지면 아무것도 단언하지 않는다. ③ b5_measure.mjs:70 이 cellM 을 실제 dem.cellM 이 아니라 그룹 표에서 다시 가져온다(순환).
+- 실패 상황: b1_measure.mjs:201 `if (check)` → `if (false)` 변이(대조 삭제)가 15/15 통과(축 1b·4a 각각 사본 실행), 사본 간격을 절대표로 구하게 바꾼 변이도 통과(축 1b). b5 `r.cellM = 1` 변이 5/5 통과(축 4a).
+- 고칠 것: measureDem 결과에 대조 횟수 {lods, tiles} 를 담고 시험에서 tiles > 0 단언, 또는 lowNoiseDem(1,1)(두 표 간격이 다름)과 틀린 사본을 주입해 /사본/ throw 단언. :49 앞에 assert.notEqual(old.join(), now.join()). b5 는 dem.cellM 사용 또는 일치 단언.
+- 확인 기준: 대조 삭제 변이·절대표 사본 변이·b5 cellM=1 변이에서 시험 실패, 원본 통과.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 05:40 감독 등록(PR #86 검토 #2, 축 1b·4a 같은 발견, 감독 시험 코드 직접 읽음). F-481 잔여.
+
+### F-487 [열림] (심각도: 낮음) — PR #86 검토 #2 낮음 묶음
+- 위치·고칠 것: ① bench/tower/terrain_options/b6_rule.mjs:165 formatB6 가 `ssimMin8 < min` 으로 세어 NaN 을 실패로 안 셈(축 7 실행: 'NaN | 0/3') → `!(x >= min)` (b1_measure.mjs:254·:307 과 같게). ② contracts/tower_assets/index.mjs:32 cellM subnormal(5e-324)에서 상한 0, 음성 시험이 cellM 0 하나뿐(`cellM <= 0` 변이 통과, 축 4b) → NaN·undefined·-1·Infinity·'2' 음성 값 추가. ③ b6_rule.test 단독 55~59 s(축 6) — npm test 시간 점검, 항등 그룹의 SSIM 은 현행표 되돌림 변이를 잡는 역할이 있으니 지우지 말고 시간만 기록. ④ b6_rule.test.mjs:65 주석 '규칙이 느슨해지면 SSIM 에서 실패' — 실제로는 간격 단언에서 먼저 멈춤(축 1a) → 주석 정정. ⑤ b6_rule.test.mjs:108 기대 간격 [1,1,4,8]·/LOD 1/ 이 S=0.25 에 묶임 → strides 에서 만들기. ⑥ server/terrain/mesh_lod/index.mjs:219 주석이 TERRAIN_LOD_MAX_ERROR_M 을 상한이라 부름 → terrainLodMaxErrorM. ⑦ bench/tower/terrain_options/b1_lod.mjs:82 사본 lodStrides 가 결측 타일을 거르지 않음(서버 index.mjs:176 과 다름, 축 1b). ⑧ (F-484 ⑬ 잔여) b5_measure.mjs:8 '0.2960~0.2991' 미정정(감독 읽음). ⑨ bench/client_bundle/bundle.test.mjs:32 MIN_CHUNKS=2 가 실측과 같은 사후 문턱 — 주석에 밝히기(축 4a). ⑩ 0057:9·:28-30 의 SSIM 측정 수치에 [cloud] 표시(축 12, CPU 소프트웨어 렌더라 낮음).
+- 확인 기준: 각 항목 위치에서 고친 것 확인, ① NaN 입력 fail ≥ 1, ② `cellM <= 0` 변이 실패.
+- 권장 모델: haiku(④⑥⑧⑨⑩), sonnet(①②③⑤⑦)
+- 이력: 2026-10-06 05:40 감독 등록(PR #86 검토 #2, 축 1a·1b·4a·4b·6·7·12). 새로 찾은 것(⑧ 은 F-484 잔여).
