@@ -6426,3 +6426,8 @@
   ⑱ load_report.test.mjs 의 '주석은 p95 행에만' 시험이 metric 'm' 한 행뿐이라 정규식을 /first_frame/ 로 넓히는 변이(L4b)·행별 method 로 판정하는 변이(L5) 생존. 확인: p95·p50·다른 행이 섞인 클라우드 보고서에서 주석 정확히 1회, method 섞임(unknown) 보고서에서 주석 0회.
   ⑲ proc_stats.mjs:53-55 readProcStats 가 parseStatm null 을 rss 0 으로 바꾸는 변이(P6) 생존 — 읽기 함수를 주입받게 하거나 statm 읽기 실패 경로 시험. 확인: P6 사망.
   ⑳ 연구 0064·t16-18.md·t16-12b.md 가 출처로 적은 socket30.json·socket30.server.json 이 어느 저장소에도 커밋되지 않아 수치를 대조할 수 없다(축 2). 확인: 실행 결과 파일을 연구 experiments/t16-18/ 등에 커밋하고 0064 측정 머리말에 그 경로. 권장 모델: haiku
+  ㉑ (F-574 확인 기준 보강) run.test.mjs:172-186 'anchored to the shared t0' 시험이 t0 = now() 를 그대로 넘겨 t0 인자를 무시하는 변이(T1)·runSocketLoad 가 t0±200 ms 를 넘기는 변이(T2·T3)가 생존(축 4a 3/3). 감독 run.test.mjs:173-186 읽음. 확인: now() 와 다른 t0(예 t=5000, t0=4800)로 tick 값 단언, runSocketLoad 주입 시계로 serverSamples[i].tS === min(i+1, durationS) — T1·T2·T3 사망.
+  ㉒ clients.test.mjs:274-282 가짜 시계가 실제 타이머보다 먼저 1000 에 닿아, clients.mjs:75 재확인 루프를 setTimeout(endMs) 한 번으로 바꾼 변이(M16b) 생존(3/3). 확인: 시계를 실제 타이머보다 늦게(첫 만료 999) 두고 close.tMs ≥ 1000 — M16b 사망.
+  ㉓ ws_client.test.mjs:214-230 이 100·102 만 거부 시험 — 103·200 수용, 상태 경계 제거('HTTP/1.1 1010' 수용) 변이 생존. 확인: 유효 Upgrade 헤더와 함께 103·200·1010 거부 시험, 세 변이 사망.
+  ㉔ ws_client.test.mjs:247-258 stamps.includes(t) 는 now() 를 언제 읽어도 참 — 전달 시점 now() 변이(X2) 생존. 감독 읽음. 확인: data 진입 때 읽은 값과 정확 일치 단언, X2 사망.
+  ㉕ ws_client.test.mjs:269·:281 1006 시험의 onClose 대기에 시간 상한이 없어 콜백 누락(M4c)이 실패가 아니라 멈춤(npm test 에선 15분 뒤). 확인: Promise.race 상한, M4c 가 빠르게 실패.
