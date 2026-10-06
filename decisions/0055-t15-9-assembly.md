@@ -3,7 +3,7 @@
 - 상태: 제안
 - 날짜: 2026-10-05
 - 결정한 사람: 작업자(제안)
-- 관련: TASKS T15.9·T15.8f, 계약 contracts/controlview/e2e.mjs, 실험 노트 experiments/t15-9.md, FEEDBACK F-443·F-444·F-445·F-446
+- 관련: TASKS T15.9·T15.8f, 계약 contracts/controlview/e2e.mjs, 실험 노트 experiments/t15-9.md, FEEDBACK F-443·F-444·F-445·F-446·F-447·F-450
 
 ## 맥락
 
@@ -11,20 +11,33 @@ T15.0~T15.8 모듈을 한 객체로 묶어 녹화 재생 상태 일치를 시험
 
 ## 선택지
 
-| 선택지 | 장점 | 단점 | 근거 |
-|---|---|---|---|
-| 조립 step 순서: 입력 → 추적 → 카메라 → 스트리밍(채택) | 같은 프레임에서 카메라 갱신 반영 | 데이터가 step 뒤에 들어가면 그 프레임엔 추적 대상 없음 | state_match.test 손계산 |
-| 폴백일 때 camera·overlay·streaming 을 null 로(채택) | 3D 층과 함께 그리지 않는다는 계약 | 폴백 중에도 step 은 streaming.update 를 부름 | state_match 시험 3 |
-| 폴백 여백 m = min(max(marginPx,1), min(w,h)/4)(채택) | marginPx 0 에서도 끝 점 visible, 1 px 붕괴 없음 | FEEDBACK 이 제시한 (min−1)/2 는 avail 이 1 이 돼 붕괴(서브에이전트 확인) | view.test 크기 스윕 min 2~120 단조 |
-| metersPerPx 하한 1e-6 m/px 를 계약에 둠(채택) | 언더플로 NaN 차단 | 이보다 작은 축척 불가 | TOWER_FALLBACK_LIMITS.minMetersPerPx |
-| visible 행 좁히기를 16각형 반공간 대신 2D 다각형·원 교차 y 범위로(채택) | 기본값 호출 비용 옛 구현의 1.0배, 고고도 최대 230 행 | 코드 늘어남 | experiments/t15-9.md 수치 |
+| 선택지 | 장점 | 단점 | 근거 | 다시 볼 조건 |
+|---|---|---|---|---|
+| 조립 step 순서: 입력 → 추적 → 카메라 → 스트리밍(채택) | 같은 프레임에서 카메라 갱신 반영 | 데이터가 step 뒤에 들어가면 그 프레임엔 추적 대상 없음 | state_match.test 손계산 | 한 프레임 안에서 다른 순서(카메라 보간 뒤 입력 등)가 필요한 모듈이 생길 때 |
+| 폴백일 때 camera·overlay·streaming 을 null 로(채택) | 3D 층과 함께 그리지 않는다는 계약 | 폴백 중 스트리밍 상태가 snapshot 에 보이지 않음 | state_match 시험 3 | 폴백 위에 3D 층 일부를 겹쳐 그리는 요구가 생길 때 |
+| 폴백 중 step 은 streaming.update 를 부르지 않는다(채택, F-447 ①; 계약 contracts/controlview/e2e.mjs fallbackStreaming) | 폴백이면 오지 않을 타일 요청이 inflight 자리를 막지 않는다. arrived·failed 는 계속 전달, 이미 나간 inflight 는 그대로 | 복귀(live) 직후 첫 step 에서야 update 하므로 한 프레임 지연 | 계약 e2e.mjs 최신 문구와 일치 | 서버 일부 가용 모드(일부 타일만 올 수 있는 상태)를 도입할 때 |
+| 추적 대상은 drones[0](채택) | 선택 규칙이 없어 입력만 보면 결과가 정해진다 | 여러 드론 중 사용자가 고른 드론을 따라가지 못함 | 계약 e2e.mjs tracking | 드론 선택 UI·우선순위(경보·거리)가 생길 때 |
+| 추적 yaw 가 없으면 같은 드론의 이전 방위 유지, 이전 것도 없으면 추적하지 않고 입력 카메라를 쓴다(채택) | 도착하지 않은 방위를 지어 쓰지 않는다(원칙: 도착한 것만 그린다) | 첫 방위가 오기 전 프레임에는 추적 카메라가 없음(옛 구현은 0=북으로 둠) | 계약 e2e.mjs tracking | yaw 없는 드론 소스(방위 미제공 센서)가 흔해질 때 |
+| 다른 드론으로 바뀌면 snap(컷 전환), 목록이 비면 추적 해제(채택) | 옛 자리에서 날아오지 않는다. 대상 없으면 입력 카메라로 복귀 | 전환 순간 연속성이 끊김(보간 없음) | 계약 e2e.mjs tracking | 드론 교체가 잦아 컷이 거슬린다는 사용 기록이 나올 때 |
+| 데이터를 폴백에 먼저 넣고 그다음 오버레이에 넣는다(채택; index.mjs setDrones·setDetections·setPath 순서) | 폴백 검사가 더 엄격해 \|e\|,\|n\| > 1e6 m 드론은 조립이 거부한다. 오버레이가 던지면 폴백을 이전 값으로 되돌린다 | 오버레이만으로는 받을 좌표도 조립에서는 거부됨 | T15.0L 원본 대조에서 확인할 것 | contracts/controlview/streaming.mjs maxCoordM 이 바뀔 때, 또는 T15.0L 원본 대조 결과가 다를 때 |
+| step 실패 되살리기: 던지면 이전 상태로 되돌린다(채택). 복원 목록은 아래 | 던진 step 이 상태를 남기지 않는다 | 입력 층·추적 층을 다시 만들어 되돌려서 복원 대상이 아닌 내부 상태는 되살리지 못함 | client/tower/e2e/index.mjs step catch | 입력·추적 모듈에 새 상태(예: 가속 이력)가 생길 때 복원 목록을 다시 점검 |
+| visible.mjs 의 rangeEps 비례 몫을 삭제하고 EDGE_EPS_M(1e-6 m) 고정(채택, F-442 ⑨) | 좌표 크기와 무관한 고정 여유로 근거가 단순. 좌표 상한 6.4e7 m 근처 맞닿음 시험 통과 | 경계 여유 정책이 바뀐 것: 옛 구현과 결과가 경계에서 다를 수 있다(의도된 차이) | F-442 ⑨, visible.test.mjs 좌표 상한 근처 | 좌표 상한(maxCoordM)이 늘거나 ulp 가 EDGE_EPS_M 을 넘는 시험이 실패할 때 |
+| 폴백 여백 m = min(max(marginPx,1), min(w,h)/4)(채택) | marginPx 0 에서도 끝 점 visible, 1 px 붕괴 없음 | FEEDBACK 이 제시한 (min−1)/2 는 avail 이 1 이 돼 붕괴(서브에이전트 확인) | view.test 크기 스윕 min 2~120 단조 | 여백 하한 1 px 이 시각적으로 부족하다는 판단이 나올 때 |
+| metersPerPx 하한 1e-6 m/px 를 계약에 둠(채택) | 언더플로 NaN 차단 | 이보다 작은 축척 불가 | TOWER_FALLBACK_LIMITS.minMetersPerPx | 센티미터 이하 축척이 필요한 화면이 생길 때 |
+| visible 행 좁히기를 16각형 반공간 대신 2D 다각형·원 교차 y 범위로(채택) | 기본값 호출 비용 옛 구현의 1.0배, 고고도 최대 230 행 | 코드 늘어남 | experiments/t15-9.md 수치 | 행 수·호출 비용 시험이 퇴행하거나 시야 모델(광각 한도)이 바뀔 때 |
 
 ## 결정
 
-위 채택안으로 한다. 시험 문턱은 낮추지 않았고 F-446 의 'marginPx 0·100×100·점 하나 → mpp 10' 기대는 여백 하한 1 px 때문에 1000/98 로 바뀌었다(감독 판단 필요).
+위 채택안으로 한다. 시험 문턱은 낮추지 않았고 F-446 의 'marginPx 0·100×100·점 하나 → mpp 10' 기대는 여백 하한 1 px 때문에 1000/98 로 바뀌었다(감독 승인(2026-10-06 PR #83 검토 #1)).
+
+### step 실패 되살리기가 복원하는 상태(client/tower/e2e/index.mjs step 의 catch)
+
+- 입력 자세(pos·yaw)와 눌린 키(heldCodes): 입력 층을 저장한 자세로 다시 만들고 눌린 키를 다시 누른다.
+- 추적 상태: tracking 여부, 마지막 목표(id·pos·yaw), 마지막 감쇠 상태(pos·yaw). 추적 층을 다시 만들어 감쇠 상태 자리에 놓고 목표를 다시 넣는다(추적 중이 아니었으면 빈 상태).
+- 되살리지 않는 것: overlay·streaming·fallback 모듈 내부 상태(step 안에서 바뀌는 것은 streaming.update 뿐이고, 던지면 그 모듈이 상태 불변을 보장한다), 드론·탐지·경로 사본(step 이 바꾸지 않는다. set* 이 던질 때의 되돌리기는 각 set* 가 따로 한다).
 
 ## 대가·다시 볼 조건
 
-- 폴백 자동 맞춤 frame p90 ≤ 8 ms 는 미달(p90 11.5 ms, setView frame 도 14.7 ms): 출력 객체 약 10 만 개 생성 GC 가 원인이라 출력 형식 변경이 필요. 총 점 상한(maxPaths 64 × maxPathPoints 100000 = 640 만 점)을 계약에 둘지 감독 판단.
+- 폴백 자동 맞춤 frame p90 ≤ 8 ms 는 미달(p90 11.5 ms, setView frame 도 14.7 ms): 출력 객체 약 10 만 개 생성 GC 가 원인이라 출력 형식 변경이 필요. 총 점 상한 maxTotalPathPoints(F-444 ②)를 둔다. 값은 계약 overlay.mjs 참조(다른 작업자가 정한다). 다시 볼 조건: 값이 정해져 한도 규모 시험(64×10,000)이 바뀔 때.
 - 조립 clear() 는 overlay·fallback 데이터만 비운다(입력 자세·타일 상태 유지, reset 없음). 필요하면 계약에 reset 추가.
 - 실제 skylens 체크아웃 대조는 [local] T15.0L.
