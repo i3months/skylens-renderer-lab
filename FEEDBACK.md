@@ -5057,6 +5057,7 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-05 23:35 감독 등록(PR #82 검토 #1, 축 4a 보고, M19·M09 감독 재현). 새로 찾은 것. 생존 변이 중 M19·M09 는 계약 위반을 놓치지만 현재 구현은 맞으므로(축 1a·3 확인) 중간.
 - → 2026-10-06 00:10 감독 닫음(PR #83 검토 #1, 제품 8a7fabc): 감독 사본 재현 — 자동 맞춤에서 경로 점 순회 삭제(M19) fallback 시험 2 실패, 수동 view 복사 삭제(M30) 1 실패, 원본 60/60 통과(전체 npm test 안). 나머지 변이(M09·M26·N05·N08·N09)는 작업자 노트의 사본 확인과 시험 diff(축 5: setView 뒤 banner·{minSpanM:1000, marginPx:0} 단언·비우기 반복) 근거라 미확인. M26 기대값 1000/98 은 감독 승인(F-450 감독 판단).
+- → 2026-10-06 00:20 감독 보강(축 4b 늦은 보고, 사본 근거): M19·M09·M26·M30·M30b·N05·N08·N08b·N09·N09t 10 변이 모두 fallback 시험 ≥ 1 실패, 원본 60/60, perf 6개 동시 2회 오탐 0. 미확인이던 나머지 변이 확인됨.
 
 ### F-447 [열림] (심각도: 높음) — 폴백 전환·네트워크 e2e 시험이 제품 조립(createControlView)이 아니라 시험 안에서 만든 다른 조립을 검사하고, 그 조립의 동작이 제품과 반대다
 - 위치: 제품 feat/t15-9 8a7fabc client/tower/e2e/fallback_switch.test.mjs:1-3·:33-58(assemble — `live ? streaming.update(...) : null`)·:154-182(시험 (c)), client/tower/e2e/no_network.test.mjs:5-11(createControlView·replayRecording 을 import 하지 않음)·:103·:119, 제품 client/tower/e2e/index.mjs:123(step 이 모드와 무관하게 streaming.update 호출), contracts/controlview/e2e.mjs:10('3D 층 결과는 함께 내지 않는다')
@@ -5092,3 +5093,11 @@
 - 확인 기준: 0055 에 '첫 드론'·'snap'·'EDGE_EPS_M'·되살리기 서술 존재, 채택 줄마다 다시 볼 조건. t15-7.md 에 '4종'·'요청한 적 없는 보이는 타일.*0' 0건·'D+2' 모두 대체 표시, 0050 에 '와 달리' 0건이고 MAX_RATE 줄에 maxDtSec, t15-8.md:31 이 감독 기록과 일치, 0053:30 정의 = replay_harness.mjs:168-169, 0053 대가 절에 '근거'·'renderer_basis 상위 층'·'점 내' 0건, 0054 view=null 줄마다 자동 맞춤 조건·:49 '64', 구현 반환 객체 키가 모두 TOWER_E2E_API 에 있음.
 - 권장 모델: haiku(① 은 sonnet)
 - 이력: 2026-10-06 00:10 감독 등록(PR #83 검토 #1, 축 2·5·12 보고; 감독이 0055·t15-9.md 전체, 0050:41, t15-8.md:31, 0053:30, t15-7.md grep 직접 확인). ① 은 새로 찾은 것, ②~④ 는 F-442 ②④⑤·F-426·F-445 ②③④⑦ 잔여(이 항목으로 옮기고 원 항목은 닫음).
+
+### F-451 [열림] (심각도: 중간, 미확인) — perf·visible 회귀 시험이 F-444 가 노린 회귀를 잡지 못하고, replay_starve 대조 주석이 측정과 다르다
+- 위치: 제품 8a7fabc client/tower/fallback/perf.test.mjs:23-24(MAX_RATIO 3·BIG_RATIO 5)·:149·:156-162·:178, client/tower/streaming/visible.mjs:256(stats.combos 를 planes.length 공식으로 미리 계산), visible.test.mjs:440·:452·:485, streaming/replay_starve.test.mjs:8·:100·:117·:122·:134-145, fallback/view.test.mjs:142-155
+- 문제·실패 상황(축 4b 사본 실행): ① 점마다 push 하는 옛 맞춤 복원(Pold)이 한도 규모 비율 3.84·4.47 로 BIG_RATIO 5 통과, 맞춤 순회만 10 배(Pfit10)도 8/8 통과 — 상한이 사후 기준. ② '10 배 느린 변이' 시험은 frame 전체를 10 번 불러 비율이 늘 ≈10 이라 자명; Pfit10 은 :149 에서 8 중 6 만 실패. ③ visible.mjs:257 을 옛 16각형 구조(vertices([...planes, 16 반공간]))로 바꿔도 combos 는 220 그대로라 visible.test 22/22 통과 — 계수기가 순환. ④ replay_starve:134 'm3·m4 는 orderViolations 에만 걸린다' 는 거짓(m4 4/15·m3 1/15 가 maxStreak 도 실패), 단언이 some 이라 늘 통과. ⑤ m1 정리 잔여(:8 주석, :100 쓰이지 않는 minFail, :117 박아 넣은 10). ⑥ view.test:142-155 'yaw π/2 는 화면 오른쪽' 이 yaw 를 쓰지 않는 순환 시험.
+- 고칠 것: ① 맞춤 몫((frame − setView frame)/setView frame 또는 맞춤 순회 단독)을 따로 재고 상한을 근거와 함께. ② 변이를 '맞춤 순회 10 배' 로. ③ combos 를 vertices 안 i/j/k 루프에서 세거나 vertices 호출 수를 센다. ④ 주석·메시지를 측정에 맞추고 'orderViolations 를 뺀 실패 수 < minFail' 대조 단언. ⑤ 주석 갱신, m1 을 MUTANTS 에서 빼고 기대값 계산, 즉시 도착 5 건 통과 단언. ⑥ 이름을 단언에 맞게 낮추거나 계약 방향 함수와 대조.
+- 확인 기준: Pold·Pfit10 에서 perf 시험 실패(Pfit10 10/10), 6개 동시 실행 오탐 0. 16각형 복원 변이에서 visible.test 실패. replay_starve 대조 단언이 원본 통과.
+- 권장 모델: sonnet(③ opus 와 함께 해도 됨)
+- 이력: 2026-10-06 00:20 감독 등록(PR #83 검토 #1 뒤 도착한 축 4b 보고, 사본 근거라 미확인). 새로 찾은 것. 반려 판정에 영향 없음 — 다음 제출 때 F-444 ② 와 함께 처리.
