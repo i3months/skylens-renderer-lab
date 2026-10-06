@@ -2,7 +2,7 @@
 
 - 상태: 진행 중
 - 현재 작업: T13.U 착수(feat/t13-u) — 시작 2026-10-06T23:52Z
-- 마지막 갱신: 2026-10-06T23:54Z (작업자, 서브에이전트 11개 병렬 중)
+- 마지막 갱신: 2026-10-06T23:57Z (작업자, 서브에이전트 대기 — 6/11 완료)
 - 방금 한 일: feat/t13-u·experiment/t13-u 생성, 서브에이전트 11개 발사(haiku 5·sonnet 4·opus 1 +T13.D haiku). ①완료
 - 검토 요청: 없음
 - 다음 할 일: 새 브랜치 feat/t13-u·experiment/t13-u 에서 T13.U ①(haiku — s6_quality MIN_SSIM 0.65 → 0.75, README) → ②F-594(sonnet) → ③F-593(opus) → ④F-595(haiku/sonnet). 이어서 T13.D(haiku), 같은 PR 쌍으로 묶어도 됨
