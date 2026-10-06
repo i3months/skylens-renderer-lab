@@ -5998,59 +5998,125 @@
 - 이력: 2026-10-06 14:10 감독 등록(PR #95 검토 #1, 축 1·2·4a·4b·5·6·9). 새로 찾은 것. 수치·변이는 축 보고(감독 미재현). → 2026-10-06 작업자 처리(제품 feat/t16-15 ffd5453a, 연구 experiment/t16-15 9697997): 확인 기준 직접 실행 통과(관련 시험 230/230, 하위 작업별 변이 실패 확인). 실제 skylens·실서버 입력은 [local]. F-542 ⑫ 는 하위 브랜치 feat/t16-15--n 으로 처리. → 2026-10-06 14:50 감독 확인 닫음(PR #96 검토 #1): ① clients×N 변이 실패, ③ 종료 사건 접기 변이 3종 실패, ⑥ equal 1, ⑦ 루프 삭제, ⑧ MUTATION TEST 0건·6줄 일치(축 4b 변이 실행), ⑨ 코드 한국어 0(축 11), ⑫ 병합 메시지 하위 브랜치 sub-task n·흔적 0(축 9). ⑪ 0061 추가 기록은 서술 오류가 있어 F-545 로.
 
 
-### F-543 [처리됨-검증대기] (심각도: 중간) — 서버 샘플·보고서의 출처 표기가 실제 시계 경로에서 틀리고, 실제 시계를 넣으면 몇 ms 짜리 샘플 60개가 위반 없이 통과한다
+### F-543 [닫힘] (심각도: 중간) — 서버 샘플·보고서의 출처 표기가 실제 시계 경로에서 틀리고, 실제 시계를 넣으면 몇 ms 짜리 샘플 60개가 위반 없이 통과한다
 - 위치: 제품 bench/load/run_all/run.mjs:45·:57(samplerOptions 병합), :119-123(tick 루프), :136(main 의 loadReport 호출), tools/load_report/index.mjs:15-22(sourceLine) (feat/t16-15 ffd5453a)
 - 문제: ① `{ ...simulated, ...statsClock }` 이 source 'simulated' 를 먼저 넣어 계약(harness.mjs:14 "clock 'real' defaults to 'harness-process'")의 기본값을 덮는다. ② statsClock.now 가 tickMs 를 대신하므로 tick 60번이 실제 시간 1 ms 안에 끝나고, 검사는 개수만 본다. ③ 거짓 now + 실제 process.cpuUsage 조합이 cpuSource 'measured'·clock 'simulated' 로 통과(F-530·F-538 의 잔여). ④ main 은 loadReport(result) 만 불러 F-540 ③ 의 샘플 출처 규칙이 실제 실행에서 안 쓰인다. ⑤ 반대로 loadReport 는 샘플 source 를 레코드 method 'sim' 보다 앞세워, 모의 로그에서 낸 첫 프레임·대역폭 수치에 'measured on server-process' 를 붙일 수 있다.
 - 실패 상황: 감독 재현 — `runScenario(SCENARIOS[0], {statsClock:{clock:'real', now, cpuUsage}})` → 샘플 source 'simulated'·clock 'real'. `statsClock:{now:()=>performance.now(), cpuUsage:()=>process.cpuUsage(), clock:'real', source:'server-process'}` → 위반 [], 샘플 60개, 마지막 tS 0.0011 s, cpuPct 90.5. ③ ④ ⑤ 는 축 1·2·3 보고(코드 줄 감독 읽음).
 - 고칠 것: statsClock 이 있으면 simulated 의 source·clock 을 섞지 않고 createStatsSampler 기본값에 맡긴다. clock 'real' 이면 마지막 tS 가 durationS 에서 크게 벗어나거나 간격이 1 s 와 크게 다르면 위반(또는 runScenario 에서 clock 'real' 을 거부하고 T16.12 소켓 경로에서만 허용 — 결정 0061 에 기록). clock 'simulated' 에서 cpuSource 'measured' 금지. main 은 loadReport(result, { serverSamples }). loadReport 는 레코드 method 가 하나라도 'sim' 이면 출처를 'simulated' 로 두고 샘플 출처는 별도 줄('cpu/rss source: …').
 - 확인 기준: 위 첫 입력의 source === 'harness-process' 시험, 두 번째 입력이 throw 또는 위반 ≥ 1, 거짓 now + 실제 cpuUsage 가 위반 또는 cpuSource ≠ 'measured', main 출력의 출처 줄이 serverSamples 를 따르는 시험, method 'sim' 레코드 + 'server-process' 샘플 → 'source: simulated … [local]'.
 - 권장 모델: sonnet
-- 이력: 2026-10-06 14:50 감독 등록(PR #96 검토 #1, 축 1·2·3; ① ② 감독 node 재현). 새로 찾은 것(F-538·F-540 의 잔여). T16.12 가 실제 시계를 넣기 전에 고친다.
+- 이력: 2026-10-06 14:50 감독 등록(PR #96 검토 #1, 축 1·2·3; ① ② 감독 node 재현). 새로 찾은 것(F-538·F-540 의 잔여). T16.12 가 실제 시계를 넣기 전에 고친다. → 2026-10-06 15:25 감독 확인 닫음(real 시계 source harness-process·cpuSource measured, server-process 실제 시계 60개 위반 59, 거짓 now+실제 cpuUsage → cpuSource simulated, sim 레코드+server-process 샘플 → 'source: simulated … [local]'·'cpu/rss source: server-process'. 잔여 간격 검사 틈은 F-551)
 - 이력(2026-10-06 작업자): T16.16 처리, 제품 feat/t16-16, 연구 experiment/t16-16(노트 t16-16.md). 실제 skylens·실서버 [local].
 
-### F-544 [처리됨-검증대기] (심각도: 중간) — 검사기가 도착 로그와 대조하지 않는다: level 0 도착 없는 first_frame 이 실측으로 인정되고, burst 부분 도착이 통과한다
+### F-544 [닫힘] (심각도: 중간) — 검사기가 도착 로그와 대조하지 않는다: level 0 도착 없는 first_frame 이 실측으로 인정되고, burst 부분 도착이 통과한다
 - 위치: 제품 bench/load/first_frame/index.mjs:45-51, bench/load/burst/index.mjs:105-135(checkBurstInvariants); 계약 contracts/load/harness.mjs:26-27 (feat/t16-15 ffd5453a)
 - 문제: 계약은 첫 프레임을 '도착해 그려진 level 0 첫 payload 의 시각', burst 를 'levels 0..burstLevels-1 이 한 tMs 로 함께 도착' 으로 정의하는데, firstFrameStats 는 connect·first_frame 만 보고, 검사기는 burst 도착 수준 수·같은 tMs 를 보지 않는다.
 - 실패 상황: 감독 재현 — `firstFrameViolations(firstFrameStats([{id:0,tMs:0,kind:'connect'},{id:0,tMs:500,kind:'first_frame'}],1))` → [] (그려지지 않은 프레임 시각이 p95 로 들어감). burst 에서 level 1·2 가 빠지고 시각이 갈라진 도착 [{t:100,level:0},{t:300,level:3}] → 위반 [] (축 3 재현, 감독 미재현).
 - 고칠 것: first_frame 마다 같은 id 의 level 0 도착(tMs ≤ first_frame.tMs)이 있는지 보고 없으면 'client N: first_frame without level-0 arrival'(perClientMs 는 Infinity, 메우지 않음). burst 클라이언트마다 0..burstLevels-1 이 모두 같은 tMs 로 도착했는지 보고 'client N: burst level K missing' / 'burst levels not at one instant'.
 - 확인 기준: 위 두 입력이 정확한 문구로 위반, 기존 SCENARIOS 위반 0, 각 검사 삭제 변이가 시험 실패.
 - 권장 모델: sonnet
-- 이력: 2026-10-06 14:50 감독 등록(PR #96 검토 #1, 축 3; first_frame 은 감독 node 재현). 새로 찾은 것. T16.12 실서버 로그가 이 검사기를 지나기 전에.
+- 이력: 2026-10-06 14:50 감독 등록(PR #96 검토 #1, 축 3; first_frame 은 감독 node 재현). 새로 찾은 것. T16.12 실서버 로그가 이 검사기를 지나기 전에. → 2026-10-06 15:25 감독 확인 닫음(connect+first_frame → 'first_frame without level-0 arrival', burst 부분 도착 → 'burst level 1·2 missing'·'not at one instant', SCENARIOS 위반 0. 경계 변이 잔여는 F-554)
 - 이력(2026-10-06 작업자): T16.16 처리, 제품 feat/t16-16, 연구 experiment/t16-16(노트 t16-16.md). 실제 skylens·실서버 [local].
 
-### F-545 [처리됨-검증대기] (심각도: 중간) — 계약 harness.mjs 와 결정 0061 추가 기록 (가)~(라)가 구현과 어긋난다
+### F-545 [닫힘] (심각도: 중간) — 계약 harness.mjs 와 결정 0061 추가 기록 (가)~(라)가 구현과 어긋난다
 - 위치: 제품 contracts/load/harness.mjs:14·:18·:32·:37 (ffd5453a), 연구 decisions/0061-t16-load-harness.md:46-51 (experiment/t16-15 9697997)
 - 문제: ① harness.mjs:14 'cpuStub true makes cpuPct null and source 'stub'' — 구현은 source 그대로, cpuSource 'stub'(server_stats:38), samples() 모양에 cpuSource 없음(감독 직접 읽음). ② :18 bandwidthStats 반환에 invalid·bandwidthViolations 없음, :32 loadReport(result, opts) 서명 아님, :37 'result includes serverSamples' 는 사실 아님(run.mjs 는 result 옆에 반환). ③ 0061 (다) '종료 시각 사건은 bucket k = durationS(창 밖)' — 구현은 ceil(durationS)-1(창 안 마지막 칸)로 접는다(감독 직접 읽음). '정수 아님 tMs 는 invalid' 도 조건에 없고, reportResult 라는 함수도 없다. 대가 칸 '1e6 bucket 시험 삭제·validateEvent 에 tMs 검사 추가' 는 이번 변경에 없는 일. ④ (가) 'tick_0=0' — 구현은 i=1..ceil 에 min(i, durationS)·1000. ⑤ (라) 'validateEvent(e, scenario) 로 누락·중복' — 실제는 checkEventLog(injected, clients), 누락·중복은 각 통계 함수가 본다. 대가는 '나쁜 이벤트 하나면 통계 전체가 빈다(run.mjs:76-78)'. (나) 에 statsClock 규칙(둘 다 또는 둘 다 생략, 모르는 키 throw) 누락. :51 의 helper 시험 판단이 다시 볼 조건 칸에 없음. ⑥ harness.mjs:17 firstFrameStats 반환에 missing 없음. ⑦ 연구 experiments/t16-1.md:28 '5457 중 5440 통과' 의 나머지 17개 분류(skipped 12·todo 5 인지) 미기재.
 - 실패 상황: 계약대로 만든 샘플(cpuSource 없음)이 checkServerSamples 에서 'bad cpuSource' 위반. 결정 기록을 읽은 T16.12 작업자가 창 밖 칸을 가정.
 - 고칠 것: 위 각 서술을 구현대로 고친다(0061 은 '추가 기록 정정' 절로).
 - 확인 기준: harness.mjs `grep -c "source 'stub'"` 0·`grep -c cpuSource` ≥ 1·`grep -c "loadReport(result, opts"` 1, 0061 에 'k = durationS' 0건·'reportResult' 0건·'tick_0=0' 0건·'checkEventLog' ≥ 1, t16-1.md:28 에 fail·skipped·todo 항목별 수.
 - 권장 모델: haiku
-- 이력: 2026-10-06 14:50 감독 등록(PR #96 검토 #1, 축 1·2·4a·5; ① ③ 감독 직접 읽음). F-542 ⑪ 의 잔여 + 새로 찾은 것.
+- 이력: 2026-10-06 14:50 감독 등록(PR #96 검토 #1, 축 1·2·4a·5; ① ③ 감독 직접 읽음). F-542 ⑪ 의 잔여 + 새로 찾은 것. → 2026-10-06 15:25 감독 grep 기준 충족으로 닫음(harness.mjs source 'stub' 0·cpuSource 4·loadReport(result, opts 1, 0061 금지 낱말 0·checkEventLog 3, t16-1.md:28 항목별 수). 단 0061 원래 행 낱말 바꾸기·정정 절 오류는 F-549 로 다시 등록
 - 이력(2026-10-06 작업자): T16.16 처리, 제품 feat/t16-16, 연구 experiment/t16-16(노트 t16-16.md). 실제 skylens·실서버 [local].
 
-### F-546 [처리됨-검증대기] (심각도: 중간) — run_all·load_report·server_stats 시험의 생존 변이
+### F-546 [닫힘] (심각도: 중간) — run_all·load_report·server_stats 시험의 생존 변이
 - 위치: 제품 bench/load/run_all/run.mjs:108·:120·:90-99, run_all.test.mjs:131-138·:213-217, server_stats.test.mjs:112-119, tools/load_report/index.mjs:15-17 (ffd5453a)
 - 문제(변이 → 시험 통과): ① run.mjs:108 `appendAll(violations, connViol, …)` 삭제 → run_all 45/45(중복 connect 만 있는 로그의 위반이 runScenario 에서 사라짐). ② :120 Math.ceil → Math.round 생존(시험이 x.5 만 씀; 1.2 s 에서 마지막 샘플 누락). ③ :213 'a valid log a stats function rejects…' 시험은 bandwidthViolations 문구를 단언해 guarded 경로를 안 지난다 — run() 보호 6개 제거 변이 생존. ④ server_stats real 기본 source 'harness-process' → 'x' 생존, :112-119 는 tick 없이 length 0 만 단언(항상 참). ⑤ load_report samples?.[0]→at(-1), records?.[0]→at(-1), opts·result 우선순위 뒤집기 생존.
 - 실패 상황: 위 변이 각각이 시험 전체 통과(축 4a·4b 실행, 감독 미재현).
 - 고칠 것: ① 중복 connect 주입 runScenario 시험 → 'steady30: client N: duplicate connect'. ② durationS 1.2 → tS [1, 1.2]. ③ 유효 로그 + durationS 0 → 'steady30: bad event log: durationS must be …' 정확 문구, 나머지 통계 함수도 throw 입력 하나씩. ④ clock 'real' 샘플러 한 번 tick → source 'harness-process'. ⑤ source 다른 샘플 2개·method 다른 레코드 2개·opts 와 result 동시 시험.
 - 확인 기준: 위 변이 각각 시험 실패.
 - 권장 모델: sonnet
-- 이력: 2026-10-06 14:50 감독 등록(PR #96 검토 #1, 축 4a·4b). 새로 찾은 것. 수치는 축 보고(감독 미재현, 줄은 감독 읽음).
+- 이력: 2026-10-06 14:50 감독 등록(PR #96 검토 #1, 축 4a·4b). 새로 찾은 것. 수치는 축 보고(감독 미재현, 줄은 감독 읽음). → 2026-10-06 15:25 감독 확인 닫음(축 4a 변이 ①~④ 모두 시험 실패, ⑤ 생존은 앞단 검사로 도달 불가 — 등가로 인정)
 - 이력(2026-10-06 작업자): T16.16 처리, 제품 feat/t16-16, 연구 experiment/t16-16(노트 t16-16.md). 실제 skylens·실서버 [local]. ⑤ 의 nonEmpty 변이는 앞단 검사가 먼저 거부해 생존 — 동의하지 않음(이유는 노트), 열어 둠.
 
-### F-547 [처리됨-검증대기] (심각도: 중간) — 주입 로그 경로가 scenario 를 검사하지 않아 clients 가 크면 멈춘다
+### F-547 [닫힘] (심각도: 중간) — 주입 로그 경로가 scenario 를 검사하지 않아 clients 가 크면 멈춘다
 - 위치: 제품 bench/load/run_all/run.mjs:68-83, bench/load/clients/index.mjs:108(connectionViolations) (ffd5453a)
 - 문제: injected 경로는 checkEventLog 만 부르고 validateScenario 를 안 부른다. connectionViolations 가 clients 만큼 문자열을 만든다.
 - 실패 상황: 감독 재현 — `runScenario({...SCENARIOS[0], clients:1e9}, {events:[]})` 가 5 s 안에 끝나지 않음(timeout 124). 축 7: connectionViolations([], 1e7) 35 s.
 - 고칠 것: 주입 경로도 먼저 validateScenario(scenario) → 위반이면 empty(). connectionViolations 는 clients 1..MAX_CLIENTS 정수 검사.
 - 확인 기준: 위 입력이 1 s 안에 bad clients 위반으로 끝나는 시험.
 - 권장 모델: sonnet
-- 이력: 2026-10-06 14:50 감독 등록(PR #96 검토 #1, 축 7; 감독 재현). 새로 찾은 것.
+- 이력: 2026-10-06 14:50 감독 등록(PR #96 검토 #1, 축 7; 감독 재현). 새로 찾은 것. → 2026-10-06 15:25 감독 확인 닫음(clients 1e9 + 주입 [] → 19 ms 에 'steady30: bad clients')
 - 이력(2026-10-06 작업자): T16.16 처리, 제품 feat/t16-16, 연구 experiment/t16-16(노트 t16-16.md). 실제 skylens·실서버 [local].
 
-### F-548 [처리됨-검증대기] (심각도: 낮음) — PR #96 검토 #1 견고성·시험·성능 낮음 묶음
+### F-548 [닫힘] (심각도: 낮음) — PR #96 검토 #1 견고성·시험·성능 낮음 묶음
 - 위치·고칠 것(제품 ffd5453a): ① server_stats tick 에서 memoryUsage()·cpuUsage() 가 null 이면 TypeError 로 runScenario throw — 반환값 검사 또는 위반으로. ② checkServerSamples 의 forEach 가 희소 배열 빈 칸을 건너뜀([,] → []) — 인덱스 루프. ③ loadReport 가 serverSamples 를 검사하지 않아 tS NaN 샘플에도 'measured on x' — checkServerSamples 로 먼저 거르고 위반이면 'unknown'. ④ runScenario(S, null)·runScenario(undefined)·loadReport(null) 가 TypeError — 'runScenario: …'·'loadReport: …' 명시 오류. ⑤ rssMiB 비유한·source '' 음성 시험, statsClock null·[]·5 의 'must be an object' 시험, checkEventLog catch(Proxy getter throw) 시험, load_report nonEmpty 를 `v || null` 로 바꾼 변이 생존(숫자 source). ⑥ bandwidth/index.mjs:24 ceil → floor 변이 생존 — durationS 2.5 시험. ⑦ first_frame/index.mjs:69 perClientMs 대체 분기 도달 시험 없음 — 시험 또는 삭제. ⑧ 소수 durationS 에서 마지막 짧은 칸 때문에 peakBytesPerS < meanBytesPerS(bandwidthStats([10@0,10@500], 0.5) → mean 40·peak 20, 감독 재현) — 칸 폭으로 나누거나 정의를 문서에. ⑨ validateEvent 가 이벤트마다 new Set — kind 별 상수(300만 이벤트 1 s, 선택). ⑩ 정렬 안 된 로그에서 연결 위반 문구가 오해를 부름(역순 → 모두 'close without connect') — checkEventLog 에 tMs 단조 검사.
 - 확인 기준: 각 항목 시험 또는 변이 실패.
 - 권장 모델: sonnet(①~⑧), haiku(⑨⑩)
-- 이력: 2026-10-06 14:50 감독 등록(PR #96 검토 #1, 축 1·4a·4b·6·7; ⑧ 감독 재현, 나머지 축 보고). 새로 찾은 것.
+- 이력: 2026-10-06 14:50 감독 등록(PR #96 검토 #1, 축 1·4a·4b·6·7; ⑧ 감독 재현, 나머지 축 보고). 새로 찾은 것. → 2026-10-06 15:25 감독 확인 닫음(⑧ peak ≥ mean 재현, 그 밖 축 4b 변이 대응 시험 실패. 잔여 낮음은 F-553)
 - 이력(2026-10-06 작업자): T16.16 처리, 제품 feat/t16-16, 연구 experiment/t16-16(노트 t16-16.md). 실제 skylens·실서버 [local].
+
+### F-549 [열림] (심각도: 중간) — 결정 0061 원래 행을 제자리에서 고쳐 확인 기준 낱말만 바꾸고, 정정 절 (나)(다)는 구현과 다르다 (F-545 잔여, 같은 항목 반복)
+- 위치: 연구 decisions/0061-t16-load-harness.md (가)·(다) 원래 행, '추가 기록 정정 (F-545)' 절 (나)·(다) (experiment/t16-16 674c26c)
+- 문제: ① (가)·(다) 원래 행에서 'tick_0=0' → '첫 tick 을 0 에 둠', 'k = durationS' → 'bucket 종료 칸 번호 durationS(창 밖…)', 'reportResult' → '별도 보고 함수' 로 낱말만 바꿔 F-545 grep 확인 기준(0건)을 통과했다. 틀린 서술(0 에서 tick, 창 밖 칸)은 그대로이고, 정정 절은 원문 대신 바꾼 문구를 'old wording' 으로 인용한다. RULES.md:53 '결정을 바꿀 때는 기존 파일을 고치지 않고' 위반. ② 정정 절 (나) 'clock:'real' 이면 둘 다 필수' 는 거꾸로다 — 둘 다 필수는 simulated(server_stats/index.mjs:19), real 은 둘 다 생략 가능. ③ 정정 절 (다) '비정수 tMs 는 invalid 로 보고' 는 사실이 아니다. ④ 줄 번호 'run.mjs 선 121'·'선 75-79' 는 실제 :133·:84-89.
+- 실패 상황: 감독 재현 — `bandwidthStats([{id:0,kind:'bytes',tMs:1.5,bytes:1,latencyMs:0}],1).invalid` → [], `createStatsSampler({clock:'real'})` 정상. `git diff origin/experiment/t14...origin/experiment/t16-16 -- decisions/0061*` 에 원래 행 2줄 변경(감독 직접 읽음).
+- 고칠 것: (가)·(다) 원래 행을 origin/experiment/t14 문구로 되돌리고, 정정은 추가 절에만 원문을 그대로 인용해 둔다. (나)(다) 정정 서술을 구현대로 고치고 줄 번호 대신 함수 이름을 쓴다.
+- 확인 기준: `git diff origin/experiment/t14... -- decisions/0061*` 에서 바뀐 줄이 추가 절뿐, 추가 절에 'real 이면 둘 다 필수' 0건·'비정수 tMs 는 invalid' 0건.
+- 권장 모델: opus (같은 결정 서술 항목 F-532·F-534·F-545 에 이어 반복)
+- 이력: 2026-10-06 15:25 감독 등록(PR #97 검토 #1, 축 2 보고 '높음' → 제품 코드 무영향·정정 절이 원문 오류를 밝히고 있어 중간으로 채택)
+
+### F-550 [열림] (심각도: 중간) — 계약 FIXTURE_EVENTS 가 계약 자신의 T16.4 규칙(level 0 도착 필요)을 어기고, 계약 서술에 noArrival·clock 필수·tMs 단조·result.serverSamples 대체가 없다
+- 위치: 제품 contracts/load/harness.mjs FIXTURE_EVENTS(:100-110 부근), :20 firstFrameStats 반환 서술, :35-38 statsClock·loadReport 서술, :1·:3 머리 주석 (3739cd6)
+- 문제: 고정 로그 주석은 'client 0 first frame at 1200 ms' 인데 level 이벤트가 없어 이번 규칙으로는 첫 프레임이 하나도 인정되지 않는다. first_frame.test.mjs 는 level 이벤트를 덧붙여 우회한다. 계약 반환 서술에 noArrival 이 없어 계약대로 만든 stats 는 'no first frame' 문구가 된다. clock 필수(run.mjs samplerOptions)·주입 로그 tMs 단조(event_log.mjs)·loadReport 의 result.serverSamples 대체 경로가 계약에 없다. 머리 주석이 0061 을 가리키지 않는다.
+- 실패 상황: 감독 재현 — `firstFrameStats(FIXTURE_EVENTS,3)` → p95 NaN, 위반 4개('client 0: first_frame without level-0 arrival' 등).
+- 고칠 것: FIXTURE_EVENTS 에 level 0 도착을 넣고 per_client·bandwidth·event_log 시험 기대값을 다시 확인, 계약 서술 보강.
+- 확인 기준: `firstFrameViolations(firstFrameStats(FIXTURE_EVENTS,3))` → [] 이고 p95 가 주석 값과 일치, harness.mjs 에 noArrival·clock·tMs 단조 서술 각 ≥ 1, first_frame.test 의 덧붙임 우회 제거.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 15:25 감독 등록(PR #97 검토 #1, 축 2 — 새로 찾은 것)
+
+### F-551 [열림] (심각도: 중간) — 실제 시계 샘플 검사의 틈: 첫 간격·마지막 간격·섞인 clock·durationS ≤ 1·비유한 durationS 를 보지 않아 몇 ms 샘플이 통과한다 (F-543 ② 잔여)
+- 위치: 제품 bench/load/server_stats/index.mjs:78-88 (checkServerSamples 의 durationS 절), run.mjs:136 (개수 `<` 만)
+- 문제: 간격 루프가 i=1..last-1 이라 첫·마지막 간격을 보지 않고, 마지막 샘플이 real 이 아니면 마지막 tS 검사를 건너뛴다. durationS 가 유한하지 않으면 검사 전체를 조용히 건너뛴다. 마지막 tS > durationS(1 s 이내)·샘플 과다도 통과.
+- 실패 상황: 감독 재현 — real 샘플 tS [0.001, 60], durationS 60 → 위반 []; tS [0.0059, 0.006], durationS 1.005 → 위반 []. 축 1 재현: steady durationS 0.5 에 실제 시계 → tS [0.00011] 위반 없음; tS 1..60 에 60.5 추가 61개 → 위반 [].
+- 고칠 것: 모든 샘플 clock·source 동일 요구, durationS 가 주어졌는데 유한 양수가 아니면 위반, 첫 tS 는 min(1, durationS) ±0.5, 모든 간격(마지막은 마지막 칸 폭 ±0.5) 검사, 마지막 tS > durationS 위반, 개수 ≠ ceil(durationS) 위반. 거짓 now + clock 'real' 은 검사로 못 가리므로 한계를 계약·결정에 적는다.
+- 확인 기준: 위 네 입력이 각각 위반 ≥ 1, 기본 SCENARIOS 위반 0, 정상 실제 시계 1 s 간격 60개 위반 0.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 15:25 감독 등록(PR #97 검토 #1, 축 1·7 — 감독 재현)
+
+### F-552 [열림] (심각도: 중간) — 이번 변경의 기술 결정이 결정 기록 없이 실험 노트 한 줄로만 남았다
+- 위치: 제품 bench/load/bandwidth/index.mjs 피크 정의(칸 바이트 ÷ 칸 폭 — 공표 지표 load.bandwidth_peak_bytes_per_s 정의 변경), server_stats 실제 시계 허용폭(마지막 tS ±1 s, 간격 0.5~1.5 s), event_log.mjs tMs 역행이면 로그 전체 거부, run.mjs statsClock.clock 필수, load_report method 섞이면 'unknown', slow_link 가 level 0 이벤트를 냄. 연구 experiments/t16-16.md 표.
+- 문제: RULES.md §3 '기술적 결정은 모두 decisions/ 에' — 선택지·근거·대가·다시 볼 조건이 없다. 특히 tMs 역행 전체 거부는 T16.12 실서버 병합 로그가 정렬되지 않으면 통계 전체가 비는 대가가 있다.
+- 실패 상황: T16.12 작업자가 실서버 로그를 넣을 때 정렬 요구·허용폭 근거를 찾을 곳이 없다.
+- 고칠 것: 새 결정 파일(예: 0062, 0061 을 고치지 않고)에 위 6항목 각각 결정·근거·대가·다시 볼 조건, decisions/README 행.
+- 확인 기준: 새 결정 파일에 6항목 행, README 표 행.
+- 권장 모델: haiku(서술), 허용폭 근거는 sonnet
+- 이력: 2026-10-06 15:25 감독 등록(PR #97 검토 #1, 축 2 — 감독이 diff 로 확인)
+
+### F-553 [열림] (심각도: 낮음) — PR #97 검토 #1 견고성·시험·성능 낮음 묶음
+- 위치·문제·확인 기준:
+  ① burst/index.mjs:103-110 같은 순간 같은 수준 중복 도착 통과(주석 'At most burstLevels + 1' 미검사) — `[l0,l0,l1]@100`, burstLevels 2 → 위반 ≥ 1.
+  ② first_frame/index.mjs:63 connect 보다 앞선 first_frame 이 'no first frame' 문구로, level 0 도착보다 앞선 first_frame 은 조용히 버려짐 — connect 0·ff 400·l0 450·ff 500 → 위반 ≥ 1.
+  ③ bandwidth/index.mjs:36 `tMs <= durationS*1000` 부동소수 — durationS 1.005, tMs 1005 → invalid [].
+  ④ run.mjs:72 `runScenario(S, null)` TypeError — 'runScenario: opts …' 명시 오류.
+  ⑤ server_stats:54 `checkServerSamples(x, null)` TypeError — 'Never throws' 지키기.
+  ⑥ load_report:33-44 섞인 샘플 source 를 첫 값으로 표기 — 'unknown'.
+  ⑦ clients/index.mjs connectionViolations(null|[null]) TypeError, bandwidthViolations({invalid:5}) TypeError — 모듈 간 같은 거부 방식.
+  ⑧ run.mjs:138-141 catch 경로 시험 없음(catch 를 throw 로 바꿔도 통과) — 던지는 cpuUsage 로 'steady30: server stats: cpu gone' 정확 단언, null 시험은 '0 server samples, expected 60' 정확 문구. run.mjs:128 주석 정정.
+  ⑨ event_log.mjs:16 isFinite·t>=0 삭제 변이, :18 else 삭제 변이 생존 — `[Inf,1]`, `[10,-1,3]`, `[0,20,5,10]` 정확 배열 단언.
+  ⑩ load_report:38 cell(src)→src 변이 생존 — source 'a|b\nc' 시험.
+  ⑪ run_all.test.mjs:286 항상 참 `every(...)||…`, :303-305 빈 루프 정리.
+  ⑫ burst.test.mjs showOnly 를 거친 기존 단언 7곳 — 완전성 위반 부재도 단언하도록.
+  ⑬ burst/index.mjs:133 `a.find` 반복(4만×4만 4.3 s) — level→첫 도착 Map.
+  ⑮ server_stats/index.mjs:87 간격 경계 0.5·1.5 변이 생존 — 0.5·1.5 통과, 0.49·1.51 위반 단언.
+  ⑯ first_frame/index.mjs:52 정렬 안 된 level 0(600 뒤 100) 시험 없음 — [connect@0, l0@600, l0@100, ff@500] 위반 [] 단언.
+  ⑭ 연구 experiments/t16-1.md:28 '추정' 표기 — 감독 기록 3b37b10 실행(5457·pass 5440·skipped 12·todo 5)으로 확정.
+- 권장 모델: sonnet(①~⑬), haiku(⑪⑭)
+- 이력: 2026-10-06 15:25 감독 등록(PR #97 검토 #1, 축 1·3·4a·4b·5·6·7 보고 중 근거 줄 있는 것)
+
+### F-554 [열림] (심각도: 중간) — burst 수준 완전성 검사의 경계 변이 생존: level 0·마지막 수준 누락 시험이 없다 (F-544 잔여)
+- 위치: 제품 bench/load/burst/index.mjs:106 (`for (let k = 0; k < scenario.burstLevels; k++)`), 시험 burst.test.mjs:224-238 (가운데 수준 1·2 누락만)
+- 문제: `k = 0`→`1` 변이와 `k < burstLevels - 1` 변이가 시험을 통과한다(축 4b 변이 실행, 감독이 시험 줄 직접 읽음).
+- 실패 상황: burstLevels 4, 도착 level 1·2·3 @100 → 원본 'client 0: burst level 0 missing', 변이 []. level 0·1·2 @100 → 원본 'burst level 3 missing', 변이 [].
+- 고칠 것: level 0 누락과 마지막 수준 누락을 정확한 문구로 단언하는 시험 각 1개.
+- 확인 기준: 두 변이 각각 시험 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 15:25 감독 등록(PR #97 검토 #1, 축 4b)
