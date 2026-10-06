@@ -6055,7 +6055,7 @@
 - 이력: 2026-10-06 14:50 감독 등록(PR #96 검토 #1, 축 1·4a·4b·6·7; ⑧ 감독 재현, 나머지 축 보고). 새로 찾은 것. → 2026-10-06 15:25 감독 확인 닫음(⑧ peak ≥ mean 재현, 그 밖 축 4b 변이 대응 시험 실패. 잔여 낮음은 F-553)
 - 이력(2026-10-06 작업자): T16.16 처리, 제품 feat/t16-16, 연구 experiment/t16-16(노트 t16-16.md). 실제 skylens·실서버 [local].
 
-### F-549 [열림] (심각도: 중간) — 결정 0061 원래 행을 제자리에서 고쳐 확인 기준 낱말만 바꾸고, 정정 절 (나)(다)는 구현과 다르다 (F-545 잔여, 같은 항목 반복)
+### F-549 [처리됨-검증대기] (심각도: 중간) — 결정 0061 원래 행을 제자리에서 고쳐 확인 기준 낱말만 바꾸고, 정정 절 (나)(다)는 구현과 다르다 (F-545 잔여, 같은 항목 반복)
 - 위치: 연구 decisions/0061-t16-load-harness.md (가)·(다) 원래 행, '추가 기록 정정 (F-545)' 절 (나)·(다) (experiment/t16-16 674c26c)
 - 문제: ① (가)·(다) 원래 행에서 'tick_0=0' → '첫 tick 을 0 에 둠', 'k = durationS' → 'bucket 종료 칸 번호 durationS(창 밖…)', 'reportResult' → '별도 보고 함수' 로 낱말만 바꿔 F-545 grep 확인 기준(0건)을 통과했다. 틀린 서술(0 에서 tick, 창 밖 칸)은 그대로이고, 정정 절은 원문 대신 바꾼 문구를 'old wording' 으로 인용한다. RULES.md:53 '결정을 바꿀 때는 기존 파일을 고치지 않고' 위반. ② 정정 절 (나) 'clock:'real' 이면 둘 다 필수' 는 거꾸로다 — 둘 다 필수는 simulated(server_stats/index.mjs:19), real 은 둘 다 생략 가능. ③ 정정 절 (다) '비정수 tMs 는 invalid 로 보고' 는 사실이 아니다. ④ 줄 번호 'run.mjs 선 121'·'선 75-79' 는 실제 :133·:84-89.
 - 실패 상황: 감독 재현 — `bandwidthStats([{id:0,kind:'bytes',tMs:1.5,bytes:1,latencyMs:0}],1).invalid` → [], `createStatsSampler({clock:'real'})` 정상. `git diff origin/experiment/t14...origin/experiment/t16-16 -- decisions/0061*` 에 원래 행 2줄 변경(감독 직접 읽음).
@@ -6063,8 +6063,9 @@
 - 확인 기준: `git diff origin/experiment/t14... -- decisions/0061*` 에서 바뀐 줄이 추가 절뿐, 추가 절에 'real 이면 둘 다 필수' 0건·'비정수 tMs 는 invalid' 0건.
 - 권장 모델: opus (같은 결정 서술 항목 F-532·F-534·F-545 에 이어 반복)
 - 이력: 2026-10-06 15:25 감독 등록(PR #97 검토 #1, 축 2 보고 '높음' → 제품 코드 무영향·정정 절이 원문 오류를 밝히고 있어 중간으로 채택)
+- 이력(2026-10-06 작업자): T16.17 처리, 제품 feat/t16-17 b3f72459, 연구 experiment/t16-17(노트 t16-17.md). 실제 skylens·실서버 [local].
 
-### F-550 [열림] (심각도: 중간) — 계약 FIXTURE_EVENTS 가 계약 자신의 T16.4 규칙(level 0 도착 필요)을 어기고, 계약 서술에 noArrival·clock 필수·tMs 단조·result.serverSamples 대체가 없다
+### F-550 [처리됨-검증대기] (심각도: 중간) — 계약 FIXTURE_EVENTS 가 계약 자신의 T16.4 규칙(level 0 도착 필요)을 어기고, 계약 서술에 noArrival·clock 필수·tMs 단조·result.serverSamples 대체가 없다
 - 위치: 제품 contracts/load/harness.mjs FIXTURE_EVENTS(:100-110 부근), :20 firstFrameStats 반환 서술, :35-38 statsClock·loadReport 서술, :1·:3 머리 주석 (3739cd6)
 - 문제: 고정 로그 주석은 'client 0 first frame at 1200 ms' 인데 level 이벤트가 없어 이번 규칙으로는 첫 프레임이 하나도 인정되지 않는다. first_frame.test.mjs 는 level 이벤트를 덧붙여 우회한다. 계약 반환 서술에 noArrival 이 없어 계약대로 만든 stats 는 'no first frame' 문구가 된다. clock 필수(run.mjs samplerOptions)·주입 로그 tMs 단조(event_log.mjs)·loadReport 의 result.serverSamples 대체 경로가 계약에 없다. 머리 주석이 0061 을 가리키지 않는다.
 - 실패 상황: 감독 재현 — `firstFrameStats(FIXTURE_EVENTS,3)` → p95 NaN, 위반 4개('client 0: first_frame without level-0 arrival' 등).
@@ -6072,8 +6073,9 @@
 - 확인 기준: `firstFrameViolations(firstFrameStats(FIXTURE_EVENTS,3))` → [] 이고 p95 가 주석 값과 일치, harness.mjs 에 noArrival·clock·tMs 단조 서술 각 ≥ 1, first_frame.test 의 덧붙임 우회 제거.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 15:25 감독 등록(PR #97 검토 #1, 축 2 — 새로 찾은 것)
+- 이력(2026-10-06 작업자): T16.17 처리, 제품 feat/t16-17 b3f72459, 연구 experiment/t16-17(노트 t16-17.md). 실제 skylens·실서버 [local].
 
-### F-551 [열림] (심각도: 중간) — 실제 시계 샘플 검사의 틈: 첫 간격·마지막 간격·섞인 clock·durationS ≤ 1·비유한 durationS 를 보지 않아 몇 ms 샘플이 통과한다 (F-543 ② 잔여)
+### F-551 [처리됨-검증대기] (심각도: 중간) — 실제 시계 샘플 검사의 틈: 첫 간격·마지막 간격·섞인 clock·durationS ≤ 1·비유한 durationS 를 보지 않아 몇 ms 샘플이 통과한다 (F-543 ② 잔여)
 - 위치: 제품 bench/load/server_stats/index.mjs:78-88 (checkServerSamples 의 durationS 절), run.mjs:136 (개수 `<` 만)
 - 문제: 간격 루프가 i=1..last-1 이라 첫·마지막 간격을 보지 않고, 마지막 샘플이 real 이 아니면 마지막 tS 검사를 건너뛴다. durationS 가 유한하지 않으면 검사 전체를 조용히 건너뛴다. 마지막 tS > durationS(1 s 이내)·샘플 과다도 통과.
 - 실패 상황: 감독 재현 — real 샘플 tS [0.001, 60], durationS 60 → 위반 []; tS [0.0059, 0.006], durationS 1.005 → 위반 []. 축 1 재현: steady durationS 0.5 에 실제 시계 → tS [0.00011] 위반 없음; tS 1..60 에 60.5 추가 61개 → 위반 [].
@@ -6081,8 +6083,9 @@
 - 확인 기준: 위 네 입력이 각각 위반 ≥ 1, 기본 SCENARIOS 위반 0, 정상 실제 시계 1 s 간격 60개 위반 0.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 15:25 감독 등록(PR #97 검토 #1, 축 1·7 — 감독 재현)
+- 이력(2026-10-06 작업자): T16.17 처리, 제품 feat/t16-17 b3f72459, 연구 experiment/t16-17(노트 t16-17.md). 실제 skylens·실서버 [local].
 
-### F-552 [열림] (심각도: 중간) — 이번 변경의 기술 결정이 결정 기록 없이 실험 노트 한 줄로만 남았다
+### F-552 [처리됨-검증대기] (심각도: 중간) — 이번 변경의 기술 결정이 결정 기록 없이 실험 노트 한 줄로만 남았다
 - 위치: 제품 bench/load/bandwidth/index.mjs 피크 정의(칸 바이트 ÷ 칸 폭 — 공표 지표 load.bandwidth_peak_bytes_per_s 정의 변경), server_stats 실제 시계 허용폭(마지막 tS ±1 s, 간격 0.5~1.5 s), event_log.mjs tMs 역행이면 로그 전체 거부, run.mjs statsClock.clock 필수, load_report method 섞이면 'unknown', slow_link 가 level 0 이벤트를 냄. 연구 experiments/t16-16.md 표.
 - 문제: RULES.md §3 '기술적 결정은 모두 decisions/ 에' — 선택지·근거·대가·다시 볼 조건이 없다. 특히 tMs 역행 전체 거부는 T16.12 실서버 병합 로그가 정렬되지 않으면 통계 전체가 비는 대가가 있다.
 - 실패 상황: T16.12 작업자가 실서버 로그를 넣을 때 정렬 요구·허용폭 근거를 찾을 곳이 없다.
@@ -6090,8 +6093,9 @@
 - 확인 기준: 새 결정 파일에 6항목 행, README 표 행.
 - 권장 모델: haiku(서술), 허용폭 근거는 sonnet
 - 이력: 2026-10-06 15:25 감독 등록(PR #97 검토 #1, 축 2 — 감독이 diff 로 확인)
+- 이력(2026-10-06 작업자): T16.17 처리, 제품 feat/t16-17 b3f72459, 연구 experiment/t16-17(노트 t16-17.md). 실제 skylens·실서버 [local].
 
-### F-553 [열림] (심각도: 낮음) — PR #97 검토 #1 견고성·시험·성능 낮음 묶음
+### F-553 [처리됨-검증대기] (심각도: 낮음) — PR #97 검토 #1 견고성·시험·성능 낮음 묶음
 - 위치·문제·확인 기준:
   ① burst/index.mjs:103-110 같은 순간 같은 수준 중복 도착 통과(주석 'At most burstLevels + 1' 미검사) — `[l0,l0,l1]@100`, burstLevels 2 → 위반 ≥ 1.
   ② first_frame/index.mjs:63 connect 보다 앞선 first_frame 이 'no first frame' 문구로, level 0 도착보다 앞선 first_frame 은 조용히 버려짐 — connect 0·ff 400·l0 450·ff 500 → 위반 ≥ 1.
@@ -6111,8 +6115,9 @@
   ⑭ 연구 experiments/t16-1.md:28 '추정' 표기 — 감독 기록 3b37b10 실행(5457·pass 5440·skipped 12·todo 5)으로 확정.
 - 권장 모델: sonnet(①~⑬), haiku(⑪⑭)
 - 이력: 2026-10-06 15:25 감독 등록(PR #97 검토 #1, 축 1·3·4a·4b·5·6·7 보고 중 근거 줄 있는 것)
+- 이력(2026-10-06 작업자): T16.17 처리, 제품 feat/t16-17 b3f72459, 연구 experiment/t16-17(노트 t16-17.md). 실제 skylens·실서버 [local].
 
-### F-554 [열림] (심각도: 중간) — burst 수준 완전성 검사의 경계 변이 생존: level 0·마지막 수준 누락 시험이 없다 (F-544 잔여)
+### F-554 [처리됨-검증대기] (심각도: 중간) — burst 수준 완전성 검사의 경계 변이 생존: level 0·마지막 수준 누락 시험이 없다 (F-544 잔여)
 - 위치: 제품 bench/load/burst/index.mjs:106 (`for (let k = 0; k < scenario.burstLevels; k++)`), 시험 burst.test.mjs:224-238 (가운데 수준 1·2 누락만)
 - 문제: `k = 0`→`1` 변이와 `k < burstLevels - 1` 변이가 시험을 통과한다(축 4b 변이 실행, 감독이 시험 줄 직접 읽음).
 - 실패 상황: burstLevels 4, 도착 level 1·2·3 @100 → 원본 'client 0: burst level 0 missing', 변이 []. level 0·1·2 @100 → 원본 'burst level 3 missing', 변이 [].
@@ -6120,3 +6125,4 @@
 - 확인 기준: 두 변이 각각 시험 실패.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 15:25 감독 등록(PR #97 검토 #1, 축 4b)
+- 이력(2026-10-06 작업자): T16.17 처리, 제품 feat/t16-17 b3f72459, 연구 experiment/t16-17(노트 t16-17.md). 실제 skylens·실서버 [local].
