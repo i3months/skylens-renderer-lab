@@ -5208,7 +5208,7 @@
 - 이력: 2026-10-06 01:40 감독 등록(PR #84 검토 #1, 축 4b 보고 높음 — 감독이 bundle.test.mjs 전체·contracts/controlview/index.mjs:34-36 직접 읽고 문턱 불일치는 감독이 새로 찾음). 새로 찾은 것. PR #84 반려 사유.
 - 이력 추가: 2026-10-06 02:20 감독(PR #84 검토 #2) — 감독 grep: bench/tower 아래 '300 * 1024' 0건, 문턱 CONTROLVIEW_LIMITS.bundleBytes(bundle.test.mjs:10), esbuild 0.28.2 devDependency·lock 고정, bundle.mjs 가 esbuild 없으면 던짐(폴백 없음, 감독 읽음). 감독 실행 `node bench/tower/bundle.mjs` 68,057 B(/tmp cwd 에서도 같은 출력). 축 4a 사본 변이: esbuild 못 불러옴 0/2·entries []·gzip 0·totalGzip 0 모두 실패, modules []·모듈 하나 삭제 실패, 원본 2/0. 확인 기준 충족 → 닫음. 단 bundle:false·공유 chunk 버림·external 변이는 통과 → F-463.
 
-### F-462 [처리됨-검증대기] (심각도: 높음) — 새 p90 ≤ 8 ms 단언이 부하에서 흔들려 전체 npm test 를 간헐적으로 실패시킨다
+### F-462 [닫힘] (심각도: 높음) — 새 p90 ≤ 8 ms 단언이 부하에서 흔들려 전체 npm test 를 간헐적으로 실패시킨다
 - 위치: 제품 f01b623 client/tower/fallback/perf.test.mjs:23(P90_MAX_MS = 8, 주석 '실측 한 자리 ms 아래로 여유가 크다')·:146-157(p90 단언)·:103-108(untilOk 3회)
 - 문제: 문턱이 실측 분포와 여유 없이 붙어 있다. 실측 p90 6.9~8.56 ms, 중앙값 4.0~5.2 ms. 주석의 '여유가 크다' 는 실측과 다르다. untilOk 3회 재시도로도 막지 못한다.
 - 실패 상황: 감독이 f01b623 에서 `node --test client/tower/fallback/perf.test.mjs` 를 연속 3회(부하 평균 약 5, 4코어) → 1회 fail('p90 8.56 ms > 8 ms'). 전체 npm test(감독, 서브에이전트 동시 부하)에서는 p90 7.36 ms 로 통과. 축 6·7 사본 단독 실행에서도 8.36 ms 실패. 감독 검증(서브에이전트 12개 동시)·회귀 주기의 전체 재실행이 무작위로 빨갛게 된다.
@@ -5217,8 +5217,10 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-06 02:20 감독 등록(PR #84 검토 #2, 축 6·7 보고 높음 — 감독이 직접 3회 실행해 1회 실패 재현, :23·:146-157 읽음). 이 PR 이 만든 것(F-454 ③ 처리 중 생김). PR #84 반려 사유.
 - 이력 추가: 2026-10-06 작업자 — 제품 fb3401c 에서 처리(확인 기준 직접 실행: 변이 실패·시간·grep), 전체 npm test 실패 0. 감독이 확인.
+- 이력 추가: 2026-10-06 02:55 감독 확인 닫음 — fb3401c 에서 CPU 소모 프로세스 4개와 perf.test.mjs 5회 연속 11/0(p90 3.70~5.73 ms, p90/중앙값 1.10~1.59). 축 4b 사본: 제품 Pfit10 10/1·Pold 9/2(부하 포함 5회·3회 모두 실패). 결정 0054 에 문턱 근거 있음(다시 볼 조건 빠짐은 F-467).
 
-### F-463 [처리됨-검증대기] (심각도: 중간) — 번들 시험이 '진입 파일만 재는' 측정을 여전히 잡지 못한다
+
+### F-463 [닫힘] (심각도: 중간) — 번들 시험이 '진입 파일만 재는' 측정을 여전히 잡지 못한다
 - 위치: 제품 f01b623 bench/tower/bundle.test.mjs:17-18(MIN_ENTRY_GZIP 50·모듈당 1024 B 하한, 실측 최소 101 B·합계 68,057 B)·:41-42(totalGzip === 합, r 자기 비교)·:51-64(양성 대조가 큰 데이터를 진입 파일 안에 직접 넣음)
 - 문제·실패 상황(축 4a 사본, 미확인 수치): bundle.mjs 에 bundle:false(진입 파일만, 합계 16,280 B)·공유 chunk 버림·external ['*'] 변이를 넣어도 2/0 통과. 하위 모듈이 아무리 커져도 통과한다(F-461 의 원래 결함과 같은 꼴, 다만 이제는 코드 변경이 있어야 생김).
 - 고칠 것: 양성 대조를 '작은 진입이 큰 모듈을 import' 형태로. esbuild metafile 로 진입마다 입력 파일 수 > 1(또는 client/tower/e2e 진입이 다른 모듈을 포함) 단언. 합계 하한은 근거를 적어(예: 진입 파일만 잰 값보다 크다).
@@ -5226,8 +5228,10 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-06 02:20 감독 등록(PR #84 검토 #2, 축 4a; 감독이 bundle.test.mjs 전체 읽음). 새로 찾은 것(F-461 잔여).
 - 이력 추가: 2026-10-06 작업자 — 제품 fb3401c 에서 처리(확인 기준 직접 실행: 변이 실패·시간·grep), 전체 npm test 실패 0. 감독이 확인.
+- 이력 추가: 2026-10-06 02:55 감독 확인 닫음 — 축 4a 사본: bundle:false 0/2·chunk 전부 버림 1/1·external ['*'] 0/2·상대 import external 0/2, 원본 2/0. 감독이 bundle.test.mjs diff 읽음. chunk 일부 버림 잔여는 F-466.
 
-### F-464 [처리됨-검증대기] (심각도: 중간) — visible 계수기가 stats 없는 vertices 호출을 세지 않고, T15.10 노트 수치·결론이 재현과 다르다
+
+### F-464 [닫힘] (심각도: 중간) — visible 계수기가 stats 없는 vertices 호출을 세지 않고, T15.10 노트 수치·결론이 재현과 다르다
 - 위치: 제품 f01b623 client/tower/streaming/visible.mjs:114·:258; 연구 experiment/t15-10 df9d0ae experiments/t15-10.md:6·:10·:12·:27-28
 - 문제: ① vertexCalls 는 stats 를 넘긴 호출만 센다. `hull(vertices(planes, stats)); vertices(planes);` 변이·`vertices(planes, stats); hull(vertices(planes))` 변이 모두 visible.test 22/0(축 1a 사본) — F-460 ⑥ 미해결. ② 노트 :6 합계 68,041 B 는 재현 68,057 B(감독)와 다르고, 모듈별 KB(input 3.31·…·e2e 24.58)는 정정 전 중복 합산 값(splitting 후 실제 entry: input 101 B·e2e 1,911 B·raster 16,974 B, 축 2). ③ :12 '2.54 배 초과는 상한 정책 결함이 아니라 형식 선택' — 높이만 형식에서도 noiseBig LOD0~3 모두 4,340,224 B 라 LOD 무효(F-458)는 형식과 무관하다(감독 읽음). ④ :10 'gzip 은 … 아래' 괄호가 판정처럼 남음. ⑤ :27-28 F-454 ②③④·F-451 ①② '미처리' 라 적었으나 ab9be00 이 처리(감독 diff 확인). ⑥ :12 높이만 수치에 [cloud] 없음.
 - 실패 상황: 다음 작업자가 정정 전 모듈별 값으로 예산을 판단하거나, T15.10b 에서 F-458 을 형식 문제로 보고 닫는다.
@@ -5236,11 +5240,45 @@
 - 권장 모델: sonnet(②~⑥ haiku)
 - 이력: 2026-10-06 02:20 감독 등록(PR #84 검토 #2, 축 1a·2·5·12). ① 은 F-460 ⑥ 잔여, ②~⑥ 은 F-457 잔여·새로 찾은 것.
 - 이력 추가: 2026-10-06 작업자 — 제품 fb3401c 에서 처리(확인 기준 직접 실행: 변이 실패·시간·grep), 전체 npm test 실패 0. 감독이 확인.
+- 이력 추가: 2026-10-06 02:55 감독 확인 닫음 — ① 축 4b 사본 V1·V2 각 20/2(모듈 수준 계수기 단언), 감독 visible.mjs·visible.test.mjs diff 읽음. ③ 감독 grep '상한 정책 결함이 아니라' 0건. ② 노트 68,057 B 는 감독 재현 68,062 B 와 5 B 다름 → F-467 ③.
 
-### F-465 [처리됨-검증대기] (심각도: 낮음) — PR #84 검토 #2 낮음 묶음
+### F-465 [닫힘] (심각도: 낮음) — PR #84 검토 #2 낮음 묶음
 - 위치·고칠 것: ① bench/tower/lod_bytes.mjs:75-77·:111-112 캐시가 같은 객체를 돌려줘 lod_bytes.test.mjs:49 결정성 단언이 자기 비교 — 결정성 시험은 캐시 우회(sonnet). ② lod_bytes.test 시간 10.3~15.4 s, 절반(10.6 s) 기준 6회 중 3회 초과 — measureAll 재사용(haiku). ③ lod_bytes.mjs:12 '약 6 B 과대' 는 64 KiB 미만 조각에서만 — 조건을 적음(haiku). ④ determinism.test.mjs:208 은 :207 에 포함되고 추적 끝난 입력 카메라 x(0) 를 봄 — 삭제 또는 viewTail 추적 프레임으로(haiku). ⑤ no_network.test.mjs:81 '150 m' → 180 m(haiku). ⑥ step_frame.test.mjs:41 이름 '재생 중' 과 첫 사례(재생 전 검사) 불일치(haiku). ⑦ state_match.test.mjs:505-532 경계 표본만 검사 — 주석에 한정(haiku). ⑧ bench/client_bundle/bundle.test.mjs:10 '300 * 1024'·npx 폴백(6732bc3, 이 PR 이전) — bench/tower/bundle.mjs 로 합치거나 bundleBytes·폴백 삭제(sonnet). ⑨ lod_bytes.test 에 heightOnlyBytes 단언 없음(haiku). ⑩ perf.test.mjs:103 untilOk 3회 중 1회 통과 허용의 한계를 주석에(haiku). ⑪ perf.test.mjs:230-236 '10배 느린 변이' 가 frame 전체 10회라 자명, BIG_RATIO 5 가 Pold(3.56)를 통과 — 맞춤 순회 10배로 바꾸거나 이름을 낮춤(sonnet). ⑫ view.test.mjs:161 주석 'yaw 를 버리거나 부호·축을 바꾸면 여기서 어긋난다' 는 :160 이 먼저 잡으므로 사실과 다름 — 주석 정정(haiku).
 - 확인 기준: ① 바이트 계산에 Math.random 섞는 변이에서 :49 실패. ② 단독 반복 최댓값 ≤ 10.6 s. ⑧ 저장소 전체 grep '300 \* 1024' 0건. 나머지 grep·이름 일치.
 - 권장 모델: haiku(①⑧ sonnet)
 - 이력: 2026-10-06 02:20 감독 등록(PR #84 검토 #2, 축 1a·1b·2·4a·4b·4c·5; ⑧ 은 감독 grep·git log 확인, 나머지 축 근거).
 - 이력 추가: 2026-10-06 작업자 — 제품 fb3401c 에서 처리(확인 기준 직접 실행: 변이 실패·시간·grep), 전체 npm test 실패 0. 감독이 확인.
+- 이력 추가: 2026-10-06 02:55 감독 확인 닫음 — 축 4c: ① Math.random 변이에서 결정성 시험 실패, ② 단독 6.73~6.78 s, ⑧ '300 * 1024' 0건, ④⑤⑥⑦⑨ 확인. ⑫ 잔여(주석이 :163 의 능력을 부풀림)는 F-468 ⑥.
 
+### F-466 [열림] (심각도: 중간) — 번들 시험이 공유 chunk 일부만 빠뜨린 측정을 잡지 못하고, client_bundle 시험은 음성 단언이 없다
+- 위치: 제품 fb3401c bench/tower/bundle.test.mjs:18-24(MIN_TOTAL_GZIP 32,000 주석 'shared chunks dropped ~16,280 B')·:58-61(chunks.length ≥ 1, totalGzip > entriesOnly); bench/client_bundle/bundle.test.mjs:13-17(totalGzip > 0, ≤ 300,000 만); bench/client_bundle/index.mjs:16-34·:84-86(npx·concatenateSources 폴백)
+- 문제: ① chunk 전부 버림 측정은 35,132 B 로 하한 32,000 위라 하한이 chunk 누락을 잡지 못한다(주석의 16,280 B 는 bundle:false 값). chunk 13개 중 121 B 하나만 남기면 공유 코드 약 32.8 KB 가 빠진 채 2/0 통과(축 4a 사본, 미확인 수치). ② client_bundle 시험은 bundle:false·external 변이에서도 통과(실측 12,411 B, 한도의 4%). ③ client_bundle/index.mjs main() 에 npx·진입 파일만 잇는 폴백이 남아 시험과 CLI 측정이 갈라질 수 있다.
+- 실패 상황: 측정 도구가 공유 chunk 일부를 빠뜨리거나 client_bundle 측정이 import 를 안 따라가도 S4 번들 판정이 통과한다.
+- 고칠 것: ① measureBundle 이 emit 파일 수(metafile.outputs)를 돌려주고 entries + chunks 수와 같음을 단언, 또는 chunk 합계 하한(근거 주석); 주석 수치를 변이별 실측으로. ② client_bundle 에도 entry 수·chunk ≥ 1·합계 일관·entry 별 inputs 하한(client/geo 는 1)·합계 하한. ③ main() 도 measureBundle 로, 폴백 삭제.
+- 확인 기준: chunk 하나만 남기는 변이에서 tower 시험 실패; bundle:false·external 변이에서 client_bundle 시험 실패; grep -n "npx\|concatenate" bench/client_bundle/index.mjs 0건; 원본 통과.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 02:55 감독 등록(PR #84 검토 #3, 축 4a·5; 감독이 bundle.test.mjs diff 읽음, 수치는 사본). 새로 찾은 것(F-463 잔여).
+
+### F-467 [열림] (심각도: 중간) — Pfit10 변이 주석이 실측과 다르고, 결정 0054 p90 절에 다시 볼 조건이 없고, 노트 번들 수치가 재현과 다르다
+- 위치: 제품 fb3401c client/tower/fallback/perf.test.mjs:247-248·:252(Pfit10 = refTraverse 9회 추가, '몫 ≈ 9×0.8 ≫ 3×0.8')·:28(균일 느려짐은 못 잡는다)·:117(오탐 확률 p^3); bench/tower/bundle.test.mjs:20(68,057 B); 연구 experiment/t15-10 decisions/0054-t15-8-fallback.md:88-90; experiments/t15-10.md:6
+- 문제: ① refTraverse 는 제품 순회(몫 약 0.43 ms)의 약 2배 비용(0.80 ms)이라 시험 안 Pfit10 은 제품 순회 약 17배 회귀다. 제품 코드 루프를 10번 도는 실제 변이는 몫 3.8~5.1 ms 로 문턱 2.4 ms 대비 여유 1.6~2.1배뿐(축 1a·4b, 미확인 수치). ② :28 '여기서 못 잡는다' 는 비율 단언만 해당 — p90 ≤ 16 ms 는 약 3.6배 이상이면 잡는다. ③ :117 p^3 은 시도 독립 가정. ④ 0054:88-90 에 p90 ≤ 16 ms·2.5·묶음당 10회·BIG_RATIO 5 의 다시 볼 조건이 없고, '한가할 때도 … 간헐 실패가 났다' 는 실패가 부하에서 났다는 perf.test.mjs:24 와 어긋난다. ⑤ 노트 :6 합계 68,057 B·streaming 0.134·e2e 1.911 KB 는 fb3401c 재현 68,062 B·0.132·1.909 KB 와 다르다(감독 재현 68,062 B).
+- 실패 상황: 다음 작업자가 Pfit10 시험을 '제품 10배 회귀를 잡는다' 로 읽고 FIT_SHARE_RATIO 를 늘리거나, 기기가 바뀌어도 p90 문턱을 다시 보지 않는다.
+- 고칠 것: ① 변이 주석을 '기준 순회 9회 추가(제품 순회 약 17배)' 로, 제품 10배 회귀의 몫/ref 실측과 여유를 적음(또는 인라인 사본 9회). ②③ 주석 정정. ④ 0054 에 다시 볼 조건(기준 기기·코어 수 변경, 비율 2.0 초과 실측, FRAME_BUDGET_MS 변경, Pold 를 가를 새 지표)과 대가(시험 시간 증가, 3회 중 1회 통과 허용) 추가, 문장 정정. ⑤ 노트·bundle.test.mjs:20 을 `node bench/tower/bundle.mjs` 출력으로.
+- 확인 기준: 노트·주석 수치 = 명령 출력; 0054 p90 절에 근거·대가·다시 볼 조건 모두; 제품 Pfit10(index.mjs 순회 10회) 변이에서 perf.test 실패 유지.
+- 권장 모델: sonnet(④⑤ haiku)
+- 이력: 2026-10-06 02:55 감독 등록(PR #84 검토 #3, 축 1a·2·4b; ⑤ 감독 재현 68,062 B, 나머지 감독 diff 읽음·수치 사본). 새로 찾은 것.
+
+### F-468 [열림] (심각도: 낮음) — PR #84 검토 #3 낮음 묶음
+- 위치·고칠 것: ① bench/tower/bundle.mjs reachableInputs — entry 키가 metafile 에 없으면 조용히 0(시험 :inputs > 1 이 잡지만 main() 은 inputs 를 출력하지 않음): metafile.outputs[].entryPoint 로 키를 얻고 없으면 throw(sonnet). ② measureBundle([]) 이 0 B 로 끝남 — 빈 목록 throw(haiku). ③ bench/tower/lod_bytes.mjs measureLodBytes tilesPerSide 0·음수·홀수·NaN 검증 없음(0 이면 NaN 비율·reopen 참) — RangeError(haiku). ④ perf.test.mjs 중앙값 0 이면 ok(q ≤ 2.5m)와 단언(q/m ≤ 2.5, NaN)이 어긋남 — tail 을 한 번 정의해 둘 다 쓰기(haiku). ⑤ lod_bytes 캐시가 같은 객체를 돌려줘 호출자 변경이 캐시를 오염 — Object.freeze(haiku). ⑥ client/tower/fallback/view.test.mjs:161 주석이 :163 이 '방향 규약 어긋남을 잡는다' 고 하나 buildMarkers 는 yaw 를 그대로 내므로 :163 은 표 자체 검증 — 주석 정정(F-465 ⑫ 잔여, haiku). ⑦ experiments/t15-10.md:12 '무관다' → '무관하다'(haiku).
+- 확인 기준: ① 없는 키로 reachableInputs throw. ② measureBundle([]) reject. ③ tilesPerSide 0·3·NaN throw. ④ [0,0,0]·[0,0,1] 에서 판정 일치. ⑥ 주장 문구 0건. ⑦ grep '무관다' 0건.
+- 권장 모델: haiku(① sonnet)
+- 이력: 2026-10-06 02:55 감독 등록(PR #84 검토 #3, 축 1b·4c·7·2; ⑦ 감독 읽음, 나머지 축 근거).
+
+### F-469 [열림] (심각도: 중간) — reuse_cull ③ 시간 비율 단언이 부하에서 흔들려 전체 npm test 를 간헐 실패시킨다(이 PR 무관, 이전부터)
+- 위치: 제품 fb3401c client/tower/buildings/reuse_cull.test.mjs '③ 도시 1/10 만 보면 래스터에 넘어간 묶음 수 ≤ 1/3, black 시간 ≤ 1/3(중앙값)'
+- 문제: 시간 비율 단언이 동시 부하에서 실패한다. PR #84 는 이 디렉터리를 바꾸지 않았다(감독 git diff 0).
+- 실패 상황: 감독 전체 npm test(서브에이전트 12개 동시, 4코어) 에서 '1/10 61.7 ms > 전체 80.0 ms / 3' 로 실패 1. 같은 파일 단독 3회는 10/0.
+- 고칠 것: 벽시계 대신 CPU 시간(threadCpuUsage, perf.test.mjs 방식) 또는 묶음 수 같은 결정적 계수를 판정에, 시간은 재시도·근거 있는 여유로. 문턱 근거를 주석에. 1/10 이 전체와 같은 일을 하는 변이는 계속 실패해야 한다.
+- 확인 기준: CPU 소모 프로세스 4개와 함께 reuse_cull.test.mjs 10회 연속 실패 0; 컬링을 끄는 변이에서 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 02:55 감독 등록(PR #84 검토 #3, 감독 전체 실행에서 실패·단독 재실행 3회 통과 직접 확인). 새로 찾은 것, 이 PR 범위 밖(반려 사유 아님).
