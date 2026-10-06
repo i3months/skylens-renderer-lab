@@ -4794,7 +4794,7 @@
 - 이력: 2026-10-05 19:33 감독 등록(PR #78 검토 #2). 모두 새로 찾은 것.
   → 2026-10-05 20:15 감독 확인 닫음(PR #79 검토 #1): ① state.test.mjs:167 이름 정정·:180-181 유한 단언, ② state.mjs:28·:33 주석이 camera.mjs:70-71 과 일치(축 4b).
 
-### F-426 [열림] (심각도: 낮음, ①③ 닫음, ②④ 문구 잔여) — 결정 0051 의 renderer_basis·dt 상한 서술이 사실과 다르고, 0050 에 F-423 문구 잔여
+### F-426 [닫힘 — 0050:41 잔여는 F-450] (심각도: 낮음, ①③ 닫음, ②④ 문구 잔여) — 결정 0051 의 renderer_basis·dt 상한 서술이 사실과 다르고, 0050 에 F-423 문구 잔여
 - 위치: 연구 experiment/t15-5 472f04a decisions/0051-t15-5-chase-camera.md:17·:18·:41·:53-58·:69·:71-77, decisions/0050-t15-4-input-layer.md:17·:18·:39-45·:49·:63·:64·:67·:77·:101
 - 문제: ① 0051:55-58 '렌더링 기준선(좌표, 카메라, 정점 법선)을 따른다'·'기준선과 같음' — renderer_basis.md 는 고밀도 점군 생성 설명이고 렌더링 기준선 절이 없다(감독 직접 읽음, F-423 ④ 재발). ② 0051:41·:73-77 dt 상한 근거 '과도한·극단적인 변화 방지' — 지수 감쇠는 a ≤ 1 이라 넘침이 없다. 상한은 긴 정지 뒤 따라잡기를 늦추고(dt 1 s 에서 a 0.943 → 0.510), :17·:73 및 계약 chase.mjs:13 의 '프레임 길이 무관' 은 dt ≤ maxDtSec 에서만 성립. ③ 0051:69 '(decisions/0051 검증 조건)' 자기 참조, 근거 절에 시험 수치(0.6321, 3.4823 m, 0.2832, 1e-9) 인용 없음. :18 (c) 기각 사유 '원본 의미와 맞지 않음(미확인)' 은 (b) 와 같은 가정 — 파라미터 2개·속도 상태 필요로. ④ 0050 잔여(감독 grep 확인): :17·:18·:64 '게인·구르기·극대', :63·:67 '사각형'(시험은 사분원), :101 '편차 2.2 m 확인'(기각된 (a) 값), :45 'WebGL 셰이더 호환성' 출처 없음, :49·:77 '적분 수치 안정성 보조', MAX_RATE 절(:39-45)에 선택지·대가·다시 볼 조건 없음, :43 pitch 'float32 유한 검사'(실제는 범위 검사만)와 줄 번호 오기.
 - 실패 상황: T15.0L 담당이 0051 을 근거로 renderer_basis 에 없는 규약을 찾거나, dt 상한을 넘침 방지 장치로 알고 바꾼다. 0050 의 2.2 m 를 채택 방법 편차로 재확인한다.
@@ -4806,6 +4806,7 @@
 - → 2026-10-05 작업자(T15.7 PR): ② 0051 dt 상한·maxDtSec·(c) 사유, ④ 0050 줄 번호·MAX_RATE 절 정정(연구 experiment/t15-7 2b2f1b8 이전 커밋). 전체 npm test 4976 중 통과 4959·실패 0.
 - → 2026-10-05 21:25 감독(PR #81 검토 #1, 제품 ffc9549): 다시 엶(낮음으로 내림). 잔여: 0050:41 MAX_RATE 대상에 maxDtSec 누락·"dt 상한과 달리" 잔존·"입력.step:64" 는 state.mjs:64, 0050:81 "렌더링 기준선과 무관" 잔존, 0051:16 (a) 단점 "dt 가 길면 … 반응이 지나치게 큼" 방향이 틀림(고정 c 에서 긴 dt 는 느려지기만 함 — 감독 직접 읽음). 고칠 것: 0050:41 에 maxDtSec 넣고 "dt 상한과 달리" 삭제, :81 "로컬 입력 처리라 점군 생성과 무관", 0051:16 "fps 에 따라 추적 속도가 달라짐(높은 fps 빠름·낮은 fps 느림)". 확인: 0050 에 "기준선" 0건, 0051 에 "지나치게" 0건. 권장 모델 haiku.
 - → 2026-10-05 23:35 감독(PR #82 검토 #1, 연구 experiment/t15-8 감독 grep): 미처리 — 0050:41 'dt 상한(입력.step:64)과 달리'·:81 '렌더링 기준선과 무관', 0051:16 '반응이 지나치게 큼' 잔존. 열림 유지(낮음, haiku).
+- → 2026-10-06 00:10 감독(PR #83 검토 #1, 연구 experiment/t15-9 감독 직접 읽음): 0050 '기준선'·0051 '지나치게' 0건 확인. 0050:41 'dt 상한 maxDtSec … 와 달리' 잔존 — F-450 ② 로 옮기고 닫음.
 
 ### F-427 [닫힘] (심각도: 중간) — 추적 카메라 입력 검사가 float32·차이 넘침을 막지 않아 통과한 입력에서 camera() 가 매 프레임 던진다
 - 위치: 제품 26ba1df client/tower/chase/index.mjs:26-27·:53, client/tower/chase/state.mjs:35-41·:47, client/tower/chase/damp.mjs:38, contracts/controlview/chase.mjs:23-24
@@ -4998,7 +4999,7 @@
 - → 2026-10-05 22:50 감독 보강(같은 시각 예비 실행(:20)의 중복 검증, 병합 뒤 기록, 제품 d08c2a1): ⑦ 우선순위 빈틈(감독 직접 재현) — deps.planRequests 로 needed 를 뒤집어(먼 순) 넘기는 변이가 기본값 15 실행 중 12 개에서 defaultFailures [] 로 통과(걸린 것: 직선·2 시점 147>128, 회전·즉시 101>64, 회전·2 시점 183>128; 예: 광각·무작위 maxStreak 215 ≤ K 371). 같은 결함을 visible.mjs 정렬에 넣으면 visible.test.mjs:307-312 가 잡으므로 제품 결함은 아니고 재생 시험의 둔감함이다. 고칠 것: 같은 시점에 오라클 타일이 deferred 인데 그보다 카메라에서 먼 타일을 request 하면 위반으로 세는 단언(또는 ① 의 K < poses.length 로 함께 해결). 확인: 먼 순 변이 기본값 15/15 실패, 원본 15/15 통과. ⑧ F-439 ① 잔여(감독 직접 재현) — maxDistM 6e7·z = 600 + 0.99·6e7·fovY 2.8 에서 needed 0 인데 tilesInView 가 빈 행 264,502 개를 돌아 64 ms(3e7 은 132,252 행·29 ms). 축 1a 사본 보고로는 수평 +x 자세·fovY 1.2·z 34,800,600 에서 1,527,406 행·394~568 ms(미확인). 원인: 행 범위를 원판 y 폭과 시야 다각형 y 범위로만 자르고, 다각형이 원판 밖 x 에만 있을 때 행마다 stripRange 뒤 버림(visible.mjs:205-225). 고칠 것: halfSpaces 의 xy 반경을 hy = √(D²−dz²) 로 줄이거나 원판을 감싸는 다각형 면을 더하거나, rows ≤ needed + 테두리 단언. 확인: fovY 0.6~2.8 · z = 600 + f·6e7(f 0.3~0.99) 전수에서 update 100 ms 안. 기본 maxDistM 1500 에서는 0.1 ms 라 중간 유지. ⑨ (축 4b) package.json 전역 --test-timeout=900000 은 멈춘 파일 전체를 cancelled 로 만들어 같은 파일의 빠른 실패(pass 0·fail 0)까지 가린다 — 전역 120000 이하, 느린 drape 시험에만 test 별 timeout. 확인: ⑤ 의 변이에서 60 s 안에 개별 not ok ≥ 1.
 - → 2026-10-05 23:35 감독 닫음(PR #82 검토 #1, 제품 6f83384): ① replay.test.mjs:82-83 pathSteps 480·K < pathSteps 15/15(최대 K 424, 최소 여유 44). ② 변이 m1 이동 중 전부 취소 10/15·m2 가짜 16·8 15/15·m3 반노화 15/15 실패, 원본 15/15 통과. ⑦ 먼 순 15/15 실패. ④⑥ range.test 벽시계 단언 0(workGuard 작업량 계수기), 무부하 5회 rc 0. ⑤ 입구 검사+clampIdx 삭제 변이 1.8 s rc 1. ⑧ 고고도 64 ms → 0.3 ms(옛·새 결과 동일 7,500 자세; 16각형 여유 잔여는 F-444 ③). (축 4b·1b 사본 실행 수치, 감독은 전체 npm test 5093·fail 0 과 replay·range 시험 통과 확인.) ⑨ 는 F-442 ⑨ 로.
 
-### F-442 [열림] (심각도: 낮음) — PR #81 검토 #3 낮음 묶음
+### F-442 [닫힘 — ②④⑤ 잔여는 F-450] (심각도: 낮음) — PR #81 검토 #3 낮음 묶음
 - ① (축 2) 연구 decisions/0053:40 'maxDistM 6000 에서만 던짐' — visible.test.mjs:180-184 가 2611 에서 던짐을 단언, 광각 1920×1080·2500 에서도 던짐. 확인: '에서만' 0건, 문턱이 시험·측정과 맞음. haiku
 - ② (축 2) 0053:30·experiments/t15-7.md:13 '경로 4종 × 도착 모델 3종에서 요청한 적 없는 보이는 타일 0' — 무제한 5 경로 0, 기본값 놓침 0·자리 낭비 0·정지 뒤 ∅ 로. 0053 에 해석 한 줄. 확인: 그 서술 0건, 0053 에 '자리 낭비' 있음. haiku
 - ③ (축 2) 노트 :7 '이론 상한 1831' → visible.test.mjs:200 식 π(D+√2·S)²/S² = 1941. 확인: 노트·시험 상한 같음, 기록된 needed 가 상한 이하. haiku
@@ -5011,9 +5012,9 @@
 - 이력: 2026-10-05 22:32 감독 등록(PR #81 검토 #3). 새로 찾은 것(⑧ 은 F-440 ⑫ 잔여, ② 는 F-440 ⑤ 잔여). 미확인 포함.
 - → 2026-10-05 22:50 감독 보강(중복 검증, 미확인 포함): ⑩ (축 1a) 제품 client/tower/streaming/index.mjs:36 스냅샷이 조건부 — 첫 읽기에서 pos·quat 가 배열이 아니면 snap = pose 그대로라 checkView·checkCoordRange·center 가 pose.pos 접근자를 다시 읽는다(사본 재현: 접근자로 검사값·사용값·center 가 서로 다름). 늘 스냅샷하고 비배열은 TypeError. sonnet ⑪ (축 4b) perf.test.mjs:115 p50 ≤ 16 은 :116 p90 ≤ 8 뒤라 늘 참 — 지우거나 의미 있는 p50 기준. haiku ⑫ (축 2) 제품 client/tower/overlay/consistency.test.mjs:1 '투영 수식을 … 독립적으로 재유도' — 시험은 projectPoints·clipPolyline 을 가져와 비교할 뿐, 'clip.mjs 의 카메라 공간 투영이 projectPoints 와 벌어지지 않게 지킨다(0052 대가)' 로. 확인: '재유도' 0건. haiku ⑬ (축 1b) replay_harness.mjs:177 settleSteps 가 구현의 needed 크기로 정지 구간을 정함 — 오라클 마지막 크기로. replay_starve.test.mjs:36-37·:135 '2 배 여유' 주석을 현재 식 ceil(N/16)·(D+2) 로. 확인: grep '2 배 여유' 0건. haiku ⑭ (축 2) 0053 다시 볼 조건에 이동 중 held 팽창 상태 p90 한계(현재 10 ms) 추가. haiku
 - → 2026-10-05 23:35 감독(PR #82 검토 #1): 닫음 ③(1941)·⑥(visible 머리 주석 단계)·⑦(medianOf)·⑧(isSafeInteger·R 직교성)·⑩(늘 스냅샷)·⑪(p50 삭제 — p90 ≤ 8 에 포함돼 완화 아님)·⑫('재유도' 0건, 감독 grep)·⑬(settleSteps 오라클 크기·'2 배 여유' 0건, 감독 grep)·⑭. 잔여(축 2, 연구 experiment/t15-8): ① 0053:44 '6000 m 이상에서 던짐' — 시험은 2611 에서 던짐(visible.test.mjs:181-184). ② experiments/t15-7.md:13 '요청한 적 없는 보이는 타일 0'·'4종 × 3종' 잔존. ④ 0053:26 Δd 와 LOD 한 문장, :41·:45 대가 절에 근거 문장. ⑤ t15-7.md:42·:49 (D+2) 에 대체 표시 없음(현재 D+3). ⑨ package.json 전역 900000 그대로. 0053 조건부 승인 유지.
+- → 2026-10-06 00:10 감독(PR #83 검토 #1): ① 닫음('에서만' 0건, 축 2), ⑨ 닫음(EDGE_EPS_M 고정으로 비례 몫 삭제 — 결정 기록은 F-450 ①). ② t15-7.md:13 잔존, ④ 0053:40 대가 절에 근거 문장 추가, ⑤ t15-7.md:42 D+2 잔존(감독 grep) — F-450 ②③ 으로 옮기고 닫음.
 
-
-### F-443 [열림] (심각도: 중간) — 폴백 맞춤·뷰가 퇴화 입력에서 계약을 어기거나 NaN 을 낸다
+### F-443 [닫힘] (심각도: 중간) — 폴백 맞춤·뷰가 퇴화 입력에서 계약을 어기거나 NaN 을 낸다
 - 위치: 제품 feat/t15-8 6f83384 client/tower/fallback/view.mjs:26-28(avail = max(min(w,h) − 2·marginPx, 1), metersPerPx = span/avail), view.mjs:38·markers.mjs:24(visible 반열린 구간), validate.mjs:58-61(minSpanM 은 양수만, marginPx ≥ 0), validate.mjs:90-92(metersPerPx 양수만), contracts/controlview/fallback.mjs:15('자동 맞춤에서는 받은 모든 점이 [marginPx, size−marginPx] 안에 든다')
 - 문제: ① marginPx = 0 이면 지배 축 끝 점이 정확히 x = width 또는 y = height 에 놓여 visible = false. ② min(w,h) < 2·marginPx + 1 이면 avail 이 1 로 고정돼 지도가 1 px 로 줄고 계약 :15 가 거짓이 되며, 크기 1 px 차이로 축척이 2 배 뛴다(33×600 → mpp 200, 34×600 → 100). ③ minSpanM 5e-324 같은 극소값이면 metersPerPx 가 0 으로 언더플로해 x·y 가 NaN(JSON null), setView metersPerPx 5e-324 이면 ±Infinity.
 - 실패 상황(감독 직접 재현): createTowerFallback({marginPx:0}), 100×100, 드론 (0,0)·(200,−200) → b {x:100, y:100, visible:false}. 기본 옵션 20×20, 드론 (0,0)·(200,100) → mpp 200, x 9.5·10.5(여백 16 보장 불성립). createTowerFallback({minSpanM:5e-324}) 드론 1개 200×100 → view.metersPerPx 0, 드론 x·y null.
@@ -5021,8 +5022,9 @@
 - 확인 기준: marginPx 0 과 여러 크기에서 자동 맞춤의 받은 점이 모두 visible; 20×20·33×600·34×600 에서 받은 점이 보이고 축척이 크기에 단조; minSpanM 5e-324·setView metersPerPx 5e-324 가 RangeError 이거나 frame 의 모든 x·y 가 Number.isFinite.
 - 권장 모델: sonnet
 - 이력: 2026-10-05 23:30 감독 등록(PR #82 검토 #1, 축 1a·7 보고, ①②③ 감독 node 재현). 새로 찾은 것. 기본 옵션·보통 화면 크기에서는 생기지 않아 중간.
+- → 2026-10-06 00:10 감독 닫음(PR #83 검토 #1, 제품 8a7fabc): 축 1a 사본 실행 — marginPx 0·100×100 두 점 (1,1)·(99,99) visible, marginPx {0,0.3,1,16,1000} × 폭 2~300 × 높이 8종 × 규모 3종 35,880 건 안 보이는 점 0·예외 0, 20×20·33×600·34×600 visible·폭 1~200 mpp 단조, minSpanM·setView metersPerPx 5e-324 RangeError. 감독은 view.mjs·validate.mjs 변경과 전체 npm test 통과 확인. 남은 경계(받아들인 minSpanM 으로 frame 이 던짐, setView 중심 극단값, 'm ≥ 1' 문구)는 F-449 ⑥⑦⑧.
 
-### F-444 [열림] (심각도: 중간) — 폴백 frame 자동 맞춤이 점마다 배열을 할당해 한도 규모에서 프레임 예산을 넘고, visible 행 좁히기가 고정비를 늘렸다
+### F-444 [열림 — ①③ 닫음, ② 잔여] (심각도: 중간) — 폴백 frame 자동 맞춤이 점마다 배열을 할당해 한도 규모에서 프레임 예산을 넘고, visible 행 좁히기가 고정비를 늘렸다
 - 위치: 제품 6f83384 client/tower/fallback/index.mjs:41-47(pts.push([q[0], q[1]]) 점마다 할당), client/tower/fallback/perf.test.mjs:9-14(경로 64×1500 만 잼, 상한 50 ms; 머리 주석은 '한 프레임 예산'), contracts/controlview/overlay.mjs:11(maxPaths 64 × maxPathPoints 100000), client/tower/streaming/visible.mjs:77-110·:213-225(외접 16각형 반공간 16면 추가 후 vertices 재호출, Math.min(...pts.map))
 - 문제: ① 자동 맞춤 frame 의 약 80% 가 점 배열 수집이다(축 6 측정: 경로만 96k 점 p50 10 ms·p90 22.6 ms, setView 경로 p50 2.2 ms). ② 경로 64×10,000 점 frame p50 245 ms, 64×100,000 점 4.6 s(계약 한도 안). 시험은 이 규모를 재지 않는다. ③ visible 행 좁히기가 기본값(maxDistM 1500)에서는 행을 줄이지 못하면서 호출당 p50 0.11 → 0.34 ms(축 1b·6 측정, 결과 동일 7,500 자세). 고고도(6e7)에서는 64 ms → 0.3 ms 로 F-441 ⑧ 을 해결했지만 외접 16각형 여유(≈ 0.0196·hy) 때문에 최악 32,750 행·15 ms 가 남는다.
 - 실패 상황(축 6·1b 측정, 감독 부하 중이라 수치는 미확인): 드론 256·탐지 4096·경로 64×1500 자동 맞춤 frame 묶음 중앙값 20.4 ms(perf.test 보고값) > 16 ms. fovY 1.0, f 0.5, yaw −π/2, pitch −0.1, maxDistM 6e7 에서 27,573 행·10~15 ms.
@@ -5030,8 +5032,9 @@
 - 확인 기준: 같은 장면 자동 맞춤 frame p90 ≤ 8 ms(setView 와 비슷); 한도 규모 시험 존재·통과 또는 계약 총 점 상한; 기본값 visible 호출 시간이 f0b6609 의 1.2 배 이내, 고고도 격자(fovY 0.6~2.8 × f 0.3~0.99 × yaw 5 × pitch 10) 최대 행 ≤ 2,000·최대 2 ms, 옛 구현과 결과 차이 0.
 - 권장 모델: ①② sonnet, ③ opus
 - 이력: 2026-10-05 23:30 감독 등록(PR #82 검토 #1, 축 6·1b 보고, 감독이 index.mjs:41-47·view.mjs 직접 읽음; 수치는 서브에이전트 12개 동시 부하 측정이라 미확인). 새로 찾은 것(③ 은 F-441 ⑧ 잔여). SPEC 의 폴백 fps 기준이 없고 기본 장면은 예산 안이라 중간.
+- → 2026-10-06 00:10 감독(PR #83 검토 #1, 제품 8a7fabc): ① 닫음 — fallback/index.mjs:42-75 직접 순회(감독 읽음), perf.test.mjs push 호출 0 단언, 축 6 CPU p50 3.8~5.5 ms(setView 의 1.0~2 배). ③ 닫음 — 축 1b: 옛 구현과 무작위 1.1만 자세 차이 0, 기본값 f0b6609 대비 1.02~1.07 배, 고고도 1250 자세 최대 230 행·0.67 ms, 변이 4 종 모두 실패. ② 잔여(중간): 노트 스스로 p90 11.5 ms > 8 ms 미달 보고, 한도 시험은 64×10,000 에 setView 대비 비율(≤5)만 단언하고 절대 문턱 없음, 계약 한도 64×100,000 에서 축 6 측정 자동 맞춤 CPU p50 약 0.5 s — 총 점 상한을 계약에 둘지(또는 출력 형식 변경) 결정과 함께 처리. 권장 모델 sonnet.
 
-### F-445 [열림] (심각도: 낮음) — PR #82 검토 #1 낮음 묶음
+### F-445 [닫힘 — ②③④⑦ 잔여는 F-450] (심각도: 낮음) — PR #82 검토 #1 낮음 묶음
 - ① (축 2) 연구 decisions/0054:51-53 renderer_basis 절에 입력이 점군이 아니라 overlay Drone·Detection·Path 라는 것, Δd·LOD 해당 없음(축척은 경계 상자), confidence 는 탐지기 값 그대로라 renderer_basis 신뢰도와 다르다는 세 줄 추가. haiku
 - ② (축 2) 0054 선택 표에 maxAbsEnuM 1e6 m·maxPaths(overlay 재사용)의 근거·대가·다시 볼 조건. haiku
 - ③ (축 2) 0054:22·:31 'view = null' 서술에 '(자동 맞춤일 때)' 조건, 작은 화면 여백 서술(F-443 ②)과 일치, :28-29 대안 (2) 를 'live 에서도 2D 목록을 함께 냄' 으로, :47 '16 CSS px(기준 약 4.2 mm)'. haiku
@@ -5043,8 +5046,9 @@
 - ⑨ (축 1b) visible.mjs:6-17 머리 주석 '반공간 12개'·'최대 220 조합' 을 16각형 반공간 추가 뒤 개수로; visible.mjs:191 'stats 는 결과에 영향 없음' 과 noRowNarrow 가 결과 경로를 바꾸는 것 정리; visible.test.mjs:367-381 '옛 결과와 같다' 시험을 f0b6609 구현 고정 사본과 비교하고 큰 D·좌표 상한 근처 표본 추가; 범위 밖 번호가 이제 RangeError 대신 [] 인 점(visible.mjs:210·:222 조기 반환이 clampIdx 앞)을 range.test.mjs:263 문구와 맞춤; visible.test.mjs:388-397 고고도 격자에 yaw −π/2·pitch −0.1/−0.05 추가; R 직교성 주석(1e-9·(1+|값|))과 코드(고정 1e-9) 일치. sonnet
 - ⑩ (축 4b) replay_starve.test.mjs MUTANTS m1 문턱 10/15 이 정확히 경계 — 즉시 도착 5 사례를 빼고 지연 10 사례 10/10; m3·m4 가 orderViolations(replay_harness.mjs:268-286) 하나에만 걸린다는 것을 주석에 명시하거나 대조 단언. haiku
 - 이력: 2026-10-05 23:30 감독 등록(PR #82 검토 #1). 새로 찾은 것. 미확인 표시한 것 외에는 서브에이전트가 줄을 댄 것.
+- → 2026-10-06 00:10 감독(PR #83 검토 #1): ① 0054:55 세 줄 확인(축 2), ⑤ README 'Real-time 3D unavailable' 확인(축 11), ⑧ validate.mjs:24 Object.create(null)·streaming/index.mjs:45 size 한 번 복사(축 7), ⑨ visible 머리 주석 반공간 12·조합 220 이 코드와 일치(축 1b), ⑩ replay_starve m1 10/10(축 5) — 닫음. ⑥ yaw 의미는 노트 서술만 확인(미확인). ②③④⑦ 잔여는 F-450 ③④ 로 옮기고 닫음.
 
-### F-446 [열림] (심각도: 중간) — 폴백 시험이 자동 맞춤의 경로 점·수동 view 배너·opts 반영·수동 view 복사를 확인하지 않는다
+### F-446 [닫힘] (심각도: 중간) — 폴백 시험이 자동 맞춤의 경로 점·수동 view 배너·opts 반영·수동 view 복사를 확인하지 않는다
 - 위치: 제품 6f83384 client/tower/fallback/scene.test.mjs:36·:122-145·:163(경로 점이 드론·탐지 점과 같음, setView 뒤 banner 미단언), consistency.test.mjs:100-108, fuzz.test.mjs:123(opts 를 넘기지만 유한성만 봄), no_network.test.mjs:49-56·:62-159(정상 경로만, 비우기 횟수 고정), validate.mjs:122(배열 갈래가 형식·범위 검사를 섞음, 주석 :4 와 다름), validate.test.mjs:134(-0 단언이 늘 참), scene.test.mjs:1-2·:13-29('독립 오라클' 이 view.mjs 식을 옮겨 씀), mode.test.mjs:5(이름과 단언 불일치), perf.test.mjs:15·:64(벽시계 50 ms, 동시 6개 실행 시 4/4 실패 — 축 4a 측정)
 - 문제: 사본 변이 41 개 중 9 개 생존. 그중 자동 맞춤에서 경로 점을 빼는 변이(M19)와 수동 view 일 때 배너를 null 로 내는 변이(M09)는 계약 위반인데 시험 41/41 통과. opts 를 검사만 하고 기본값으로 맞추는 변이(M26), 수동 view 를 복사 없이 내는 변이(M30), 오류 경로·live 복귀 때만 fetch 하는 변이(N08·N09), AbortSignal.timeout(N05) 생존.
 - 실패 상황(감독 직접 재현): index.mjs:44 경로 점 수집 줄 삭제 → `node --test client/tower/fallback/*.test.mjs` pass 41·fail 0. index.mjs:55 banner 를 `manualView ? null : TOWER_FALLBACK_BANNER` 로 → pass 41·fail 0. 나머지 변이는 축 4a 사본 근거(미확인).
@@ -5052,3 +5056,39 @@
 - 확인 기준: M19·M09·M26·M30·N05·N08·N09 각 변이에서 fallback 시험 실패 ≥ 1, 원본 전부 통과. 동시 6개 실행에서 perf 오탐 0, 10 배 느린 변이는 실패.
 - 권장 모델: sonnet
 - 이력: 2026-10-05 23:35 감독 등록(PR #82 검토 #1, 축 4a 보고, M19·M09 감독 재현). 새로 찾은 것. 생존 변이 중 M19·M09 는 계약 위반을 놓치지만 현재 구현은 맞으므로(축 1a·3 확인) 중간.
+- → 2026-10-06 00:10 감독 닫음(PR #83 검토 #1, 제품 8a7fabc): 감독 사본 재현 — 자동 맞춤에서 경로 점 순회 삭제(M19) fallback 시험 2 실패, 수동 view 복사 삭제(M30) 1 실패, 원본 60/60 통과(전체 npm test 안). 나머지 변이(M09·M26·N05·N08·N09)는 작업자 노트의 사본 확인과 시험 diff(축 5: setView 뒤 banner·{minSpanM:1000, marginPx:0} 단언·비우기 반복) 근거라 미확인. M26 기대값 1000/98 은 감독 승인(F-450 감독 판단).
+
+### F-447 [열림] (심각도: 높음) — 폴백 전환·네트워크 e2e 시험이 제품 조립(createControlView)이 아니라 시험 안에서 만든 다른 조립을 검사하고, 그 조립의 동작이 제품과 반대다
+- 위치: 제품 feat/t15-9 8a7fabc client/tower/e2e/fallback_switch.test.mjs:1-3·:33-58(assemble — `live ? streaming.update(...) : null`)·:154-182(시험 (c)), client/tower/e2e/no_network.test.mjs:5-11(createControlView·replayRecording 을 import 하지 않음)·:103·:119, 제품 client/tower/e2e/index.mjs:123(step 이 모드와 무관하게 streaming.update 호출), contracts/controlview/e2e.mjs:10('3D 층 결과는 함께 내지 않는다')
+- 문제: T15.9 완료 기준은 '녹화 재생 상태 일치' 인데 폴백 전환 시험 5 개와 네트워크 시험 6 개가 새 조립 코드(index.mjs·recording.mjs)를 한 줄도 실행하지 않는다. 시험 (c) 는 '폴백 중 update 를 부르지 않아 inflight 가 늘지 않는다' 를 시험 안 조립으로 증명하지만 제품 step 은 폴백 중에도 update 를 불러 새 타일을 요청한다(감독이 :123 직접 읽음, 축 4a probe: 폴백 20 프레임 전진 뒤 (0,2) 가 inflight 에 추가·held 하나 내보냄). 어느 쪽 동작도 시험에 고정돼 있지 않다(M16 — 제품에 'fallback 이면 update 생략' 을 넣어도 23/23 통과).
+- 실패 상황: 서버 불가 구간에 카메라가 움직이면 제품은 오지 않을 타일을 inflight 로 쌓고 held 를 내보낸다. 복귀 때 자리가 막혀 재요청이 늦는다. 시험은 통과한다. index.mjs·recording.mjs 에 fetch·setTimeout 을 넣어도 no_network 시험은 통과한다(구조상, 축 4a).
+- 고칠 것: ① 폴백 중 스트리밍 동작(update 생략 / 요청만 막고 도착은 받음 / 지금처럼 계속)을 하나로 정해 계약 e2e.mjs 와 결정 0055 에 적고 index.mjs 를 맞춘다. ② fallback_switch (a)~(d) 를 createControlView·replayRecording 으로 다시 쓰고 폴백 구간 전·중·후 inflight·held 를 손계산 표로 고정한다(시험 안 조립 assemble 삭제). ③ no_network 감시 구간 안에서 replayRecording(createControlView(), 녹화) 를 돌린다. ④ no_network.test.mjs:119 항상 참 단언(mode 가 live 또는 fallback)을 i<10 → live, i≥10 → fallback 으로.
+- 확인 기준: e2e 시험 파일 모두가 createControlView 를 import. M16(폴백이면 update 생략)을 넣거나 빼는 쪽 중 계약과 반대 쪽이 실패. index.mjs step 에 `setTimeout(()=>{},0)` 을 넣으면 no_network 실패. :89 setAvailable(false) 삭제 변이 실패.
+- 권장 모델: opus
+- 이력: 2026-10-06 00:10 감독 등록(PR #83 검토 #1, 축 4a 보고 발견 1·5·6, 감독이 fallback_switch.test.mjs:1-60·:154-182·index.mjs:123 직접 읽음, import 목록 grep). 새로 찾은 것. 축 3 낮음 1(폴백 중 요청)도 같은 원인이라 여기에 합침.
+
+### F-448 [열림] (심각도: 높음) — 상태 일치 시험이 표에 적은 필드만 비교해 추적 중 엉뚱한 카메라로 투영한 오버레이를 통과시킨다
+- 위치: 제품 8a7fabc client/tower/e2e/state_match.test.mjs:17-54(mismatches — '기대 항목에 적힌 필드만 본다', overlay 는 드론 개수만 :44), contracts/controlview/e2e.mjs:18('모드·held 개수·마커 개수'), state_match.test.mjs:209-236(되돌리기 시험은 tracking=false 상태만)
+- 문제: camera.quat·fovY, overlay 드론 화면 좌표·visible, overlay.detections, fallback.paths 를 어느 e2e 시험도 비교하지 않는다. 주석이 약속한 동작(같은 프레임 up+down 은 누름으로 끝남 recording.mjs:49, yaw 없으면 이전 방위 유지 index.mjs:107, 다른 드론이면 snap index.mjs:110, removePath index.mjs:186-191, 추적 중 step 실패 되돌리기 index.mjs:62-69·:127, overlay 만 거부할 때 fallback 되돌리기 index.mjs:157-159)에 시험이 없다.
+- 실패 상황(감독 직접 재현): index.mjs snapshot 의 `overlay.project(camera, size)` 를 `overlay.project(input.camera(), size)` 로 바꾼 사본(추적 중에도 입력 카메라로 투영) → `node --test client/tower/e2e/*.test.mjs` pass 23·fail 0. 축 4a 사본: 변이 34 개 중 18 개 생존(N06 quat 고정, N07 fovY 고정, N08 overlay.detections 비우기, M17 setPath 를 fallback 에 안 넣음, M18 removePath 를 fallback 에서 안 뺌, M02·M20·M21·M22·M23, N04 held 자르기, N10 드론 목록 참조 등).
+- 고칠 것: 손계산 표에 quat·fovY·overlay 드론 [id,x,y,visible]·overlay 탐지·fallback.paths 열을 더하거나 snapshot 전체를 비교하는 손계산 프레임을 하나 이상 둔다. 위 여섯 동작마다 녹화 한 프레임씩 손계산 표에 넣는다. 계약 e2e.mjs:18 의 기대 표 필드를 넓힌다. determinism.test.mjs:104-105·fallback_switch.test.mjs:159-160 처럼 구현 출력을 받아 적은 값은 유도 근거를 적거나 '손계산' 표기를 뺀다. state_match:220·determinism:124 assert.throws 에 오류 종류 지정.
+- 확인 기준: 위 M19 변이와 N06·N07·N08·M17·M18·M02·M20·M21·M22·M23 각각에서 e2e 시험 실패 ≥ 1, 원본 전부 통과.
+- 권장 모델: opus
+- 이력: 2026-10-06 00:10 감독 등록(PR #83 검토 #1, 축 4a 보고 발견 2·3·4·7·8, 감독이 state_match.test.mjs:10-55 직접 읽고 M19 변이 재현). 새로 찾은 것. 완료 기준 시험이 상태 불일치를 놓치므로 높음.
+
+### F-449 [열림] (심각도: 중간) — 조립 층 견고성·비용: 폴백 frame 두 번 계산, 접근자 재읽기, 재생 비원자성, 방위 0 가정, 받아들인 옵션으로 frame 이 던짐
+- 위치: 제품 8a7fabc client/tower/e2e/index.mjs:95·:77(fallback.frame 이 step 마다 두 번), :95·:123·:124(size 를 여러 번 읽음), :161·:172·:184(검사 뒤 입력 재읽기), :108(yaw 없고 이전 방위 없으면 0), recording.mjs:23·:46-52(dtSec 범위·size 를 재생 중에야 검사, 희소 배열), fallback/view.mjs:36-37·validate.mjs:58(minSpanM ≥ 1e-6 통과 → frame RangeError), validate.mjs:88-89(centerE·N 유한성만), view.mjs:5·contracts/controlview/fallback.mjs:16('m ≥ 1' 무조건 서술)
+- 문제·실패 상황: ① (축 6) 폴백 step CPU p50 8.0 ms 로 frame 단독 3.8 ms 의 약 2.1 배 — :95 의 크기 검사가 frame 전체를 만들고 버린다. ② (축 7) size={get width(){n++; return n<=3?800:-1}, height:600} 로 step → RangeError 인데 그 뒤 inflight 16(상태 불변 계약 위반). ③ (축 7) yaw 접근자가 2 번째 읽기 뒤 NaN 이면 setDrones 는 통과하고 이후 모든 step 이 던진다. ④ (축 7) replayRecording([{dtSec:.1,keys:{down:['ArrowUp']}},{dtSec:NaN}]) 가 던진 뒤 키가 눌린 채 남는다; [ , {dtSec:.1}] 는 영문 TypeError. ⑤ (축 3) yaw 없는 드론을 처음 추적하면 카메라가 북쪽 고정 — 도착하지 않은 방위를 지어 씀(RULES §1.2 경계). ⑥ (축 1a·7) createTowerFallback({minSpanM:1e-3}) 드론 1개 1920×1080 → frame RangeError(계약 fit 문구 '유한·양수가 아니면' 과 다름), e2e 에서는 snapshot·step 이 먹통. ⑦ setView({centerE:1e308,centerN:-1e308,metersPerPx:1e-6}) → x·y −Infinity. ⑧ 한 변 < 4 px 에서 m = side/4 < 1 인데 문구는 'm ≥ 1'.
+- 고칠 것: ① :95 를 크기 검사만 하는 가벼운 검사로(validate checkSize 공개 등). ② step·snapshot 진입 때 size 를 {width,height,devicePixelRatio} 로 한 번 복사. ③ set* 은 검사 전 한 번 읽어 평범한 사본을 만들고 그 사본을 fallback·overlay 에 넘기고 저장. ④ checkFrame 에 dtSec 유한 ≥ 0, 재생 전 size 검사, 프레임을 한 번만 읽은 사본으로 재생(또는 계약에 '실패하면 view 폐기' 명시). ⑤ yaw 없을 때 추적 방위 규칙(입력 방위 유지 / 추적 안 함)을 정해 계약·0055 에 적고 시험. ⑥ fitView 하한 미만은 하한으로 고정하거나 계약 frame 문구에 예외를 적는다. ⑦ |centerE|,|centerN| ≤ maxAbsEnuM RangeError. ⑧ 문구를 'm = min(max(marginPx,1), min(w,h)/4), 한 변 ≥ 2 px 에서 visible' 로.
+- 확인 기준: 폴백 step CPU 가 frame 단독의 1.2 배 이내(또는 step 한 번에 frame 계산 1 회 계수 단언). ②③④ 입력 뒤 snapshot 이 재생·호출 전과 JSON 동일하거나 호출이 던지고 상태 불변. ⑥ {minSpanM:1e-6}·1920×1080·점 하나에서 frame 의 x·y 유한(또는 계약·시험이 같은 예외를 적음). ⑦ RangeError 또는 모든 x·y 유한.
+- 권장 모델: sonnet(⑤ 는 결정 포함이라 opus 와 함께 해도 됨)
+- 이력: 2026-10-06 00:10 감독 등록(PR #83 검토 #1, 축 3·6·7·1a 보고; 감독이 index.mjs 전체·recording.mjs 전체 직접 읽어 ①⑤ 위치 확인, ②~④⑥⑦ 수치는 서브에이전트 실행 근거라 미확인). 새로 찾은 것(⑥⑦⑧ 은 F-443 수정 뒤 남은 경계).
+
+### F-450 [열림] (심각도: 중간) — 결정 0055 에 추적 대상 선택·되돌리기·EDGE_EPS 고정이 없고, 노트가 처리하지 않은 F-442·F-426 을 처리했다고 적었다
+- 위치: 연구 experiment/t15-9 7882177 decisions/0055-t15-9-assembly.md:14-30, experiments/t15-9.md:7·:10, experiments/t15-8.md:31, experiments/t15-7.md:13·:42·:49, decisions/0050-t15-4-input-layer.md:41, decisions/0053-t15-7-streaming.md:30·:40·:42-46, decisions/0054-t15-8-fallback.md:22·:31·:48·:49·:79; 제품 contracts/controlview/e2e.mjs:5-12
+- 문제: ① (축 2) 조립의 기술 결정 — 추적 대상 drones[0]·yaw 없을 때 0·드론 교체 때 snap·목록 비면 해제(index.mjs:105-113), 데이터를 폴백 먼저 넣어 |e|,|n| > 1e6 m 드론을 조립이 거부함(index.mjs:151), step 실패 되살리기가 복원하는 상태 목록, visible.mjs:31-37 rangeEps 비례 몫 삭제·EDGE_EPS_M 고정 — 이 0055 에 없다. 0055 채택 다섯 줄 중 step 순서·행 좁히기에 다시 볼 조건 없음. ② (감독 직접 확인) experiments/t15-9.md:10 'F-442 ①②④⑤⑨·F-426 문구 처리' 인데 t15-7.md:13 '4종'·'요청한 적 없는' 서술, :42 'D+2'(실제 D+3) 남음, 0050:41 'dt 상한 maxDtSec … 와 달리' 남음(state.mjs:25 는 maxDtSec 에도 MAX_RATE 적용). t15-8.md:31 'F-442 ①②④⑤ 처리, ⑨ 미처리' 는 감독 기록과 반대(T15.7f 시점 미완이 ①②④⑤⑨). ③ (축 2) 0053:30 '자리 낭비' 정의가 replay_harness.mjs:168-169 와 다름, :40 대가 절에 틀린 근거('renderer_basis 상위 층', 'Δd 는 점 내 깊이 정밀도' — renderer_basis Δd 는 MVS 깊이 해상도), :42 근거·대가 혼합. ④ 0054:31 view=null 에 자동 맞춤 조건 없음, :48 대가 칸이 이점·근거 출처 없음, :49 maxPaths '제약 없음'(index.mjs:24 는 64), :22 조건이 view.mjs:32 와 다름, :79 배너가 하드코딩이라는 서술(이미 계약 상수; F-445 ⑦ 은 빈 상태 문구를 물음). ⑤ 계약 TOWER_E2E_API 에 keyDown·keyUp·releaseAll·removePath·mode 없음. ⑥ (축 5·12) 노트 p50 2.4·p90 11.5·setView 14.7 ms 의 측정 방법·장면·[cloud] 표기 없음, '결과 옛 구현과 차이 0' 은 무작위 자세 기준(경계 여유 정책 변경은 의도된 차이)이라는 한 줄 없음.
+- 감독 판단: F-446 M26 기대 mpp 10 → 1000/98 은 여백 하한 1 px(F-443 ① '끝 점이 width−1 이하' 허용 범위)에 따른 계약 변경으로 승인. 0055:24 '감독 판단 필요' 를 '감독 승인(2026-10-06 PR #83 검토 #1)' 으로.
+- 고칠 것: ① 0055 선택지 표에 위 네 결정(선택지·대가·다시 볼 조건 — T15.0L 원본 대조, maxCoordM 변경 시 재검토)과 각 채택 줄의 다시 볼 조건. ②③④ 각 문구를 코드·하네스와 일치하게(F-442 ②④⑤·F-426·F-445 ②③④⑦ 의 확인 기준 그대로). ⑤ 계약에 다섯 메서드. ⑥ 노트에 측정 명령·장면·묶음 크기·[cloud] 표기.
+- 확인 기준: 0055 에 '첫 드론'·'snap'·'EDGE_EPS_M'·되살리기 서술 존재, 채택 줄마다 다시 볼 조건. t15-7.md 에 '4종'·'요청한 적 없는 보이는 타일.*0' 0건·'D+2' 모두 대체 표시, 0050 에 '와 달리' 0건이고 MAX_RATE 줄에 maxDtSec, t15-8.md:31 이 감독 기록과 일치, 0053:30 정의 = replay_harness.mjs:168-169, 0053 대가 절에 '근거'·'renderer_basis 상위 층'·'점 내' 0건, 0054 view=null 줄마다 자동 맞춤 조건·:49 '64', 구현 반환 객체 키가 모두 TOWER_E2E_API 에 있음.
+- 권장 모델: haiku(① 은 sonnet)
+- 이력: 2026-10-06 00:10 감독 등록(PR #83 검토 #1, 축 2·5·12 보고; 감독이 0055·t15-9.md 전체, 0050:41, t15-8.md:31, 0053:30, t15-7.md grep 직접 확인). ① 은 새로 찾은 것, ②~④ 는 F-442 ②④⑤·F-426·F-445 ②③④⑦ 잔여(이 항목으로 옮기고 원 항목은 닫음).
