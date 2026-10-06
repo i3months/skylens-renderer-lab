@@ -6177,7 +6177,7 @@
 - 이력(2026-10-06 작업자): T16.12 앞 정리, 제품 feat/t16-12 4cd87ea7, 연구 experiment/t16-12(노트 t16-12.md, 결정 0063). 실서버·실체크아웃 확정은 [local].
 - 이력: 2026-10-06 16:50 감독 확인 닫음(PR #99 검토 #1 — 감독 재현 checkServerSamples([],{durationS:60}) → 개수 위반, 1개 → 위반 3, 정상 60개 [], loadReport 가 scenario.durationS 전달(load_report/index.mjs:36))
 
-### F-559 [처리됨-검증대기] (심각도: 중간) — server_stats 새 규칙의 생존 변이: 마지막 간격 규칙과 null 가드를 시험이 잡지 못한다
+### F-559 [닫힘] (심각도: 중간) — server_stats 새 규칙의 생존 변이: 마지막 간격 규칙과 null 가드를 시험이 잡지 못한다
 - 위치: 제품 bench/load/server_stats/index.mjs:107-111(마지막 간격), :93(`objs.length === samples.length` 가드), :100(min(1,durationS)), :104(0.25), E 허용치; 시험 server_stats.test.mjs:263-265(주석은 'last interval' 인데 실제 위반은 last tS)
 - 문제: 축 4a 변이 실행 — 간격 루프 i<n-1, hi=mid+1·1.5, lo=0·mid−0.4 가 모두 생존. 가드 삭제 시 [null, real tS 1], {durationS:2} 가 TypeError 를 던지는데 시험이 통과. want=1, 0.25→0.2, E=0 변이 생존.
 - 실패 상황: R(0.9,1.4,2.5) D2.5 → 원본 ['server sample 2: interval 1.1 s outside 0..1'], i<n-1 변이 [].
@@ -6188,6 +6188,7 @@
 - 이력(2026-10-06 작업자): T16.12 앞 정리, 제품 feat/t16-12 4cd87ea7, 연구 experiment/t16-12(노트 t16-12.md, 결정 0063). 실서버·실체크아웃 확정은 [local].
 - 이력: 2026-10-06 16:50 감독 다시 엶(PR #99 검토 #1, 축 4a — 요구 변이 중 want=1(server_stats/index.mjs:107 `Math.min(1, durationS)` → `1`)만 생존. 요구 입력 R(0.3) D0.3 → [] 대신 R(0.55) D0.3(server_stats.test.mjs:382)을 넣어 want 1 에서도 0.5 이내라 판별 못 함. 나머지 요구 변이는 모두 시험 실패 확인). 남은 고칠 것: checkServerSamples(R(0.3),{durationS:0.3}) → [] 와 checkServerSamples(R(0.81),{durationS:0.3}) → ['server sample 0: first tS 0.81 is not within 0.5 s of 0.3', 'server samples: last tS 0.81 is not within 0.25 s of durationS 0.3'] 정확 단언. 확인 기준: want=1 변이에서 시험 실패. 권장 모델: sonnet
 - 이력(2026-10-06 작업자): T16.12 본 작업 PR, 제품 feat/t16-12b 6352dd63, 연구 experiment/t16-12b(노트 t16-12b.md). 처리됨-검증대기.
+- 이력: 2026-10-06 17:20 감독 확인 닫음(PR #100 검토 #1, 축 4b — want=1 변이 server_stats.test.mjs 3개 실패, :393 R(0.3) D0.3 → []·:394-397 R(0.81) D0.3 두 문구 deepEqual)
 
 ### F-560 [닫힘] (심각도: 낮음) — PR #98 검토 #1 견고성·서술 낮음 묶음
 - 위치·문제·확인 기준:
@@ -6206,7 +6207,7 @@
 - 이력(2026-10-06 작업자): T16.12 앞 정리, 제품 feat/t16-12 4cd87ea7, 연구 experiment/t16-12(노트 t16-12.md, 결정 0063). 실서버·실체크아웃 확정은 [local].
 - 이력: 2026-10-06 16:50 감독 확인 닫음(PR #99 검토 #1 — 감독 재현 ⑧ 정확 배열, ⑩ perClientMs [500]·위반 [], ① bandwidth 4입력 위반, ⑥ FIXTURE 순서·⑦ t16-1.md 수치 확인. ① firstFrameViolations({p95Ms:100}) → [] 잔여는 F-563 ③)
 
-### F-561 [처리됨-검증대기] (심각도: 중간) — loadReport 의 섞인 source 판정이 checkServerSamples 에만 기대게 됐는데 load_report 시험에 섞인 source 입력이 없고, server_stats 시험에 위반 종류를 고정하지 않는 약한 단언이 남았다
+### F-561 [닫힘] (심각도: 중간) — loadReport 의 섞인 source 판정이 checkServerSamples 에만 기대게 됐는데 load_report 시험에 섞인 source 입력이 없고, server_stats 시험에 위반 종류를 고정하지 않는 약한 단언이 남았다
 - 위치: 제품 tools/load_report/index.mjs:36(이번 PR 에서 `samples.some((x) => x?.source !== src)` 삭제), bench/load/server_stats/index.mjs:98(mixed source), 시험 tools/load_report/load_report.test.mjs(grep 'mixed' 0건), bench/load/server_stats/server_stats.test.mjs:207·:215-217·:315-317(`assert.ok(... .length >= 1)`) (feat/t16-12 4cd87ea)
 - 문제: server_stats/index.mjs:98 의 mixed source 줄을 지우면 server_stats 시험은 1개 실패하지만 load_report 시험은 0 실패 — 보고서 출처 줄이 섞인 표본에서 'server-process, measured on …' 로 나와도 잡지 못한다. 약한 단언은 어떤 위반이 나는지 고정하지 않아 F-559 want=1 같은 변이를 가린다.
 - 실패 상황: 축 4a 변이 실행 — :98 삭제 → load_report 시험 통과, server-process 10개 중 index 5 만 source 'other' 인 입력의 보고서 줄 'cpu/rss source: server-process, measured on server-process'.
@@ -6215,8 +6216,9 @@
 - 권장 모델: sonnet
 - 이력: 2026-10-06 16:50 감독 등록(PR #99 검토 #1, 축 4a — 새로 찾은 것, 이번 PR 의 load_report 중복 검사 삭제로 생긴 공백. 감독이 load_report.test.mjs grep 'mixed' 0건 확인)
 - 이력(2026-10-06 작업자): T16.12 본 작업 PR, 제품 feat/t16-12b 6352dd63, 연구 experiment/t16-12b(노트 t16-12b.md). 처리됨-검증대기.
+- 이력: 2026-10-06 17:20 감독 확인 닫음(PR #100 검토 #1, 축 4b — :100 mixed source 삭제 변이에서 load_report.test.mjs:757 실패, 세 입력 정확 배열 :215·:220·:224·:322·:327·:331)
 
-### F-562 [처리됨-검증대기] (심각도: 중간) — 계약 harness.mjs:19-21 과 결정 0063 (A) 가 개수 검사를 실제 시계 한정 규칙으로 적어, 모든 시계에 개수를 검사하는 구현과 다르다
+### F-562 [닫힘] (심각도: 중간) — 계약 harness.mjs:19-21 과 결정 0063 (A) 가 개수 검사를 실제 시계 한정 규칙으로 적어, 모든 시계에 개수를 검사하는 구현과 다르다
 - 위치: 제품 contracts/load/harness.mjs:19-21('With durationS given and clock 'real' … count = ceil(durationS)'), :40(loadReport 의 durationS 전달 서술 없음); 구현 bench/load/server_stats/index.mjs:56·:99-102; 연구 decisions/0063 (A)행('실시계 표본: 개수 = ceil(durationS)') vs (B)행('clock 과 무관하게')
 - 문제: F-558 수정으로 개수 검사가 clock 무관(빈 배열 포함)이 됐는데 계약과 0063 (A)는 실시계 아래에 두었다. 'durationS 가 유한하지 않으면 위반' 도 구현(0 이하도 위반)보다 좁다.
 - 실패 상황: 감독 읽음(harness.mjs:19-21). 축 2 재현 — 모의 시계 표본 2개, durationS 3 → 'server samples: 2 samples, expected 3'(계약대로면 통과), 모의 호출자 보고서 cpu/rss 줄 'unknown'.
@@ -6225,8 +6227,9 @@
 - 권장 모델: haiku
 - 이력: 2026-10-06 16:50 감독 등록(PR #99 검토 #1, 축 2 — 감독이 harness.mjs:19-21 읽음. F-557 잔여, F-558 수정의 서술 미반영)
 - 이력(2026-10-06 작업자): T16.12 본 작업 PR, 제품 feat/t16-12b 6352dd63, 연구 experiment/t16-12b(노트 t16-12b.md). 처리됨-검증대기.
+- 이력: 2026-10-06 17:20 감독 확인 닫음(PR #100 검토 #1 — 감독이 harness.mjs:19-21·:40, 0063 추가 절 (A), server_stats/index.mjs:94-104 대조. 계약에서 mixed 규칙 문구가 빠진 것은 F-568)
 
-### F-563 [처리됨-검증대기] (심각도: 낮음) — PR #99 검토 #1 견고성·서술 낮음 묶음
+### F-563 [닫힘] (심각도: 낮음) — PR #99 검토 #1 견고성·서술 낮음 묶음
 - 위치·문제·확인 기준:
   ① bench/load/first_frame/index.mjs:3·:25·:35 주석이 여전히 'level-0 payload/arrival' — 어느 수준 도착으로 고치고 변수 `level0` 을 `firstArrival` 등으로. 확인: `grep -n "level-0" bench/load/first_frame/index.mjs` 가 위반 문구 줄만.
   ② first_frame/index.mjs:56 level 필드 검증 없음 — `{kind:'level',id:0,tMs:100}`(level 누락)·level 99 도 도착으로 인정(축 3 재현 p95 400·위반 []). checkEventLog(harness.mjs:81)가 거르므로 loadReport 경로는 안전 — 조건 추가 또는 헤더에 '검증은 checkEventLog 몫' 명시.
@@ -6240,3 +6243,79 @@
 - 권장 모델: sonnet(①~④·⑦⑧), haiku(⑤⑥⑨)
 - 이력: 2026-10-06 16:50 감독 등록(PR #99 검토 #1, 축 2·3·4b·7·12 — 근거 줄 있는 것, ③ 은 감독 재현)
 - 이력(2026-10-06 작업자): T16.12 본 작업 PR, 제품 feat/t16-12b 6352dd63, 연구 experiment/t16-12b(노트 t16-12b.md). 처리됨-검증대기. ⑧ 숫자 NaN 은 F-530 시험과 충돌해 남기고 checkServerSamples 가 잡음(일부 동의 안 함).
+- 이력: 2026-10-06 17:20 감독 확인 닫음(PR #100 검토 #1, 축 4b — ②③⑦ 변이 실패, ④⑤⑥⑨ 문서 확인. 잔여 ① first_frame/index.mjs:36 'level-0 arrival' 서술 주석과 ③⑦ 보조 공백은 F-571 로)
+
+### F-564 [열림] (심각도: 높음) — 소켓 실행 보고서가 클라우드 루프백 근사를 'S5/S8 verdict measured on loopback-socket' 으로 적어 [local] 판정을 클라우드에서 낸 것처럼 보인다
+- 위치: 제품 tools/load_report/index.mjs:23-27(sourceLine — 'simulated'·'unknown' 밖의 모든 method 를 'measured on <method>'), bench/load/socket/run.mjs:15(SOCKET_METHOD 'loopback-socket'), 계약 bench/load/socket/contract.mjs:3('S5/S8 verdicts stay [local] (T17)') (feat/t16-12b 6352dd63)
+- 문제: SPEC §4·:105 는 S5·S8 확정 측정을 [local] 로 두었고 TASKS T16.12 도 '클라우드 근사, S5·S8 확정은 [local](T17)'. 그런데 산출물 report.md 첫 판정 줄이 측정 판정처럼 쓰인다. 작업자 노트 t16-12b.md '한계' 와 0064 가 '후속 정정 필요' 로 미뤘다.
+- 실패 상황: 감독 직접 `node bench/load/socket/run.mjs <out> 10` → report 'source: loopback-socket, S5/S8 verdict measured on loopback-socket'(종료 0). 계약 :3 과 정면으로 어긋난다.
+- 고칠 것: loadReport 가 클라우드 근사 method(최소 'loopback-socket')를 'source: loopback-socket (cloud approximation), S5/S8 verdict [local]' 처럼 적게 한다(근사 method 목록은 상수 하나로). 'measured on' 은 [local] 실측 method 에만.
+- 확인 기준: loadReport 시험 — method 'loopback-socket' 결과의 보고서에 'measured on' 이 없고 '[local]' 이 있다(정확 문자열 단언). 소켓 실행 report.md 도 같다.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 17:20 감독 등록(PR #100 검토 #1, 축 2·5·12 — 감독 재현. 새로 찾은 것)
+
+### F-565 [열림] (심각도: 높음) — T16.12 본체(실제 서버 프로세스 + 실제 소켓 + /proc 표본을 묶는 runSocketLoad)를 실제 deps 로 도는 시험이 없고, run.mjs 판정 경로에 음성 시험이 없다
+- 위치: 제품 bench/load/socket/run.test.mjs:28-47(fakeDeps — port 0·pid 4242, 미리 만든 로그, 상수 cpuUsage), :56-66(양성 경로만), run.mjs:48(Math.ceil)·:56(onError)·:101(checkServerSamples 연결) (feat/t16-12b 6352dd63)
+- 문제: TASKS T16.12 완료 기준 '30 연결 유지 단언, 서버 샘플 ≥ durationS(실제 시계), validateResult 통과' 중 실제 시계 서버 표본과 결과 검증이 가짜 샘플러·가짜 로그로만 단언된다. `grep -rl runSocketLoad --include=*.test.mjs` 는 run.test.mjs 하나이고 그 안의 호출 3개 모두 deps 주입(감독 확인). 서버가 안 떠도, 소켓이 한 번도 연결되지 않아도 run 시험은 통과한다.
+- 실패 상황: 축 4a 변이(/tmp 사본) — run.mjs:101 checkServerSamples 연결 삭제(M17), :56 onError 삭제(M18), :48 ceil→floor(M20), 위반 접두어 제거(M21), clients 30 하드코딩(M19) 모두 생존.
+- 고칠 것: (a) 실제 deps 통합 시험 1개: runSocketLoad({clients:30,durationS:2}) → violations [], serverSamples.length 2, 모든 표본 clock 'real'·source 'server-process'·cpuSource 'measured', validateResult [], scenario.clients 30, 끝난 뒤 server_main 자식 프로세스 없음. (b) tick 한 번 throw 하는 샘플러 → 'socket30: server stats: …' 와 'socket30: server samples: 1 samples, expected 2' 정확 단언. (c) durationS 1.5 → 표본 2개, 마지막 tS ≈ 1.5. (d) fake 시험에 clients 5.
+- 확인 기준: M17·M18·M19·M20·M21 각각 시험 실패. server_main 이 listening 직후 종료하는 변이에서 (a) 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 17:20 감독 등록(PR #100 검토 #1, 축 4a — 감독이 run.test.mjs:28-66·grep 확인. 새로 찾은 것)
+
+### F-566 [열림] (심각도: 중간) — runSocketLoad 가 durationS NaN·0·Infinity 에서 끝나지 않고 서버 자식이 남는다; 부모가 SIGTERM 으로 죽어도 자식이 고아로 남는다
+- 위치: 제품 bench/load/socket/run.mjs:46-62(tickOnRealClock — n=ceil(NaN)=NaN 이라 i>n 이 영원히 거짓), :71-90(검증 없이 서버부터 띄움), server_proc.mjs:13-16·server_main.mjs:21-27(부모 종료 감지 없음)
+- 문제: main 은 :110 에서 검증하지만 runSocketLoad 를 직접 부르는 호출자는 무한 루프. allSettled 가 ticking 을 기다려 finally 의 server.stop() 에 닿지 않는다.
+- 실패 상황: 감독 재현 `timeout 8 node -e "…runSocketLoad({clients:2,durationS:NaN})"` → rc 124(끝나지 않음). 축 7 재현: 부모 SIGTERM 뒤 server_main 계속 실행.
+- 고칠 것: runSocketLoad 첫 줄에서 durationS·clients 검증(서버 띄우기 전 RangeError). 자식은 stdin pipe 의 end/close 에서 종료하거나 부모 exit/SIGTERM 에서 stop.
+- 확인 기준: durationS NaN·0·Infinity → 1 s 안에 reject, 자식 0개. 부모 SIGTERM 1 s 뒤 `pgrep -f server_main` 비어 있음.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 17:20 감독 등록(PR #100 검토 #1, 축 7 높음 보고 → 감독 재현, main 이 막으므로 중간으로 낮춤)
+
+### F-567 [열림] (심각도: 중간) — 소켓 클라이언트가 level 을 페이로드가 아니라 도착 순번으로 매기고, 첫 프레임 기준점이 101 검증 뒤라 지연이 0 에 붙는다
+- 위치: 제품 bench/load/socket/clients.mjs:46-58(st.connectMs 를 .then 안에서 기록, level = st.messages++), ws_client.mjs:104-105·:128(101 과 같은 청크로 온 프레임을 큐에 담았다가 onMessage 등록 때 비움), server_main.mjs:7·:13(페이로드에 fill(i+1)·크기로 수준 신원이 있음)
+- 문제: (1) 서버가 수준을 건너뛰거나(추월) 순서를 바꿔도 클라이언트는 0,1,2,… 로 기록 — 실제 도착 수준이 아니라 가정. (2) connect 가 핸드셰이크 완료 시각이고 첫 페이로드는 같은 청크에서 큐로 들어가 같은 틱에 기록돼 '접속 → 첫 프레임'(S5) 근사값이 TCP·핸드셰이크 시간을 뺀 큐 처리 시간이 된다.
+- 실패 상황: 감독 실행 first_frame_p95 0.0568 ms, 축 4a 0.007 ms, 축 5 0.00717 ms(노트는 0.22 ms). 서버가 [level3, level1] 순으로 보내도 level 0·1 로 기록.
+- 고칠 것: level 은 페이로드에서 복원(첫 바이트 또는 LEVEL_PAYLOAD_BYTES.indexOf(length)), 맞지 않으면 bytes 만. 시작 기준을 connect 시도 직전(net.connect 전)으로 두는 별도 시각을 기록하거나 계약에 현재 기준을 명시하고, 수신 시각은 socket 'data' 진입 시점 now().
+- 확인 기준: 가짜 서버가 [level3, level1] → level 이벤트 3·1, first_frame 은 level3 도착 tMs 에 1회. 서버가 첫 페이로드를 50 ms 늦게 보내면 latencyMs ≥ 45 이고 latencyMs === tMs − connect tMs.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 17:20 감독 등록(PR #100 검토 #1, 축 3 높음 보고·축 6 — 감독 clients.mjs 읽음·직접 실행. 벤치 서버가 늘 순서대로 보내므로 현재 산출물은 틀리지 않아 중간)
+
+### F-568 [열림] (심각도: 중간) — 계약 서술이 구현과 다르다: reason 이름, mixed 규칙 삭제, socket 계약 시그니처·close 서술
+- 위치: 제품 contracts/load/harness.mjs:25('before_level0') vs bench/load/first_frame/index.mjs:70('before_firstArrival'); harness.mjs:19-21(이번 PR 이 'mixed clock/source is a violation' 문구를 지움) vs server_stats/index.mjs:99-100; bench/load/socket/contract.mjs:13(path·connectTimeoutMs 빠짐)·:17('every connection stays open until durationS' — clients.mjs:7·:60-64 는 서버가 먼저 끊으면 그때 close)·:20(deps 빠짐)
+- 문제: 계약대로 reason === 'before_level0' 을 보는 소비자는 아무것도 못 받고, 옛 값·모르는 reason 을 넣은 firstFrameViolations({p95Ms:100,missing:[],outOfOrder:[{id:0,reason:'before_level0'}]}) → [](축 4b 재현). reason 값을 고정하는 시험 0건.
+- 고칠 것: reason 이름을 한쪽으로 맞추고 outOfOrder reason deepEqual 시험, 모르는 reason 은 위반. 계약 :19-21 에 'samples 1개 이상이면 clock·source 섞임은 위반(durationS 무관)' 복원. socket 계약 :13·:17·:20 을 구현대로.
+- 확인 기준: `grep -rn "before_level0\|before_firstArrival" contracts bench` 가 한 이름만, `grep -n mixed contracts/load/harness.mjs` ≥ 1, 모르는 reason → 위반 ≥ 1.
+- 권장 모델: haiku(계약 문구), sonnet(reason 시험)
+- 이력: 2026-10-06 17:20 감독 등록(PR #100 검토 #1, 축 1·2·3·4b — 감독 grep 확인)
+
+### F-569 [열림] (심각도: 중간) — 결정 0064·노트 t16-12b.md 의 근거·수치가 사실과 다르다
+- 위치: 연구 experiment/t16-12b decisions/0064-socket-load.md:6(관련 링크가 t16-12.md), :23('tests/first_frame 기본값' — 실제 출처 bench/load/run_all/run.mjs steady30), :24('제품 LEVEL_PAYLOADS 크기 일치' — 제품에 그런 상수 없음, 크기는 bench/load/socket/contract.mjs:24 합성 값), :26·:27('하드웨어 무관'·'S5/S8 검증용 통계량 충분' — :32·:49·:55 와 모순), :36('서버 샘플 수 ≥ ceil' — 구현은 =), :34-39(다시 볼 조건이 이미 일어난 일·점검 목록); experiments/t16-12b.md '실제 실행' 줄 '첫 프레임 p95 0.22 ms'(0064 는 한 클라이언트 예시라 함)
+- 문제: RULES 근거 규칙 위반 — 출처 없는 근거, 내부 모순, p95 가 아닌 값을 p95 로 적음. S8(30명에서 S1~S7 유지)은 S5 근사·서버 자원만 봤는데 미측정이라는 문장이 없다.
+- 고칠 것: 0064 는 '제안' 상태이므로 해당 행을 직접 고친다. 근거 출처를 실제 파일로, 모순 문장 삭제, '= ceil(durationS)', 다시 볼 조건을 아직 안 일어난 사건으로(server_main 이 제품 wire 를 쓰게 될 때, T17 실측 들어올 때, 재실행 변동이 정한 값을 넘을 때). 노트 p95 를 해당 실행 socket30.json 값으로, 'S8 미측정 — 클라우드 근사만, [local] T17' 한 줄.
+- 확인 기준: 0064 근거 각 행의 출처 경로가 실제로 있고 그 값을 담는다. 노트 p95 = 같은 실행 결과 파일 값.
+- 권장 모델: haiku
+- 이력: 2026-10-06 17:20 감독 등록(PR #100 검토 #1, 축 2·5 — 감독이 노트 읽음, 제품 grep LEVEL_PAYLOADS 는 bench/load/socket 밖 0건)
+
+### F-570 [열림] (심각도: 중간) — 소켓 모듈 시험의 약한 단언·빠진 음성 시험
+- 위치: 제품 bench/load/socket/clients.test.mjs:42(latencyMs ≥ 0 && ≤ tMs — 구현상 늘 참), ws_client.test.mjs:143(403 을 /handshake failed/ 만), proc_stats.test.mjs:27·:31-33(CPU 부호만, rss 5 MB~4 GB), clients.test.mjs 전반(레벨 개수 초과 메시지·path·늦은 connect 미검증)
+- 실패 상황: 축 4a 변이 생존 — M11 latencyMs=tMs, M1 accept 키 검사 삭제, M2 Upgrade 헤더 검사 삭제, M6 MAX_HANDSHAKE_BYTES 삭제, M8b status 정규식 완화, M26 statm [1]→[0](VSZ), M27 µs→ms, M28 음수 검사 삭제, M10 index<LEVEL_MESSAGES → true, M15 path 누락, M13 늦은 connect 로그 포함.
+- 고칠 것: latencyMs === tMs − connect.tMs 정확 비교(F-567 지연 서버와 함께). rawServer 에 accept 위조·Upgrade 누락·16 KB 초과 헤더 → 각각 정확 오류 문구. 바쁜 자식의 ~1 s CPU 증가 0.5e6~1.5e6 µs, rss 가 VSZ 미만·process.memoryUsage().rss 0.3~3배, parseProcStat 음수·비정수 → null. 서버 5개 메시지 → level 4·bytes 5, path '/x' → req.url, durationS 뒤 101 → 이벤트 [].
+- 확인 기준: 위 변이 각각 시험 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 17:20 감독 등록(PR #100 검토 #1, 축 4a — 근거 줄 있는 것)
+
+### F-571 [열림] (심각도: 낮음) — PR #100 검토 #1 낮음 묶음
+- 위치·문제·확인 기준:
+  ① (F-563 ① 잔여) bench/load/first_frame/index.mjs:36 'no level-0 arrival at all' 서술 주석 → 'no level arrival (any level)'. 확인: grep 'level-0' 이 문구 줄만.
+  ② (F-563 ③ 보조) noArrival 비배열 검사 줄 삭제 변이 생존 — {p95Ms:1,missing:[],perClientMs:[1],noArrival:'x'} → 위반 ≥ 1 단언.
+  ③ (F-563 ⑦ 보조) bandwidth/index.mjs:63-64 peak 만 넘치는 입력(bytes 1e300 @2000 ms, durationS 2+4.44e-16) throws 단언.
+  ④ proc_stats·server_stats: /proc 틱 10 ms 라 cpuPct 해상도 100/(CLK_TCK·wallS)%, 짧은 마지막 칸(durationS 2.01·1.001)에서 0%/수백 % — 소켓 CLI·runSocketLoad 는 정수 durationS 만 받거나 해상도를 표본·0064 에 적기.
+  ⑤ proc_stats.mjs:19-20 getconf 를 첫 표본에서 동기 실행해 모든 tS 가 +≈8.5 ms 밀림 — 샘플러 생성 전에 미리 읽기. 확인: 무부하 첫 tS − 1.0 < 2 ms.
+  ⑥ proc_stats.mjs:51-52 틱당 /proc 4회 읽기 → 1회 스냅샷.
+  ⑦ ws_client.mjs:56 requireMask:false 가 마스킹된 서버 프레임을 받아들임(RFC 6455 §5.1) — 1002 로 닫기 시험.
+  ⑧ run.mjs: 표본 0개일 때 /proc 없음(비 Linux) 원인 문구.
+  ⑨ 서버가 접속 직후 5 MB 버스트만 보내고 나머지 9 s 는 유휴 — 보고서·0064 에 'burst-only, 정상상태 아님' 표기.
+  ⑩ clients.test.mjs:40 close.tMs ≥ durationS·1000 − 5 여유(M16 생존), :31-32 정렬 id tie-break 미검증(M12), ws_client 1006 경로(M4), server_proc 시작 타임아웃·SIGKILL 폴백(M31·M32).
+- 권장 모델: sonnet(①~⑧⑩), haiku(⑨)
+- 이력: 2026-10-06 17:20 감독 등록(PR #100 검토 #1, 축 1·2·4a·4b·6·7 — 근거 줄 있는 것)
