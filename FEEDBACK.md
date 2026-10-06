@@ -6525,3 +6525,69 @@
   ⑤ 연구 experiments/t16-22.md — 변이 결과 '각 fail 1' 이 재현(2~4건)과 다르고, F-583 확인 기준의 부하 10회를 돌렸는지 없음(축 5). run_notes.test.mjs:11 제목 'never throws synchronously' 가 좁힌 JSDoc 과 어긋남(축 5). 확인: 노트 '최소 1건'·부하 미실행 명시, 제목 정정.
 - 권장 모델: haiku(②③⑤), sonnet(①④)
 - 이력: 2026-10-06 21:40 감독 등록(PR #105 검토 #1, 축 1·4b·5·6·7 — 모두 새로 찾은 것. ① 은 이번 diff 가 'validation missing' 을 잡는다고 주장한 시험의 공백, ④ 는 기존 코드). T16 정리 회차 뒤 중간 이상 0 이라 21:15 지시대로 회귀 주기 점검으로 넘긴다.
+
+### F-586 [열림] (심각도: 높음) — 블루노이즈 솎기 시험이 핵심 불변식(수락점 사이 최소 거리 ≥ 반경)을 지키지 못한다
+- 위치: 제품 server/scheduler/segment_budget/blue_noise_thinner.test.mjs:83-89 (feat/t13-t c0b73de), 대상 blue_noise_thinner.mjs:149·:155·:205·:195
+- 문제: 유일한 성질 시험이 `blue > 2 * stride`(모턴 등간격의 2배) 인데 실측은 blue 1.3428·stride 0.0576 으로 약 23배 여유라 거리 보장이 깨져도 통과한다. 2배의 근거도 없다. 마지막 패스 등간격 추출(:205)과 캐시 적중 사본(:195)도 시험이 거치지 않는다.
+- 실패 상황(감독 직접 재현, 사본에서 변이): ① :149 이웃 검사를 27칸 → 1칸(자기 칸만)으로 줄여도 blue_noise_thinner.test.mjs pass 6·fail 0, ② :155 거리 기준을 `< r2 / 4`(반경 절반)로 약화해도 pass 6·fail 0. 축 4a 보고(미확인): :205 를 `accepted[start + j]`(앞에서부터)로, :195 를 `return hit` 로 바꿔도 통과.
+- 고칠 것: (a) 실제 불변식 단언 — 마지막 완결 패스까지의 수락점 사이 최소 거리 ≥ 그 패스 반경 − eps(stats().radii 사용), k 여러 개(예: 800·3000)와 칸 경계에 걸친 점이 있는 장면. (b) 마지막 패스를 일부만 뽑는 k 에서 공간 고름 지표(바닥 격자 칸별 개수 분산 또는 최근접 거리 하위 분위)를 등간격 대 앞에서부터 변이가 갈리는 값으로 단언. (c) 같은 k 를 두 번 받아 두 번째를 고친 뒤 세 번째와 비교. 기준은 측정값에 맞춰 사후에 잡지 말고 불변식에서 유도한다.
+- 확인 기준: 위 4개 변이(1칸, r2/4, 앞에서부터, return hit) 각각에서 blue_noise_thinner.test.mjs 가 실패, 원본 통과.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 22:10 감독 등록(PR #106 검토 #1, 축 4a 보고 → 감독 변이 ①② 직접 재현). 새로 찾은 것.
+
+### F-587 [열림] (심각도: 중간) — 블루노이즈 솎기가 격자형(양자화) 입력에서 패스가 한 번 정체되면 남은 점을 전부 쏟아 사실상 무작위 표본이 된다
+- 위치: 제품 server/scheduler/segment_budget/blue_noise_thinner.mjs:178-180, 첫 반경 :170 (feat/t13-t c0b73de)
+- 문제: `total === prevTotal` 은 중복점 대비인데, 좌표가 격자에 놓인 입력에서는 반경 0.0276 → 0.0249 처럼 실제 조건이 같아 수락 0 인 패스가 정상적으로 생긴다. 그러면 남은 점 전부가 방문 순서로 마지막 '패스'가 되고 select 는 그 안에서 등간격으로 뽑는다. 또 첫 반경이 2차원 표면 가정(span/√(kHint·0.35))이라 체적형·촘촘한 격자 분포에서는 첫 패스가 과다 수락해 작은 k 가 첫 패스의 무작위 등간격 표본이 된다(축 1, 미확인: 2 m 입방체 16만 점에서 첫 패스 66% 수락).
+- 실패 상황(감독 직접 재현): 1 cm 간격 400×400 평면(16만 점) — radii … 0.0276 0.0249 0, passEnd … 13234 13234 160000. select(40000) 에서 4-이웃이 붙은 점 65.4%, select(20000) 26.7%(2칸 간격 격자면 0% 가능). 현재 S6 측정 장면(연속 실수 좌표)에서는 일어나지 않아 보고된 SSIM 은 영향 없음. 실제 입력은 float32 dense.ply 라 1 cm 양자화는 아니지만 격자에서 온 데이터(DEM·VWorld·mm 양자화)에서 품질이 조용히 무너진다.
+- 고칠 것: 수락 0 인 패스는 기록하지 않고 반경만 계속 줄인다. 남은 점 일괄 수락은 반경이 span·1e-9 아래이거나 남은 점이 모두 수락점과 같은 위치일 때만. 첫 반경은 positions 만으로 결정적으로, 첫 패스 수락 수가 kHint·firstFraction 의 2배를 넘으면 반경을 키워 다시(또는 체적 가정 ∛ 를 상한으로).
+- 확인 기준: 위 1 cm 평면에서 passEnd 가 13234 뒤 160000 으로 바로 뛰지 않고 select(40000) 4-이웃 비율 < 10%. 1 cm 입방 격자 40³ 에서 passEnd[0] ≤ 2·kHint·0.35. 시험으로 남기고, 결정성·S6 시험 그대로 통과.
+- 권장 모델: opus
+- 이력: 2026-10-06 22:10 감독 등록(PR #106 검토 #1, 축 1 보고 높음 → 감독 재현했으나 현재 측정·실제 입력 경로에서 드러나지 않아 중간). 새로 찾은 것.
+
+### F-588 [열림] (심각도: 중간) — makeFloorAllocate: frac 검증 없음, 반올림·하한 1·짧은 비율 배열이 시험되지 않음
+- 위치: 제품 server/scheduler/segment_budget/index.mjs:96-118, floor_allocate.test.mjs:106-145 (feat/t13-t c0b73de)
+- 문제·실패 상황(축 1·4a·7 공통, 감독 :104-105 읽음): ① frac 를 검사하지 않아 makeFloorAllocate(NaN)·([]) 는 [NaN…] 을, (2) 는 [99999,199999,399999,3](최고 수준 3점)을 낸다. NaN 은 measure 에서 늦게 TypeError. ② 시험 기대값이 모두 나누어떨어지는 counts 라 :105·:110 의 floor → ceil/round, :109 room → total 변이가 산다(축 4a, 미확인). ③ :105 Math.max(1,…) → Math.max(0,…) 변이가 산다 — [10,20,40,100], total 4 에서 [0,0,0,4](축 4a, 미확인). ④ :104 `frac[frac.length-1]` → `frac[0]` 변이가 산다. ⑤ 보장 합 ≥ total 구간(S6 counts 에서 total ≤ 43,751)에서 최고 수준이 1점으로 묶이고 total 증가에 단조가 아니다(축 1, 미확인).
+- 고칠 것: 생성 시 frac(또는 각 원소)이 [0,1] 유한수, 배열은 길이 ≥ 1 인지 검사해 RangeError. 나누어떨어지지 않는 counts 로 손계산 deepEqual(보장 경로와 축소 경로 둘 다), 작은 counts 와 total 4..sum 전 범위 불변식(각 ≥ 1, 합 = total), 짧은 배열 deepEqual. ⑤ 는 최고 수준도 축소 대상에 넣거나 JSDoc 에 의도 명시.
+- 확인 기준: NaN·[]·−1·2 가 RangeError. ②③④ 변이 각각 실패.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 22:10 감독 등록(PR #106 검토 #1). 새로 찾은 것.
+
+### F-589 [열림] (심각도: 중간) — 제품에 실행되지 않는 연구 후보 스크립트 bench/status_quality/cand/combo.mjs
+- 위치: 제품 bench/status_quality/cand/combo.mjs:3-5 (feat/t13-t c0b73de)
+- 문제: server/scheduler/segment_budget/cand_1_alloc.mjs·cand_6_strat.mjs·cand_2_voxel.mjs 를 가져오는데 제품에 없다(연구 experiments/t13t-cand/ 에만 있음). 저장소 분리 위반이기도 하다(실험 노트: 제품에는 채택안만).
+- 실패 상황(감독 직접 실행): `node bench/status_quality/cand/combo.mjs 0.02 base` → ERR_MODULE_NOT_FOUND.
+- 고칠 것: 제품에서 지우고(연구 experiments/t13t-cand/combo.mjs 가 이미 있음) 연구 쪽 import 경로가 연구 저장소에서 도는지 확인.
+- 확인 기준: 제품에서 `grep -rn "cand_" bench server` 0건.
+- 권장 모델: haiku
+- 이력: 2026-10-06 22:10 감독 등록(PR #106 검토 #1, 축 2·5·11). 새로 찾은 것.
+
+### F-590 [열림] (심각도: 중간) — 낮은 수준 0..2 를 원본 2% 로 줄인 비용(최고 수준 도착 전 화면)이 측정·기록되지 않는다
+- 위치: 제품 bench/status_quality/tune.mjs:35-40, s6_quality.test.mjs:14-28, server/scheduler/segment_budget/index.mjs:123; 연구 decisions/0065 (feat/t13-t c0b73de)
+- 문제: SSIM 은 최고 수준 비율만 flat_boxes 에 적용해 잰다. 수준 0 은 41,871 → 6,250 점으로 줄었는데 수준 0..2 만 그려진 화면(딜레이 패턴에서 최고 수준 도착 전)은 한 번도 재지 않는다. 0065 와 PR 한계 절은 미측정이라고 적었지만 수치가 없다.
+- 실패 상황: 낮은 수준 화면이 심하게 비어도 어떤 시험도 실패하지 않는다.
+- 고칠 것: 수준 2(또는 0·1·2 각각)만 그린 8시점 SSIM 을 채택안과 이전 채택안 둘 다 재서 노트·0065 에 표로 남기고 시험 t.diagnostic 으로 출력한다. 문턱은 SPEC 에 없으므로 단언은 하지 않아도 된다(사람 판단 자료). README 에 '정상 상태(최고 수준 도착 후) 기준' 명시.
+- 확인 기준: 노트·0065 에 수준별 SSIM 표, README 한·영 문구.
+- 권장 모델: sonnet
+- 이력: 2026-10-06 22:10 감독 등록(PR #106 검토 #1, 축 2·3). 새로 찾은 것.
+
+### F-591 [열림] (심각도: 낮음) — PR #106 검토 #1 낮음 묶음
+- 위치·문제·확인 기준:
+  ① 제품 bench/status_bw/index.mjs:26·s6_quality.test.mjs:1 — '결정 0050'(T15.4 입력층)을 근거로 적음. 0065 로. :26 의 '공간 균일 솎기' 문구도 블루노이즈와 모순. 확인: `grep -rn 0050 bench/status_bw bench/status_quality server/scheduler` 0건(감독 확인).
+  ② server/scheduler/segment_budget/index.mjs:7-8 머리 주석이 원본 비례·공간 균일 솎기로 단정 — 기본값 기준이고 S6 구성은 0065 라고 한 줄(축 2).
+  ③ blue_noise_thinner.mjs:79-80 — firstFraction·kHint 검증 없음(0·NaN·음수에서 조용히 품질 저하, 축 7 미확인). 확인: 생성 시 RangeError 또는 기본값.
+  ④ blue_noise_thinner.mjs:185·:203 — select 결과 cache 가 k 마다 무한히 쌓이고 select 마다 Uint8Array(n) 할당, 2.5M 점 상주 약 56 B/점, 첫 select 2~7 s 동기(축 6 미확인). 지금은 bench 에서만 쓰여 문제 아님. 실제 송출 경로에 배선할 때를 위해 JSDoc 에 수명·비용 명시하거나 캐시를 최근 1~2개로.
+  ⑤ floor_allocate.test.mjs:122 중복 단언, :106 상수 비교가 실제 쓰임과 연결 안 됨(시험에서 makeFloorAllocate(S6_LOW_LEVEL_FLOOR) 사용), 블루노이즈 결정성 시험에 고정 기대값 없음(축 4a).
+  ⑥ s6_quality.test.mjs:30 변이 문턱 0.015 — 실측 차이 0.0250, 근거 주석 없음(축 4b). 시드 분산 등 유도 근거를 주석에. :36-39 '배분을 되돌리면' 시험이 솎기까지 되돌림 — 이름을 '이전 채택안 전체' 로 하거나 배분만 바꿈(배분만 되돌린 실측 차이 0.0864, 축 4b).
+  ⑦ s6_quality.test.mjs:4 '약 30 s' — 실측 63.9 s(변이 2회 포함, 축 4b).
+  ⑧ README.md:122(한·영) — 250만 점 S6 SSIM 과 20만 점 status_quality 시험 조건이 한 문장에 섞임. 나눠 적음.
+- 권장 모델: haiku(①②⑤⑦⑧), sonnet(③④⑥)
+- 이력: 2026-10-06 22:10 감독 등록(PR #106 검토 #1). 새로 찾은 것.
+
+### F-592 [열림] (심각도: 중간) — SSIM 을 잰 점군과 바이트를 잰 점군이 다른 장면이라, 0.8045 는 3 MB 안에 든 점군의 화질이 아니다
+- 위치: 제품 bench/status_quality/tune.mjs:32-40, s6_quality.test.mjs:14-21, README.md:122 (feat/t13-t c0b73de)
+- 문제: 바이트는 levels 장면(50×100 m 기복 지면, bench/status_bw/index.mjs:64)에서 fitSegmentBudget 로 맞추고, SSIM 은 다른 장면 flat_boxes(200×200 m + 건물)에 최고 수준 비율만 옮겨 적용한 점군으로 잰다. 방법은 t13b-quality 결과 D(SPEC S9 현황 칸 0.6877 의 근거)와 같아 이번 PR 이 새로 만든 문제는 아니다(감독 tune.mjs:32-40 읽음).
+- 실패 상황(축 4b, 감독 미확인): SSIM 을 잰 flat_boxes 630,778 점을 같은 S6 경로(packCloudPieces + codec 1 + PIECE 프레임)로 재면 최고 수준만 3,549,199 B 로 3,000,000 B 를 넘는다. README 의 '같은 구성에서 함께 단언' 은 구성 객체는 같지만 점군은 다르다.
+- 고칠 것: SSIM 측정 대상 점군 자체의 S6 경로 바이트를 같은 시험에서 재어 진단 출력하고, flat_boxes 에서도 fitSegmentBudget 로 바이트를 맞춘(4수준 전부) 점군으로 SSIM 을 잰 행을 노트·0065 표에 추가한다. 두 값 중 낮은 쪽을 S9-현황판 고정 후보로 적는다. README 문구를 사실대로.
+- 확인 기준: 시험 출력에 SSIM 대상 점군의 S6 경로 바이트, 노트에 'flat_boxes 예산 맞춤' 행, 그 행의 바이트 ≤ 3,000,000 B.
+- 권장 모델: opus
+- 이력: 2026-10-06 22:10 감독 등록(PR #106 검토 #1, 축 4b 보고 높음 → 기존 측정 방법(결과 D)에서 온 것이고 감독 미재현이라 중간). S9-현황판 값 고정은 이 항목 처리 뒤로 미룬다.
