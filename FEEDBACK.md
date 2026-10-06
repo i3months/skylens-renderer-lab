@@ -5795,26 +5795,25 @@
 - 권장 모델: haiku(①②⑤), sonnet(③④)
 - 이력: 2026-10-06 10:46 감독 등록(PR #92 검토 #1, 축 4b·5·6·7·11). 새로 찾은 것. ③ 미확인. → 2026-10-06 작업자 처리(제품 5d1cddb, 연구 714ec87) → 2026-10-06 11:20 감독 확인 닫음(PR #92 검토 #2): ① README :110·:272 한·영 일치(축 11) ② 2100 ③ for…of push, 30만 무효 원소 시험 통과(validateResult 쪽 단언은 F-520 ⑤) ④ kbase 2147483646·q [0,1] ⑤ 0060 필수 metric 이름 행.
 
-### F-519 [열림] (심각도: 중간) — 부하 결과 검증기가 희소 배열·중첩 여분 필드를 통과시킨다
+### F-519 [처리됨-검증대기] (심각도: 중간) — 부하 결과 검증기가 희소 배열·중첩 여분 필드를 통과시킨다
 - 위치: 제품 contracts/load/index.mjs:49(records forEach)·:54(perClient forEach)·:56(latencyMs every)·:17(웨이포인트 키)·:44-61(결과·perClient 키)·:21 (feat/t16-0 5d1cddb)
 - 문제·실패 상황(감독 사본 node 재현, 모두 [] 반환): ① clients 2, perClient = new Array(2) 에 [0] 만 채움 → 클라이언트 1 기록이 없는데 통과(메모리에서 결과를 만드는 T16.3 하네스가 응답 없는 클라이언트 칸을 비워 두면 '30개 각각 기록' 이 거짓 통과). ② latencyMs [1,,3] 통과. ③ records [rec,,] 통과. ④ 웨이포인트 {t,e,n,u,x:1}·결과 최상위 여분 키·perClient 원소 여분 키 통과 — 0060 '알 수 없는 필드 거부(오타 방지)' 와 어긋남(축 1·2). ⑤ path[0].t NaN 이면 'path[0] needs finite t,e,n,u' 와 'path[0].t must be 0' 이 함께 나옴(:21 유한 검사 없음, 낮음).
 - 고칠 것: ①②③ 인덱스 루프로 빈 칸을 오류('perClient[i] missing' 등)로. ④ 세 곳에 허용 키 집합(웨이포인트 {t,e,n,u}, 결과 {scenario,records,perClient}, perClient {id,bytes,latencyMs}) 또는 0060 의 범위를 '시나리오 최상위' 로 좁히기 — 둘 중 하나를 0060 에 적는다. ⑤ :21 에 Number.isFinite(path[0].t).
 - 확인 기준: 위 입력 각각이 deepEqual 로 정확한 오류를 반환하는 음성 시험, 감독 사본에서 새 검사 삭제 시 실패.
 - 권장 모델: sonnet
-- 이력: 2026-10-06 11:20 감독 등록(PR #92 검토 #2, 축 1·2·6+7; 감독 node 재현 ①②③④⑤). 새로 찾은 것. 축 6+7 은 높음으로 보고했으나 결과는 JSON 직렬화를 거치면 빈 칸이 null 이 되어 거부되고, 메모리 경로 소비자(T16.3)가 아직 없어 중간으로 낮춤.
+- 이력: 2026-10-06 11:20 감독 등록(PR #92 검토 #2, 축 1·2·6+7; 감독 node 재현 ①②③④⑤). 새로 찾은 것. 축 6+7 은 높음으로 보고했으나 결과는 JSON 직렬화를 거치면 빈 칸이 null 이 되어 거부되고, 메모리 경로 소비자(T16.3)가 아직 없어 중간으로 낮춤. → 2026-10-06 작업자 처리(제품 64363204, 연구 c6e6fc3; 제품 PR #93): 확인 기준 직접 실행, 관련 시험 308/308·전체 5387 pass fail 0
 
-### F-520 [열림] (심각도: 중간) — 부하·H32 계약 시험의 경계 공백(생존 변이)
+### F-520 [처리됨-검증대기] (심각도: 중간) — 부하·H32 계약 시험의 경계 공백(생존 변이)
 - 위치: 제품 contracts/load/load.test.mjs:21-85, contracts/tower_assets/terrain_h32.test.mjs:182-187 (feat/t16-0 5d1cddb)
 - 문제(축 4a·4b 사본 변이표): load index.mjs ① :59 `c.id < n` → `<=` 생존(id = clients 경계 없음, id 9 만 시험) ② :59 `c.id >= 0` 삭제 생존(id -1 없음) ③ :56 `Number.isFinite(x)` 삭제 생존(latencyMs [Infinity] 없음) ④ :48 `!Array.isArray(r.records)` 삭제 생존(records undefined·{} 없음 — 변이는 던짐) ⑤ :47 를 spread push 로 되돌린 변이 생존(30만 시험이 validateScenario 만 부름) ⑥ :31 정규식 `$` 제거·`+`→`*` 생존('ab-'·'' 없음) ⑦ records[1] 이상 미검사 변이 생존. terrain_h32.mjs ⑧ :70 `kbase < I32_MIN` 삭제·`<=` 생존(음수 쪽 경계 시험 없음; 감독 미재현, 축 4b 보고 — 기대값 quantizeHeights([-2147483649,-2147483649],1) null, [-2147483648,-2147483647] kbase -2147483648).
 - 실패 상황: 위 변이를 넣어도 load.test 5/5·terrain_h32.test 24/24 통과.
 - 고칠 것: 각 경계 입력을 deepEqual 기대 오류와 함께 추가(① id 2 @ clients 2 ② id -1 ③ [Infinity] ④ records undefined·{} ⑤ validateResult({scenario:{...base,path:big}, records:[rec], perClient:big}) 길이 단언 ⑥ 'ab-'·'' ⑦ [rec, {...rec, unit:'bogus'}] → ['records[1]: bad unit'] ⑧ 음수 짝 두 단언). 양성 bytes 0·latencyMs [0] 도. :78 루프에 단언 메시지.
 - 확인 기준: 감독 사본에서 ①~⑧ 변이 각각이 시험을 실패시킨다.
 - 권장 모델: sonnet
-- 이력: 2026-10-06 11:20 감독 등록(PR #92 검토 #2, 축 4a·4b). 새로 찾은 것. ⑧ 미확인.
+- 이력: 2026-10-06 11:20 감독 등록(PR #92 검토 #2, 축 4a·4b). 새로 찾은 것. ⑧ 미확인. → 2026-10-06 작업자 처리(제품 64363204·ace4741d, 연구 c6e6fc3; 제품 PR #93): 확인 기준 직접 실행, 관련 시험 308/308·전체 5387 pass fail 0
 
-### F-521 [열림] (심각도: 낮음) — PR #92 검토 #2 낮음 묶음(결정 0060·0059 문서)
+### F-521 [처리됨-검증대기] (심각도: 낮음) — PR #92 검토 #2 낮음 묶음(결정 0060·0059 문서)
 - 위치·고칠 것: ① 연구 decisions/0060:16 '좌표 규약은 renderer_basis 와 같다' — renderer_basis.md 에 ENU·GeoAnchor 0건(축 2), 출처를 RULES.md:21·SPEC.md:79 로. ② 0060 경로 행에 '≥ 2점(정지는 같은 좌표 두 점)', name 형식 /^[a-z0-9_]+$/, durationS > 0, 종류 전용 필드 규칙을 한 줄씩(index.mjs:13·:31·:34·:38-39). ③ 0060 경로·결과·알 수 없는 필드·steady 행에 대가, 다시 볼 조건에 '경로 보간 방식·지연 표본 정의가 바뀔 때', linkBytesPerS 선택지(고정/시간 변동). ④ 0059:6·:16·:24 '제품 perf.test.mjs' → client/tower/buildings/perf.test.mjs(제품에 perf.test.mjs 5개). ⑤ burstLevels 는 개수만 정하므로 T16.6 시뮬레이터가 '한꺼번에 도착한 수준 중 최고 수준만 그리고 낮은 수준은 건너뛴다(교체·추월 건너뛰기)' 를 불변식으로 시험한다는 문장을 0060 에(축 3). ⑥ terrain_h32.mjs:9 'kbase·K(max)' → 'kbase 또는 K(max)'. ⑦ experiments/t16-0.md F-517 줄 '변이 생존 0' 은 errs.push 줄 삭제 변이에 한한 것임을 적고 변이 방법(스크립트·결과)을 노트에(축 5).
 - 확인 기준: 각 문구 grep. 0060 의 errs.push 규칙마다 대응 문장.
 - 권장 모델: haiku
-- 이력: 2026-10-06 11:20 감독 등록(PR #92 검토 #2, 축 2·3·4b·5). 새로 찾은 것.
-
+- 이력: 2026-10-06 11:20 감독 등록(PR #92 검토 #2, 축 2·3·4b·5). 새로 찾은 것. → 2026-10-06 작업자 처리(연구 f9e6537; 제품 PR #93): 확인 기준 직접 실행, 관련 시험 308/308·전체 5387 pass fail 0
