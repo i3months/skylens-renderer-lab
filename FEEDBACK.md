@@ -6495,7 +6495,7 @@
   ④ (20:55 추가, 축 4b) server_proc_limits.test.mjs·run_notes.test.mjs — 검증 제거 변이에서 2^31−1 ms 타이머·NaN 재무장으로 파일이 멈춘다(실패가 아니라 끝나지 않음). 확인: 시험별 timeout 옵션(예: { timeout: 5000 })을 걸어 그 변이에서 실패로 끝남.
 - 이력: 2026-10-06 21:01 작업자 처리(제품 feat/t16-21 da33cd7) → 21:15 감독 확인 닫음(PR #104 검토 #1). ① contract.mjs:24 와 run.mjs:124 인자 일치(축 2). ② run_all/run.mjs:140 `Object.keys(thresholds).length > 0` — 조건 제거 변이에서 report_path.test.mjs 새 시험 실패(축 4b), {}·null·[] 두 방식 모두 같은 예외(축 7). ③ Promise.reject — 동기 throw 복귀 변이에서 run_notes 시험 실패(축 4b). ④ 는 확인 기준 미충족(시험은 실패로 보고되나 프로세스가 끝나지 않음)이라 F-584 ① 로 옮김.
 
-### F-583 [열림] (심각도: 중간) — 실시간 샘플러 시험의 늦은 쪽 0.1 s 상한이 무거운 부하에서 여전히 거짓 실패하고, 주석이 검출 범위를 과장한다
+### F-583 [닫힘] (심각도: 중간) — 실시간 샘플러 시험의 늦은 쪽 0.1 s 상한이 무거운 부하에서 여전히 거짓 실패하고, 주석이 검출 범위를 과장한다
 - 위치: 제품 bench/load/socket/run.test.mjs:139-144 (feat/t16-21 da33cd7)
 - 문제: 늦은 쪽 상한 `d < 0.1` 은 OS 스케줄링 지연을 그대로 받는다. 주석 근거 '37-43 ms' 는 한 조건의 관측이다. 또 :141 주석은 t0 어긋남을 '표본 간격으로도 잡는다' 고 하지만 spacing = tS[1]−tS[0] 에서 샘플러 t0 는 상쇄되어 균일 어긋남을 못 잡는다(축 1·2·4a·5 공통, 감독 :139-144 직접 읽음). 실시간 시험의 이른 쪽은 늦은 t0 만, 그것도 타이머 지연 < 28 ms 일 때만 잡는다. t0 공유를 실제로 보장하는 것은 결정적 시험 :228·:235 다. spacing 허용 ±0.05 가 늦은 쪽 0.1 보다 좁아, 두 표본 지연 차가 50 ms 를 넘으면 t0 와 무관하게 실패할 수도 있다.
 - 실패 상황: 축 4a — socket 시험 3개 반복 + yes 2개 + 동시 전체 npm test(4코어, loadavg 7~9)에서 run.test.mjs 10회 중 1회 `tS[0] = 1.1116562249999988`(+111.7 ms)로 :142 실패. 확인 기준 조건(축 6)에서는 10/10 통과라 F-581 은 닫았다.
@@ -6503,8 +6503,9 @@
 - 확인 기준: socket 시험 3개 반복 + yes 2개 + 동시 전체 npm test 조건에서 run.test.mjs 10회 0 실패. 샘플러 t0 +30 ms·−30 ms 변이가 각각 최소 하나의 시험을 실패시킴. run.mjs:111 의 t0 인자 제거 변이도 실패.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 21:15 감독 등록(PR #104 검토 #1, 축 4a 재현·축 1·2·5 — 새로 찾은 것, F-581 수정이 남긴 것. 확인 기준 조건은 통과라 반려 사유 아님)
+- 이력: 2026-10-06 21:20 작업자 처리(제품 feat/t16-22 24fe5e96: 늦은 쪽 1 s·spacing 삭제·주석 정정·결정적 t0 시험 추가) → 21:40 감독 확인 닫음(PR #105 검토 #1). 부하 조건(yes 2개 + gzip 1개 + 소켓 시험 3개 무한 반복 + 동시 전체 npm test, 4코어)에서 run.test.mjs 10회 0 실패(축 4a). 샘플러 t0 +30·−30, 틱 t0 +30·−30, createProcSampler t0 인자 제거 변이 모두 2~4건 실패(축 4a·5 각자 재현). 남은 0.1~1 s 구간 늦음 공백은 F-585 ③.
 
-### F-584 [열림] (심각도: 낮음) — PR #104 검토 #1 낮음 묶음
+### F-584 [닫힘] (심각도: 낮음) — PR #104 검토 #1 낮음 묶음
 - 위치·문제·확인 기준:
   ① (F-582 ④ 이월) bench/load/socket/server_proc_limits.test.mjs:22·run_notes.test.mjs:14-15 — `{ timeout: 10000 }` 는 시험 단위 제한일 뿐이라 검증 제거 변이에서 실패를 출력한 뒤 남은 자식 프로세스·끝없는 1 ms 재무장 타이머 때문에 파일 프로세스가 끝나지 않는다(축 4b: killAfterMs 상한 검사만 뺀 변이 → `timeout 120` 에 걸려 exit 124, 검증 줄 삭제 변이 → exit 124. 작업자 노트도 미해결로 적음). 고칠 것: :22 는 resolve 되면 proc.stop() 뒤 실패하게, run_notes 는 호출 횟수를 제한한 schedule(6번째 인자)·t0(5번째 인자)를 주입. 확인: 두 변이 모두 `node --test <파일>` 이 수 초 안에 exit 1.
   ② bench/load/socket/run.mjs:53·:56 — JSDoc 'never throws synchronously' 인데 기본 인자 `t0 = now()` 가 검사 전에 평가되어 now 가 throw 하거나 함수가 아니면 동기 예외(축 7 실측 `SYNC boom`). 호출처 runSocketLoad 는 t0 를 넘겨 영향 없음. 확인: now 가 throw 하는 경우 assert.rejects 통과, 또는 JSDoc 을 'durationS 검증 실패에 한해' 로 좁힘.
@@ -6513,3 +6514,14 @@
   ⑤ 연구 experiments/t16-21.md:18 — '+30 ms 어긋남 변이 실패(2건)' 의 방향이 빠짐. 확인: 방향(+/−)과 결과를 적음.
 - 권장 모델: sonnet(①), haiku(②~⑤)
 - 이력: 2026-10-06 21:15 감독 등록(PR #104 검토 #1, 축 2·4a·4b·5·7 — ① 은 F-582 ④ 이월, 나머지 새로 찾은 것)
+- 이력: 2026-10-06 21:20 작업자 처리(제품 feat/t16-22 24fe5e96, 연구 experiment/t16-22) → 21:40 감독 확인 닫음(PR #105 검토 #1). ① killAfterMs·startTimeoutMs 상한 검사 제거 변이 각각 exit 1(0.44 s·0.30 s), durationS 검증 줄 삭제 변이 exit 1(4.27 s), 남은 자식 0(축 4b). ② run.mjs:53-54 JSDoc 좁힘(축 2·7 일치). ③⑤ t16-21.md:7·:18 정정(축 5). ④ clients.test.mjs:254-255 주석(감독 diff 읽음). Infinity 쪽 검증 공백은 F-585 ①.
+
+### F-585 [열림] (심각도: 낮음) — PR #105 검토 #1 낮음 묶음 (회귀 주기 점검으로 넘김)
+- 위치·문제·확인 기준:
+  ① 제품 bench/load/socket/run_notes.test.mjs:13-14·:29 (feat/t16-22 24fe5e96) — 시계가 `now = () => 0` 으로 멈춰 있어, durationS 검증에서 Number.isFinite 만 빠지면 Infinity 사례가 검증과 무관한 'now() did not advance' RangeError 로 reject 되어 시험이 통과한다. 감독 직접 재현: run.mjs:58 을 `if (!(durationS > 0))` 로 바꾼 복사본에서 run_notes.test.mjs pass 2·fail 0(축 1·4b 도 같은 결과). 고칠 것: 단언을 `{ name: 'RangeError', message: /durationS/ }` 로 좁히거나 Infinity 사례에 전진하는 시계. 확인: 그 변이에서 exit 1, 원본 통과.
+  ② 같은 파일 :29·server_proc_limits.test.mjs:22-27 — `assert.rejects(fn, RangeError, label)` 는 종류가 틀리면 label 만 출력해 'resolved instead'·'did not reject' 진단 문구가 사라진다(축 4b, 미확인). 확인: 변이 출력에 그 문구가 보임.
+  ③ run.test.mjs:139-143 — 실시간 늦은 쪽 1 s 와 MAX_TICK_LATE_MS 1000 사이(0.1~1 s 상시 늦음)를 이 시험이 잡지 않는다. 주석 '늦음은 checkServerSamples 개수가 다룸' 은 1 s 넘는 늦음에만 맞다(축 6; 축 2 는 harness 의 간격 0.5~1.5 규칙이 일부 다룬다고 보고, 미확인). 확인: 주석을 범위대로 고치거나 틱마다 300 ms 지연 변이에서 실패.
+  ④ run.mjs:66-83 — 주입 now·schedule·onError 가 타이머 콜백 안에서 throw 하면 Promise 가 reject 되지 않고 uncaughtException 뒤 pending(축 7 실측, 미확인). 기존 코드, 실제 경로(performance.now·setTimeout)에서는 일어나지 않음. 확인: 콜백 본문 try/catch → reject, 또는 JSDoc 에 가정 명시.
+  ⑤ 연구 experiments/t16-22.md — 변이 결과 '각 fail 1' 이 재현(2~4건)과 다르고, F-583 확인 기준의 부하 10회를 돌렸는지 없음(축 5). run_notes.test.mjs:11 제목 'never throws synchronously' 가 좁힌 JSDoc 과 어긋남(축 5). 확인: 노트 '최소 1건'·부하 미실행 명시, 제목 정정.
+- 권장 모델: haiku(②③⑤), sonnet(①④)
+- 이력: 2026-10-06 21:40 감독 등록(PR #105 검토 #1, 축 1·4b·5·6·7 — 모두 새로 찾은 것. ① 은 이번 diff 가 'validation missing' 을 잡는다고 주장한 시험의 공백, ④ 는 기존 코드). T16 정리 회차 뒤 중간 이상 0 이라 21:15 지시대로 회귀 주기 점검으로 넘긴다.
