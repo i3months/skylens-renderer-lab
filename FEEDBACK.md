@@ -5680,7 +5680,7 @@
 - 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — ③ 외 전부(③ 은 typeof 중복이라 동치 변이, 노트 §5).
 - 이력 추가: 2026-10-06 08:40 감독 확인 닫음(PR #88 검토 #2) — 축 4a 사본 변이: ① fround 제거 시 '첫 불일치 인덱스 3' 으로 즉시 실패, ② :84 재검사 삭제 실패, ⑤ 옛 length 검사 복원 실패, ⑥ 비유한 검사 삭제 실패. ③ 은 Number.isFinite 가 비숫자를 모두 거르므로 동치 변이로 인정. ④⑦⑧⑩⑪⑫ 문구 확인, ⑨ 손 계산 42,490 B 재계산 일치(축 1·4c). 잔여는 F-506.
 
-### F-505 [열림] (심각도: 중간) — buildings perf 가 래스터 4회 반복 변이를 aerial 에서 5/10 만 잡고, 벽시계 중앙값 감시가 무거운 부하에서 원본과 Atomics 변이를 가르지 못한다
+### F-505 [처리됨-검증대기] (심각도: 중간) — buildings perf 가 래스터 4회 반복 변이를 aerial 에서 5/10 만 잡고, 벽시계 중앙값 감시가 무거운 부하에서 원본과 Atomics 변이를 가르지 못한다
 - 위치: 제품 client/tower/buildings/perf.test.mjs:25(RENDER_THRESHOLD_MS aerial 120)·:27-28(WALL_STALL_MS 350, 근거 '부하 중앙값 최대 약 208 ms')·:261(중앙값 단언)·:290-299(덮인 화소 수는 새 out 으로, 시간은 재사용 out 으로); client/tower/buildings/index.mjs:135-141(래스터 호출)·:146(stats 는 groupsTotal·groupsDrawn 만) (feat/t15-10f 5887039)
 - 문제: aerial 문턱 120 ms 는 origin/main(100 ms)보다 느슨하고 4회 변이(최소 79.9~90.6 ms)를 가르지 못한다(작업자 노트 §5 가 미충족으로 밝힘). black 100 ms 는 변이 최소 103.1 ms 로 여유 3%. 벽시계 감시는 8 병렬 + 전체 npm test 수준 부하에서 원본 중앙값이 432 ms 까지 올라 Atomics.wait 400 ms 변이(426~428 ms)와 겹친다. 래스터 호출 수·처리 화소 수가 관측되지 않아 시간 말고는 4배 회귀를 잡을 길이 없다.
 - 실패 상황: 래스터 단계를 4번 반복하는 변이에서 aerial 10 회 중 5 회 통과(축 4b 사본). 축 4b 원본 40 회(전체 npm test 와 다른 검증 프로세스가 동시에 돌던 조건)에서 9 회 '벽시계 호출당 중앙값 354~432 ms > 350 ms' 실패 — 감독은 로그를 직접 읽음, 감독 단독 8 병렬 40 회는 0 실패.
@@ -5688,9 +5688,12 @@
 - 확인 기준: 래스터 4회 반복 변이가 black·aerial·points 각 10/10 실패(결정적 단언으로), 원본 8 병렬 40 회 0 실패, Atomics.wait 400 ms 변이 3/3 실패(벽시계 감시를 남길 때), out 초기화 삭제 변이 실패, grep 'aerial 90 ms' 0건.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 08:40 감독 등록(PR #88 검토 #2, 축 4b 발견 1·2·3·4·5, 축 5 발견 1, 축 7 낮음; 감독 단독 8 병렬 40 회 재현·축 4b 로그 직접 읽음). F-503·F-490 의 잔여(이어진 것) — aerial 4회 변이 미분리는 감독이 CPU 시간 문턱의 한계로 인정하고 결정적 계수로 넘김.
+- 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 feat/t15-10g(cd69e0e5). 래스터 호출·처리 화소 결정적 단언, 4회 변이 black·aerial·points 10/10 실패, out fill 삭제·Atomics 400 ms 변이 10/10 실패, 벽시계−CPU 최솟값 감시, 8 병렬 40회·16 병렬 48회 0 실패. 시간 문턱은 거친 상한(black 120·aerial 160·points 3 ms, 근거 노트). 상세 experiments/t15-10g.md.
 
-### F-506 [열림] (심각도: 낮음) — PR #88 검토 #2 낮음 묶음
+
+### F-506 [처리됨-검증대기] (심각도: 낮음) — PR #88 검토 #2 낮음 묶음
 - 위치·고칠 것: ① contracts/tower_assets/terrain_h32.mjs:45-47 checkStep 이 형식을 안 봐 quantizeHeights([1,2],'0.03')·true 가 통과, dequantizeHeights 는 거부(축 1·7) → typeof step === 'number'. ② :41 ArrayBuffer.isView 가 DataView 를 받아 dequantizeHeights 가 빈 배열을 조용히 반환(축 7) → DataView 거부. ③ quantizeHeights([3.4e38], 2e38) 가 성공하고 dequantize 가 던짐(축 1) → 복원값 비유한이면 null. ④ terrain_h32.test.mjs:136 {length:3} 단언은 원소 검사로도 던져 배열 검사 약화 변이가 생존(축 4a M7) → {length:0} RangeError 단언 추가; 3.5e38 은 [] 로도(M2b); checkStep fround 제거 변이(M1b) 생존 → step === fround(0.03) 단언. ⑤ bench/tower/h32_initial.test.mjs:119 상수끼리 비교(항상 참) → 스파이크 없는 DEM 과의 wire 차 8,442 를 실제 측정으로; :89 '범위/0.05' → 0.03. ⑥ client/tower/terrain/ssim_h32.test.mjs:12 '0.15 는 시험이 허용하는 상한' → '측정한 통과 후보 중 최대'; :70-71 벽시계·CPU 배수 혼용 정정. ⑦ 연구 0058:3·:5·decisions/README 0058 행에 '감독 조건부 승인(2026-10-06 07:22, PR #87 검토 #3) → F-500 확인(08:40, PR #88 검토 #2) 뒤 승인', :23 폐기된 서술을 별도 항목으로 분리. ⑧ 노트 t15-10f.md §2 의 aerial 75·1500 ms 에 '§5 로 대체'. ⑨ PR 본문 '5308 상당' → 실행 요약 그대로(감독 실행 tests 5325·pass 5308·fail 0·skipped 12·todo 5).
 - 확인 기준: ① ② ③ 음성 입력이 null 또는 RangeError, ④ M7·M2b·M1b 변이 실패, ⑤ 스파이크 제거 변이에서 :119 대체 단언 실패, 나머지 문구 확인.
 - 권장 모델: haiku(⑤ 주석·⑥⑦⑧⑨), sonnet(①②③④⑤ 단언)
 - 이력: 2026-10-06 08:40 감독 등록(PR #88 검토 #2, 축 1·2·4a·4c·5·7). 새로 찾은 것(⑦ 은 F-500 잔여).
+- 이력 추가: 2026-10-06 작업자 처리됨-검증대기 — 제품 feat/t15-10g(cd69e0e5)·연구 experiment/t15-10g. ①~⑥ 코드·시험(변이 M7·M2b·M1b 실패 확인), ⑦⑧ 연구 문서, ⑨ PR 본문. 상세 experiments/t15-10g.md.
