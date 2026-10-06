@@ -6482,6 +6482,7 @@
 - 확인 기준: 같은 부하 조건(socket/*.test.mjs 3개 병렬 + `yes` 2개)에서 run.test.mjs·clients.test.mjs 각 10회 0 실패, 그리고 t0 30 ms 어긋남 변이·connect 기록 15 ms 앞당김 변이는 여전히 실패.
 - 권장 모델: sonnet
 - 이력: 2026-10-06 20:45 감독 등록(PR #103 검토 #1, 축 6·1 — 감독 run.test.mjs:139-141·clients.test.mjs:236-256 diff 읽음. 새로 찾은 것 — 이번 diff 가 만든 것. 감독 전체 npm test 는 통과라 반려 사유 아님)
+- 이력: 2026-10-06 20:55 감독 보강(축 4b 늦은 보고 — handshake ±5 상한도 재현됨: CPU 점유 2개에서 46~48 ms 로 4/4 실패, 8개에서 85~106 ms 로 5/5 실패. 하한 35·등식 단언·시험 10 이 connect 15 ms 앞당김 변이를 잡으므로 상한은 +150 으로 되돌려도 된다. 같은 조건에서 run.test.mjs:141 은 3/3 통과(축 6 은 2/5 실패 — 둘 다 고친다). 변이 8개 모두 사망. 참고: 2^31·tickOnRealClock 검증 제거 변이에서 server_proc_limits·run_notes 가 실패 대신 멈춤 — F-582 ④ 로 추가)
 
 ### F-582 [열림] (심각도: 낮음) — PR #103 검토 #1 낮음 묶음
 - 위치·문제·확인 기준:
@@ -6490,3 +6491,4 @@
   ③ bench/load/socket/run.mjs:56 tickOnRealClock 이 Promise 를 돌려주는 함수인데 잘못된 durationS 에 동기 throw(축 7). 지금 호출처는 먼저 검증해 누출 없음. 확인: Promise.reject 로 바꾸고 rejects 단언, 또는 계약 주석에 동기 throw 명시.
 - 권장 모델: haiku(①③), sonnet(②)
 - 이력: 2026-10-06 20:45 감독 등록(PR #103 검토 #1, 축 2·7 — 모두 새로 찾은 것, 이번 diff 범위)
+  ④ (20:55 추가, 축 4b) server_proc_limits.test.mjs·run_notes.test.mjs — 검증 제거 변이에서 2^31−1 ms 타이머·NaN 재무장으로 파일이 멈춘다(실패가 아니라 끝나지 않음). 확인: 시험별 timeout 옵션(예: { timeout: 5000 })을 걸어 그 변이에서 실패로 끝남.
