@@ -6816,3 +6816,26 @@
   ④ (낮음, 미확인) bench/status_quality/seed_table_args.test.mjs:34 — 첫 데이터 행 대기 상한 120 s 가 시드 하나 실측 47~75 s 의 1.6~2.5배라 느린 실행기에서 흔들릴 수 있다(축 6+7). 고칠 것: 상한을 240 s 안팎으로(package.json --test-timeout 900000 안). 확인: 상한 ≥ 최대 실측의 3배.
 - 권장 모델: haiku(①②③), sonnet(④)
 - 이력: 2026-10-07 04:20 감독 등록(PR #112 검토 #1, 축 1a·4a·9·6+7). 새로 찾은 것(①② 는 이번 PR 이 쓴 주석에서 생김, ③ 이번 PR 커밋, ④ 이전부터 있던 상한). 반려 사유 아님. 다음 실제 작업과 함께 고친다(단독 작업으로 만들지 않음).
+
+### F-611 [열림] (심각도: 중간) — PR #113 검토 #1 중간 묶음(원본 대조 정밀도)
+- 위치·문제·확인 기준(제품 feat/local-parity aa3dc5c, 원본 NET-Challenge-S13/skylens 0122bd4):
+  ① (중간, 감독 확인) server/levels/parity/origin.mjs:6·:11, cases.mjs:7·:24 — '4수준 사다리(250·1,000·3,500·7,000)에서 top = 4(ladder.ts:L49-L51)' 는 원본 기본값이 아니다. 원본 top 은 ladder.length(ladder.ts:49-51), 기본 사다리는 config.ts:97 '1000,7000,30000'(3칸), 원본 서버 README.md:293 예시도 3칸. 실패 상황: 원본 기본·README 설정에서는 우리 수준 2(원본 3)가 final=true, alphaForLevel 1.0 이 되는데 대조표의 L(2) 사례들('[L2,L1,L2]', 두 구간 엇갈림 등)이 final:false·0.95 로 '원본과 일치' 통과. 같은 PR 의 original_shapes.test.mjs:199-200 은 이 불일치를 todo 로 적었는데 parity 쪽에는 없다. 고칠 것: 머리말을 '원본 top 은 설정값(기본 3칸, config.ts:97), 이 대조표는 SKYLENS_CORE_LEVEL_STEPS 4칸 가정' 으로 바꾸고 MISMATCHES 에 'final 판정: 원본 chunk.final(level >= 설정 top), 우리 level === 3 고정' 추가. 가능하면 replayOrigin(arrivals, { top: 3 }) 로 L(2) final 이 달라짐을 고정하는 시험. 확인: MISMATCHES ≥ 2건, origin.mjs 에 4칸을 원본 기본처럼 읽히는 서술 없음.
+  ② (중간, 감독 확인) contracts/controlview/index.mjs streaming 행 — 역할 '시점 이동에 따른 조각 요청' 인데 인용 towerViewer.ts:420-441·448-498 은 받은 조각을 씬에 붙이는 쪽, 789-795 는 resize. 요청 로직은 원본 src/shared/viewer/sources/streamSource.ts(:23-36 LOAD_RADIUS 34·EVICT_RADIUS·MAX_CONCURRENT 2·TICK_MS 900, :85·:99 에서 addStreamedTerrain·addSurroundBuildings 호출). 실패 상황: input 행과 같은 처지(towerViewer.ts 밖)인데 'checked' 라 client/tower/streaming 의 반경·동시성·주기 대조가 끝난 것처럼 보인다. 고칠 것: source 에 streamSource.ts:23-36,85,99 를 넣고 상수 차이를 적거나, 'estimated' 로 두고 시험의 deepEqual(estimated, ['input','fallback']) 도 고친다. 확인: streaming 행이 streamSource.ts 를 인용하거나 estimated, controlview.test.mjs 통과.
+  ③ (중간, 감독 확인) contracts/controlview/controlview.test.mjs:10 — origin 단언이 typeof 'string' 으로 느슨해졌다. :55 는 checked 만, :57 은 estimated 만 골라 둘 다 아닌 값은 어디에도 안 걸린다. 실패 상황: terrain origin 을 'chekced' 로 바꿔도 9건 통과(축 4b 사본 재현). 고칠 것: assert.ok(['checked','estimated'].includes(r.origin)). 확인: 그 변이에서 실패.
+  ④ (중간, 미확인) server/adapter/core/original_shapes.test.mjs:131-135·:145 — final 단언이 수준 0·3 에만 걸린다. 실패 상황: server/levels/state/index.mjs:52 의 final 을 level >= 2 로 바꿔도 이 파일 9건 통과(축 4b 사본 재현, 감독 미재현). 고칠 것: 구간 1(수준 2)의 final=false 단언 추가(:144 뒤 [0,1,2] final 을 [true,false,false] 와 deepEqual). 확인: 그 변이에서 실패.
+  ⑤ (중간, 미확인) server/levels/parity/parity.test.mjs '노출 목표는 현재 수준만으로 정해진다' 묶음 — 서버에는 노출 로직이 없고 origin.mjs alphaForLevel 을 서버 상태에 씌워 비교한다. 실패 상황: origin.mjs 의 0.62 를 0.6 으로 바꾸면 서버를 안 건드려도 '서버 쪽' 시험이 실패(축 4a 사본). 고칠 것: 이름·주석을 '서버 수준 → 원본 alpha 대응(서버 노출 없음)' 으로 범위를 밝히거나 지운다. 확인: 서버 묶음 이름에 origin 함수 사용이 드러남.
+- 권장 모델: sonnet(①④⑤), haiku(②③)
+- 이력: 2026-10-07 04:58 감독 등록(PR #113 검토 #1, 축 1b·2·4a·4b). 새로 찾은 것(모두 이번 PR 변경에서 생김). 반려 사유 아님. 원본 저장소는 공개이고 클라우드에서 git clone 이 된다(감독 확인) — [cloud] 작업으로 처리할 수 있다.
+
+### F-612 [열림] (심각도: 낮음) — PR #113 검토 #1 낮음 묶음
+- 위치·문제·확인 기준(제품 feat/local-parity aa3dc5c):
+  ① (낮음, 감독 확인) contracts/controlview/index.mjs:5-6 머리말이 '[cloud] 에서 열 수 없다 … 대조 전까지 origin 은 estimated' 그대로 — 7행을 checked 로 바꾼 이번 변경과 모순. contracts/controlview/chase.mjs:4·input.mjs:4 주석도 같음(미확인). 고칠 것: 대조 완료(0122bd4, T15.0L)와 input·fallback 만 estimated 인 이유로 갱신. 확인: 머리말과 대응표 모순 없음.
+  ② (낮음, 감독 확인) server/adapter/core/original_shapes.test.mjs:11·:56 — distributor.ts:185-194 인용, 원본 파일은 155줄. Envelope 로 감싸는 곳은 distributor.ts:134-143 wrap. 'README.md §4.3' 은 src/skylens_core/server/README.md:161-190. 고칠 것: 경로·줄 정정. 확인: 인용 줄을 열면 해당 코드.
+  ③ (낮음, 미확인) origin.mjs:31·:49 — 노출 목표를 구간 단위로 둔다. 원본은 coreSegment % regionCount 슬랩 단위(splatReveal.ts:77), setFrame 전 regionCount=1. 원본 pending 은 Float32Array(0.95 → 0.949999988). 고칠 것: MISMATCHES 또는 해당 없음 목록에 '슬랩 접힘 생략·float32 저장' 기록, 또는 모형이 regionCount 를 받고 Math.fround 저장. 확인: 목록에 이름 붙은 항목.
+  ④ (낮음, 미확인) origin.mjs:47 주석 'statusViewer.ts:L551-L552 가 매 도착마다 둘 다 부른다' — noteArrival 은 splatReveal?. 로 부르고 SplatReveal 은 splatCapable && recon 일 때만 생성(L524-L532). 고칠 것: 전제 조건 인용. 확인: 주석에 L526 조건·L552 ?. 인용.
+  ⑤ (낮음, 미확인) parity.test.mjs MISMATCHES 고정 시험의 replayOrigin([[x.segmentId,0]]).missing === false 는 어떤 번호든 참 — 원본 상한 없음을 보여 주지 못한다. 고칠 것: 원본 쪽 단언을 빼고 segmenter.ts:L134-L137 주석만, 또는 차별적 값 확인. 확인: origin.mjs 에 상한 검사를 넣으면 실패.
+  ⑥ (낮음, 미확인) cases.mjs '재연결 재전송' 사례 source serverSource.ts:L136-L143 은 down()·재연결 예약뿐 — '상태를 비우지 않는다' 근거는 statusViewer.ts:L525(SplatScene 1회 생성). 고칠 것: 인용 추가. 확인: 인용 줄에 생성 위치.
+  ⑦ (낮음, 미확인) parity.test.mjs '추정 사례' describe 가 0건(빈 suite). original_shapes.test.mjs:134-135 는 시험 함수가 만든 want 의 final 만 단언(항상 참). :199-200 todo 2건은 실행 가능한 '현재 불일치 고정' 단언으로 바꿀 수 있다. 서버 status 하트비트 반복 시 MISSING 이 매 틱 다시 나가는 점(원본 index.ts:296-300 주기 broadcast)도 todo 로. 확인: 빈 suite 0, 항상 참 단언 0, 해당 todo 존재.
+  ⑧ (낮음, 미확인) controlview.test.mjs:47-55 — 줄 번호는 검사하지 않는다(e2e source 의 204-267 을 1-2 로 바꿔도 통과). 고칠 것: '줄 번호는 사람 대조 결과, 자동 검증 안 됨' 주석, 또는 [이름, 줄] 쌍 비교. input 행 인용 pathFollower.ts:130-143 을 :144(pos.add)까지, 상수에 manualAltitudeSpeed 5.0(config.ts:73) 추가.
+- 권장 모델: haiku(①②④⑥⑧), sonnet(③⑤⑦)
+- 이력: 2026-10-07 04:58 감독 등록(PR #113 검토 #1, 축 1·1b·2·4a·4b·3+5·6+7). 새로 찾은 것. 반려 사유 아님. 다음 실제 작업과 함께 고친다.
