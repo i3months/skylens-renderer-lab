@@ -6808,16 +6808,16 @@
 - 권장 모델: sonnet(①②③), haiku(④⑤⑥)
 - 이력: 2026-10-07 03:47 감독 등록(PR #111 검토 #1, 축 1a·4a·4b·7·2). 새로 찾은 것(이번 PR 변경에서 생김; ② 의 대기 조건은 이전부터 있었으나 이번 :49 메시지가 오진을 만듦). 반려 사유 아님. → 2026-10-07 03:58 작업자 처리(제품 feat/t13-z, 연구 experiment/t13-z, 확인: 사본 1.93 실패·1.94 통과·2.05 실패, 인자 무시 사본 47.5 s 실패, ETIMEDOUT 표시, npm test 5844·pass 5824·fail 3 esbuild). → 2026-10-07 04:20 감독 확인 닫음(PR #112 검토 #1: 감독 사본에서 구현 :241-242 의 2·target 을 c·target 으로 바꿔 1.93·2.05 실패, 1.94·2.04 통과 — 주석 구간과 일치; seed_table_args 대기 조건·메시지·signal/error 표기 diff 확인, 인자 무시 변이는 축 4b 사본 확인; t13u.md:49 광축 기준 확인).
 
-### F-610 [열림] (심각도: 낮음) — PR #112 검토 #1 낮음 묶음
+### F-610 [닫힘] (심각도: 낮음) — PR #112 검토 #1 낮음 묶음
 - 위치·문제·확인 기준(제품 feat/t13-z dc04a53):
   ① (낮음, 감독 확인) server/scheduler/segment_budget/blue_noise_thinner.test.mjs:113·:167-169 — 생존 구간을 [1762/910, 1862/910) 로 적었지만 코드의 target 은 20000·0.13·0.35 = 909.9999999999999 라 (1762/910)·target = 1761.9999999999998, (1862/910)·target = 1861.9999999999995 다. 실패 상황: 끝점 c = 1762/910 정확값 변이는 재시도되어 잡히고, c = 1862/910 은 살아남는다(축 1a 사본 실측) — 주석의 열림·닫힘과 반대. 고칠 것: '실수 연산 기준 [1762/910, 1862/910), 부동소수 target 때문에 정확한 끝점 판정은 뒤집힘' 단서를 달거나 '약 (1.9363, 2.0462)' 로 끝점 표기를 뺀다. 확인: 주석 표기, c = 1762/910 변이 실패·1862/910 변이 통과가 주석과 모순되지 않음.
   ② (낮음, 감독 재현) 같은 파일 :168-169 — 구간은 :241 runPass 의 stopAbove(2·target) 와 :242 비교를 함께 c 로 바꾼 변이 기준이다. 실패 상황: 감독 사본에서 :242 만 2.04·target 으로 바꾸면 q = 2 패스가 2·target 에서 끊겨 시험 6·7·8·9 가 실패(주석 '2.04 는 생존' 과 다름, 이 경우 오히려 더 엄격). 고칠 것: '(:241 stopAbove 와 :242 비교를 같이 바꾼 변이 기준)' 한정 문구. 확인: 주석 표기.
   ③ (낮음, 감독 확인) 제품 dc04a53 'Merge branch 'feat/t13-z--2' into feat/t13-z' — 서브에이전트 작업 브랜치 이름이 든 병합 커밋(F-605 ⑦ 과 같은 종류, 생성 도구 문자열은 없음). 고칠 것: 다음 작업부터 서브에이전트 결과는 영어 제목 커밋으로 합친다(이미 올라간 커밋은 고치지 않는다, 강제 푸시 금지). 확인: 다음 PR 커밋 목록에 '--2' 류 병합 커밋 0.
   ④ (낮음, 미확인) bench/status_quality/seed_table_args.test.mjs:34 — 첫 데이터 행 대기 상한 120 s 가 시드 하나 실측 47~75 s 의 1.6~2.5배라 느린 실행기에서 흔들릴 수 있다(축 6+7). 고칠 것: 상한을 240 s 안팎으로(package.json --test-timeout 900000 안). 확인: 상한 ≥ 최대 실측의 3배.
 - 권장 모델: haiku(①②③), sonnet(④)
-- 이력: 2026-10-07 04:20 감독 등록(PR #112 검토 #1, 축 1a·4a·9·6+7). 새로 찾은 것(①② 는 이번 PR 이 쓴 주석에서 생김, ③ 이번 PR 커밋, ④ 이전부터 있던 상한). 반려 사유 아님. 다음 실제 작업과 함께 고친다(단독 작업으로 만들지 않음).
+- 이력: 2026-10-07 04:20 감독 등록(PR #112 검토 #1, 축 1a·4a·9·6+7). 새로 찾은 것(①② 는 이번 PR 이 쓴 주석에서 생김, ③ 이번 PR 커밋, ④ 이전부터 있던 상한). 반려 사유 아님. 다음 실제 작업과 함께 고친다(단독 작업으로 만들지 않음). → 2026-10-07 05:40 감독 확인 닫음(PR #114 검토 #1, feat/t13-lp d7e0e60): ①② 주석에 약 1.9363·약 2.0462·부동소수 단서와 :241·:242 동시 변이 한정 문구, ③ 커밋 목록에 서브에이전트 브랜치 이름 병합 커밋 0(영어 제목 'Merge T13.LP sub-task n'), ④ 상한 240 s ≥ 75 s×3, --test-timeout 900000 안.
 
-### F-611 [열림] (심각도: 중간) — PR #113 검토 #1 중간 묶음(원본 대조 정밀도)
+### F-611 [닫힘] (심각도: 중간) — PR #113 검토 #1 중간 묶음(원본 대조 정밀도)
 - 위치·문제·확인 기준(제품 feat/local-parity aa3dc5c, 원본 NET-Challenge-S13/skylens 0122bd4):
   ① (중간, 감독 확인) server/levels/parity/origin.mjs:6·:11, cases.mjs:7·:24 — '4수준 사다리(250·1,000·3,500·7,000)에서 top = 4(ladder.ts:L49-L51)' 는 원본 기본값이 아니다. 원본 top 은 ladder.length(ladder.ts:49-51), 기본 사다리는 config.ts:97 '1000,7000,30000'(3칸), 원본 서버 README.md:293 예시도 3칸. 실패 상황: 원본 기본·README 설정에서는 우리 수준 2(원본 3)가 final=true, alphaForLevel 1.0 이 되는데 대조표의 L(2) 사례들('[L2,L1,L2]', 두 구간 엇갈림 등)이 final:false·0.95 로 '원본과 일치' 통과. 같은 PR 의 original_shapes.test.mjs:199-200 은 이 불일치를 todo 로 적었는데 parity 쪽에는 없다. 고칠 것: 머리말을 '원본 top 은 설정값(기본 3칸, config.ts:97), 이 대조표는 SKYLENS_CORE_LEVEL_STEPS 4칸 가정' 으로 바꾸고 MISMATCHES 에 'final 판정: 원본 chunk.final(level >= 설정 top), 우리 level === 3 고정' 추가. 가능하면 replayOrigin(arrivals, { top: 3 }) 로 L(2) final 이 달라짐을 고정하는 시험. 확인: MISMATCHES ≥ 2건, origin.mjs 에 4칸을 원본 기본처럼 읽히는 서술 없음.
   ② (중간, 감독 확인) contracts/controlview/index.mjs streaming 행 — 역할 '시점 이동에 따른 조각 요청' 인데 인용 towerViewer.ts:420-441·448-498 은 받은 조각을 씬에 붙이는 쪽, 789-795 는 resize. 요청 로직은 원본 src/shared/viewer/sources/streamSource.ts(:23-36 LOAD_RADIUS 34·EVICT_RADIUS·MAX_CONCURRENT 2·TICK_MS 900, :85·:99 에서 addStreamedTerrain·addSurroundBuildings 호출). 실패 상황: input 행과 같은 처지(towerViewer.ts 밖)인데 'checked' 라 client/tower/streaming 의 반경·동시성·주기 대조가 끝난 것처럼 보인다. 고칠 것: source 에 streamSource.ts:23-36,85,99 를 넣고 상수 차이를 적거나, 'estimated' 로 두고 시험의 deepEqual(estimated, ['input','fallback']) 도 고친다. 확인: streaming 행이 streamSource.ts 를 인용하거나 estimated, controlview.test.mjs 통과.
@@ -6825,9 +6825,9 @@
   ④ (중간, 미확인) server/adapter/core/original_shapes.test.mjs:131-135·:145 — final 단언이 수준 0·3 에만 걸린다. 실패 상황: server/levels/state/index.mjs:52 의 final 을 level >= 2 로 바꿔도 이 파일 9건 통과(축 4b 사본 재현, 감독 미재현). 고칠 것: 구간 1(수준 2)의 final=false 단언 추가(:144 뒤 [0,1,2] final 을 [true,false,false] 와 deepEqual). 확인: 그 변이에서 실패.
   ⑤ (중간, 미확인) server/levels/parity/parity.test.mjs '노출 목표는 현재 수준만으로 정해진다' 묶음 — 서버에는 노출 로직이 없고 origin.mjs alphaForLevel 을 서버 상태에 씌워 비교한다. 실패 상황: origin.mjs 의 0.62 를 0.6 으로 바꾸면 서버를 안 건드려도 '서버 쪽' 시험이 실패(축 4a 사본). 고칠 것: 이름·주석을 '서버 수준 → 원본 alpha 대응(서버 노출 없음)' 으로 범위를 밝히거나 지운다. 확인: 서버 묶음 이름에 origin 함수 사용이 드러남.
 - 권장 모델: sonnet(①④⑤), haiku(②③)
-- 이력: 2026-10-07 04:58 감독 등록(PR #113 검토 #1, 축 1b·2·4a·4b). 새로 찾은 것(모두 이번 PR 변경에서 생김). 반려 사유 아님. 원본 저장소는 공개이고 클라우드에서 git clone 이 된다(감독 확인) — [cloud] 작업으로 처리할 수 있다.
+- 이력: 2026-10-07 04:58 감독 등록(PR #113 검토 #1, 축 1b·2·4a·4b). 새로 찾은 것(모두 이번 PR 변경에서 생김). 반려 사유 아님. 원본 저장소는 공개이고 클라우드에서 git clone 이 된다(감독 확인) — [cloud] 작업으로 처리할 수 있다. → 2026-10-07 05:40 감독 확인 닫음(PR #114 검토 #1, d7e0e60): ① MISMATCHES 2건, origin.mjs 머리말 4칸 가정 명시, replayOrigin {top:3} 시험 — 감독 사본에서 :41 을 ORIGIN_TOP 으로 되돌리면 parity 1건 실패. ② streaming 행 streamSource.ts:23-36,85,99·estimated, ③ 축 4b 사본 'chekced' 변이 실패, ④ 감독 사본 state/index.mjs:52 level >= 2 변이에서 original_shapes 2건 실패, ⑤ 묶음 이름에 origin.mjs alphaForLevel 사용 명시.
 
-### F-612 [열림] (심각도: 낮음) — PR #113 검토 #1 낮음 묶음
+### F-612 [닫힘] (심각도: 낮음) — PR #113 검토 #1 낮음 묶음
 - 위치·문제·확인 기준(제품 feat/local-parity aa3dc5c):
   ① (낮음, 감독 확인) contracts/controlview/index.mjs:5-6 머리말이 '[cloud] 에서 열 수 없다 … 대조 전까지 origin 은 estimated' 그대로 — 7행을 checked 로 바꾼 이번 변경과 모순. contracts/controlview/chase.mjs:4·input.mjs:4 주석도 같음(미확인). 고칠 것: 대조 완료(0122bd4, T15.0L)와 input·fallback 만 estimated 인 이유로 갱신. 확인: 머리말과 대응표 모순 없음.
   ② (낮음, 감독 확인) server/adapter/core/original_shapes.test.mjs:11·:56 — distributor.ts:185-194 인용, 원본 파일은 155줄. Envelope 로 감싸는 곳은 distributor.ts:134-143 wrap. 'README.md §4.3' 은 src/skylens_core/server/README.md:161-190. 고칠 것: 경로·줄 정정. 확인: 인용 줄을 열면 해당 코드.
@@ -6838,4 +6838,17 @@
   ⑦ (낮음, 미확인) parity.test.mjs '추정 사례' describe 가 0건(빈 suite). original_shapes.test.mjs:134-135 는 시험 함수가 만든 want 의 final 만 단언(항상 참). :199-200 todo 2건은 실행 가능한 '현재 불일치 고정' 단언으로 바꿀 수 있다. 서버 status 하트비트 반복 시 MISSING 이 매 틱 다시 나가는 점(원본 index.ts:296-300 주기 broadcast)도 todo 로. 확인: 빈 suite 0, 항상 참 단언 0, 해당 todo 존재.
   ⑧ (낮음, 미확인) controlview.test.mjs:47-55 — 줄 번호는 검사하지 않는다(e2e source 의 204-267 을 1-2 로 바꿔도 통과). 고칠 것: '줄 번호는 사람 대조 결과, 자동 검증 안 됨' 주석, 또는 [이름, 줄] 쌍 비교. input 행 인용 pathFollower.ts:130-143 을 :144(pos.add)까지, 상수에 manualAltitudeSpeed 5.0(config.ts:73) 추가.
 - 권장 모델: haiku(①②④⑥⑧), sonnet(③⑤⑦)
-- 이력: 2026-10-07 04:58 감독 등록(PR #113 검토 #1, 축 1·1b·2·4a·4b·3+5·6+7). 새로 찾은 것. 반려 사유 아님. 다음 실제 작업과 함께 고친다.
+- 이력: 2026-10-07 04:58 감독 등록(PR #113 검토 #1, 축 1·1b·2·4a·4b·3+5·6+7). 새로 찾은 것. 반려 사유 아님. 다음 실제 작업과 함께 고친다. → 2026-10-07 05:40 감독 확인 닫음(PR #114 검토 #1, d7e0e60): ① 머리말 갱신, ② distributor.ts:134-143 wrap·README.md:161-190, ③ NOT_MODELED 2건, ④ L524-L526·?. 인용, ⑤ 축 4a 사본 상한 변이 3종 모두 실패, ⑥ statusViewer.ts:L524-L525 인용, ⑦ 빈 suite 삭제(:38 추정 0건 단언)·todo 2건 실행 단언화·하트비트 todo 추가, ⑧ 줄 번호 자동 검증 안 됨 주석·pathFollower :144·manualAltitudeSpeed 5.0.
+
+### F-613 [열림] (심각도: 낮음) — PR #114 검토 #1 낮음 묶음
+- 위치·문제·확인 기준(제품 feat/t13-lp d7e0e60, 원본 NET-Challenge-S13/skylens 0122bd4):
+  ① (낮음, 감독 확인) server/levels/parity/cases.mjs:256 NOT_MODELED[0].origin '(setFrame 전 regionCount = 1 이면 …)', origin.mjs:36 '(setFrame 전 regionCount = 1, L41)' — 원본은 SplatReveal 생성 직후 같은 블록에서 setFrame 을 부른다(statusViewer.ts:L545, 첫 noteArrival 은 :L552). regionCount = boundaries 수 + 1(splatReveal.ts:L63-L65, 최대 MAX_REGIONS). 실패 상황: 접힘이 regionCount=1 일 때만 생긴다고 읽히지만 실제로는 구간 번호 ≥ regionCount 가 pending 을 공유한다(구간 4 이상 reveal 기대는 원본과 다를 수 있음). 고칠 것: 'setFrame(statusViewer.ts:L545)으로 regionCount = boundaries+1(splatReveal.ts:L63-L65) 이 정해진 뒤 도착을 받는다. 구간 번호 ≥ regionCount 는 접힌다' 로. 확인: 두 곳 인용에 L545·L63-L65.
+  ② (낮음, 감독 확인) origin.mjs:16 '우리 수준(0..3) → 원본 수준(1..4)', cases.mjs:7 '우리 0..3 = 원본 1..4' — 4칸 가정 단서 없음. 고칠 것: '원본 1..top(4칸 가정이면 1..4)'. 확인: 두 줄에 4칸 가정 표기.
+  ③ (낮음, 감독 확인) server/adapter/core/original_shapes.test.mjs:215 assert.equal(c.final, true) — c 는 같은 파일 도우미 splatChunk(:50 final = level >= ladderSteps.length)가 만든 값이라 항상 참. 고칠 것: 지우거나 '도우미 전제 확인(원본 orchestrator.ts:343 모양)' 주석. 확인: 줄 없음 또는 주석.
+  ④ (낮음, 감독 확인) server/scheduler/segment_budget/blue_noise_thinner.test.mjs:169 ':241 stopAbove 와 :242 비교' — 파일명 없음(구현 blue_noise_thinner.mjs:241-242). 고칠 것: 'blue_noise_thinner.mjs:241 … :242'. 확인: 주석에 파일명.
+  ⑤ (낮음, 미확인) contracts/controlview/chase.mjs:4-5 — 'checked' 라면서 원본 감쇠와의 차이를 적지 않음: 원본 updateChaseCamera 는 프레임당 lerp CAMERA_LERP 0.06(towerViewer.ts:29, :782-783), 첫 표본 즉시 부착(:777-780). 우리는 dt 기반 τ 0.35. 고칠 것: 그 차이를 주석에. 확인: 주석에 CAMERA_LERP 0.06·:782-783 인용.
+  ⑥ (낮음, 미확인) contracts/controlview/index.mjs streaming·input 행, input.mjs:5, controlview.test.mjs 주석 — 원본 LOAD_RADIUS·manualSpeed·manualAltitudeSpeed 는 world units(= m × ctx.s, terrainSource.ts:548-549·:833, 장면마다 다름)인데 m 단위 값과 나란히 '상수 다름' 으로 비교. 고칠 것: 원본 값 옆에 'world units(장면 축척 의존)' 표기, '단위·기준 다름' 으로. 확인: 네 곳 표기.
+  ⑦ (낮음, 미확인) contracts/controlview/index.mjs streaming 행 — 원본 요청 기준은 활성 드론 위치(streamSource.ts:47, :107-109), 시작은 skylens_core/control.ts:238. 고칠 것: 인용 추가와 '기준: 드론 위치(원본) 대 시야(우리)'. 확인: 행에 control.ts:238 인용.
+  ⑧ (낮음, 미확인) origin.mjs replayOrigin { top } 검증 없음({top:null} 이면 전부 final, NaN 이면 영영 아님), parity.test.mjs MISMATCHES.find(...) 결과를 describe 수집 단계에서 바로 .name 으로 씀(항목이 빠지면 파일 전체 수집 실패). 고칠 것: top 정수·≥1 아니면 RangeError, find 결과 assert.ok 또는 이름 조회. 확인: replayOrigin([], {top: NaN}) 던짐.
+- 권장 모델: haiku(①②③④⑤⑥⑦), sonnet(⑧)
+- 이력: 2026-10-07 05:40 감독 등록(PR #114 검토 #1, 축 1·1b·2·4b·6+7). 새로 찾은 것(①②⑤⑥⑦ 은 이번·직전 PR 이 쓴 원본 인용에서, ③ 이번 PR 시험, ④ 이번 PR 주석, ⑧ 이번 PR 인자). 반려 사유 아님. 단독 작업으로 만들지 않고 다음 실제 작업과 함께 고친다.
