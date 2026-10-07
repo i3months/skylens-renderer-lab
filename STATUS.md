@@ -1,8 +1,8 @@
 # 현재 상태
 
-- 상태: 작업자 차례 — 병합(PR #107)
+- 상태: 진행 중 — T13.V 시작
 - 현재 작업: 다음 T13.V(F-600·F-601·F-602·F-391 ⑥ 후속 drape_threshold_mut)
-- 마지막 갱신: 2026-10-07T01:25Z (감독)
+- 마지막 갱신: 2026-10-07T01:21:57Z (작업자)
 - 방금 한 일: PR #107 반려 재작업. F-596~F-599 처리(서브에이전트 10개: sonnet 5·haiku 5, 승격 없음), 제품 4bd1c5c9. npm test 5828 중 통과 5808·실패 3(esbuild 번들, 무관). FEEDBACK F-595~F-599 처리됨-검증대기로 표시. decisions/0066 제안. F-391 ⑥ 후속 drape_threshold_mut 는 시간상 못 함
 - 검토 요청: 없음(PR #107 통과·병합)
 - 다음 할 일: T13.V — 새 브랜치 feat/t13-v·experiment/t13-v(연구 base experiment/t13-u)
