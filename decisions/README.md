@@ -94,7 +94,7 @@
 | [0040](0040-t12u-ws-session-wiring.md) | ws 세션 배선: LEVEL_ARRIVED 는 send 전에 기록, 이어받기 때 resendPlan 재전송 | 승인 | 작업자 제안, 감독 승인(PR #54 검토 #3) |
 | [0041](0041-t13-statusview-adapter.md) | 현황판 어댑터: 모듈 주입 조립, 조각 요청 입력·pieceSeq 장부, 대응표 추정 상태 | 승인 | 작업자 제안, 감독 승인(PR #56 검토 #3) |
 | [0042](0042-t13-wire-and-bandwidth-records.md) | ws 진입점 wire 층(store.close 직접 호출)·F-287 ⑦ 구조 시험·S6 미달 기록 방식 | 승인 | 작업자 제안, 감독 승인(PR #56 검토 #3) |
-| [0043](0043-t13b-s6-codec1-spatial-budget.md) | S6 구간당 문턱: 무손실 색 코덱 1 + 구간 점 예산 솎기(B+C), 증분 송출(A) 기각 | 승인(조건부 — S6·S9 충돌은 사람 판단, F-302) | 작업자 제안(T13.B), 감독 조건부 승인(PR #57 검토 #1), 화질 영향 있음 |
+| [0043](0043-t13b-s6-codec1-spatial-budget.md) | S6 구간당 문턱: 무손실 색 코덱 1 + 구간 점 예산 솎기(B+C), 증분 송출(A) 기각 | 대체됨(0067) | 작업자 제안(T13.B), 감독 조건부 승인(PR #57 검토 #1), 화질 영향 있음 |
 | [0044](0044-t14-tower-assets-interpretations.md) | T14 건물 LOD 측정 정의(건물 영역 SSIM)·drape coverage 계약·cameraDistM·areaM2·지형 LOD 규칙·항공뷰 벽·drape 정렬 측정 상수(FLAT_MSE·ALIAS_MSE_RATIO·OUTLIER_PX·NEAR_PX·FLAT_BLOCKS_THRESHOLD)·외삽 범위·지붕 없는 메시 원본 유지·높이 계단·동일 상자 성능 최적화·LOD 상자 정점 분할 | 제안 | 작업자 제안(T14.R) |
 | 0045 | 결번(채번 건너뜀) | — | — |
 | [0046](0046-t15-terrain-ssim-scene.md) | T15.1 지형 층 8시점 SSIM 장면 조건·정점 법선 보간(F-395) | 승인(부분 대체: T15.1c 다시 볼 조건·상한표 판단 → 0056, 0057) | 작업자 제안(T15.1b), 감독 승인(PR #72 검토 #1) |
@@ -116,3 +116,7 @@
 | [0062](0062-t16-17-load-harness-rules.md) | T16.17 부하 하네스 규칙: 대역 피크=칸 바이트÷칸 폭(공개 지표 뜻 변경)·실시계 허용 폭·로그 tMs 역행 전체 거부·statsClock.clock 필수·loadReport 'unknown'·slow_link level 0 | 승인 | 감독(2026-10-06, 조건부 — F-555·F-556·F-557) |
 | [0063](0063-t16-12-harness-rule-corrections.md) | T16.12 앞 하네스 규칙 정정: 실시계 마지막 tS ±0.25·first_frame 어느 수준 도착 인정·0062 (2)(5) 정정·피크 칸·burst 다중 shown 다시 볼 조건 | 승인 | 감독(2026-10-06, 조건부 — F-562·F-563 ⑤⑥) |
 | [0064](0064-socket-load.md) | 실제 소켓 부하(T16.12): 자식 프로세스 서버 + loopback 30 연결 + /proc 표본 | 승인 | 감독(2026-10-06, 조건부 — F-577 ⑬⑭) |
+| [0065](0065-t13-t-s6-floor-allocation-blue-noise.md) | S6 현황판 송출: 낮은 수준 2% 보장 + 블루노이즈 솎기 | 대체됨(0067) | 작업자(제안), 감독 승인(2026-10-06, PR #106 검토 #2) |
+| [0066](0066-tower-input-constants.md) | 관제탑 입력 상수를 원본에 맞춤(speedMps 10→8.0, yawRateRad 1.0→0.95) | 채택 | 사람 |
+| [0067](0067-t13-hq-send-all-points.md) | 현황판 송출: 대역폭 상한 없음, 원본 점 전부 codec 1 무손실, S9-현황판 ≥ 0.95 | 제안 | 사람(2026-10-07), 작업자(구현) |
+| [0068](0068-multiseed-criterion-withdrawn.md) | 다중 시드 기준 폐기 | 폐기(대상 없음) | — |
