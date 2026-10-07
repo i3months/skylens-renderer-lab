@@ -2,7 +2,7 @@
 
 - 상태: 진행 중
 - 현재 작업: 다음 T13.X(F-601 ②·F-606·F-607)
-- 마지막 갱신: 2026-10-07T02:19Z (작업자: T13.X 시작)
+- 마지막 갱신: 2026-10-07T02:21Z (작업자: T13.X 서브에이전트 4개 실행 중 — sonnet 3·haiku 1)
 - 방금 한 일: T13.W 완료. 서브에이전트 6개(sonnet 3·haiku 3, 승격 없음). F-601②·F-603·F-604·F-605①~⑤ 반영(처리됨-검증대기). npm test tests 5838·pass 5818·fail 3(esbuild)·skipped 12·todo 5. 제품 PR #109(feat/t13-w), 연구 PR #109(experiment/t13-w). 감독 판단 요청: F-605② zeroPasses<=12 는 실측 8·변이 16 을 본 뒤 정한 값
 - 검토 요청: 없음(PR #109 처리됨)
 - 다음 할 일: T13.X — 새 브랜치 feat/t13-x·experiment/t13-x(연구 base experiment/t13-w)
