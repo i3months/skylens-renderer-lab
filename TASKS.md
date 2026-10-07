@@ -62,6 +62,7 @@ tools/       명령줄 도구
 - [ ] **T15 `controlview-b`** — 관제탑에 B 적용.
 - [ ] **T16 `load-harness`** — 측정 도구·동시 30명 부하 모의.
 - [ ] **T17 `phase1-verify`** [local] — 기준 기기 실측으로 SPEC §4 B 열 전 항목 검증.
+- [ ] **T18 `core-bridge`** [cloud] — 원본 skylens 코어 메시지를 어댑터 이벤트로 바꾸는 번역 계층(2026-10-07 사람 결정 ④).
 
 ## 2단계 — 경로 A (픽셀 스트리밍, 현황판 저사양)
 
@@ -434,6 +435,7 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T13.Y [x] | (2026-10-07 03:47 감독: 제품 PR #111 검토 #1 통과·merge commit 병합, 반려 0회. 제품 병합 커밋 ba2e059, 연구 e33a629. F-608 닫음) (2026-10-07 03:15 감독, PR #110 검토 #1 남은 낮음) F-608: ①②③⑥⑦ 시험 단언·주석 정리(따라 나오는 상한 반쪽, 고정 시드 표기, n=1000 전제 여유, 표현 정정, t13u.md:49 광축 방향) — haiku. ④ seed_table_args 시간 초과 깃발·spawnSync timeout, ⑤ 2^53+1 거부 사례 — sonnet. 새 브랜치 feat/t13-y·experiment/t13-y(연구 base experiment/t13-x) | `server/scheduler/segment_budget/`, `bench/status_quality/`, 연구 experiments/t13u.md | F-608 확인 기준, npm test 실패는 esbuild 3건 외 0 | 항목별(왼쪽) |
 | T13.Z [x] | (2026-10-07 04:20 감독: 제품 PR #112 검토 #1 통과·merge commit 병합, 반려 0회. 제품 병합 커밋 40f9751, 연구 experiment/t13-y 병합 13230a1. F-609 닫음, F-610 낮음은 다음 실제 작업과 함께) (2026-10-07 03:47 감독, PR #111 검토 #1 남은 중간·낮음) F-609: ① thinner 시험 주석 경계를 반올림 없이(1762/910, 1862/910), ② seed_table_args 대기 조건을 첫 데이터 행으로·:49 메시지 정정, ③ spawnSync 메시지에 signal·error — sonnet. ④ 1.84 하한 주석, ⑤ :237 전제 위반 메시지, ⑥ 연구 t13u.md:49 광축 수직 — haiku. 새 브랜치 feat/t13-z·experiment/t13-z(연구 base experiment/t13-y) | `server/scheduler/segment_budget/`, `bench/status_quality/`, 연구 experiments/t13u.md | F-609 확인 기준, npm test 실패는 esbuild 3건 외 0 | 항목별(왼쪽) |
 | T13.LP [x] | (2026-10-07 05:40 감독: 제품 PR #114 검토 #1 통과·merge commit 병합, 반려 0회. 제품 병합 커밋 27cefe0, 연구 experiment/t14 병합 4b458ef. F-610·F-611·F-612 닫음, F-613 낮음은 다음 실제 작업과 함께) (2026-10-07 04:58 감독, PR #113 검토 #1 남은 중간·낮음, [cloud] — 원본 skylens 는 공개 저장소라 `git clone https://github.com/NET-Challenge-S13/skylens` 후 0122bd4 체크아웃으로 클라우드에서 대조 가능) F-611: ① parity 사다리 가정·final 불일치를 MISMATCHES 로 — sonnet, ② streaming 행 근거 streamSource.ts — haiku, ③ origin 단언 좁히기 — haiku, ④ 수준 2 final 단언 — sonnet, ⑤ 노출 묶음 이름 — sonnet. 그 뒤 F-612 낮음 묶음(항목별 모델은 FEEDBACK) 과 F-610. 새 브랜치 feat/t13-lp·experiment/t13-lp(연구 base experiment/local-parity) | `server/levels/parity/`, `server/adapter/core/`, `contracts/controlview/` | F-611 확인 기준, npm test 실패는 esbuild 3건 외 0 | 항목별(왼쪽) |
+| T13.S | (2026-10-07 사람 결정 ①, 결정 0066 D) 시드 1 단언(0.75) 유지 + `seed_table.mjs` 의 시드 1..6 표를 시험 실행 때 진단으로 출력(단언 아님). 결정 0066 상태를 '승인(D)' 로 | `bench/status_quality/`, 연구 decisions/0066 | 시험 출력에 시드 1..6 표, 0.75 그대로 | haiku |
 
 ### T14 `tower-assets` — [cloud]
 
@@ -501,6 +503,7 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T15.10h | [x] 2026-10-06 제품 병합 커밋 7c942f4(PR #90 검토 #1 통과·merge commit, 연구 experiment/t14 병합), 반려 0회. F-507·F-508·F-509·F-510 닫음. 잔여 F-511·F-512·F-513 은 T15.10i. (2026-10-06 PR #89 검토 #1 에서 분리) F-507 buildings 래스터 일의 양 카운터(깊이 시험 전 덮개 화소 또는 삼각형 수)·내부 반복 변이 단언·주석 범위 정정(sonnet), F-508 terrain_h32 비유한 검사를 round(min/s) 로·kbase 쪽 음성 시험(sonnet), F-509 perf 시간 문턱 규칙 결정 기록 decisions/0059(haiku), F-510 낮음 묶음(sonnet ①②③④, haiku ⑤⑥⑦). T16.0 과 같은 PR 로 묶어도 된다 | `client/tower/buildings/`, `contracts/tower_assets/`, 연구 decisions·experiments | F-507~F-510 각 확인 기준. 시간 문턱은 근거 없이 측정에 맞추지 않는다. SSIM 0.95·15 MB 불변 | sonnet |
 | T15.10i | [x] 2026-10-06 제품 병합 커밋 8c61968(PR #91 검토 #1 통과·merge commit, 연구 experiment/t14 병합), 반려 0회. F-511·F-512·F-513 닫음. 잔여 F-514 는 T15.10j. (2026-10-06 PR #90 검토 #1 에서 분리) F-511 terrain_h32 kmax 쪽 검사 음성 시험([0, 3.4e38]/2e38 null)·:194 입력 주석(sonnet), F-512 decisions/0059 정정(10배·벽시계 혼동 삭제, 1.34배 대 1.5배 선택 이유, 16 병렬 수치, 출처·관련 정정, [cloud], 상태 줄·README 행 승인)(haiku), F-513 낮음 묶음(haiku ①②⑤⑥, sonnet ③④). T16.0 과 같은 PR 로 묶어도 된다 | `client/tower/buildings/`, `contracts/tower_assets/`, 연구 decisions·experiments | F-511~F-513 각 확인 기준. 시간 문턱은 근거 없이 측정에 맞추지 않는다. SSIM 0.95·15 MB 불변 | sonnet |
 | T15.10j | [x] 2026-10-06 제품 병합 커밋 7aef498(PR #92 검토 #2 통과, T16.0 과 같은 PR). F-514 닫음. (2026-10-06 PR #92 검토 #1: ①②③⑥⑦ 닫음, ④⑤ 잔여 haiku) (2026-10-06 PR #91 검토 #1 에서 분리) F-514 낮음 묶음 — ① terrain_h32 kmax > I32_MAX 음성 시험(sonnet), ②~⑦ decisions/0059 중복·승인 이력·출처·범위 서술·[cloud], t15-10i 노트 검증 줄(haiku). T16.0 과 같은 PR 로 묶어도 된다 | `contracts/tower_assets/`, 연구 decisions·experiments | F-514 확인 기준. SSIM 0.95·15 MB 불변 | haiku |
+| T15.I | (2026-10-07 사람 결정 ②) 관제탑 입력 상수를 원본에 맞춤: speedMps 8.0, yawRateRad 0.95, altRateMps 5 유지(원본 shared/viewer/config.ts:71·73·75, 0122bd4). 대응표 input 행 origin 'checked', 시험 기대값 갱신. 드론 전환 키는 범위 밖(결정 ③) | `contracts/controlview/input.mjs`, `contracts/controlview/index.mjs`, `client/tower/input/` | 상수 3개가 원본 값과 같다는 단언, controlview·client/tower 시험 통과 | sonnet |
 
 ### T16 `load-harness` — [cloud]
 
@@ -540,3 +543,19 @@ renderer_basis §2 의 투영식을 그대로 쓰는 CPU 참조 구현. 이후 �
 | T17.3 | 실데이터 구간: S6·S9 | SPEC §4 B 열 |
 | T17.4 | 동시 30명 실측: S8 | SPEC §4 B 열 |
 | T17.5 | 감독 직접 재현 | 감독 기록에 재현 결과 |
+
+
+### T18 `core-bridge` — [cloud]
+
+원본 근거: 연구 experiments/local-parity.md 의 T11.8L 절(원본 이벤트 목록·불일치 7건·녹화 방법). 사람 결정 ④(SPEC §4.1).
+
+| 하위 | 내용 | 소유 경로 | 완료 기준 | 모델 |
+|---|---|---|---|---|
+| T18.0 | 계약: 원본 Envelope·SplatChunk·SegmentStatus·ServerStatus 입력 타입과 브리지 출력(어댑터 이벤트) 대응, 사다리 4칸 검사 규칙, 오류 종류 | `contracts/core_bridge/` | 계약 시험(원본 줄 출처 픽스처) | opus |
+| T18.1 | 수준 대응: 원본 수준(1..4, 사다리 칸) → 우리 수준(0..3), final 은 원본 값과 우리 규칙(level 3) 일치 검사. 4칸이 아닌 사다리는 오류 | `server/core_bridge/levels/` | 3칸·5칸 사다리 거부, 4칸 대응 표 단언 | sonnet |
+| T18.2 | segment_expected: server-status 의 구간 level 0 을 처음 볼 때 한 번 낸다. 늦은 참여 재송신과 섞여도 중복 없음 | `server/core_bridge/expected/` | 중복·순서 시험 | sonnet |
+| T18.3 | level_arrived: splat-chunk url 의 PLY 를 받아 기존 자산 가공(T04·T07·T09)으로 조각을 만들어 낸다. 받기 실패·크기(bytes) 불일치는 오류 | `server/core_bridge/chunk/` | 합성 PLY 로 조각 생성, 실패 경로 시험 | opus |
+| T18.4 | align(GPS 앵커·위치·회전·크기) → GeoAnchor ENU 변환 | `server/core_bridge/align/` | 알려진 변환 수치 단언 | opus |
+| T18.5 | Envelope seq·originTs 순서 처리(역순·중복 무시) | `server/core_bridge/order/` | 역순·중복 시험 | sonnet |
+| T18.6 | 조립과 원본 모양 녹화(합성) 재생 시험: original_shapes.test.mjs 의 test.todo 7건을 통과 시험으로 바꾼다 | `server/core_bridge/e2e/`, `server/adapter/core/original_shapes.test.mjs` | todo 7 → 통과 | opus |
+| T18.7L | [local] 실제 코어 녹화(JSONL) 재생으로 상태 일치 — T11.8L 남은 절반 | `server/core_bridge/e2e/` | 실제 녹화 재생 일치 | opus |
