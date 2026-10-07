@@ -2,8 +2,8 @@
 
 - 상태: 진행 중
 - 현재 작업: T13.HQ + F-613·F-614 (작업자 시작)
-- 마지막 갱신: 2026-10-07T10:09Z (작업자)
-- 방금 한 일: (작업자) T15.I — 입력 상수 speed 8.0·yaw 0.95 원본 일치, input 행 checked. Linux npm test 5925·pass 5896·fail 4(고쳐 확인 후 실제 3, esbuild 번들 크기)·skipped 12·todo 13. 서브에이전트 0건(작업이 작음), 승격 0. 시간 부족으로 T13.HQ·T18 은 다음 작업자
+- 마지막 갱신: 2026-10-07T10:10Z (작업자)
+- 방금 한 일: (작업자) feat/t13-hq 푸시, 서브에이전트 6개 병렬 투입(opus 1·sonnet 3·haiku 2, 승격 0): HQ bench·F-614 표기·F-613 parity·소소한 주석·tower input 시험·결정 0066
 - 검토 요청: 없음
 - 다음 할 일: (PR #115 T15.I 검토 뒤) T13.HQ(대역폭 상한 없음 — 솎기 끄고 원본 점 전부·무손실, S9 현황판 0.95, opus) → T18 core-bridge(opus 중심, T18.0~T18.6, T18.7L 은 [local]). 드론 전환 키는 범위 밖
 - 참고(F-391 ⑥ 후속): drape_threshold_mut.test.mjs 가 이미 main 에 있다(farOwn 5건·잔차 3건, 변이 결과 파일 머리 :17-20). 다시 만들 필요 없음.
