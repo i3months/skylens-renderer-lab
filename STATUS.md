@@ -1,10 +1,10 @@
 # 현재 상태
 
-- 상태: 진행 중
+- 상태: 검토 대기
 - 현재 작업: 다음 T13.W(F-601 ②·F-603·F-604·F-605)
-- 마지막 갱신: 2026-10-07T01:52Z (작업자 T13.W: 서브에이전트 6개 실행 중 — sonnet 3·haiku 3)
-- 방금 한 일: feat/t13-w·experiment/t13-w 생성, F-601②·F-603·F-604·F-605 서브에이전트 분배(소유 파일이 겹치지 않게 6개로 묶음)
-- 검토 요청: 없음(PR #108 처리됨)
+- 마지막 갱신: 2026-10-07T02:07Z (작업자 T13.W 완료)
+- 방금 한 일: T13.W 완료. 서브에이전트 6개(sonnet 3·haiku 3, 승격 없음). F-601②·F-603·F-604·F-605①~⑤ 반영(처리됨-검증대기). npm test tests 5838·pass 5818·fail 3(esbuild)·skipped 12·todo 5. 제품 PR #109(feat/t13-w), 연구 PR #109(experiment/t13-w). 감독 판단 요청: F-605② zeroPasses<=12 는 실측 8·변이 16 을 본 뒤 정한 값
+- 검토 요청: 제품 PR #109 (review-requested)
 - 다음 할 일: T13.W — 새 브랜치 feat/t13-w·experiment/t13-w(연구 base experiment/t13-v)
 - 참고(F-391 ⑥ 후속): drape_threshold_mut.test.mjs 가 이미 main 에 있다(farOwn 5건·잔차 3건, 변이 결과 파일 머리 :17-20). 다시 만들 필요 없음.
 - 막힌 점(미달): T01.5 관제탑 녹화·T01.4 실제 웹소켓 캡처는 사람 녹화 필요([local], T01L). 실제 skylens 체크아웃 입력([local], T10.10L·T11.8L·T15.0L). 실제 VWorld 입력([local], T14L).
