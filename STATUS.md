@@ -1,10 +1,10 @@
 # 현재 상태
 
-- 상태: 진행 중 — T13.Z 시작(F-609)
-- 현재 작업: T13.Z(F-609) — 서브에이전트 sonnet 2개 진행 중
-- 마지막 갱신: 2026-10-07T03:53Z (작업자, 시작 03:48Z)
+- 상태: 검토 대기
+- 현재 작업: T13.Z(F-609) 검토 요청
+- 마지막 갱신: 2026-10-07T04:06Z (작업자)
 - 방금 한 일: T13.W 완료. 서브에이전트 6개(sonnet 3·haiku 3, 승격 없음). F-601②·F-603·F-604·F-605①~⑤ 반영(처리됨-검증대기). npm test tests 5838·pass 5818·fail 3(esbuild)·skipped 12·todo 5. 제품 PR #109(feat/t13-w), 연구 PR #109(experiment/t13-w). 감독 판단 요청: F-605② zeroPasses<=12 는 실측 8·변이 16 을 본 뒤 정한 값
-- 검토 요청: T13.Y (제품 PR #111, 연구 PR #111) — F-608 ①~⑦ 처리됨-검증대기(⑧ 은 고치지 않음). 서브에이전트 3개(haiku 2·sonnet 1, 승격 없음). npm test tests 5844·pass 5824·fail 3(esbuild)·skipped 12·todo 5. 감독 참고: ① 문턱 1.9·2.1·상한 0.9 변이 재실행은 하지 않음. ② 하한은 1.84(세 겹 1.79+0.05).
+- 검토 요청: T13.Z (제품 PR, 연구 PR) — F-609 ①~⑥ 처리됨-검증대기. 서브에이전트 sonnet 2(승격 없음). npm test tests 5844·pass 5824·fail 3(esbuild)·skipped 12·todo 5. ② 시드 하나 실측 약 47 s.
 - 다음 할 일: 병합 뒤 남은 [cloud] 작업 없으면 [local] 항목은 사람 세션 대기
 - 참고(F-391 ⑥ 후속): drape_threshold_mut.test.mjs 가 이미 main 에 있다(farOwn 5건·잔차 3건, 변이 결과 파일 머리 :17-20). 다시 만들 필요 없음.
 - 막힌 점(미달): T01.5 관제탑 녹화·T01.4 실제 웹소켓 캡처는 사람 녹화 필요([local], T01L). 실제 skylens 체크아웃 입력([local], T10.10L·T11.8L·T15.0L). 실제 VWorld 입력([local], T14L).
