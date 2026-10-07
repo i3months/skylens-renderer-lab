@@ -116,3 +116,5 @@
 | [0062](0062-t16-17-load-harness-rules.md) | T16.17 부하 하네스 규칙: 대역 피크=칸 바이트÷칸 폭(공개 지표 뜻 변경)·실시계 허용 폭·로그 tMs 역행 전체 거부·statsClock.clock 필수·loadReport 'unknown'·slow_link level 0 | 승인 | 감독(2026-10-06, 조건부 — F-555·F-556·F-557) |
 | [0063](0063-t16-12-harness-rule-corrections.md) | T16.12 앞 하네스 규칙 정정: 실시계 마지막 tS ±0.25·first_frame 어느 수준 도착 인정·0062 (2)(5) 정정·피크 칸·burst 다중 shown 다시 볼 조건 | 승인 | 감독(2026-10-06, 조건부 — F-562·F-563 ⑤⑥) |
 | [0064](0064-socket-load.md) | 실제 소켓 부하(T16.12): 자식 프로세스 서버 + loopback 30 연결 + /proc 표본 | 승인 | 감독(2026-10-06, 조건부 — F-577 ⑬⑭) |
+| [0065](0065-t13-t-s6-floor-allocation-blue-noise.md) | S6 현황판 송출: 낮은 수준 2% 보장 + 블루노이즈 솎기 | 승인 | 작업자(제안), 감독 승인(2026-10-06, PR #106 검토 #2) |
+| [0066](0066-tower-input-constants.md) | 관제탑 입력 상수를 원본에 맞춤(speedMps 10→8.0, yawRateRad 1.0→0.95) | 채택 | 사람 |
